@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
    <PropertyGroup>
-      <TargetFrameworks>netstandard2.0;netstandard2.1;net50;net60</TargetFrameworks>
+      <TargetFrameworks>netstandard2.0;netstandard2.1;net70;net80;net90</TargetFrameworks>
       <AssemblyName>FluentStorage.Azure.Files</AssemblyName>
       <RootNamespace>FluentStorage.Azure.Files</RootNamespace>
       <Description>Extension to FluentStorage providing Azure Storage Files support.</Description>
@@ -9,7 +9,7 @@
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <PackageIcon>logo-nuget.png</PackageIcon>
       <Authors>Robin Rodricks, Ivan Gavryliuk, FluentStorage Contributors</Authors>
-      <Version>5.2.2</Version>
+      <Version>6.0.0</Version>
       <PackageProjectUrl>https://github.com/robinrodricks/FluentStorage</PackageProjectUrl>
       <RepositoryUrl>https://github.com/robinrodricks/FluentStorage</RepositoryUrl>
       <RepositoryType>GitHub</RepositoryType>
@@ -17,7 +17,9 @@
       <LangVersion>latest</LangVersion>
       <SignAssembly>True</SignAssembly>
       <AssemblyOriginatorKeyFile>..\FluentStorage\sn.snk</AssemblyOriginatorKeyFile>
-      <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentStorage.Azure.Files.xml</DocumentationFile>
+      <DocumentationFile>$(SolutionDir)build\FluentStorage.Azure.Files.xml</DocumentationFile>
+      <BaseOutputPath>$(SolutionDir)build\</BaseOutputPath>
+     
    </PropertyGroup>
 
    <PropertyGroup Condition="'$(Configuration)' == 'Release'">

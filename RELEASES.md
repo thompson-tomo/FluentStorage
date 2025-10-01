@@ -1,5 +1,36 @@
 ﻿# Release Notes
 
+#### FluentStorage 6.0.0
+
+ - **FluentStorage**
+   - Allow setting text content when writing dummy files
+   - Update `TestableIO` packages due to binary incompatibility 
+   - Respect `createIfNotExists` in `GetFilePath` and prevent unintended directory creation
+ - **FluentStorage.Azure.Blobs**
+   - Allow passing `BlobClientOptions`
+   - Update `OpenReadAsync` to use `OpenReadAsync` from Azure SDK
+   - `OpenReadAsync` for efficient streaming over `DownloadAsync`
+   - Minimise platform dependencies  
+   - Update `Azure.Identity` Nuget package to latest versions
+ - **FluentStorage.Azure.DataLake.Store**
+   - Update `Microsoft` Nuget package to latest versions
+ - **FluentStorage.AWS**
+   - Allow passing the Protocol property to the `PresignedRequest`
+   - Use `ContentType` when setting AWS Metadata 
+   - Handle response with null S3 objects  
+   - Update AWS Nuget packages from v3.7 to v4.0
+ - **FluentStorage.Tests**
+   - Upgrade projects from NET 6 to NET 9
+ - **FluentStorage.FTP**
+   - Upgrade FluentFTP to the latest version 53.0.1
+ - **FluentStorage.SFTP**
+   - Upgrade SSH.NET to the latest version 2025.0.0
+ - **All projects**
+   - Reduce .NET platform Nuget dependencies
+   - Drop support for `net50`,`net60`
+   - Add support for `net70`,`net80`,`net90`
+   - Cleanup folder structure and add a common `build` folder for all projects
+
 #### FluentStorage 5.6.0
  - Fix: Update to latest `Microsoft.IO.RecyclableMemoryStream` package (thanks @dammitjanet)
  - New: Use `IFileSystem` package to improve testability of `DiskDirectoryBlobStorage` (thanks @gerrewsb)

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
    <PropertyGroup>
-      <TargetFrameworks>netstandard2.0;netstandard2.1;net50;net60</TargetFrameworks>
+      <TargetFrameworks>netstandard2.0;netstandard2.1;net70;net80;net90</TargetFrameworks>
       <AssemblyTitle>FluentStorage.Azure.ServiceBus</AssemblyTitle>
       <PackageId>FluentStorage.Azure.ServiceBus</PackageId>
       <FileVersion>1.0.0.0</FileVersion>
@@ -13,7 +13,7 @@
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <PackageIcon>logo-nuget.png</PackageIcon>
       <Authors>Robin Rodricks, Ivan Gavryliuk, Giampaolo Gabba, FluentStorage Contributors</Authors>
-      <Version>6.0.1</Version>
+       <Version>6.0.2</Version>
       <PackageProjectUrl>https://github.com/robinrodricks/FluentStorage</PackageProjectUrl>
       <RepositoryUrl>https://github.com/robinrodricks/FluentStorage</RepositoryUrl>
       <RepositoryType>GitHub</RepositoryType>
@@ -21,7 +21,9 @@
       <LangVersion>latest</LangVersion>
       <SignAssembly>True</SignAssembly>
       <AssemblyOriginatorKeyFile>..\FluentStorage\sn.snk</AssemblyOriginatorKeyFile>
-      <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentStorage.Azure.ServiceBus.xml</DocumentationFile>
+      <DocumentationFile>$(SolutionDir)build\FluentStorage.Azure.ServiceBus.xml</DocumentationFile>
+       <BaseOutputPath>$(SolutionDir)build\</BaseOutputPath>
+      
    </PropertyGroup>
    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
       <GeneratePackageOnBuild>True</GeneratePackageOnBuild>

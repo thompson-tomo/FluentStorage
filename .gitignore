@@ -196,4 +196,6 @@ FakesAssemblies/
 *.opt
 
 out/
+build/
+
 *.lock.json

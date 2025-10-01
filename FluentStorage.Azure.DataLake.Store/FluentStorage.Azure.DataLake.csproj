@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
    <PropertyGroup>
-      <TargetFrameworks>netstandard2.0;netstandard2.1;net50;net60</TargetFrameworks>
+      <TargetFrameworks>netstandard2.0;netstandard2.1;net70;net80;net90</TargetFrameworks>
       <PackageLicense>https://github.com/aloneguid/storage/blob/master/LICENSE</PackageLicense>
       <Description>Extension to FluentStorage providing Azure Data Lake Store integration. Supports only ADLS Gen 1. To use Gen 2, use FluentStorage.Blobs package.</Description>
       <PackageId>FluentStorage.Azure.DataLake</PackageId>
@@ -10,7 +10,7 @@
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <PackageIcon>logo-nuget.png</PackageIcon>
       <Authors>Robin Rodricks, Ivan Gavryliuk, FluentStorage Contributors</Authors>
-      <Version>5.2.2</Version>
+       <Version>6.0.0</Version>
       <PackageProjectUrl>https://github.com/robinrodricks/FluentStorage</PackageProjectUrl>
       <RepositoryUrl>https://github.com/robinrodricks/FluentStorage</RepositoryUrl>
       <RepositoryType>GitHub</RepositoryType>
@@ -18,7 +18,9 @@
       <LangVersion>latest</LangVersion>
       <SignAssembly>True</SignAssembly>
       <AssemblyOriginatorKeyFile>..\FluentStorage\sn.snk</AssemblyOriginatorKeyFile>
-      <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentStorage.Azure.DataLake.xml</DocumentationFile>
+      <DocumentationFile>$(SolutionDir)build\FluentStorage.Azure.DataLake.xml</DocumentationFile>
+       <BaseOutputPath>$(SolutionDir)build\</BaseOutputPath>
+      
    </PropertyGroup>
    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
       <GeneratePackageOnBuild>True</GeneratePackageOnBuild>

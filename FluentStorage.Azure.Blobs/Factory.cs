@@ -87,6 +87,17 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
+		/// Overload that not accepts cloud environment and AD Authority endpoint.
+		/// </summary>
+		public static IAzureBlobStorage AzureBlobStorageWithAzureAd(this IBlobStorageFactory factory,
+		   string accountName,
+		   string tenantId,
+		   string applicationId,
+		   string applicationSecret) {
+			return AzureBlobStorageWithAzureAd(factory, accountName, tenantId, applicationId, applicationSecret, null, AzureCloudEnvironment.Global);
+		}
+
+		/// <summary>
 		/// Overload that accepts a custom Active Directory authority endpoint.
 		/// </summary>
 		public static IAzureBlobStorage AzureBlobStorageWithAzureAd(this IBlobStorageFactory factory,
@@ -139,7 +150,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Overload that accepts a cloud environment.
 		/// </summary>
-		public static IAzureBlobStorage AzureDataLakeStorageWithAzureAd(this IBlobStorageFactory factory,
+		public static IAzureDataLakeStorage AzureDataLakeStorageWithAzureAd(this IBlobStorageFactory factory,
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
@@ -149,9 +160,20 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
+		/// Overload that not accepts cloud environment and AD Authority endpoint.
+		/// </summary>
+		public static IAzureDataLakeStorage AzureDataLakeStorageWithAzureAd(this IBlobStorageFactory factory,
+		   string accountName,
+		   string tenantId,
+		   string applicationId,
+		   string applicationSecret) {
+			return AzureDataLakeStorageWithAzureAd(factory, accountName, tenantId, applicationId, applicationSecret, null, AzureCloudEnvironment.Global);
+		}
+
+		/// <summary>
 		/// Overload that accepts a custom Active Directory authority endpoint.
 		/// </summary>
-		public static IAzureBlobStorage AzureDataLakeStorageWithAzureAd(this IBlobStorageFactory factory,
+		public static IAzureDataLakeStorage AzureDataLakeStorageWithAzureAd(this IBlobStorageFactory factory,
 		   string accountName,
 		   string tenantId,
 		   string applicationId,

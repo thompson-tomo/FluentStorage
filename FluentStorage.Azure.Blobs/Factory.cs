@@ -46,7 +46,7 @@ namespace FluentStorage {
 				throw new ArgumentNullException(nameof(accountName));
 			if (key is null)
 				throw new ArgumentNullException(nameof(key));
-			
+
 			var credential = new StorageSharedKeyCredential(accountName, key);
 
 			var client = new BlobServiceClient(serviceUri ?? GetServiceUri(accountName, cloudEnvironment), credential);
@@ -75,23 +75,39 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		/// Create Azure Blob Storage with AAD authentication
+		/// Overload that accepts a cloud environment.
 		/// </summary>
-		/// <param name="factory"></param>
-		/// <param name="accountName"></param>
-		/// <param name="tenantId"></param>
-		/// <param name="applicationId"></param>
-		/// <param name="applicationSecret"></param>
-		/// <param name="activeDirectoryAuthEndpoint"></param>
-		/// <param name="cloudEnvironment"></param>
-		/// <returns></returns>
 		public static IAzureBlobStorage AzureBlobStorageWithAzureAd(this IBlobStorageFactory factory,
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
 		   string applicationSecret,
-		   string activeDirectoryAuthEndpoint = null,
-		   AzureCloudEnvironment cloudEnvironment = default) {
+		   AzureCloudEnvironment cloudEnvironment) {
+			return AzureBlobStorageWithAzureAd(factory, accountName, tenantId, applicationId, applicationSecret, null, cloudEnvironment);
+		}
+
+		/// <summary>
+		/// Overload that accepts a custom Active Directory authority endpoint.
+		/// </summary>
+		public static IAzureBlobStorage AzureBlobStorageWithAzureAd(this IBlobStorageFactory factory,
+		   string accountName,
+		   string tenantId,
+		   string applicationId,
+		   string applicationSecret,
+		   string activeDirectoryAuthEndpoint) {
+			return AzureBlobStorageWithAzureAd(factory, accountName, tenantId, applicationId, applicationSecret, activeDirectoryAuthEndpoint, default);
+		}
+
+		/// <summary>
+		/// Canonical implementation (no optional parameters).
+		/// </summary>
+		public static IAzureBlobStorage AzureBlobStorageWithAzureAd(this IBlobStorageFactory factory,
+		   string accountName,
+		   string tenantId,
+		   string applicationId,
+		   string applicationSecret,
+		   string activeDirectoryAuthEndpoint,
+		   AzureCloudEnvironment cloudEnvironment) {
 			if (accountName is null)
 				throw new ArgumentNullException(nameof(accountName));
 			if (tenantId is null)
@@ -121,6 +137,30 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
+		/// Overload that accepts a cloud environment.
+		/// </summary>
+		public static IAzureBlobStorage AzureDataLakeStorageWithAzureAd(this IBlobStorageFactory factory,
+		   string accountName,
+		   string tenantId,
+		   string applicationId,
+		   string applicationSecret,
+		   AzureCloudEnvironment cloudEnvironment) {
+			return AzureDataLakeStorageWithAzureAd(factory, accountName, tenantId, applicationId, applicationSecret, null, cloudEnvironment);
+		}
+
+		/// <summary>
+		/// Overload that accepts a custom Active Directory authority endpoint.
+		/// </summary>
+		public static IAzureBlobStorage AzureDataLakeStorageWithAzureAd(this IBlobStorageFactory factory,
+		   string accountName,
+		   string tenantId,
+		   string applicationId,
+		   string applicationSecret,
+		   string activeDirectoryAuthEndpoint) {
+			return AzureDataLakeStorageWithAzureAd(factory, accountName, tenantId, applicationId, applicationSecret, activeDirectoryAuthEndpoint, default);
+		}
+
+		/// <summary>
 		/// Create Azure Data Lake Gen 2 Storage with AAD authentication
 		/// </summary>
 		/// <param name="factory"></param>
@@ -136,8 +176,8 @@ namespace FluentStorage {
 		   string tenantId,
 		   string applicationId,
 		   string applicationSecret,
-		   string activeDirectoryAuthEndpoint = null,
-		   AzureCloudEnvironment cloudEnvironment = default) {
+		   string activeDirectoryAuthEndpoint,
+		   AzureCloudEnvironment cloudEnvironment) {
 			if (accountName is null)
 				throw new ArgumentNullException(nameof(accountName));
 			if (tenantId is null)

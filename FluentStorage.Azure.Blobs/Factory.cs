@@ -40,8 +40,35 @@ namespace FluentStorage {
 		public static IAzureBlobStorage AzureBlobStorageWithSharedKey(this IBlobStorageFactory factory,
 		   string accountName,
 		   string key,
-		   Uri serviceUri = null,
-		   AzureCloudEnvironment cloudEnvironment = default) {
+		   Uri serviceUri) {
+			return AzureBlobStorageWithSharedKey(factory, accountName, key, serviceUri, default);
+		}
+
+		/// <summary>
+		///
+		/// </summary>
+		public static IAzureBlobStorage AzureBlobStorageWithSharedKey(this IBlobStorageFactory factory, string accountName, string key) {
+			return AzureBlobStorageWithSharedKey(factory, accountName, key, null, default);
+		}
+
+		/// <summary>
+		///
+		/// </summary>
+		public static IAzureBlobStorage AzureBlobStorageWithSharedKey(this IBlobStorageFactory factory,
+		   string accountName,
+		   string key,
+		   AzureCloudEnvironment cloudEnvironment) {
+			return AzureBlobStorageWithSharedKey(factory, accountName, key, null, cloudEnvironment);
+		}
+
+		/// <summary>
+		///
+		/// </summary>
+		public static IAzureBlobStorage AzureBlobStorageWithSharedKey(this IBlobStorageFactory factory,
+		   string accountName,
+		   string key,
+		   Uri serviceUri,
+		   AzureCloudEnvironment cloudEnvironment) {
 			if (accountName is null)
 				throw new ArgumentNullException(nameof(accountName));
 			if (key is null)
@@ -60,8 +87,35 @@ namespace FluentStorage {
 		public static IAzureDataLakeStorage AzureDataLakeStorageWithSharedKey(this IBlobStorageFactory factory,
 		   string accountName,
 		   string key,
-		   Uri serviceUri = null,
-			AzureCloudEnvironment cloudEnvironment = default) {
+		   Uri serviceUri) {
+			return AzureDataLakeStorageWithSharedKey(factory, accountName, key, serviceUri, default);
+		}
+
+		/// <summary>
+		///
+		/// </summary>
+		public static IAzureDataLakeStorage AzureDataLakeStorageWithSharedKey(this IBlobStorageFactory factory, string accountName, string key) {
+			return AzureDataLakeStorageWithSharedKey(factory, accountName, key, null, default);
+		}
+
+		/// <summary>
+		///
+		/// </summary>
+		public static IAzureDataLakeStorage AzureDataLakeStorageWithSharedKey(this IBlobStorageFactory factory,
+		   string accountName,
+		   string key,
+		   AzureCloudEnvironment cloudEnvironment) {
+			return AzureDataLakeStorageWithSharedKey(factory, accountName, key, null, cloudEnvironment);
+		}
+
+		/// <summary>
+		///
+		/// </summary>
+		public static IAzureDataLakeStorage AzureDataLakeStorageWithSharedKey(this IBlobStorageFactory factory,
+		   string accountName,
+		   string key,
+		   Uri serviceUri,
+			AzureCloudEnvironment cloudEnvironment) {
 			if (accountName is null)
 				throw new ArgumentNullException(nameof(accountName));
 			if (key is null)
@@ -233,8 +287,17 @@ namespace FluentStorage {
 		/// </summary>
 		public static IAzureBlobStorage AzureBlobStorageWithTokenCredential(this IBlobStorageFactory factory,
 		   string accountName,
+		   TokenCredential tokenCredential) {
+			return AzureBlobStorageWithTokenCredential(factory, accountName, tokenCredential, default);
+		}
+
+		/// <summary>
+		///
+		/// </summary>
+		public static IAzureBlobStorage AzureBlobStorageWithTokenCredential(this IBlobStorageFactory factory,
+		   string accountName,
 		   TokenCredential tokenCredential,
-		   AzureCloudEnvironment azureCloudEnvironment = default) {
+		   AzureCloudEnvironment azureCloudEnvironment) {
 			var client = new BlobServiceClient(GetServiceUri(accountName, azureCloudEnvironment), tokenCredential);
 
 			return new AzureBlobStorage(client, accountName);
@@ -261,13 +324,49 @@ namespace FluentStorage {
 		/// </summary>
 		/// <param name="factory"></param>
 		/// <param name="accountName"></param>
+		/// <param name="azureCloudEnvironment"></param>
+		/// <returns></returns>
+		public static IAzureBlobStorage AzureBlobStorageWithMsi(this IBlobStorageFactory factory,
+		   string accountName,
+		   AzureCloudEnvironment azureCloudEnvironment) {
+			return AzureBlobStorageWithMsi(factory, accountName, null, azureCloudEnvironment);
+		}
+
+		/// <summary>
+		/// Creates Azure Blob Storage with Managed Identity
+		/// </summary>
+		/// <param name="factory"></param>
+		/// <param name="accountName"></param>
+		/// <returns></returns>
+		public static IAzureBlobStorage AzureBlobStorageWithMsi(this IBlobStorageFactory factory, string accountName) {
+			return AzureBlobStorageWithMsi(factory, accountName, null, default);
+		}
+
+		/// <summary>
+		/// Creates Azure Blob Storage with Managed Identity (client id)
+		/// </summary>
+		/// <param name="factory"></param>
+		/// <param name="accountName"></param>
+		/// <param name="clientId"></param>
+		/// <returns></returns>
+		public static IAzureBlobStorage AzureBlobStorageWithMsi(this IBlobStorageFactory factory,
+		   string accountName,
+		   string clientId) {
+			return AzureBlobStorageWithMsi(factory, accountName, clientId, default);
+		}
+
+		/// <summary>
+		/// Creates Azure Blob Storage with Managed Identity
+		/// </summary>
+		/// <param name="factory"></param>
+		/// <param name="accountName"></param>
 		/// <param name="clientId"></param>
 		/// <param name="azureCloudEnvironment"></param>
 		/// <returns></returns>
 		public static IAzureBlobStorage AzureBlobStorageWithMsi(this IBlobStorageFactory factory,
 		   string accountName,
-		   string clientId = null,
-		   AzureCloudEnvironment azureCloudEnvironment = default) {
+		   string clientId,
+		   AzureCloudEnvironment azureCloudEnvironment) {
 			TokenCredential credential = new ManagedIdentityCredential(clientId, null);
 
 			var client = new BlobServiceClient(GetServiceUri(accountName, azureCloudEnvironment), credential);
@@ -275,7 +374,41 @@ namespace FluentStorage {
 			return new AzureBlobStorage(client, accountName);
 		}
 
+		/// <summary>
+		/// Creates Azure Data Lake Gen 2 with Managed Identity
+		/// </summary>
+		/// <param name="factory"></param>
+		/// <param name="accountName"></param>
+		/// <param name="azureCloudEnvironment"></param>
+		/// <returns></returns>
+		public static IAzureDataLakeStorage AzureDataLakeStorageWithMsi(this IBlobStorageFactory factory,
+		   string accountName,
+		   AzureCloudEnvironment azureCloudEnvironment) {
+			return AzureDataLakeStorageWithMsi(factory, accountName, null, azureCloudEnvironment);
+		}
 
+		/// <summary>
+		/// Creates Azure Data Lake Gen 2 with Managed Identity
+		/// </summary>
+		/// <param name="factory"></param>
+		/// <param name="accountName"></param>
+		/// <returns></returns>
+		public static IAzureDataLakeStorage AzureDataLakeStorageWithMsi(this IBlobStorageFactory factory, string accountName) {
+			return AzureDataLakeStorageWithMsi(factory, accountName, null, default);
+		}
+
+		/// <summary>
+		/// Creates Azure Data Lake Gen 2 with Managed Identity (client id)
+		/// </summary>
+		/// <param name="factory"></param>
+		/// <param name="accountName"></param>
+		/// <param name="clientId"></param>
+		/// <returns></returns>
+		public static IAzureDataLakeStorage AzureDataLakeStorageWithMsi(this IBlobStorageFactory factory,
+		   string accountName,
+		   string clientId) {
+			return AzureDataLakeStorageWithMsi(factory, accountName, clientId, default);
+		}
 
 		/// <summary>
 		/// Creates Azure Data Lake Gen 2 Storage with Managed Identity
@@ -287,8 +420,8 @@ namespace FluentStorage {
 		/// <returns></returns>
 		public static IAzureDataLakeStorage AzureDataLakeStorageWithMsi(this IBlobStorageFactory factory,
 		   string accountName,
-		   string clientId = null,
-		   AzureCloudEnvironment azureCloudEnvironment = default) {
+		   string clientId,
+		   AzureCloudEnvironment azureCloudEnvironment) {
 			TokenCredential credential = new ManagedIdentityCredential(clientId, null);
 
 			var client = new BlobServiceClient(GetServiceUri(accountName, azureCloudEnvironment), credential);

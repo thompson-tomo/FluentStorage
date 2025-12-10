@@ -32,15 +32,18 @@ namespace Blobs {
 			_jo.Converters.Add(new DateTimeConverterUsingDateTimeParse());
 		}
 
-		public ExtendedSdk(BlobServiceClient sdkClient, string accountName) {
+		public ExtendedSdk(BlobServiceClient sdkClient, string accountName, AzureCloudEnvironment azureCloudEnvironment) {
 			_sdkClient = sdkClient ?? throw new ArgumentNullException(nameof(sdkClient));
 
 			_httpPipeline = GetHttpPipeline(sdkClient);
-			_dfsBaseAddress = GetDfsBaseAddress(accountName);
+			_dfsBaseAddress = GetDfsBaseAddress(accountName, azureCloudEnvironment);
 		}
 
-		private static string GetDfsBaseAddress(string accountName) =>
-		   $"https://{accountName}.dfs.core.windows.net/";
+		private static string GetDfsBaseAddress(string accountName, AzureCloudEnvironment azureCloudEnvironment) {
+			var endpoint = AzureCloudEndpoints.GetDataLakeEndpoint(azureCloudEnvironment);
+			return $"https://{accountName}.{endpoint}/";
+		}
+		  
 
 		private static HttpPipeline GetHttpPipeline(BlobServiceClient sdkClient) {
 			PropertyInfo httpPipelineProperty =

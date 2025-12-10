@@ -40,15 +40,16 @@ namespace FluentStorage {
 		public static IAzureBlobStorage AzureBlobStorageWithSharedKey(this IBlobStorageFactory factory,
 		   string accountName,
 		   string key,
-		   Uri serviceUri = null) {
+		   Uri serviceUri = null,
+		   AzureCloudEnvironment cloudEnvironment = default) {
 			if (accountName is null)
 				throw new ArgumentNullException(nameof(accountName));
 			if (key is null)
 				throw new ArgumentNullException(nameof(key));
-
+			
 			var credential = new StorageSharedKeyCredential(accountName, key);
 
-			var client = new BlobServiceClient(serviceUri ?? GetServiceUri(accountName), credential);
+			var client = new BlobServiceClient(serviceUri ?? GetServiceUri(accountName, cloudEnvironment), credential);
 
 			return new AzureBlobStorage(client, accountName, credential);
 		}
@@ -59,7 +60,8 @@ namespace FluentStorage {
 		public static IAzureDataLakeStorage AzureDataLakeStorageWithSharedKey(this IBlobStorageFactory factory,
 		   string accountName,
 		   string key,
-		   Uri serviceUri = null) {
+		   Uri serviceUri = null,
+			AzureCloudEnvironment cloudEnvironment = default) {
 			if (accountName is null)
 				throw new ArgumentNullException(nameof(accountName));
 			if (key is null)
@@ -67,9 +69,9 @@ namespace FluentStorage {
 
 			var credential = new StorageSharedKeyCredential(accountName, key);
 
-			var client = new BlobServiceClient(serviceUri ?? GetServiceUri(accountName), credential);
+			var client = new BlobServiceClient(serviceUri ?? GetServiceUri(accountName, cloudEnvironment), credential);
 
-			return new AzureDataLakeStorage(client, accountName, credential);
+			return new AzureDataLakeStorage(client, accountName, credential, azureCloudEnvironment: cloudEnvironment);
 		}
 
 		/// <summary>
@@ -81,13 +83,15 @@ namespace FluentStorage {
 		/// <param name="applicationId"></param>
 		/// <param name="applicationSecret"></param>
 		/// <param name="activeDirectoryAuthEndpoint"></param>
+		/// <param name="cloudEnvironment"></param>
 		/// <returns></returns>
 		public static IAzureBlobStorage AzureBlobStorageWithAzureAd(this IBlobStorageFactory factory,
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
 		   string applicationSecret,
-		   string activeDirectoryAuthEndpoint = "https://login.microsoftonline.com/") {
+		   string activeDirectoryAuthEndpoint = null,
+		   AzureCloudEnvironment cloudEnvironment = default) {
 			if (accountName is null)
 				throw new ArgumentNullException(nameof(accountName));
 			if (tenantId is null)
@@ -96,8 +100,10 @@ namespace FluentStorage {
 				throw new ArgumentNullException(nameof(applicationId));
 			if (applicationSecret is null)
 				throw new ArgumentNullException(nameof(applicationSecret));
-			if (activeDirectoryAuthEndpoint is null)
-				throw new ArgumentNullException(nameof(activeDirectoryAuthEndpoint));
+
+			var authorityHost = activeDirectoryAuthEndpoint is not null
+				? new Uri(activeDirectoryAuthEndpoint)
+				: AzureCloudEndpoints.GetAuthorityEndpoint(cloudEnvironment);
 
 			// Create a token credential that can use our Azure Active
 			// Directory application to authenticate with Azure Storage
@@ -106,10 +112,10 @@ namespace FluentStorage {
 					tenantId,
 					applicationId,
 					applicationSecret,
-					new TokenCredentialOptions() { AuthorityHost = new Uri(activeDirectoryAuthEndpoint) });
+					new TokenCredentialOptions() { AuthorityHost = authorityHost });
 
 			// Create a client that can authenticate using our token credential
-			var client = new BlobServiceClient(GetServiceUri(accountName), credential);
+			var client = new BlobServiceClient(GetServiceUri(accountName, cloudEnvironment), credential);
 
 			return new AzureBlobStorage(client, accountName);
 		}
@@ -123,13 +129,15 @@ namespace FluentStorage {
 		/// <param name="applicationId"></param>
 		/// <param name="applicationSecret"></param>
 		/// <param name="activeDirectoryAuthEndpoint"></param>
+		/// <param name="cloudEnvironment"></param>
 		/// <returns></returns>
 		public static IAzureDataLakeStorage AzureDataLakeStorageWithAzureAd(this IBlobStorageFactory factory,
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
 		   string applicationSecret,
-		   string activeDirectoryAuthEndpoint = "https://login.microsoftonline.com/") {
+		   string activeDirectoryAuthEndpoint = null,
+		   AzureCloudEnvironment cloudEnvironment = default) {
 			if (accountName is null)
 				throw new ArgumentNullException(nameof(accountName));
 			if (tenantId is null)
@@ -138,8 +146,10 @@ namespace FluentStorage {
 				throw new ArgumentNullException(nameof(applicationId));
 			if (applicationSecret is null)
 				throw new ArgumentNullException(nameof(applicationSecret));
-			if (activeDirectoryAuthEndpoint is null)
-				throw new ArgumentNullException(nameof(activeDirectoryAuthEndpoint));
+
+			var authorityHost = activeDirectoryAuthEndpoint is not null
+				? new Uri(activeDirectoryAuthEndpoint)
+				: AzureCloudEndpoints.GetAuthorityEndpoint(cloudEnvironment);
 
 			// Create a token credential that can use our Azure Active
 			// Directory application to authenticate with Azure Storage
@@ -148,12 +158,12 @@ namespace FluentStorage {
 					tenantId,
 					applicationId,
 					applicationSecret,
-					new TokenCredentialOptions() { AuthorityHost = new Uri(activeDirectoryAuthEndpoint) });
+					new TokenCredentialOptions() { AuthorityHost = authorityHost });
 
 			// Create a client that can authenticate using our token credential
 			var client = new BlobServiceClient(GetServiceUri(accountName), credential);
 
-			return new AzureDataLakeStorage(client, accountName);
+			return new AzureDataLakeStorage(client, accountName, azureCloudEnvironment: cloudEnvironment);
 		}
 
 		/// <summary>
@@ -161,8 +171,9 @@ namespace FluentStorage {
 		/// </summary>
 		public static IAzureBlobStorage AzureBlobStorageWithTokenCredential(this IBlobStorageFactory factory,
 		   string accountName,
-		   TokenCredential tokenCredential) {
-			var client = new BlobServiceClient(GetServiceUri(accountName), tokenCredential);
+		   TokenCredential tokenCredential,
+		   AzureCloudEnvironment azureCloudEnvironment = default) {
+			var client = new BlobServiceClient(GetServiceUri(accountName, azureCloudEnvironment), tokenCredential);
 
 			return new AzureBlobStorage(client, accountName);
 		}
@@ -189,13 +200,15 @@ namespace FluentStorage {
 		/// <param name="factory"></param>
 		/// <param name="accountName"></param>
 		/// <param name="clientId"></param>
+		/// <param name="azureCloudEnvironment"></param>
 		/// <returns></returns>
 		public static IAzureBlobStorage AzureBlobStorageWithMsi(this IBlobStorageFactory factory,
 		   string accountName,
-		   string clientId = null) {
+		   string clientId = null,
+		   AzureCloudEnvironment azureCloudEnvironment = default) {
 			TokenCredential credential = new ManagedIdentityCredential(clientId, null);
 
-			var client = new BlobServiceClient(GetServiceUri(accountName), credential);
+			var client = new BlobServiceClient(GetServiceUri(accountName, azureCloudEnvironment), credential);
 
 			return new AzureBlobStorage(client, accountName);
 		}
@@ -208,15 +221,17 @@ namespace FluentStorage {
 		/// <param name="factory"></param>
 		/// <param name="accountName"></param>
 		/// <param name="clientId"></param>
+		/// <param name="azureCloudEnvironment"></param>
 		/// <returns></returns>
 		public static IAzureDataLakeStorage AzureDataLakeStorageWithMsi(this IBlobStorageFactory factory,
 		   string accountName,
-		   string clientId = null) {
+		   string clientId = null,
+		   AzureCloudEnvironment azureCloudEnvironment = default) {
 			TokenCredential credential = new ManagedIdentityCredential(clientId, null);
 
-			var client = new BlobServiceClient(GetServiceUri(accountName), credential);
+			var client = new BlobServiceClient(GetServiceUri(accountName, azureCloudEnvironment), credential);
 
-			return new AzureDataLakeStorage(client, accountName);
+			return new AzureDataLakeStorage(client, accountName, azureCloudEnvironment: azureCloudEnvironment);
 		}
 
 
@@ -289,8 +304,9 @@ namespace FluentStorage {
 			return cs;
 		}
 
-		private static Uri GetServiceUri(string accountName) {
-			return new Uri($"https://{accountName}.blob.core.windows.net/");
+		private static Uri GetServiceUri(string accountName, AzureCloudEnvironment cloudEnvironment = default) {
+			var endpoint = AzureCloudEndpoints.GetBlobEndpoint(cloudEnvironment);
+			return new Uri($"https://{accountName}.blob.{endpoint}/");
 		}
 
 		private static bool TryParseSasUrl(string url, out string accountName, out string containerName, out string sas) {

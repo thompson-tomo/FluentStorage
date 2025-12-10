@@ -15,8 +15,8 @@ namespace FluentStorage.Azure.Blobs {
 	class AzureDataLakeStorage : AzureBlobStorage, IAzureDataLakeStorage {
 		private readonly ExtendedSdk _extended;
 
-		public AzureDataLakeStorage(BlobServiceClient client, string accountName, StorageSharedKeyCredential sasSigningCredentials = null, string containerName = null) : base(client, accountName, sasSigningCredentials, containerName) {
-			_extended = new ExtendedSdk(client, accountName);
+		public AzureDataLakeStorage(BlobServiceClient client, string accountName, StorageSharedKeyCredential sasSigningCredentials = null, string containerName = null, AzureCloudEnvironment azureCloudEnvironment = default) : base(client, accountName, sasSigningCredentials, containerName) {
+			_extended = new ExtendedSdk(client, accountName, azureCloudEnvironment);
 
 
 			// Fix #41: `ExtendedSdk.GetHttpPipeline` needs to be manually set otherwise connection to DataLake Gen2 fails

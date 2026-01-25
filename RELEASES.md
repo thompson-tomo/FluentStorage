@@ -1,5 +1,15 @@
 ﻿# Release Notes
 
+#### FluentStorage 6.0.2
+ - **FluentStorage.FTP**
+   - Fixed logic in `Dispose` method that prevented the FTP client from being disposed
+   - Update FluentFTP to 53.0.2
+ - **FluentStorage.AWS**
+   - Added null check for `CommonPrefixes` in the `ToBlobs` method
+   - Handle case where no S3 Objects exists in the response
+ - **FluentStorage.Azure.Blobs**
+   - Added multi-region support for Azure Blob and DataLake 
+
 #### FluentStorage 6.0.1
  - **FluentStorage.AWS**
    - Fix: Null Exception at `ListAsync`

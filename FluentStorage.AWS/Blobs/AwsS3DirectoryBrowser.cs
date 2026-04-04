@@ -43,7 +43,7 @@ namespace FluentStorage.AWS.Blobs {
 				Delimiter = options.Recurse ? null : "/"   //this tells S3 not to go into the folder recursively
 			};
 
-			// Server side filtering is supported by supplying a FilePrefix			
+			// Server side filtering is supported by supplying a FilePrefix
 			if (!string.IsNullOrEmpty(options.FilePrefix)) {
 				request.Prefix += options.FilePrefix;
 			}
@@ -103,7 +103,10 @@ namespace FluentStorage.AWS.Blobs {
 				if (response?.S3Objects == null)
 					break;
 
-				await Task.WhenAll(response.S3Objects.Select(s3 => _client.DeleteObjectAsync(_bucketName, s3.Key, cancellationToken))).ConfigureAwait(false);
+				await _client.DeleteObjectsAsync(new DeleteObjectsRequest() {
+					BucketName = _bucketName,
+					Objects = response.S3Objects.Select(s3 => new KeyVersion() { Key = s3.Key }).ToList()
+				}, cancellationToken).ConfigureAwait(false);
 
 				if (response.NextContinuationToken == null)
 					break;

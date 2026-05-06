@@ -14,6 +14,7 @@ using Azure.Storage.Blobs.Specialized;
 using Azure.Storage.Sas;
 using Blobs;
 using Microsoft.Identity.Client;
+using MimeMapping;
 using FluentStorage.Blobs;
 using FluentStorage.Azure.Blobs.Gen2.Model;
 
@@ -129,9 +130,16 @@ namespace FluentStorage.Azure.Blobs {
 
 			BlockBlobClient client = container.GetBlockBlobClient(path);
 
+			string contentType = MimeUtility.GetMimeMapping(path);
 			try {
+				var options = new BlobUploadOptions {
+					HttpHeaders = new BlobHttpHeaders {
+						ContentType = contentType
+					}
+				};
 				await client.UploadAsync(
 				   new StorageSourceStream(dataStream),
+				   options: options,
 				   cancellationToken: cancellationToken).ConfigureAwait(false);
 			}
 			catch (RequestFailedException ex) when (ex.ErrorCode == "OperationNotAllowedInCurrentState") {

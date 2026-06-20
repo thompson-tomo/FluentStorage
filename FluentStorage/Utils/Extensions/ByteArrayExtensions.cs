@@ -8,8 +8,6 @@
 	public static class ByteArrayExtensions {
 		private static readonly char[] LowerCaseHexAlphabet = "0123456789abcdef".ToCharArray();
 		private static readonly char[] UpperCaseHexAlphabet = "0123456789ABCDEF".ToCharArray();
-		private static readonly Crypto.MD5 _md5 = Crypto.MD5.Create();
-		private static readonly Crypto.SHA256 _sha256 = Crypto.SHA256.Create();
 
 
 		/// <summary>
@@ -44,14 +42,27 @@
 			if (bytes == null)
 				return null;
 
-			return _md5.ComputeHash(bytes);
+			// A HashAlgorithm instance is not thread-safe, so it must never be shared across threads
+			// (https://github.com/robinrodricks/FluentStorage/issues/72). Use the allocation-free,
+			// thread-safe one-shot API where available, and a per-call instance on older targets.
+#if NET5_0_OR_GREATER
+			return Crypto.MD5.HashData(bytes);
+#else
+			using var md5 = Crypto.MD5.Create();
+			return md5.ComputeHash(bytes);
+#endif
 		}
 
 		public static byte[]? SHA256(this byte[]? bytes) {
 			if (bytes == null)
 				return null;
 
-			return _sha256.ComputeHash(bytes);
+#if NET5_0_OR_GREATER
+			return Crypto.SHA256.HashData(bytes);
+#else
+			using var sha256 = Crypto.SHA256.Create();
+			return sha256.ComputeHash(bytes);
+#endif
 		}
 
 		public static byte[]? HMACSHA256(this byte[]? data, byte[] key) {

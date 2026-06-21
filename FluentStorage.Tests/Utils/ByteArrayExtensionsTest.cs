@@ -34,13 +34,13 @@
 
 		[Fact]
 		public void Hash_helpers_can_be_called_concurrently() {
-			// Regression test for https://github.com/robinrodricks/FluentStorage/issues/72: the MD5 and
+			// Regression test for https://github.com/robinrodricks/FluentStorage/issues/72. The MD5 and
 			// SHA256 helpers used to share a single static HashAlgorithm instance, which is not
 			// thread-safe and throws "Concurrent operations from multiple threads on this type are not
-			// supported" when used concurrently (e.g. concurrent InMemoryBlobStorage writes). Two threads
-			// hash the same data at once; each loops enough times that the two reliably overlap inside
-			// the hash (the race only trips while both are inside ComputeHash at the same moment, so a
-			// short loop can miss).
+			// supported" when called concurrently, for example during concurrent InMemoryBlobStorage
+			// writes. Two threads hash the same data at the same time, each looping enough that they
+			// reliably overlap inside the hash. The race only trips while both threads are hashing at the
+			// same moment, so a short loop can miss.
 			byte[] data = Encoding.UTF8.GetBytes("The quick brown fox jumps over the lazy dog");
 			byte[] expectedMd5 = data.MD5()!;
 			byte[] expectedSha256 = data.SHA256()!;

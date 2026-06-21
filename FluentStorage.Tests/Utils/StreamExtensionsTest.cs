@@ -19,10 +19,11 @@
 
 		[Fact]
 		public void MD5_can_be_called_concurrently() {
-			// Regression test for https://github.com/robinrodricks/FluentStorage/issues/72: Stream.MD5()
-			// used a shared static HashAlgorithm instance, which is not thread-safe. Each call gets its
-			// own stream (a Stream is stateful); the shared hash was the bug. Two threads hash at once;
-			// each loops enough times that the two reliably overlap inside the hash.
+			// Regression test for https://github.com/robinrodricks/FluentStorage/issues/72. The Stream
+			// MD5 helper used a shared static HashAlgorithm instance, which is not thread-safe. Each call
+			// already gets a fresh stream, so the shared hash instance was the only state being raced.
+			// Two threads hash at the same time, each looping enough that they reliably overlap inside
+			// the hash.
 			byte[] content = Encoding.UTF8.GetBytes("The quick brown fox jumps over the lazy dog");
 			byte[] expected;
 			using (var seed = new MemoryStream(content)) {

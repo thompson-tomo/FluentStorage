@@ -5,6 +5,7 @@ using FluentStorage.Azure.Blobs;
 using FluentStorage.Blobs;
 using System;
 using System.Reflection;
+using FluentStorage.Azure.Identity;
 using Xunit;
 
 namespace FluentStorage.Tests.Integration.Util {

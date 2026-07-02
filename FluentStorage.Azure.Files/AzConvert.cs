@@ -1,60 +1,62 @@
 ﻿using System;
-using Microsoft.Azure.Storage.File;
-
+using Azure.Storage.Files.Shares.Models;
 using FluentStorage.Blobs;
 using FluentStorage.Utils.Extensions;
 
 namespace FluentStorage.Azure.Files {
 	static class AzConvert {
-		public static Blob ToBlob(CloudFileShare share) {
+		public static Blob ToBlob(ShareItem share) {
 			var blob = new Blob(share.Name, BlobItemKind.Folder);
 			blob.TryAddProperties(
-			   "IsSnapshot", share.IsSnapshot.ToString(),
-			   "ETag", share.Properties.ETag,
+			   "ETag", share.Properties.ETag?.ToString(),
 			   "LastModified", share.Properties.LastModified?.ToString(),
-			   "Quota", share.Properties.Quota?.ToString(),
-			   "SnapshotTime", share.SnapshotTime?.ToString(),
+			   "QuotaInGB", share.Properties.QuotaInGB?.ToString(),
 			   "IsShare", "True");
-			blob.Metadata.MergeRange(share.Metadata);
 			return blob;
 		}
 
-		public static Blob ToBlob(string path, IListFileItem item) {
-			if (item is CloudFile file) {
-				var blob = new Blob(path, file.Name, BlobItemKind.File) {
-					LastModificationTime = file.Properties.LastWriteTime,
-					Size = file.Properties.Length,
-					MD5 = file.Properties.ContentMD5
-				};
+		public static Blob ToBlob(string path, ShareFileItem item) {
+			if (item.IsDirectory) {
+				var blob = new Blob(path, item.Name, BlobItemKind.Folder);
 				blob.TryAddProperties(
-				   "CopyState", file.CopyState?.ToString(),
-				   "ChangeTime", file.Properties.ChangeTime?.ToString(),
-				   "ContentType", file.Properties.ContentType,
-				   "CreationTime", file.Properties.CreationTime?.ToString(),
-				   "ETag", file.Properties.ETag,
-				   "IsServerEncrypted", file.Properties.IsServerEncrypted.ToString(),
-				   "LastModified", file.Properties.LastModified?.ToString(),
-				   "NtfsAttributes", file.Properties.NtfsAttributes?.ToString());
-				blob.Metadata.MergeRange(file.Metadata);
+				   "ETag", item.Properties.ETag?.ToString(),
+				   "LastModified", item.Properties.LastModified?.ToString());
 				return blob;
 			}
-			else if (item is CloudFileDirectory dir) {
-				var blob = new Blob(path, dir.Name, BlobItemKind.Folder) {
-					LastModificationTime = dir.Properties.LastWriteTime
-				};
-				blob.TryAddProperties(
-				   "ChangeTime", dir.Properties.ChangeTime?.ToString(),
-				   "CreationTime", dir.Properties.CreationTime?.ToString(),
-				   "ETag", dir.Properties.ETag,
-				   "IsServerEncrypted", dir.Properties.IsServerEncrypted.ToString(),
-				   "LastModified", dir.Properties.LastModified?.ToString(),
-				   "NtfsAttributes", dir.Properties.NtfsAttributes?.ToString());
-				blob.Metadata.MergeRange(dir.Metadata);
-				return blob;
-			}
-			else {
-				throw new NotSupportedException($"don't know '{item.GetType()}' object type");
-			}
+
+			return ToFileBlob(path, item);
+		}
+
+		public static Blob ToBlob(string path, string name, ShareFileProperties properties) {
+			return ToBlob(path, name, properties, properties.Metadata);
+		}
+
+		private static Blob ToFileBlob(string path, ShareFileItem item) {
+			ShareFileItemProperties properties = item.Properties;
+			var blob = new Blob(path, item.Name, BlobItemKind.File) {
+				LastModificationTime = properties.LastModified,
+				Size = item.FileSize
+			};
+			blob.TryAddProperties(
+			   "ETag", properties.ETag?.ToString(),
+			   "LastModified", properties.LastModified?.ToString());
+			return blob;
+		}
+
+		private static Blob ToBlob(string path, string name, ShareFileProperties properties, System.Collections.Generic.IDictionary<string, string> metadata) {
+			var blob = new Blob(path, name, BlobItemKind.File) {
+				LastModificationTime = properties.LastModified,
+				Size = properties.ContentLength,
+				MD5 = properties.ContentHash == null ? null : Convert.ToBase64String(properties.ContentHash)
+			};
+			blob.TryAddProperties(
+			   "CopyStatus", properties.CopyStatus.ToString(),
+			   "ContentType", properties.ContentType,
+			   "ETag", properties.ETag.ToString(),
+			   "IsServerEncrypted", properties.IsServerEncrypted.ToString(),
+			   "LastModified", properties.LastModified.ToString());
+			blob.Metadata.MergeRange(metadata);
+			return blob;
 		}
 	}
 }

@@ -1,6 +1,12 @@
-﻿using FluentStorage.Blobs;
-using FluentStorage.ConnectionString;
+﻿using System;
+using Azure.Core;
+using Azure.Identity;
+using Azure.Storage;
+using Azure.Storage.Files.Shares;
+using FluentStorage.Azure.Blobs;
 using FluentStorage.Azure.Files;
+using FluentStorage.Blobs;
+using FluentStorage.ConnectionString;
 
 namespace FluentStorage {
 	/// <summary>
@@ -15,6 +21,17 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
+		/// Creates Azure Files from an existing <see cref="ShareServiceClient"/>.
+		/// </summary>
+		public static IBlobStorage AzureFiles(this IBlobStorageFactory factory,
+		   ShareServiceClient shareServiceClient) {
+			if (shareServiceClient is null)
+				throw new ArgumentNullException(nameof(shareServiceClient));
+
+			return new AzureFilesBlobStorage(shareServiceClient, shareServiceClient.AccountName);
+		}
+
+		/// <summary>
 		/// Creates a blob storage implementation based on Microsoft Azure Files.
 		/// </summary>
 		/// <param name="factory">Reference to factory</param>
@@ -24,11 +41,197 @@ namespace FluentStorage {
 		public static IBlobStorage AzureFiles(this IBlobStorageFactory factory,
 		   string accountName,
 		   string key) {
-			return AzureFilesBlobStorage.CreateFromAccountNameAndKey(accountName, key);
+			return AzureFilesWithSharedKey(factory, accountName, key);
 		}
 
 		/// <summary>
-		/// Create connection string for azure blob storage
+		///
+		/// </summary>
+		public static IBlobStorage AzureFilesWithSharedKey(this IBlobStorageFactory factory,
+		   string accountName,
+		   string key,
+		   Uri serviceUri) {
+			return AzureFilesWithSharedKey(factory, accountName, key, serviceUri, default);
+		}
+
+		/// <summary>
+		///
+		/// </summary>
+		public static IBlobStorage AzureFilesWithSharedKey(this IBlobStorageFactory factory,
+		   string accountName,
+		   string key) {
+			return AzureFilesWithSharedKey(factory, accountName, key, null, default);
+		}
+
+		/// <summary>
+		///
+		/// </summary>
+		public static IBlobStorage AzureFilesWithSharedKey(this IBlobStorageFactory factory,
+		   string accountName,
+		   string key,
+		   AzureCloudEnvironment cloudEnvironment) {
+			return AzureFilesWithSharedKey(factory, accountName, key, null, cloudEnvironment);
+		}
+
+		/// <summary>
+		///
+		/// </summary>
+		public static IBlobStorage AzureFilesWithSharedKey(this IBlobStorageFactory factory,
+		   string accountName,
+		   string key,
+		   Uri serviceUri,
+		   AzureCloudEnvironment cloudEnvironment) {
+			if (accountName is null)
+				throw new ArgumentNullException(nameof(accountName));
+			if (key is null)
+				throw new ArgumentNullException(nameof(key));
+
+			var credential = new StorageSharedKeyCredential(accountName, key);
+			var client = new ShareServiceClient(serviceUri ?? GetServiceUri(accountName, cloudEnvironment), credential);
+
+			return new AzureFilesBlobStorage(client, accountName);
+		}
+
+		/// <summary>
+		/// Overload that accepts a cloud environment.
+		/// </summary>
+		public static IBlobStorage AzureFilesWithAzureAd(this IBlobStorageFactory factory,
+		   string accountName,
+		   string tenantId,
+		   string applicationId,
+		   string applicationSecret,
+		   AzureCloudEnvironment cloudEnvironment) {
+			return AzureFilesWithAzureAd(factory, accountName, tenantId, applicationId, applicationSecret, null, cloudEnvironment);
+		}
+
+		/// <summary>
+		/// Overload that not accepts cloud environment and AD Authority endpoint.
+		/// </summary>
+		public static IBlobStorage AzureFilesWithAzureAd(this IBlobStorageFactory factory,
+		   string accountName,
+		   string tenantId,
+		   string applicationId,
+		   string applicationSecret) {
+			return AzureFilesWithAzureAd(factory, accountName, tenantId, applicationId, applicationSecret, null, AzureCloudEnvironment.Global);
+		}
+
+		/// <summary>
+		/// Overload that accepts a custom Active Directory authority endpoint.
+		/// </summary>
+		public static IBlobStorage AzureFilesWithAzureAd(this IBlobStorageFactory factory,
+		   string accountName,
+		   string tenantId,
+		   string applicationId,
+		   string applicationSecret,
+		   string activeDirectoryAuthEndpoint) {
+			return AzureFilesWithAzureAd(factory, accountName, tenantId, applicationId, applicationSecret, activeDirectoryAuthEndpoint, default);
+		}
+
+		/// <summary>
+		/// Canonical implementation (no optional parameters).
+		/// </summary>
+		public static IBlobStorage AzureFilesWithAzureAd(this IBlobStorageFactory factory,
+		   string accountName,
+		   string tenantId,
+		   string applicationId,
+		   string applicationSecret,
+		   string activeDirectoryAuthEndpoint,
+		   AzureCloudEnvironment cloudEnvironment) {
+			if (accountName is null)
+				throw new ArgumentNullException(nameof(accountName));
+			if (tenantId is null)
+				throw new ArgumentNullException(nameof(tenantId));
+			if (applicationId is null)
+				throw new ArgumentNullException(nameof(applicationId));
+			if (applicationSecret is null)
+				throw new ArgumentNullException(nameof(applicationSecret));
+
+			var authorityHost = activeDirectoryAuthEndpoint is not null
+				? new Uri(activeDirectoryAuthEndpoint)
+				: AzureCloudEndpoints.GetAuthorityEndpoint(cloudEnvironment);
+
+			TokenCredential credential =
+				new ClientSecretCredential(
+					tenantId,
+					applicationId,
+					applicationSecret,
+					new TokenCredentialOptions { AuthorityHost = authorityHost });
+
+			var client = new ShareServiceClient(GetServiceUri(accountName, cloudEnvironment), credential);
+
+			return new AzureFilesBlobStorage(client, accountName);
+		}
+
+		/// <summary>
+		///
+		/// </summary>
+		public static IBlobStorage AzureFilesWithTokenCredential(this IBlobStorageFactory factory,
+		   string accountName,
+		   TokenCredential tokenCredential) {
+			return AzureFilesWithTokenCredential(factory, accountName, tokenCredential, default);
+		}
+
+		/// <summary>
+		///
+		/// </summary>
+		public static IBlobStorage AzureFilesWithTokenCredential(this IBlobStorageFactory factory,
+		   string accountName,
+		   TokenCredential tokenCredential,
+		   AzureCloudEnvironment azureCloudEnvironment) {
+			if (accountName is null)
+				throw new ArgumentNullException(nameof(accountName));
+			if (tokenCredential is null)
+				throw new ArgumentNullException(nameof(tokenCredential));
+
+			var client = new ShareServiceClient(GetServiceUri(accountName, azureCloudEnvironment), tokenCredential);
+
+			return new AzureFilesBlobStorage(client, accountName);
+		}
+
+		/// <summary>
+		/// Creates Azure Files with Managed Identity
+		/// </summary>
+		public static IBlobStorage AzureFilesWithMsi(this IBlobStorageFactory factory,
+		   string accountName,
+		   AzureCloudEnvironment azureCloudEnvironment) {
+			return AzureFilesWithMsi(factory, accountName, null, azureCloudEnvironment);
+		}
+
+		/// <summary>
+		/// Creates Azure Files with Managed Identity
+		/// </summary>
+		public static IBlobStorage AzureFilesWithMsi(this IBlobStorageFactory factory, string accountName) {
+			return AzureFilesWithMsi(factory, accountName, null, default);
+		}
+
+		/// <summary>
+		/// Creates Azure Files with Managed Identity (client id)
+		/// </summary>
+		public static IBlobStorage AzureFilesWithMsi(this IBlobStorageFactory factory,
+		   string accountName,
+		   string clientId) {
+			return AzureFilesWithMsi(factory, accountName, clientId, default);
+		}
+
+		/// <summary>
+		/// Creates Azure Files with Managed Identity
+		/// </summary>
+		public static IBlobStorage AzureFilesWithMsi(this IBlobStorageFactory factory,
+		   string accountName,
+		   string clientId,
+		   AzureCloudEnvironment azureCloudEnvironment) {
+			if (accountName is null)
+				throw new ArgumentNullException(nameof(accountName));
+
+			TokenCredential credential = new ManagedIdentityCredential(clientId, null);
+
+			var client = new ShareServiceClient(GetServiceUri(accountName, azureCloudEnvironment), credential);
+
+			return new AzureFilesBlobStorage(client, accountName);
+		}
+
+		/// <summary>
+		/// Create connection string for azure files storage
 		/// </summary>
 		public static StorageConnectionString ForAzureFilesStorageWithSharedKey(this IConnectionStringFactory factory,
 		   string accountName,
@@ -37,6 +240,27 @@ namespace FluentStorage {
 			cs.Parameters[KnownParameter.AccountName] = accountName;
 			cs.Parameters[KnownParameter.KeyOrPassword] = accountKey;
 			return cs;
+		}
+
+		/// <summary>
+		///
+		/// </summary>
+		public static StorageConnectionString ForAzureFilesStorageWithAzureAd(this IConnectionStringFactory factory,
+		   string accountName,
+		   string tenantId,
+		   string applicationId,
+		   string applicationSecret) {
+			var cs = new StorageConnectionString(KnownPrefix.AzureFilesStorage);
+			cs.Parameters[KnownParameter.AccountName] = accountName;
+			cs.Parameters[KnownParameter.TenantId] = tenantId;
+			cs.Parameters[KnownParameter.ClientId] = applicationId;
+			cs.Parameters[KnownParameter.ClientSecret] = applicationSecret;
+			return cs;
+		}
+
+		internal static Uri GetServiceUri(string accountName, AzureCloudEnvironment cloudEnvironment = default) {
+			var endpoint = AzureCloudEndpoints.GetBlobEndpoint(cloudEnvironment);
+			return new Uri($"https://{accountName}.file.{endpoint}/");
 		}
 	}
 }

@@ -1,11 +1,11 @@
 ﻿using System;
 using Azure.Core;
-using Azure.Identity;
 using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Sas;
 using FluentStorage.ConnectionString;
 using FluentStorage.Azure.Blobs;
+using FluentStorage.Azure.Identity;
 
 namespace FluentStorage {
 	/// <summary>
@@ -203,18 +203,12 @@ namespace FluentStorage {
 			if (applicationSecret is null)
 				throw new ArgumentNullException(nameof(applicationSecret));
 
-			var authorityHost = activeDirectoryAuthEndpoint is not null
-				? new Uri(activeDirectoryAuthEndpoint)
-				: AzureCloudEndpoints.GetAuthorityEndpoint(cloudEnvironment);
-
-			// Create a token credential that can use our Azure Active
-			// Directory application to authenticate with Azure Storage
-			TokenCredential credential =
-				new ClientSecretCredential(
-					tenantId,
-					applicationId,
-					applicationSecret,
-					new TokenCredentialOptions { AuthorityHost = authorityHost });
+			TokenCredential credential = AzureStorageIdentity.CreateClientSecretCredential(
+				tenantId,
+				applicationId,
+				applicationSecret,
+				activeDirectoryAuthEndpoint,
+				cloudEnvironment);
 
 			// Create a client that can authenticate using our token credential
 			var client = new BlobServiceClient(GetServiceUri(accountName, cloudEnvironment), credential);
@@ -284,21 +278,15 @@ namespace FluentStorage {
 			if (applicationSecret is null)
 				throw new ArgumentNullException(nameof(applicationSecret));
 
-			var authorityHost = activeDirectoryAuthEndpoint is not null
-				? new Uri(activeDirectoryAuthEndpoint)
-				: AzureCloudEndpoints.GetAuthorityEndpoint(cloudEnvironment);
-
-			// Create a token credential that can use our Azure Active
-			// Directory application to authenticate with Azure Storage
-			TokenCredential credential =
-				new ClientSecretCredential(
-					tenantId,
-					applicationId,
-					applicationSecret,
-					new TokenCredentialOptions { AuthorityHost = authorityHost });
+			TokenCredential credential = AzureStorageIdentity.CreateClientSecretCredential(
+				tenantId,
+				applicationId,
+				applicationSecret,
+				activeDirectoryAuthEndpoint,
+				cloudEnvironment);
 
 			// Create a client that can authenticate using our token credential
-			var client = new BlobServiceClient(GetServiceUri(accountName), credential);
+			var client = new BlobServiceClient(GetServiceUri(accountName, cloudEnvironment), credential);
 
 			return new AzureDataLakeStorage(client, accountName, azureCloudEnvironment: cloudEnvironment);
 		}
@@ -388,7 +376,7 @@ namespace FluentStorage {
 		   string accountName,
 		   string clientId,
 		   AzureCloudEnvironment azureCloudEnvironment) {
-			TokenCredential credential = new ManagedIdentityCredential(clientId, null);
+			TokenCredential credential = AzureStorageIdentity.CreateManagedIdentityCredential(clientId);
 
 			var client = new BlobServiceClient(GetServiceUri(accountName, azureCloudEnvironment), credential);
 
@@ -443,7 +431,7 @@ namespace FluentStorage {
 		   string accountName,
 		   string clientId,
 		   AzureCloudEnvironment azureCloudEnvironment) {
-			TokenCredential credential = new ManagedIdentityCredential(clientId, null);
+			TokenCredential credential = AzureStorageIdentity.CreateManagedIdentityCredential(clientId);
 
 			var client = new BlobServiceClient(GetServiceUri(accountName, azureCloudEnvironment), credential);
 
@@ -521,8 +509,7 @@ namespace FluentStorage {
 		}
 
 		private static Uri GetServiceUri(string accountName, AzureCloudEnvironment cloudEnvironment = default) {
-			var endpoint = AzureCloudEndpoints.GetBlobEndpoint(cloudEnvironment);
-			return new Uri($"https://{accountName}.blob.{endpoint}/");
+			return AzureStorageIdentity.CreateBlobServiceUri(accountName, cloudEnvironment);
 		}
 
 		private static bool TryParseSasUrl(string url, out string accountName, out string containerName, out string sas) {

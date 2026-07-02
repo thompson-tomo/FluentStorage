@@ -28,7 +28,6 @@
 
 
    <ItemGroup>
-      <PackageReference Include="Azure.Identity" Version="1.14.2" />
       <PackageReference Include="Azure.Storage.Files.Shares" Version="12.18.0" />
    </ItemGroup>
 

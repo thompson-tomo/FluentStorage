@@ -1,10 +1,9 @@
 ﻿using System;
 using Azure.Core;
-using Azure.Identity;
 using Azure.Storage;
 using Azure.Storage.Files.Shares;
-using FluentStorage.Azure.Blobs;
 using FluentStorage.Azure.Files;
+using FluentStorage.Azure.Identity;
 using FluentStorage.Blobs;
 using FluentStorage.ConnectionString;
 
@@ -153,16 +152,12 @@ namespace FluentStorage {
 				throw new ArgumentNullException(nameof(applicationSecret));
 			}
 
-			var authorityHost = activeDirectoryAuthEndpoint is not null
-				? new Uri(activeDirectoryAuthEndpoint)
-				: AzureCloudEndpoints.GetAuthorityEndpoint(cloudEnvironment);
-
-			TokenCredential credential =
-				new ClientSecretCredential(
-					tenantId,
-					applicationId,
-					applicationSecret,
-					new TokenCredentialOptions { AuthorityHost = authorityHost });
+			TokenCredential credential = AzureStorageIdentity.CreateClientSecretCredential(
+				tenantId,
+				applicationId,
+				applicationSecret,
+				activeDirectoryAuthEndpoint,
+				cloudEnvironment);
 
 			var client = new ShareServiceClient(GetServiceUri(accountName, cloudEnvironment), credential);
 
@@ -233,7 +228,7 @@ namespace FluentStorage {
 				throw new ArgumentNullException(nameof(accountName));
 			}
 
-			TokenCredential credential = new ManagedIdentityCredential(clientId, null);
+			TokenCredential credential = AzureStorageIdentity.CreateManagedIdentityCredential(clientId);
 
 			var client = new ShareServiceClient(GetServiceUri(accountName, azureCloudEnvironment), credential);
 
@@ -269,8 +264,7 @@ namespace FluentStorage {
 		}
 
 		internal static Uri GetServiceUri(string accountName, AzureCloudEnvironment cloudEnvironment = default) {
-			var endpoint = AzureCloudEndpoints.GetBlobEndpoint(cloudEnvironment);
-			return new Uri($"https://{accountName}.file.{endpoint}/");
+			return AzureStorageIdentity.CreateFileServiceUri(accountName, cloudEnvironment);
 		}
 	}
 }

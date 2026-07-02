@@ -9,8 +9,8 @@ using Azure;
 using Azure.Storage;
 using Azure.Storage.Files.Shares;
 using Azure.Storage.Files.Shares.Models;
+using FluentStorage.Azure.Identity;
 using FluentStorage.Blobs;
-using FluentStorage.Streaming;
 
 namespace FluentStorage.Azure.Files {
 	class AzureFilesBlobStorage : GenericBlobStorage {
@@ -32,7 +32,7 @@ namespace FluentStorage.Azure.Files {
 		   string accountName,
 		   string key,
 		   Uri serviceUri,
-		   Azure.Blobs.AzureCloudEnvironment cloudEnvironment) {
+		   AzureCloudEnvironment cloudEnvironment) {
 			if (accountName == null) {
 				throw new ArgumentNullException(nameof(accountName));
 			}
@@ -42,7 +42,7 @@ namespace FluentStorage.Azure.Files {
 			}
 
 			var credential = new StorageSharedKeyCredential(accountName, key);
-			var client = new ShareServiceClient(serviceUri ?? AzureFilesFactory.GetServiceUri(accountName, cloudEnvironment), credential);
+			var client = new ShareServiceClient(serviceUri ?? AzureStorageIdentity.CreateFileServiceUri(accountName, cloudEnvironment), credential);
 
 			return new AzureFilesBlobStorage(client, accountName);
 		}

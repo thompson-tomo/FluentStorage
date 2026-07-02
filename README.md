@@ -29,7 +29,7 @@ FluentStorage is released under the permissive MIT License, so it can be used in
 
 * Provides a generic interface regardless on which storage provider you are using.
 
-* Provides both synchronous and asynchronous alternatives of all methods and implements it to the best effort possible. 
+* Provides both synchronous and asynchronous alternatives of all methods and implements it to the best effort possible.
 
 * [Supports all popular providers](#storage-providers): AWS S3, AWS SQS, GCP Storage, FTP, FTPS, SFTP, Azure Blob & File Storage, Azure Queue Storage, Azure Service Bus, Azure Event Hub, Azure Data Lake Store, Azure Key Vault, DigitalOcean Spaces, MinIO, Wasabi.
 
@@ -89,7 +89,7 @@ FluentStorage supports the following cloud storage providers:
 | **[Azure DataLake](https://azure.microsoft.com/en-us/solutions/data-lake)** | [FluentStorage.Azure.DataLake](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Data-Lake) |
 | **[Google Cloud Storage](https://cloud.google.com/storage)**                | [FluentStorage.GCP](https://github.com/robinrodricks/FluentStorage/wiki/Google-Cloud-Storage)         |
 | **[MinIO](https://min.io/)**                                                | [FluentStorage.AWS -> MinIO](https://github.com/robinrodricks/FluentStorage/wiki/MinIO-Storage)         |
-| **[DigitalOcean Spaces](https://www.digitalocean.com/products/spaces)**     | [FluentStorage.AWS -> DigitalOcean Spaces](https://github.com/robinrodricks/FluentStorage/wiki/DigitalOcean-Spaces-Storage)  | 
+| **[DigitalOcean Spaces](https://www.digitalocean.com/products/spaces)**     | [FluentStorage.AWS -> DigitalOcean Spaces](https://github.com/robinrodricks/FluentStorage/wiki/DigitalOcean-Spaces-Storage)  |
 | **[Wasabi](https://wasabi.com/)**                                           | [FluentStorage.AWS -> Wasabi](https://github.com/robinrodricks/FluentStorage/wiki/AWS-S3-Storage#connect-to-wasabi)         |
 
 
@@ -99,7 +99,7 @@ FluentStorage supports the following cloud storage providers:
 Stable binaries are released on NuGet, and contain everything you need to use Cloud Storage in your .NET app.
 
 
-|       		| Package      		| Latest Version	|  Downloads	|  Documentation	| 
+|       		| Package      		| Latest Version	|  Downloads	|  Documentation	|
 |---------------|---------------		|-----------	|-----------		|-----------		|
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/local.png" width="32"></img>| **[FluentStorage](https://www.nuget.org/packages/FluentStorage)**      	|     [![Version](https://img.shields.io/nuget/vpre/FluentStorage.svg)](https://www.nuget.org/packages/FluentStorage) 		|  [![Downloads](https://img.shields.io/nuget/dt/FluentStorage.svg)](https://www.nuget.org/packages/FluentStorage) | [Standard](https://github.com/robinrodricks/FluentStorage/wiki/Standard-Storage) |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/aws.png" width="32"></img>| **[FluentStorage.AWS](https://www.nuget.org/packages/FluentStorage.AWS)**      	|     [![Version](https://img.shields.io/nuget/vpre/FluentStorage.AWS.svg)](https://www.nuget.org/packages/FluentStorage.AWS) 		|  [![Downloads](https://img.shields.io/nuget/dt/FluentStorage.AWS.svg)](https://www.nuget.org/packages/FluentStorage.AWS) | [S3](https://github.com/robinrodricks/FluentStorage/wiki/AWS-S3-Storage), [SQS](https://github.com/robinrodricks/FluentStorage/wiki/AWS-SQS) |
@@ -122,12 +122,12 @@ Stable binaries are released on NuGet, and contain everything you need to use Cl
 
 FluentStorage works on .NET and .NET Standard/.NET Core.
 
-| Platform      		| Binaries Folder	| 
+| Platform      		| Binaries Folder	|
 |---------------		|-----------		|
-| **.NET 5.0**      	| net50     		| 
-| **.NET 6.0**      	| net60     		| 
-| **.NET Standard 2.0** | netstandard2.0	| 
-| **.NET Standard 2.1** | netstandard2.1	| 
+| **.NET 5.0**      	| net50     		|
+| **.NET 6.0**      	| net60     		|
+| **.NET Standard 2.0** | netstandard2.0	|
+| **.NET Standard 2.1** | netstandard2.1	|
 
 FluentStorage is also supported on these platforms: (via .NET Standard)
 
@@ -148,6 +148,10 @@ Check the [Wiki](https://github.com/robinrodricks/FluentStorage/wiki).
 
 ## What's New
 
+In 2026, we added:
+
+* **Azure.Identity support for Azure Files**, bringing token credential, client secret, and managed identity authentication parity with Azure Blob Storage
+
 In 2024, we added:
 
 * **DigitalOcean Spaces** provider
@@ -156,7 +160,7 @@ In 2024, we added:
 
 In 2023, we added:
 
-* **SFTP** provider [SSH.NET](https://github.com/sshnet/SSH.NET) added 
+* **SFTP** provider [SSH.NET](https://github.com/sshnet/SSH.NET) added
 * **FTP** provider [FluentFTP](https://github.com/robinrodricks/FluentFTP) updated to v44
 * **AWS** Nuget bumped to latest versions
 * **Wiki** created for documentation

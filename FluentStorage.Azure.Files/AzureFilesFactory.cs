@@ -25,8 +25,9 @@ namespace FluentStorage {
 		/// </summary>
 		public static IBlobStorage AzureFiles(this IBlobStorageFactory factory,
 		   ShareServiceClient shareServiceClient) {
-			if (shareServiceClient is null)
+			if (shareServiceClient is null) {
 				throw new ArgumentNullException(nameof(shareServiceClient));
+			}
 
 			return new AzureFilesBlobStorage(shareServiceClient, shareServiceClient.AccountName);
 		}
@@ -81,10 +82,12 @@ namespace FluentStorage {
 		   string key,
 		   Uri serviceUri,
 		   AzureCloudEnvironment cloudEnvironment) {
-			if (accountName is null)
+			if (accountName is null) {
 				throw new ArgumentNullException(nameof(accountName));
-			if (key is null)
+			}
+			if (key is null) {
 				throw new ArgumentNullException(nameof(key));
+			}
 
 			var credential = new StorageSharedKeyCredential(accountName, key);
 			var client = new ShareServiceClient(serviceUri ?? GetServiceUri(accountName, cloudEnvironment), credential);
@@ -137,14 +140,18 @@ namespace FluentStorage {
 		   string applicationSecret,
 		   string activeDirectoryAuthEndpoint,
 		   AzureCloudEnvironment cloudEnvironment) {
-			if (accountName is null)
+			if (accountName is null) {
 				throw new ArgumentNullException(nameof(accountName));
-			if (tenantId is null)
+			}
+			if (tenantId is null) {
 				throw new ArgumentNullException(nameof(tenantId));
-			if (applicationId is null)
+			}
+			if (applicationId is null) {
 				throw new ArgumentNullException(nameof(applicationId));
-			if (applicationSecret is null)
+			}
+			if (applicationSecret is null) {
 				throw new ArgumentNullException(nameof(applicationSecret));
+			}
 
 			var authorityHost = activeDirectoryAuthEndpoint is not null
 				? new Uri(activeDirectoryAuthEndpoint)
@@ -178,10 +185,12 @@ namespace FluentStorage {
 		   string accountName,
 		   TokenCredential tokenCredential,
 		   AzureCloudEnvironment azureCloudEnvironment) {
-			if (accountName is null)
+			if (accountName is null) {
 				throw new ArgumentNullException(nameof(accountName));
-			if (tokenCredential is null)
+			}
+			if (tokenCredential is null) {
 				throw new ArgumentNullException(nameof(tokenCredential));
+			}
 
 			var client = new ShareServiceClient(GetServiceUri(accountName, azureCloudEnvironment), tokenCredential);
 
@@ -220,8 +229,9 @@ namespace FluentStorage {
 		   string accountName,
 		   string clientId,
 		   AzureCloudEnvironment azureCloudEnvironment) {
-			if (accountName is null)
+			if (accountName is null) {
 				throw new ArgumentNullException(nameof(accountName));
+			}
 
 			TokenCredential credential = new ManagedIdentityCredential(clientId, null);
 

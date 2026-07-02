@@ -33,11 +33,13 @@ namespace FluentStorage.Azure.Files {
 		   string key,
 		   Uri serviceUri,
 		   Azure.Blobs.AzureCloudEnvironment cloudEnvironment) {
-			if (accountName == null)
+			if (accountName == null) {
 				throw new ArgumentNullException(nameof(accountName));
+			}
 
-			if (key == null)
+			if (key == null) {
 				throw new ArgumentNullException(nameof(key));
+			}
 
 			var credential = new StorageSharedKeyCredential(accountName, key);
 			var client = new ShareServiceClient(serviceUri ?? AzureFilesFactory.GetServiceUri(accountName, cloudEnvironment), credential);
@@ -60,8 +62,9 @@ namespace FluentStorage.Azure.Files {
 				var chunk = new List<Blob>();
 
 				ShareDirectoryClient dir = await GetDirectoryReferenceAsync(path, false, cancellationToken).ConfigureAwait(false);
-				if (dir == null)
+				if (dir == null) {
 					return chunk;
+				}
 
 				try {
 					var listOptions = new ShareDirectoryGetFilesAndDirectoriesOptions {
@@ -76,8 +79,10 @@ namespace FluentStorage.Azure.Files {
 					}
 				}
 				catch (RequestFailedException ex) when (ex.ErrorCode == "ShareNotFound") {
+					// Ignore missing shares and return an empty result.
 				}
 				catch (RequestFailedException ex) when (ex.ErrorCode == "ResourceNotFound") {
+					// Ignore missing directories and return an empty result.
 				}
 
 				return chunk;
@@ -89,8 +94,9 @@ namespace FluentStorage.Azure.Files {
 		   Stream dataStream,
 		   bool append = false,
 		   CancellationToken cancellationToken = default) {
-			if (dataStream == null)
+			if (dataStream == null) {
 				throw new ArgumentNullException(nameof(dataStream));
+			}
 
 			ShareFileClient file = await GetFileReferenceAsync(fullPath, true, cancellationToken).ConfigureAwait(false);
 
@@ -112,15 +118,17 @@ namespace FluentStorage.Azure.Files {
 				}
 			}
 			finally {
-				if (disposeUploadStream)
+				if (disposeUploadStream) {
 					uploadStream.Dispose();
+				}
 			}
 		}
 
 		public override async Task<Stream> OpenReadAsync(string fullPath, CancellationToken cancellationToken = default) {
 			ShareFileClient file = await GetFileReferenceAsync(fullPath, false, cancellationToken).ConfigureAwait(false);
-			if (file == null)
+			if (file == null) {
 				return null;
+			}
 
 			try {
 				Response<ShareFileDownloadInfo> response = await file.DownloadAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -136,8 +144,9 @@ namespace FluentStorage.Azure.Files {
 
 		protected override async Task<Blob> GetBlobAsync(string fullPath, CancellationToken cancellationToken) {
 			ShareFileClient file = await GetFileReferenceAsync(fullPath, false, cancellationToken).ConfigureAwait(false);
-			if (file == null)
+			if (file == null) {
 				return null;
+			}
 
 			try {
 				Response<ShareFileProperties> properties = await file.GetPropertiesAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -154,8 +163,9 @@ namespace FluentStorage.Azure.Files {
 
 		protected override async Task DeleteSingleAsync(string fullPath, CancellationToken cancellationToken) {
 			ShareFileClient file = await GetFileReferenceAsync(fullPath, false, cancellationToken).ConfigureAwait(false);
-			if (file == null)
+			if (file == null) {
 				return;
+			}
 
 			try {
 				await file.DeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -185,8 +195,9 @@ namespace FluentStorage.Azure.Files {
 		protected override async Task<bool> ExistsAsync(string fullPath, CancellationToken cancellationToken) {
 			ShareFileClient file = await GetFileReferenceAsync(fullPath, false, cancellationToken).ConfigureAwait(false);
 
-			if (file == null)
+			if (file == null) {
 				return false;
+			}
 
 			return await file.ExistsAsync(cancellationToken).ConfigureAwait(false);
 		}
@@ -200,32 +211,37 @@ namespace FluentStorage.Azure.Files {
 		private async Task SetBlobAsync(Blob blob, CancellationToken cancellationToken) {
 			if (blob.IsFolder) {
 				ShareDirectoryClient dir = await GetDirectoryReferenceAsync(blob.FullPath, false, cancellationToken).ConfigureAwait(false);
-				if (dir != null)
+				if (dir != null) {
 					await dir.SetMetadataAsync(blob.Metadata, cancellationToken: cancellationToken).ConfigureAwait(false);
+				}
 			}
 			else {
 				ShareFileClient file = await GetFileReferenceAsync(blob.FullPath, false, cancellationToken).ConfigureAwait(false);
-				if (file != null)
+				if (file != null) {
 					await file.SetMetadataAsync(blob.Metadata, cancellationToken: cancellationToken).ConfigureAwait(false);
+				}
 			}
 		}
 
 		private async Task<ShareFileClient> GetFileReferenceAsync(string fullPath, bool createParents, CancellationToken cancellationToken) {
 			string[] parts = StoragePath.Split(fullPath);
-			if (parts.Length == 0)
+			if (parts.Length == 0) {
 				return null;
+			}
 
 			ShareClient share = await GetShareReferenceAsync(parts[0], createParents, cancellationToken).ConfigureAwait(false);
-			if (share == null)
+			if (share == null) {
 				return null;
+			}
 
 			ShareDirectoryClient dir = share.GetRootDirectoryClient();
 			for (int i = 1; i < parts.Length - 1; i++) {
 				string sub = parts[i];
 				dir = dir.GetSubdirectoryClient(sub);
 
-				if (createParents)
+				if (createParents) {
 					await dir.CreateIfNotExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+				}
 			}
 
 			return dir.GetFileClient(parts[parts.Length - 1]);
@@ -233,20 +249,23 @@ namespace FluentStorage.Azure.Files {
 
 		private async Task<ShareDirectoryClient> GetDirectoryReferenceAsync(string fullPath, bool createParents, CancellationToken cancellationToken) {
 			string[] parts = StoragePath.Split(fullPath);
-			if (parts.Length == 0)
+			if (parts.Length == 0) {
 				return null;
+			}
 
 			ShareClient share = await GetShareReferenceAsync(parts[0], createParents, cancellationToken).ConfigureAwait(false);
-			if (share == null)
+			if (share == null) {
 				return null;
+			}
 
 			ShareDirectoryClient dir = share.GetRootDirectoryClient();
 			for (int i = 1; i < parts.Length; i++) {
 				string sub = parts[i];
 				dir = dir.GetSubdirectoryClient(sub);
 
-				if (createParents)
+				if (createParents) {
 					await dir.CreateIfNotExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+				}
 			}
 
 			return dir;

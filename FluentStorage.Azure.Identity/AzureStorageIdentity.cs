@@ -35,17 +35,31 @@ namespace FluentStorage.Azure.Identity {
 		}
 
 		/// <summary>
+		/// Creates a Blob service URI for the global Azure cloud environment.
+		/// </summary>
+		public static Uri CreateBlobServiceUri(string accountName) {
+			return CreateBlobServiceUri(accountName, AzureCloudEnvironment.Global);
+		}
+
+		/// <summary>
 		/// Creates a Blob service URI for the specified Azure cloud environment.
 		/// </summary>
-		public static Uri CreateBlobServiceUri(string accountName, AzureCloudEnvironment cloudEnvironment = default) {
+		public static Uri CreateBlobServiceUri(string accountName, AzureCloudEnvironment cloudEnvironment) {
 			var endpoint = AzureCloudEndpoints.GetBlobEndpoint(cloudEnvironment);
 			return new Uri($"https://{accountName}.blob.{endpoint}/");
 		}
 
 		/// <summary>
+		/// Creates an Azure Files service URI for the global Azure cloud environment.
+		/// </summary>
+		public static Uri CreateFileServiceUri(string accountName) {
+			return CreateFileServiceUri(accountName, AzureCloudEnvironment.Global);
+		}
+
+		/// <summary>
 		/// Creates an Azure Files service URI for the specified Azure cloud environment.
 		/// </summary>
-		public static Uri CreateFileServiceUri(string accountName, AzureCloudEnvironment cloudEnvironment = default) {
+		public static Uri CreateFileServiceUri(string accountName, AzureCloudEnvironment cloudEnvironment) {
 			var endpoint = AzureCloudEndpoints.GetBlobEndpoint(cloudEnvironment);
 			return new Uri($"https://{accountName}.file.{endpoint}/");
 		}

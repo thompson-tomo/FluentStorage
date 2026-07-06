@@ -86,6 +86,9 @@ namespace FluentStorage.AWS.Blobs {
 		}
 #endif
 
+		// [ADD STORAGE PROVIDER]]
+
+
 		public AwsS3BlobStorage(string bucketName, string region, AWSCredentials credentials) {
 			_bucketName = bucketName;
 			_client = new AmazonS3Client(credentials, CreateConfig(region, null));

@@ -49,39 +49,44 @@ namespace FluentStorage {
 		/// Service URL
 		/// </summary>
 		public static readonly string ServiceUrl = "serviceUrl";
-		
+
 		/// <summary>
-		/// 
+		/// Account ID
+		/// </summary>
+		public static readonly string AccountId = "accountId";
+
+		/// <summary>
+		/// Use Development Storage
 		/// </summary>
 		public static readonly string UseDevelopmentStorage = "development";
 
 		/// <summary>
-		/// 
+		/// Vault URI
 		/// </summary>
 		public static readonly string VaultUri = "vaultUri";
 
 		/// <summary>
-		/// 
+		/// Tenant ID
 		/// </summary>
 		public static readonly string TenantId = "tenantId";
 
 		/// <summary>
-		/// 
+		/// ClientId
 		/// </summary>
 		public static readonly string ClientId = "principalId";
 
 		/// <summary>
-		/// 
+		/// ClientSecret
 		/// </summary>
 		public static readonly string ClientSecret = "principalSecret";
 
 		/// <summary>
-		/// 
+		/// MsiEnabled
 		/// </summary>
 		public static readonly string MsiEnabled = "msi";
 
 		/// <summary>
-		/// 
+		/// IsLocalEmulator
 		/// </summary>
 		public static readonly string IsLocalEmulator = "emu";
 	}

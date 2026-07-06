@@ -184,6 +184,8 @@ namespace FluentStorage {
 			return AwsS3BlobStorage.FromCloudflareR2(accessKeyId, secretAccessKey, bucketName, cloudflareAccountId);
 		}
 
+		// [ADD STORAGE PROVIDER]]
+
 		/// <summary>
 		/// Creates Amazon Simple Queue Service publisher
 		/// </summary>

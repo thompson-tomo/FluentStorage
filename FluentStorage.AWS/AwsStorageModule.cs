@@ -10,9 +10,14 @@ namespace FluentStorage.AWS {
 
 		public IBlobStorage CreateBlobStorage(StorageConnectionString connectionString) {
 
+			// handle service specific prefixes
+			if (connectionString.Prefix == KnownPrefix.AwsS3 ||
+				connectionString.Prefix == KnownPrefix.MinIoS3 ||
+				connectionString.Prefix == KnownPrefix.CloudflareR2 ||
+				connectionString.Prefix == KnownPrefix.Wasabi ||
+				connectionString.Prefix == KnownPrefix.DigitalOceanSpaces) {
 
-			// handle S3 and MinIO prefixes
-			if (connectionString.Prefix == KnownPrefix.AwsS3 || connectionString.Prefix == KnownPrefix.MinIoS3) {
+				// [ADD STORAGE PROVIDER]]
 
 				string region = String.Empty;
 
@@ -48,17 +53,28 @@ namespace FluentStorage.AWS {
 					string sessionToken = connectionString.Get(KnownParameter.SessionToken);
 
 
-					if (connectionString.Prefix == KnownPrefix.MinIoS3) {
+					// USE SPECIAL CONSTRUCTORS
 
-						// for connectionstrings prefixed 'minio.s3', call the MinIO constructor.
-						// this ensures that the 'ForcePathStyle' config option is set to TRUE
+					// [ADD STORAGE PROVIDER]]
+
+					if (connectionString.Prefix == KnownPrefix.MinIoS3) {
 						return AwsS3BlobStorage.FromMinIO(keyId, key, bucket, region, serviceUrl, sessionToken);
 					}
-					else if (connectionString.Prefix == KnownPrefix.AwsS3) {
+					else if (connectionString.Prefix == KnownPrefix.CloudflareR2) {
+						string accountId = connectionString.Get(KnownParameter.AccountId);
+						return AwsS3BlobStorage.FromCloudflareR2(keyId, key, bucket, accountId);
+					}
+					else if (connectionString.Prefix == KnownPrefix.Wasabi) {
+						return AwsS3BlobStorage.FromWasabi(keyId, key, bucket, serviceUrl, sessionToken);
+					}
+					else if (connectionString.Prefix == KnownPrefix.DigitalOceanSpaces) {
+						return AwsS3BlobStorage.FromDigitalOcean(keyId, key, bucket, region, sessionToken);
+					}
 
-						// pass serviceUrl in to blob storage constructor as well as region
+					else if (connectionString.Prefix == KnownPrefix.AwsS3) {
 						return new AwsS3BlobStorage(keyId, key, sessionToken, bucket, region, serviceUrl);
 					}
+
 				}
 #if !NET16
 				else {

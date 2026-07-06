@@ -4,15 +4,32 @@
 	/// </summary>
 	public static class KnownPrefix {
 		/// <summary>
-		/// Amazon S3
+		/// AWS S3 storage
 		/// </summary>
 		public static string AwsS3 = "aws.s3";
 
 		/// <summary>
-		/// Amazon S3
+		/// MinIO storage
 		/// </summary>
 		public static string MinIoS3 = "minio.s3";
-		
+
+		/// <summary>
+		/// Wasabi storage
+		/// </summary>
+		public static string Wasabi = "wasabi";
+
+		/// <summary>
+		/// DigitalOcean Spaces storage
+		/// </summary>
+		public static string DigitalOceanSpaces = "do.spaces";
+
+		/// <summary>
+		/// Cloudflare R2 storage
+		/// </summary>
+		public static string CloudflareR2 = "cloudflare.r2";
+
+		// [ADD STORAGE PROVIDER]]
+
 		/// <summary>
 		/// Databricks on Azure or AWS
 		/// </summary>

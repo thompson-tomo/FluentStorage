@@ -5,7 +5,7 @@ using FluentStorage.SFTP;
 
 namespace FluentStorage {
 	/// <summary>
-	/// This class provides methods for creating new instances of the <see cref="T:FluentStorage.SFTP.SshNetSftpBlobStorage" /> class.
+	/// SSH.NET SFTP factory that is accessible using `FluentStorage.StorageFactory.Blobs` by way of extension methods.
 	/// </summary>
 	public static class Factory {
 		private class Module : IExternalModule {

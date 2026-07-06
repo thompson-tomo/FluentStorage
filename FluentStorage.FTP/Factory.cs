@@ -6,6 +6,9 @@ using FluentStorage.ConnectionString;
 using FluentStorage.FTP;
 
 namespace FluentStorage {
+	/// <summary>
+	/// FluentFTP factory that is accessible using `FluentStorage.StorageFactory.Blobs` by way of extension methods.
+	/// </summary>
 	public static class Factory {
 		/// <summary>
 		/// Register Azure module.

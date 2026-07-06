@@ -11,7 +11,7 @@ using Amazon.S3.Transfer;
 
 namespace FluentStorage {
 	/// <summary>
-	/// Factory class that implement factory methods for Amazon AWS implementation
+	/// Amazon AWS factory that is accessible using `FluentStorage.StorageFactory.Blobs` by way of extension methods.
 	/// </summary>
 	public static class Factory {
 

@@ -7,7 +7,7 @@ using FluentStorage.Utils.Extensions;
 
 namespace FluentStorage {
 	/// <summary>
-	/// Factory methods
+	/// Google Cloud Storage factory that is accessible using `FluentStorage.StorageFactory.Blobs` by way of extension methods.
 	/// </summary>
 	public static class Factory {
 		/// <summary>

@@ -9,7 +9,7 @@ using FluentStorage.Azure;
 
 namespace FluentStorage {
 	/// <summary>
-	/// Blob storage factory
+	/// Azuree Blob Factory that is accessible using `FluentStorage.StorageFactory.Blobs` by way of extension methods.
 	/// </summary>
 	public static class Factory {
 		/// <summary>

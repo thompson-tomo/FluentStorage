@@ -9,7 +9,7 @@ using FluentStorage.ConnectionString;
 
 namespace FluentStorage {
 	/// <summary>
-	/// Factory
+	/// Azure Files/DataLake Factory that is accessible using `FluentStorage.StorageFactory.Blobs` by way of extension methods.
 	/// </summary>
 	public static class AzureFilesFactory {
 		/// <summary>

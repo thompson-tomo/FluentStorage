@@ -12,22 +12,16 @@
    - Fix: Allow null content types in `GetPresignedUrlAsync` API
  - **FluentStorage.Azure.Blobs**
    - Update `MimeMapping` to version 4.0.0
-   - New: All providers updated to support `WriteAsync` with content type
- - **FluentStorage.Azure.Files**
-   - New: All providers updated to support `WriteAsync` with content type
- - **FluentStorage.Azure.DataLake**
-   - New: All providers updated to support `WriteAsync` with content type
- - **FluentStorage.Azure.KeyVault**
-   - New: All providers updated to support `WriteAsync` with content type
- - **FluentStorage.Azure.ServiceFabric**
-   - New: All providers updated to support `WriteAsync` with content type
- - **FluentStorage.FTP**
-   - New: All providers updated to support `WriteAsync` with content type
-   - Updated FluentFTP to 54.2.0
- - **FluentStorage.SFTP**
-   - New: All providers updated to support `WriteAsync` with content type
- - **FluentStorage.Databricks**
-   - New: All providers updated to support `WriteAsync` with content type
+ - **All providers updated to support `WriteAsync` with content type**
+   - FluentStorage.Azure.Blobs
+   - FluentStorage.Azure.Files
+   - FluentStorage.Azure.DataLake
+   - FluentStorage.Azure.KeyVault
+   - FluentStorage.Azure.ServiceFabric
+   - FluentStorage.FTP
+     - Updated FluentFTP to 54.2.0
+   - FluentStorage.SFTP
+   - FluentStorage.Databricks
 
 #### FluentStorage 7.0.0
  - **FluentStorage**

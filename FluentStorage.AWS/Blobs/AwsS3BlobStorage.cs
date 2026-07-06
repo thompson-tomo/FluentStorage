@@ -240,7 +240,7 @@ namespace FluentStorage.AWS.Blobs {
 					Key = fullPath,
 					InputStream = dataStream,
 					ContentType = contentType,
-					DisablePayloadSigning = true // R2 does not support "Streaming Signature V4".
+					DisablePayloadSigning = _disablePayloadSigning // R2 does not support "Streaming Signature V4".
 				};
 
 				await _client.PutObjectAsync(request, cancellationToken).ConfigureAwait(false);

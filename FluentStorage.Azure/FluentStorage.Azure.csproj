@@ -2,9 +2,9 @@
 
    <PropertyGroup>
       <TargetFrameworks>netstandard2.0;netstandard2.1;net70;net80;net90</TargetFrameworks>
-      <PackageId>FluentStorage.Azure.Identity</PackageId>
-      <RootNamespace>FluentStorage.Azure.Identity</RootNamespace>
-      <AssemblyName>FluentStorage.Azure.Identity</AssemblyName>
+      <PackageId>FluentStorage.Azure</PackageId>
+      <RootNamespace>FluentStorage.Azure</RootNamespace>
+      <AssemblyName>FluentStorage.Azure</AssemblyName>
       <Description>Extension to FluentStorage providing shared Azure identity helpers.</Description>
       <Copyright>Copyright (c) 2023 Robin Rodricks and FluentStorage Contributors</Copyright>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -18,7 +18,7 @@
       <LangVersion>latest</LangVersion>
       <SignAssembly>True</SignAssembly>
       <AssemblyOriginatorKeyFile>..\FluentStorage\sn.snk</AssemblyOriginatorKeyFile>
-      <DocumentationFile>$(SolutionDir)build\FluentStorage.Azure.Identity.xml</DocumentationFile>
+      <DocumentationFile>$(SolutionDir)build\FluentStorage.Azure.xml</DocumentationFile>
       <BaseOutputPath>$(SolutionDir)build\</BaseOutputPath>
 
    </PropertyGroup>

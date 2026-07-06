@@ -3,7 +3,7 @@
 #### FluentStorage 7.0.0
  - **FluentStorage.Azure**
    - New: Add Azure identity authentication core framework
-   - New: Add dependency on `Azure.Identity` package
+   - New: Add dependency on `Azure.Identity` SDK package
  - **FluentStorage.Azure.Blobs**
    - New: Add dependency on `FluentStorage.Azure` package
    - Change: Migrate from legacy API to `AzureStorageIdentity` based authentication
@@ -14,7 +14,7 @@
    - New: Add factory API for `AzureFiles`, `AzureFilesWithSharedKey`, `AzureFilesWithAzureAd`, `AzureFilesWithTokenCredential`, `AzureFilesWithMsi`
    - Change: Migrate from legacy API to `AzureStorageIdentity` based authentication
    - Change: Rewrite all file management APIs to use new Azure SDK API (`CreateFromAccountNameAndKey`, `ListAt`, `Write`, `OpenRead`, `GetBlob`, `SetBlob`, `SetBlobs`, `DeleteSingle`, `DeleteDirectory`, `GetFileReference`, `GetDirectoryReference`, `GetShareReference`)
-   - Change: Remove dependency on outdated `Microsoft.Azure.Storage.File` package
+   - Change: Remove dependency on outdated `Microsoft.Azure.Storage.File` SDK package
   
 #### FluentStorage 6.0.4
  - **FluentStorage**

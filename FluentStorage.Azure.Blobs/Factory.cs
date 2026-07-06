@@ -56,7 +56,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		///
+		/// Creates Azure Blob Storage with Shared Key
 		/// </summary>
 		public static IAzureBlobStorage AzureBlobStorageWithSharedKey(this IBlobStorageFactory factory,
 		   string accountName,
@@ -66,14 +66,14 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		///
+		/// Creates Azure Blob Storage with Shared Key
 		/// </summary>
 		public static IAzureBlobStorage AzureBlobStorageWithSharedKey(this IBlobStorageFactory factory, string accountName, string key) {
 			return AzureBlobStorageWithSharedKey(factory, accountName, key, null, default);
 		}
 
 		/// <summary>
-		///
+		/// Creates Azure Blob Storage with Shared Key
 		/// </summary>
 		public static IAzureBlobStorage AzureBlobStorageWithSharedKey(this IBlobStorageFactory factory,
 		   string accountName,
@@ -83,7 +83,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		///
+		/// Creates Azure Blob Storage with Shared Key
 		/// </summary>
 		public static IAzureBlobStorage AzureBlobStorageWithSharedKey(this IBlobStorageFactory factory,
 		   string accountName,
@@ -103,7 +103,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		///
+		/// Creates Azure Blob Storage with Shared Key
 		/// </summary>
 		public static IAzureDataLakeStorage AzureDataLakeStorageWithSharedKey(this IBlobStorageFactory factory,
 		   string accountName,
@@ -113,14 +113,14 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		///
+		/// Creates Azure DataLake Storage with Shared Key
 		/// </summary>
 		public static IAzureDataLakeStorage AzureDataLakeStorageWithSharedKey(this IBlobStorageFactory factory, string accountName, string key) {
 			return AzureDataLakeStorageWithSharedKey(factory, accountName, key, null, default);
 		}
 
 		/// <summary>
-		///
+		/// Creates Azure DataLake Storage with Shared Key
 		/// </summary>
 		public static IAzureDataLakeStorage AzureDataLakeStorageWithSharedKey(this IBlobStorageFactory factory,
 		   string accountName,
@@ -130,7 +130,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		///
+		/// Creates Azure DataLake Storage with Shared Key
 		/// </summary>
 		public static IAzureDataLakeStorage AzureDataLakeStorageWithSharedKey(this IBlobStorageFactory factory,
 		   string accountName,
@@ -150,7 +150,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		/// Overload that accepts a cloud environment.
+		/// Creates Azure Blob Storage with Azure AD
 		/// </summary>
 		public static IAzureBlobStorage AzureBlobStorageWithAzureAd(this IBlobStorageFactory factory,
 		   string accountName,
@@ -162,7 +162,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		/// Overload that not accepts cloud environment and AD Authority endpoint.
+		/// Creates Azure Blob Storage with Azure AD and AD Authority endpoint
 		/// </summary>
 		public static IAzureBlobStorage AzureBlobStorageWithAzureAd(this IBlobStorageFactory factory,
 		   string accountName,
@@ -173,7 +173,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		/// Overload that accepts a custom Active Directory authority endpoint.
+		/// Creates Azure Blob Storage with Azure AD and AD Authority endpoint
 		/// </summary>
 		public static IAzureBlobStorage AzureBlobStorageWithAzureAd(this IBlobStorageFactory factory,
 		   string accountName,
@@ -185,7 +185,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		/// Canonical implementation (no optional parameters).
+		/// Creates Azure Blob Storage with Azure AD and AD Authority endpoint
 		/// </summary>
 		public static IAzureBlobStorage AzureBlobStorageWithAzureAd(this IBlobStorageFactory factory,
 		   string accountName,
@@ -217,7 +217,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		/// Overload that accepts a cloud environment.
+		/// Creates Azure DataLake Storage with Azure AD
 		/// </summary>
 		public static IAzureDataLakeStorage AzureDataLakeStorageWithAzureAd(this IBlobStorageFactory factory,
 		   string accountName,
@@ -229,7 +229,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		/// Overload that not accepts cloud environment and AD Authority endpoint.
+		/// Creates Azure DataLake Storage with Azure AD and AD Authority endpoint
 		/// </summary>
 		public static IAzureDataLakeStorage AzureDataLakeStorageWithAzureAd(this IBlobStorageFactory factory,
 		   string accountName,
@@ -240,7 +240,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		/// Overload that accepts a custom Active Directory authority endpoint.
+		/// Creates Azure DataLake Storage with Azure AD and AD Authority endpoint
 		/// </summary>
 		public static IAzureDataLakeStorage AzureDataLakeStorageWithAzureAd(this IBlobStorageFactory factory,
 		   string accountName,
@@ -252,7 +252,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		/// Create Azure Data Lake Gen 2 Storage with AAD authentication
+		/// Create Azure DataLake Gen 2 Storage with Azure AD
 		/// </summary>
 		/// <param name="factory"></param>
 		/// <param name="accountName"></param>
@@ -292,7 +292,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		///
+		/// Creates Azure Blob Storage with Token Credential
 		/// </summary>
 		public static IAzureBlobStorage AzureBlobStorageWithTokenCredential(this IBlobStorageFactory factory,
 		   string accountName,
@@ -301,7 +301,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		///
+		/// Creates Azure Blob Storage with Token Credential
 		/// </summary>
 		public static IAzureBlobStorage AzureBlobStorageWithTokenCredential(this IBlobStorageFactory factory,
 		   string accountName,
@@ -313,7 +313,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		///
+		/// Creates Azure Blob Storage with Token Credential
 		/// </summary>
 		/// <param name="factory"></param>
 		/// <param name="sas"></param>
@@ -439,19 +439,6 @@ namespace FluentStorage {
 		}
 
 
-		/*
-		/// <summary>
-		/// Creates a blob storage implementation based on Microsoft Azure Blob Storage using development storage.
-		/// </summary>
-		/// <param name="factory">Reference to factory</param>
-		/// <returns>Generic blob storage interface</returns>
-		public static IAzureBlobStorage AzureBlobDevelopmentStorage(this IBlobStorageFactory factory)
-		{
-		   return AzureUniversalBlobStorageProvider.CreateForLocalEmulator();
-		}
-		}
-		*/
-
 		/// <summary>
 		/// Create connection string for azure blob storage
 		/// </summary>
@@ -465,7 +452,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		/// Create connection string for azure blob storage
+		/// Create connection string for Azure DataLake with Shared Key
 		/// </summary>
 		public static StorageConnectionString ForAzureDataLakeStorageWithSharedKey(this IConnectionStringFactory factory,
 		   string accountName,
@@ -477,7 +464,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		///
+		/// Create connection string for Azure Blob with Azure AD
 		/// </summary>
 		public static StorageConnectionString ForAzureBlobStorageWithAzureAd(this IConnectionStringFactory factory,
 		   string accountName,
@@ -493,7 +480,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		///
+		/// Create connection string for Azure DataLake with Azure AD
 		/// </summary>
 		public static StorageConnectionString ForAzureDataLakeStorageWithAzureAd(this IConnectionStringFactory factory,
 		   string accountName,

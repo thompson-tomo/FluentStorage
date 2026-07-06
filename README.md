@@ -81,17 +81,17 @@ You can use a single, consistent API to interact with multiple cloud providers, 
 
 FluentStorage supports the following cloud storage providers:
 
-| Storage Provider                                                            | Documentation      |
-| --------------------------------------------------------------------------- | ------------------------- |
-| **[AWS S3](https://aws.amazon.com/s3/)**                                    | [FluentStorage.AWS](https://github.com/robinrodricks/FluentStorage/wiki/AWS-S3-Storage#connect-to-aws-s3)         |
-| **[Azure Blobs](https://azure.microsoft.com/en-us/products/storage/blobs)** | [FluentStorage.Azure.Blobs](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Blob-Storage) |
-| **[Azure Files](https://azure.microsoft.com/en-us/products/storage/files)** | [FluentStorage.Azure.Files](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Blob-Storage) |
-| **[Azure DataLake](https://azure.microsoft.com/en-us/solutions/data-lake)** | [FluentStorage.Azure.DataLake](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Data-Lake) |
-| **[Google Cloud Storage](https://cloud.google.com/storage)**                | [FluentStorage.GCP](https://github.com/robinrodricks/FluentStorage/wiki/Google-Cloud-Storage)         |
-| **[MinIO](https://min.io/)**                                                | [FluentStorage.AWS -> MinIO](https://github.com/robinrodricks/FluentStorage/wiki/MinIO-Storage)         |
-| **[Cloudflare R2](https://www.cloudflare.com/products/r2/)**     | [FluentStorage.AWS -> R2](https://github.com/robinrodricks/FluentStorage/wiki/Cloudflare-R2-Storage)  |
-| **[DigitalOcean Spaces](https://www.digitalocean.com/products/spaces)**     | [FluentStorage.AWS -> DigitalOcean Spaces](https://github.com/robinrodricks/FluentStorage/wiki/DigitalOcean-Spaces-Storage)  |
-| **[Wasabi](https://wasabi.com/)**                                           | [FluentStorage.AWS -> Wasabi](https://github.com/robinrodricks/FluentStorage/wiki/Wasabi-Storage)         |
+|       		| Documentation Link                                               | 
+|---------------| --------------------------------------------------------------------------- | 
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/aws-s3.png" width="32"></img>| [AWS S3](https://github.com/robinrodricks/FluentStorage/wiki/AWS-S3-Storage#connect-to-aws-s3)         |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure-blob-block.png" width="32"></img>|  [Azure Blobs](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Blob-Storage) |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure-blob-file.png" width="32"></img>| [Azure Files](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Blob-Storage) |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure-data-lake.png" width="32"></img>| [Azure DataLake](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Data-Lake) |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/gcp.png" width="32"></img>| [GCP](https://github.com/robinrodricks/FluentStorage/wiki/Google-Cloud-Storage)         |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/minio.png" width="32"></img>| [MinIO](https://github.com/robinrodricks/FluentStorage/wiki/MinIO-Storage)         |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/r2.png" width="32"></img>| [Cloudflare R2](https://github.com/robinrodricks/FluentStorage/wiki/Cloudflare-R2-Storage)  |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/digitalocean.png" width="32"></img>|[DigitalOcean Spaces](https://github.com/robinrodricks/FluentStorage/wiki/DigitalOcean-Spaces-Storage)  |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/wasabi.png" width="32"></img>| [Wasabi](https://github.com/robinrodricks/FluentStorage/wiki/Wasabi-Storage)         |
 
 To add support for a new provider, search for `[ADD STORAGE PROVIDER]` across all code files and make the required changes.
 

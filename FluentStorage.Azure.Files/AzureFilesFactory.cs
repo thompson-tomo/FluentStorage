@@ -3,7 +3,7 @@ using Azure.Core;
 using Azure.Storage;
 using Azure.Storage.Files.Shares;
 using FluentStorage.Azure.Files;
-using FluentStorage.Azure.Identity;
+using FluentStorage.Azure;
 using FluentStorage.Blobs;
 using FluentStorage.ConnectionString;
 

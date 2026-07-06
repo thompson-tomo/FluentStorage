@@ -9,7 +9,7 @@ using Azure;
 using Azure.Storage;
 using Azure.Storage.Files.Shares;
 using Azure.Storage.Files.Shares.Models;
-using FluentStorage.Azure.Identity;
+using FluentStorage.Azure;
 using FluentStorage.Blobs;
 
 namespace FluentStorage.Azure.Files {

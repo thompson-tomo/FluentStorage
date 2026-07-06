@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Azure.Identity;
 
-namespace FluentStorage.Azure.Identity {
+namespace FluentStorage.Azure {
 	/// <summary>
 	/// Provides Azure service endpoint hostnames and authority URIs for different cloud environments.
 	/// </summary>

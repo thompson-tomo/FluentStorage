@@ -39,7 +39,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentStorage.SFTP", "Fluen
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentStorage.Tests.FTP", "FluentStorage.Tests.FTP\FluentStorage.Tests.FTP.csproj", "{8EC92456-416E-40F0-8126-0D2F89ABD497}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentStorage.Azure.Identity", "FluentStorage.Azure.Identity\FluentStorage.Azure.Identity.csproj", "{D5FC3BA6-3C86-4DE5-A3E7-BA5F3AA1623C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentStorage.Azure", "FluentStorage.Azure\FluentStorage.Azure.csproj", "{D5FC3BA6-3C86-4DE5-A3E7-BA5F3AA1623C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

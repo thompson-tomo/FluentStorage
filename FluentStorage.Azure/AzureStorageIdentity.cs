@@ -2,7 +2,7 @@
 using Azure.Core;
 using Azure.Identity;
 
-namespace FluentStorage.Azure.Identity {
+namespace FluentStorage.Azure {
 	/// <summary>
 	/// Shared Azure Storage identity helpers.
 	/// </summary>

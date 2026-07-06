@@ -1,5 +1,4 @@
-﻿namespace FluentStorage.Azure.Identity
-{
+﻿namespace FluentStorage.Azure {
 	/// <summary>
 	/// Azure cloud environments with their respective endpoints
 	/// </summary>

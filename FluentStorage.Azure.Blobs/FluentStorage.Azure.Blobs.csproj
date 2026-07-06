@@ -10,7 +10,7 @@
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <PackageIcon>logo-nuget.png</PackageIcon>
       <Authors>Robin Rodricks, FluentStorage Contributors</Authors>
-      <Version>6.0.4</Version>
+      <Version>7.0.0</Version>
       <PackageProjectUrl>https://github.com/robinrodricks/FluentStorage</PackageProjectUrl>
       <RepositoryUrl>https://github.com/robinrodricks/FluentStorage</RepositoryUrl>
       <RepositoryType>GitHub</RepositoryType>
@@ -38,7 +38,7 @@
    </ItemGroup>
 
    <ItemGroup>
-      <ProjectReference Include="..\FluentStorage.Azure.Identity\FluentStorage.Azure.Identity.csproj" />
+      <ProjectReference Include="..\FluentStorage.Azure\FluentStorage.Azure.csproj" />
       <ProjectReference Include="..\FluentStorage\FluentStorage.csproj" />
    </ItemGroup>
 

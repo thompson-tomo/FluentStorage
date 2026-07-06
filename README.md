@@ -88,6 +88,29 @@ Stable binaries are released on NuGet, and contain everything you need to use Cl
 
 
 
+## Platform Support
+
+FluentStorage works on .NET and .NET Standard/.NET Core.
+
+| Platform      		| Binaries Folder	|
+|---------------		|-----------		|
+| **.NET 7.0**      	| net70     		|
+| **.NET 8.0**      	| net80     		|
+| **.NET 9.0**      	| net90     		|
+| **.NET Standard 2.0** | netstandard2.0	|
+| **.NET Standard 2.1** | netstandard2.1	|
+
+FluentStorage is also supported on these platforms: (via .NET Standard)
+
+  - **Mono** 4.6
+  - **Xamarin.iOS** 10.0
+  - **Xamarin.Android** 10.0
+  - **Universal Windows Platform** 10.0
+
+Binaries for all platforms are built from a single Visual Studio Project. You will need the latest [Visual Studio](https://visualstudio.microsoft.com/downloads/) to build or contribute to FluentStorage.
+
+
+
 
 ## Architecture
 
@@ -122,27 +145,6 @@ You can use a single, consistent API to interact with multiple cloud providers, 
 4. Natively implement polycloud (support for multiple public clouds)
 
 
-
-
-## Platform Support
-
-FluentStorage works on .NET and .NET Standard/.NET Core.
-
-| Platform      		| Binaries Folder	|
-|---------------		|-----------		|
-| **.NET 5.0**      	| net50     		|
-| **.NET 6.0**      	| net60     		|
-| **.NET Standard 2.0** | netstandard2.0	|
-| **.NET Standard 2.1** | netstandard2.1	|
-
-FluentStorage is also supported on these platforms: (via .NET Standard)
-
-  - **Mono** 4.6
-  - **Xamarin.iOS** 10.0
-  - **Xamarin.Android** 10.0
-  - **Universal Windows Platform** 10.0
-
-Binaries for all platforms are built from a single Visual Studio Project. You will need the latest [Visual Studio](https://visualstudio.microsoft.com/downloads/) to build or contribute to FluentStorage.
 
 
 

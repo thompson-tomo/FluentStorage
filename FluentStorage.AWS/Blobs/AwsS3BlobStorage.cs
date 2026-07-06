@@ -335,14 +335,19 @@ namespace FluentStorage.AWS.Blobs {
 		public async Task<string> GetPresignedUrlAsync(string fullPath, string mimeType, int expiresInSeconds, HttpVerb verb, Protocol protocol) {
 			IAmazonS3 client = await GetClientAsync().ConfigureAwait(false);
 
-			return await client.GetPreSignedURLAsync(new GetPreSignedUrlRequest() {
+			var request = new GetPreSignedUrlRequest() {
 				BucketName = _bucketName,
-				ContentType = mimeType,
 				Expires = DateTime.UtcNow.AddSeconds(expiresInSeconds),
 				Key = StoragePath.Normalize(fullPath, true),
 				Protocol = protocol,
 				Verb = verb,
-			});
+			};
+
+			// #122 : If ContentType is not set, the generated signature does not include a `Content-Type` header.
+			if (!string.IsNullOrWhiteSpace(mimeType))
+				request.ContentType = mimeType;
+
+			return await client.GetPreSignedURLAsync(request);
 		}
 
 		/// <summary>

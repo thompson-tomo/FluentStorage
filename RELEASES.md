@@ -5,6 +5,7 @@
    - Fix: Make hash helpers thread-safe using new `MD5.HashData` and `SHA256.HashData` .NET APIs
  - **FluentStorage.AWS**
    - Fix: Update AWS SDK packages to 4.0.100.2
+   - Fix: Allow null content types in `GetPresignedUrlAsync` API
  - **FluentStorage.Azure**
    - New: Add Azure identity authentication core framework
    - New: Add dependency on `Azure.Identity` SDK package

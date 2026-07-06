@@ -27,6 +27,7 @@ namespace FluentStorage.AWS.Blobs {
 		private readonly AmazonS3Client _client;
 		private readonly TransferUtility _fileTransferUtility;
 		private bool _initialised = false;
+		private bool _disablePayloadSigning = false;
 
 
 		/// <summary>
@@ -61,6 +62,23 @@ namespace FluentStorage.AWS.Blobs {
 		}
 		public static AwsS3BlobStorage FromWasabi(string accessKeyId, string secretAccessKey, string bucketName, string wasabiServiceUrl, string sessionToken = null) {
 			return new AwsS3BlobStorage(accessKeyId, secretAccessKey, sessionToken, bucketName, null, wasabiServiceUrl);
+		}
+		public static AwsS3BlobStorage FromCloudflareR2(string accessKeyId, string secretAccessKey, string bucketName, string cloudflareAccountId) {
+
+			var config = new AmazonS3Config {
+				// ServiceURL is always https://<account-id>.r2.cloudflarestorage.com.
+				ServiceURL = $"https://{cloudflareAccountId}.r2.cloudflarestorage.com",
+				// AuthenticationRegion = "auto" is the recommended value for R2
+				AuthenticationRegion = "auto",
+				// ForcePathStyle = false uses virtual-hosted style requests, which R2 supports and recommends
+				ForcePathStyle = false,
+				// UseHttp = false ensures HTTPS (the endpoint itself is HTTPS, but this makes it explicit).
+				UseHttp = false,
+			};
+
+			var store = new AwsS3BlobStorage(accessKeyId, secretAccessKey, null, bucketName, config);
+			store._disablePayloadSigning = true;
+			return store;
 		}
 #endif
 
@@ -123,17 +141,19 @@ namespace FluentStorage.AWS.Blobs {
 			_fileTransferUtility = new TransferUtility(_client, transferUtilityConfig ?? new TransferUtilityConfig());
 		}
 
+		/// <summary>
+		/// Create a client and ensure the S3 bucket exists
+		/// </summary>
 		private async Task<AmazonS3Client> GetClientAsync() {
 			if (!_initialised) {
 				var bucketExists = await AmazonS3Util.DoesS3BucketExistV2Async(_client, _bucketName);
-                if (!bucketExists)
-                {
-                    var request = new PutBucketRequest { BucketName = _bucketName };
+				if (!bucketExists) {
+					var request = new PutBucketRequest { BucketName = _bucketName };
 
-                    await _client.PutBucketAsync(request).ConfigureAwait(false);
-                }
+					await _client.PutBucketAsync(request).ConfigureAwait(false);
+				}
 
-                _initialised = true;
+				_initialised = true;
 			}
 
 			return _client;
@@ -158,7 +178,7 @@ namespace FluentStorage.AWS.Blobs {
 			if (options.IncludeAttributes) {
 
 				// added null check here to avoid intermittent exceptions when querying for metadata
-				
+
 				foreach (IEnumerable<Blob> page in blobs.Where(b => b != null && !b.IsFolder).Chunk(ListChunkSize)) {
 					await Converter.AppendMetadataAsync(client, _bucketName, page, cancellationToken).ConfigureAwait(false);
 				}
@@ -168,7 +188,15 @@ namespace FluentStorage.AWS.Blobs {
 		}
 
 		/// <summary>
-		/// S3 doesnt support this natively and will cache everything in MemoryStream until disposed.
+		/// Uploads a blob to S3 or S3-compatible storage.
+		///
+		/// Internally this uses <see cref="Amazon.S3.Transfer.TransferUtility"/>, which
+		/// automatically performs either a single PUT or a multipart upload depending on
+		/// the stream size. The caller does not need to choose between the two.
+		///
+		/// Note that if the supplied stream is not seekable (or its length cannot be
+		/// determined), the AWS SDK may buffer the entire stream into a <see cref="MemoryStream"/>
+		/// before uploading, potentially consuming a large amount of memory.
 		/// </summary>
 		public async Task WriteAsync(string fullPath, Stream dataStream, bool append = false,
 		   CancellationToken cancellationToken = default) {
@@ -180,6 +208,13 @@ namespace FluentStorage.AWS.Blobs {
 			await _fileTransferUtility.UploadAsync(dataStream, _bucketName, fullPath, cancellationToken).ConfigureAwait(false);
 		}
 
+		/// <summary>
+		/// Opens a blob for reading and returns its content stream.
+		///
+		/// The returned stream wraps the AWS response stream and must be disposed by the caller,
+		/// which also disposes the underlying HTTP response.
+		/// Returns <c>null</c> if the blob does not exist.
+		/// </summary>
 		public async Task<Stream> OpenReadAsync(string fullPath, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 
@@ -191,12 +226,24 @@ namespace FluentStorage.AWS.Blobs {
 			return new FixedStream(response.ResponseStream, length: response.ContentLength, (Action<FixedStream>)null);
 		}
 
+		/// <summary>
+		/// Deletes multiple blobs in parallel.
+		///
+		/// Each path is processed independently, including deletion of any virtual directory
+		/// placeholders beneath the blob's path.
+		/// </summary>
 		public async Task DeleteAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			AmazonS3Client client = await GetClientAsync().ConfigureAwait(false);
 
 			await Task.WhenAll(fullPaths.Select(fullPath => DeleteAsync(fullPath, client, cancellationToken))).ConfigureAwait(false);
 		}
 
+		/// <summary>
+		/// Deletes a blob and recursively removes any virtual directory placeholder objects
+		/// beneath its path.
+		///
+		/// S3 has no real directories; this cleans up any objects that emulate them.
+		/// </summary>
 		private async Task DeleteAsync(string fullPath, AmazonS3Client client, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 
@@ -208,12 +255,22 @@ namespace FluentStorage.AWS.Blobs {
 			}
 		}
 
+		/// <summary>
+		/// Determines whether each specified blob exists.
+		///
+		/// The existence checks are performed in parallel.
+		/// </summary>
 		public async Task<IReadOnlyCollection<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			AmazonS3Client client = await GetClientAsync().ConfigureAwait(false);
 
 			return await Task.WhenAll(fullPaths.Select(fullPath => ExistsAsync(client, fullPath, cancellationToken))).ConfigureAwait(false);
 		}
 
+		/// <summary>
+		/// Determines whether a blob exists by requesting its metadata.
+		///
+		/// Returns <c>false</c> if the object is not found.
+		/// </summary>
 		private async Task<bool> ExistsAsync(AmazonS3Client client, string fullPath, CancellationToken cancellationToken) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 
@@ -229,10 +286,20 @@ namespace FluentStorage.AWS.Blobs {
 			return false;
 		}
 
+		/// <summary>
+		/// Retrieves metadata for multiple blobs in parallel.
+		///
+		/// Blobs that do not exist are returned as <c>null</c>.
+		/// </summary>
 		public async Task<IReadOnlyCollection<Blob>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			return await Task.WhenAll(fullPaths.Select(GetBlobAsync)).ConfigureAwait(false);
 		}
 
+		/// <summary>
+		/// Retrieves a blob's metadata without downloading its contents.
+		///
+		/// Returns <c>null</c> if the blob does not exist.
+		/// </summary>
 		private async Task<Blob> GetBlobAsync(string fullPath) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 			fullPath = StoragePath.Normalize(fullPath, true);
@@ -250,6 +317,13 @@ namespace FluentStorage.AWS.Blobs {
 			return null;
 		}
 
+		/// <summary>
+		/// Updates the metadata for the specified blobs.
+		///
+		/// S3 metadata is immutable, so each update is implemented by copying the object
+		/// onto itself with replacement metadata. Blob contents are not re-uploaded.
+		/// Blobs with no metadata are skipped.
+		/// </summary>
 		public async Task SetBlobsAsync(IEnumerable<Blob> blobs, CancellationToken cancellationToken = default) {
 			if (blobs == null)
 				return;
@@ -267,6 +341,12 @@ namespace FluentStorage.AWS.Blobs {
 			}
 		}
 
+		/// <summary>
+		/// Retrieves an object from S3.
+		///
+		/// Returns <c>null</c> if the object does not exist; otherwise returns the full
+		/// S3 response containing the content stream and object metadata.
+		/// </summary>
 		private async Task<GetObjectResponse> GetObjectAsync(string key) {
 			var request = new GetObjectRequest { BucketName = _bucketName, Key = key };
 			AmazonS3Client client = await GetClientAsync().ConfigureAwait(false);
@@ -305,28 +385,32 @@ namespace FluentStorage.AWS.Blobs {
 		}
 
 		/// <summary>
-		/// Get presigned url for upload object to Blob Storage.
+		/// Get pre-signed URL for upload object to Blob Storage.
 		/// </summary>
 		public async Task<string> GetUploadUrlAsync(string fullPath, string mimeType, int expiresInSeconds = 86000) {
 			return await GetPresignedUrlAsync(fullPath, mimeType, expiresInSeconds, HttpVerb.PUT).ConfigureAwait(false);
 		}
 
 		/// <summary>
-		/// Get presigned url for download object from Blob Storage.
+		/// Get pre-signed URL for download object from Blob Storage.
 		/// </summary>
 		public async Task<string> GetDownloadUrlAsync(string fullPath, string mimeType, int expiresInSeconds = 86000) {
 			return await GetPresignedUrlAsync(fullPath, mimeType, expiresInSeconds, HttpVerb.GET).ConfigureAwait(false);
 		}
 
 		/// <summary>
-		/// Get presigned url for requested operation with Blob Storage.
+		/// Generates a pre-signed URL for the specified blob.
 		/// </summary>
 		public async Task<string> GetPresignedUrlAsync(string fullPath, string mimeType, int expiresInSeconds, HttpVerb verb) {
 			return await GetPresignedUrlAsync(fullPath, mimeType, expiresInSeconds, verb, default).ConfigureAwait(false);
 		}
 
 		/// <summary>
-		/// Get presigned url for requested operation with Blob Storage.
+		/// Generates a pre-signed URL for the specified blob.
+		///
+		/// The URL grants temporary access to the object using the supplied HTTP verb and
+		/// expires after the specified duration. When a MIME type is provided, it is included
+		/// in the signature and must be supplied by the client when making the request.
 		/// </summary>
 		public async Task<string> GetPresignedUrlAsync(string fullPath, string mimeType, int expiresInSeconds, HttpVerb verb, Protocol protocol) {
 			IAmazonS3 client = await GetClientAsync().ConfigureAwait(false);
@@ -347,26 +431,24 @@ namespace FluentStorage.AWS.Blobs {
 		}
 
 		/// <summary>
-		/// Set acl for object.
+		/// Sets the object's canned ACL.
+		///
+		/// The supplied ACL string must match one of the AWS predefined canned ACL values;
+		/// otherwise an <see cref="ArgumentException"/> is thrown.
 		/// </summary>
-		/// <param name="fullPath"></param>
-		/// <param name="acl"></param>
-		/// <exception cref="ArgumentException"></exception>
-		public async Task SetAcl(string fullPath, string acl)
-		{
+		public async Task SetAcl(string fullPath, string acl) {
 			IAmazonS3 client = await GetClientAsync().ConfigureAwait(false);
 			var s3CannedAcl = S3CannedACL.FindValue(acl);
-			if (s3CannedAcl is null)
-			{
+			if (s3CannedAcl is null) {
 				throw new ArgumentException($"don't know '{acl}' acl", acl);
 			}
 
-			await client.PutObjectAclAsync(new PutObjectAclRequest
-			{
+			await client.PutObjectAclAsync(new PutObjectAclRequest {
 				BucketName = _bucketName,
 				Key = StoragePath.Normalize(fullPath, true),
 				ACL = s3CannedAcl
 			});
 		}
+
 	}
 }

@@ -169,6 +169,22 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
+		/// Creates a Cloudflare R2 storage provider (S3-compatible).
+		/// </summary>
+		/// <param name="accessKeyId">Access key ID</param>
+		/// <param name="secretAccessKey">Secret access key</param>
+		/// <param name="bucketName">Bucket name</param>
+		/// <param name="cloudflareAccountId">Cloudflare Account ID</param>
+		/// <returns>A reference to the created storage</returns>
+		public static IBlobStorage CloudflareR2(this IBlobStorageFactory factory,
+			string accessKeyId,
+			string secretAccessKey,
+			string bucketName,
+			string cloudflareAccountId) {
+			return AwsS3BlobStorage.FromCloudflareR2(accessKeyId, secretAccessKey, bucketName, cloudflareAccountId);
+		}
+
+		/// <summary>
 		/// Creates Amazon Simple Queue Service publisher
 		/// </summary>
 		/// <param name="factory"></param>

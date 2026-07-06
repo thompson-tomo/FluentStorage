@@ -1,11 +1,39 @@
 ﻿# Release Notes
 
+#### FluentStorage 7.1.0
+ - **FluentStorage**
+   - New: All providers and sinks updated to support `WriteAsync` with content type
+ - **FluentStorage.AWS**
+   - New: Content type will automatically be computed for all uploaded files in S3 or S3-compatible storage (if not supplied by user)
+   - New: Add support for Cloudflare R2 with new factory API `StorageFactory.Blob.CloudflareR2`
+   - New: Add support for uploading files to S3 or S3-compatible storage with MIME Type using `WriteAsync`  API
+   - New: Add dependency on `MimeMapping` 4.0.0 for content type computation
+   - New: All providers updated to support `WriteAsync` with content type
+   - Fix: Allow null content types in `GetPresignedUrlAsync` API
+ - **FluentStorage.Azure.Blobs**
+   - Update `MimeMapping` to version 4.0.0
+   - New: All providers updated to support `WriteAsync` with content type
+ - **FluentStorage.Azure.Files**
+   - New: All providers updated to support `WriteAsync` with content type
+ - **FluentStorage.Azure.DataLake**
+   - New: All providers updated to support `WriteAsync` with content type
+ - **FluentStorage.Azure.KeyVault**
+   - New: All providers updated to support `WriteAsync` with content type
+ - **FluentStorage.Azure.ServiceFabric**
+   - New: All providers updated to support `WriteAsync` with content type
+ - **FluentStorage.FTP**
+   - New: All providers updated to support `WriteAsync` with content type
+   - Updated FluentFTP to 54.2.0
+ - **FluentStorage.SFTP**
+   - New: All providers updated to support `WriteAsync` with content type
+ - **FluentStorage.Databricks**
+   - New: All providers updated to support `WriteAsync` with content type
+
 #### FluentStorage 7.0.0
  - **FluentStorage**
    - Fix: Make hash helpers thread-safe using new `MD5.HashData` and `SHA256.HashData` .NET APIs
  - **FluentStorage.AWS**
    - Fix: Update AWS SDK packages to 4.0.100.2
-   - Fix: Allow null content types in `GetPresignedUrlAsync` API
  - **FluentStorage.Azure**
    - New: Add Azure identity authentication core framework
    - New: Add dependency on `Azure.Identity` SDK package

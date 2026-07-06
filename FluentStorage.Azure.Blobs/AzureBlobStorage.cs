@@ -122,7 +122,7 @@ namespace FluentStorage.Azure.Blobs {
 		/// </summary>
 		public async Task WriteAsync(string fullPath, Stream dataStream,
 			bool append = false, CancellationToken cancellationToken = default) {
-			await WriteAsync(fullPath, dataStream, null, append, cancellationToken);
+			await WriteAsync(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>

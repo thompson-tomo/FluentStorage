@@ -78,8 +78,8 @@ namespace FluentStorage.Blobs {
 
 		public Task<ITransaction> OpenTransactionAsync() => throw new NotSupportedException();
 
-		public virtual Task WriteAsync(string fullPath, Stream sourceStream, string contentType, bool append, CancellationToken cancellationToken) {
-			throw new NotSupportedException();
+		public virtual async Task WriteAsync(string fullPath, Stream sourceStream, string contentType, bool append, CancellationToken cancellationToken) {
+			await WriteAsync(fullPath, sourceStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
 
 		public virtual Task WriteAsync(string fullPath, Stream dataStream, bool append = false, CancellationToken cancellationToken = default) {

@@ -51,7 +51,7 @@ namespace FluentStorage.Blobs {
 		}
 
 		public async Task WriteAsync(string fullPath, Stream sourceStream, string contentType, bool append, CancellationToken cancellationToken) {
-			await WriteAsync(fullPath, sourceStream, null, append, cancellationToken);
+			await WriteAsync(fullPath, sourceStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
 
 		public Task WriteAsync(string fullPath, Stream sourceStream, bool append, CancellationToken cancellationToken) {

@@ -31,7 +31,7 @@ FluentStorage is released under the permissive MIT License, so it can be used in
 
 * Provides both synchronous and asynchronous alternatives of all methods and implements it to the best effort possible.
 
-* [Supports all popular providers](#storage-providers): AWS S3, AWS SQS, GCP Storage, FTP, FTPS, SFTP, Azure Blob & File Storage, Azure Queue Storage, Azure Service Bus, Azure Event Hub, Azure Data Lake Store, Azure Key Vault, DigitalOcean Spaces, MinIO, Wasabi.
+* [Supports all popular providers](#storage-providers): AWS S3, AWS SQS, GCP Storage, FTP, FTPS, SFTP, Azure Blob & File Storage, Azure Queue Storage, Azure Service Bus, Azure Event Hub, Azure Data Lake Store, Azure Key Vault, Cloudflare R2, DigitalOcean Spaces, MinIO, Wasabi.
 
 * [Supports providers using individual Nuget packages](#packages), with hassle-free configuration and zero learning path.
 
@@ -89,6 +89,7 @@ FluentStorage supports the following cloud storage providers:
 | **[Azure DataLake](https://azure.microsoft.com/en-us/solutions/data-lake)** | [FluentStorage.Azure.DataLake](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Data-Lake) |
 | **[Google Cloud Storage](https://cloud.google.com/storage)**                | [FluentStorage.GCP](https://github.com/robinrodricks/FluentStorage/wiki/Google-Cloud-Storage)         |
 | **[MinIO](https://min.io/)**                                                | [FluentStorage.AWS -> MinIO](https://github.com/robinrodricks/FluentStorage/wiki/MinIO-Storage)         |
+| **[Cloudflare R2](https://www.cloudflare.com/products/r2/)**     | [FluentStorage.AWS -> R2](https://github.com/robinrodricks/FluentStorage/wiki/Cloudflare-R2-Storage)  |
 | **[DigitalOcean Spaces](https://www.digitalocean.com/products/spaces)**     | [FluentStorage.AWS -> DigitalOcean Spaces](https://github.com/robinrodricks/FluentStorage/wiki/DigitalOcean-Spaces-Storage)  |
 | **[Wasabi](https://wasabi.com/)**                                           | [FluentStorage.AWS -> Wasabi](https://github.com/robinrodricks/FluentStorage/wiki/AWS-S3-Storage#connect-to-wasabi)         |
 
@@ -151,6 +152,7 @@ Check the [Wiki](https://github.com/robinrodricks/FluentStorage/wiki).
 
 In 2026, we added:
 
+* **Cloudflare R2** provider
 * **Azure.Identity support for Azure Files**, bringing token credential, client secret, and managed identity authentication parity with Azure Blob Storage
 
 In 2024, we added:

@@ -91,7 +91,7 @@ FluentStorage supports the following cloud storage providers:
 | **[MinIO](https://min.io/)**                                                | [FluentStorage.AWS -> MinIO](https://github.com/robinrodricks/FluentStorage/wiki/MinIO-Storage)         |
 | **[Cloudflare R2](https://www.cloudflare.com/products/r2/)**     | [FluentStorage.AWS -> R2](https://github.com/robinrodricks/FluentStorage/wiki/Cloudflare-R2-Storage)  |
 | **[DigitalOcean Spaces](https://www.digitalocean.com/products/spaces)**     | [FluentStorage.AWS -> DigitalOcean Spaces](https://github.com/robinrodricks/FluentStorage/wiki/DigitalOcean-Spaces-Storage)  |
-| **[Wasabi](https://wasabi.com/)**                                           | [FluentStorage.AWS -> Wasabi](https://github.com/robinrodricks/FluentStorage/wiki/AWS-S3-Storage#connect-to-wasabi)         |
+| **[Wasabi](https://wasabi.com/)**                                           | [FluentStorage.AWS -> Wasabi](https://github.com/robinrodricks/FluentStorage/wiki/Wasabi-Storage)         |
 
 
 

@@ -56,7 +56,9 @@ namespace FluentStorage.Microsoft.ServiceFabric.Blobs {
 				await WriteAsync(fullPath, dataStream, cancellationToken).ConfigureAwait(false);
 			}
 		}
-
+		public async Task WriteAsync(string fullPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken) {
+			await WriteAsync(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
+		}
 		private async Task WriteAsync(Blob blob, Stream sourceStream, CancellationToken cancellationToken) {
 			string fullPath = ToFullPath(blob);
 

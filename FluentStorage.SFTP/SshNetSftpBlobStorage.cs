@@ -415,6 +415,9 @@ namespace FluentStorage.SFTP {
 			throw new NotSupportedException();
 		}
 
+		public async Task WriteAsync(string fullPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken) {
+			await WriteAsync(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
+		}
 		/// <summary>
 		/// Uploads data to a blob from stream.
 		/// </summary>

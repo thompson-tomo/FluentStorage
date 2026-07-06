@@ -12,6 +12,8 @@ using System.Threading;
 using FluentStorage.Streaming;
 using FluentStorage.Utils.Extensions;
 using Amazon.S3.Util;
+using MimeMapping;
+
 #if !NET6_0_OR_GREATER
 
 #endif
@@ -27,6 +29,7 @@ namespace FluentStorage.AWS.Blobs {
 		private readonly AmazonS3Client _client;
 		private readonly TransferUtility _fileTransferUtility;
 		private bool _initialised = false;
+		private bool _usePutObject = false;
 		private bool _disablePayloadSigning = false;
 
 
@@ -77,6 +80,7 @@ namespace FluentStorage.AWS.Blobs {
 			};
 
 			var store = new AwsS3BlobStorage(accessKeyId, secretAccessKey, null, bucketName, config);
+			store._usePutObject = true;
 			store._disablePayloadSigning = true;
 			return store;
 		}
@@ -188,24 +192,73 @@ namespace FluentStorage.AWS.Blobs {
 		}
 
 		/// <summary>
-		/// Uploads a blob to S3 or S3-compatible storage.
+		/// Uploads a blob to S3 or S3-compatible storage, by automatically computing the Content-Type.
 		///
-		/// Internally this uses <see cref="Amazon.S3.Transfer.TransferUtility"/>, which
-		/// automatically performs either a single PUT or a multipart upload depending on
-		/// the stream size. The caller does not need to choose between the two.
-		///
-		/// Note that if the supplied stream is not seekable (or its length cannot be
-		/// determined), the AWS SDK may buffer the entire stream into a <see cref="MemoryStream"/>
+		/// If the supplied stream is not seekable or its length cannot be determined,
+		/// the AWS SDK may buffer the entire stream into a `MemoryStream`
 		/// before uploading, potentially consuming a large amount of memory.
+		/// 
 		/// </summary>
 		public async Task WriteAsync(string fullPath, Stream dataStream, bool append = false,
 		   CancellationToken cancellationToken = default) {
+			await WriteAsync(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
+		}
+
+		/// <summary>
+		/// Uploads a blob to S3 or S3-compatible storage, with the given Content-Type.
+		///
+		/// Uses `TransferUtility` API for AWS S3, MinIO, Wasabi, DigitalOcean Spaces.
+		/// Uses `PutObjectAsync` API for Cloudflare R2.
+		/// `TransferUtility` performs either a single PUT or a multipart upload depending on the stream size.
+		///
+		/// If the supplied stream is not seekable or its length cannot be determined,
+		/// the AWS SDK may buffer the entire stream into a `MemoryStream`
+		/// before uploading, potentially consuming a large amount of memory.
+		/// 
+		/// </summary>
+		public async Task WriteAsync(string fullPath, Stream dataStream, string contentType,
+			bool append = false, CancellationToken cancellationToken = default) {
+
 			if (append)
 				throw new NotSupportedException();
+
+			// Compute the full object path.
 			GenericValidation.CheckBlobFullPath(fullPath);
 			fullPath = StoragePath.Normalize(fullPath, true);
 
-			await _fileTransferUtility.UploadAsync(dataStream, _bucketName, fullPath, cancellationToken).ConfigureAwait(false);
+			// Auto compute a MIME type (content type) if not given
+			if (contentType == null) {
+				contentType = MimeUtility.GetMimeMapping(fullPath);
+			}
+
+			// if PutObject API is required
+			if (_usePutObject) {
+
+				// Use PutObjectAsync for Cloudflare R2.
+				var request = new PutObjectRequest {
+					BucketName = _bucketName,
+					Key = fullPath,
+					InputStream = dataStream,
+					ContentType = contentType,
+					DisablePayloadSigning = true // R2 does not support "Streaming Signature V4".
+				};
+
+				await _client.PutObjectAsync(request, cancellationToken).ConfigureAwait(false);
+
+			}
+			else {
+
+				// Use TransferUtility for AWS S3, MinIO, Wasabi, DigitalOcean Spaces.
+				var request = new TransferUtilityUploadRequest {
+					BucketName = _bucketName,
+					Key = fullPath,
+					InputStream = dataStream,
+					ContentType = contentType
+				};
+
+				await _fileTransferUtility.UploadAsync(request, cancellationToken).ConfigureAwait(false);
+
+			}
 		}
 
 		/// <summary>
@@ -423,7 +476,7 @@ namespace FluentStorage.AWS.Blobs {
 				Verb = verb,
 			};
 
-			// #122 : If ContentType is not set, the generated signature does not include a `Content-Type` header.
+			// #122 : If `ContentType` is not set, the generated SDK request signature does not include a `Content-Type` header.
 			if (!string.IsNullOrWhiteSpace(mimeType))
 				request.ContentType = mimeType;
 

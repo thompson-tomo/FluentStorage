@@ -50,6 +50,10 @@ namespace FluentStorage.Blobs {
 			return Task.FromResult(matches);
 		}
 
+		public async Task WriteAsync(string fullPath, Stream sourceStream, string contentType, bool append, CancellationToken cancellationToken) {
+			await WriteAsync(fullPath, sourceStream, null, append, cancellationToken);
+		}
+
 		public Task WriteAsync(string fullPath, Stream sourceStream, bool append, CancellationToken cancellationToken) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 			fullPath = StoragePath.Normalize(fullPath);

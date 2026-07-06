@@ -84,6 +84,9 @@ namespace FluentStorage.Azure.KeyVault.Blobs {
 			string value = Encoding.UTF8.GetString(data);
 			await _client.SetSecretAsync(fullPath, value, cancellationToken).ConfigureAwait(false);
 		}
+		public async Task WriteAsync(string fullPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken) {
+			await WriteAsync(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
+		}
 
 		public async Task<Stream> OpenReadAsync(string fullPath, CancellationToken cancellationToken) {
 			GenericValidation.CheckBlobFullPath(fullPath);

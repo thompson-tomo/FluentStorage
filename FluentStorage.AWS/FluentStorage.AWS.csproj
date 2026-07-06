@@ -9,7 +9,7 @@
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <PackageIcon>logo-nuget.png</PackageIcon>
       <Authors>Robin Rodricks, FluentStorage Contributors</Authors>
-      <Version>7.0.1</Version>
+      <Version>7.1.0</Version>
       <PackageProjectUrl>https://github.com/robinrodricks/FluentStorage</PackageProjectUrl>
       <RepositoryUrl>https://github.com/robinrodricks/FluentStorage</RepositoryUrl>
       <RepositoryType>GitHub</RepositoryType>
@@ -29,6 +29,7 @@
       <PackageReference Include="AWSSDK.S3" Version="4.0.100.2" />
       <PackageReference Include="AWSSDK.SecurityToken" Version="4.0.100.2" />
       <PackageReference Include="AWSSDK.SQS" Version="4.0.100.2" />
+       <PackageReference Include="MimeMapping" Version="4.0.0" />
    </ItemGroup>
    <ItemGroup>
       <ProjectReference Include="..\FluentStorage\FluentStorage.csproj" />

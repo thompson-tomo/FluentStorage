@@ -228,34 +228,22 @@ namespace FluentStorage.Blobs {
 		}
 
 
-		/// <summary>
-		///
-		/// </summary>
 		public virtual void Dispose() {
 
 		}
 
-		/// <summary>
-		///
-		/// </summary>
 		public virtual Task<IReadOnlyCollection<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			return ExecuteAsync(
 			   fullPaths,
 			   (storage, fps) => storage.ExistsAsync(fps, cancellationToken));
 		}
 
-		/// <summary>
-		///
-		/// </summary>
 		public virtual Task<IReadOnlyCollection<Blob>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			return ExecuteAsync(
 			   fullPaths,
 			   (storage, fps) => storage.GetBlobsAsync(fps, cancellationToken));
 		}
 
-		/// <summary>
-		///
-		/// </summary>
 		public async virtual Task<IReadOnlyCollection<Blob>> ListAsync(ListOptions options = null, CancellationToken cancellationToken = default) {
 			if (options == null)
 				options = new ListOptions();
@@ -321,9 +309,6 @@ namespace FluentStorage.Blobs {
 			return result;
 		}
 
-		/// <summary>
-		///
-		/// </summary>
 		public virtual async Task<Stream> OpenReadAsync(string fullPath, CancellationToken cancellationToken = default) {
 			if (!TryExplodeToMountPoint(fullPath, out IBlobStorage storage, out string relPath))
 				return null;
@@ -332,9 +317,6 @@ namespace FluentStorage.Blobs {
 		}
 
 
-		/// <summary>
-		///
-		/// </summary>
 		public virtual Task SetBlobsAsync(IEnumerable<Blob> blobs, CancellationToken cancellationToken = default) {
 			return ExecuteAsync(blobs, (s, rb) => s.SetBlobsAsync(rb, cancellationToken));
 		}
@@ -357,22 +339,21 @@ namespace FluentStorage.Blobs {
 			return true;
 		}
 
-
-		/// <summary>
-		///
-		/// </summary>
 		public virtual Task<ITransaction> OpenTransactionAsync() => null;
 
-
-		/// <summary>
-		///
-		/// </summary>
 		public virtual async Task WriteAsync(string fullPath, Stream dataStream, bool append = false, CancellationToken cancellationToken = default) {
 			if (!TryExplodeToMountPoint(fullPath, out IBlobStorage storage, out string relPath))
 				return;
 
 
 			await storage.WriteAsync(relPath, dataStream, append, cancellationToken).ConfigureAwait(false);
+		}
+		public async Task WriteAsync(string fullPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken) {
+			if (!TryExplodeToMountPoint(fullPath, out IBlobStorage storage, out string relPath))
+				return;
+
+
+			await storage.WriteAsync(relPath, dataStream, contentType, append, cancellationToken).ConfigureAwait(false);
 		}
 	}
 }

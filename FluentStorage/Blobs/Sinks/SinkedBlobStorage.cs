@@ -54,9 +54,7 @@ namespace FluentStorage.Blobs.Sinks {
 			return readStream;
 		}
 
-		public async Task WriteAsync(
-		   string fullPath, Stream dataSourceStream,
-		   bool append = false,
+		public async Task WriteAsync(string fullPath, Stream dataSourceStream,bool append = false,
 		   CancellationToken cancellationToken = default) {
 			if (dataSourceStream == null)
 				return;
@@ -65,5 +63,14 @@ namespace FluentStorage.Blobs.Sinks {
 				await _parent.WriteAsync(fullPath, source, append, cancellationToken).ConfigureAwait(false);
 			}
 		}
+		public async Task WriteAsync(string fullPath, Stream dataSourceStream, string contentType, bool append, CancellationToken cancellationToken) {
+			if (dataSourceStream == null)
+				return;
+
+			using (var source = new SinkedStream(dataSourceStream, fullPath, _sinks)) {
+				await _parent.WriteAsync(fullPath, source, contentType, append, cancellationToken).ConfigureAwait(false);
+			}
+		}
+
 	}
 }

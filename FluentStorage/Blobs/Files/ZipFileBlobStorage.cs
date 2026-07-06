@@ -148,6 +148,9 @@ namespace FluentStorage.Blobs.Files {
 			return Task.FromResult(EmptyTransaction.Instance);
 		}
 
+		public async Task WriteAsync(string fullPath, Stream sourceStream, string contentType, bool append, CancellationToken cancellationToken) {
+			await WriteAsync(fullPath, sourceStream, null, append, cancellationToken).ConfigureAwait(false);
+		}
 		public async Task WriteAsync(string fullPath, Stream dataStream, bool append = false, CancellationToken cancellationToken = default) {
 			if (dataStream is null)
 				throw new ArgumentNullException(nameof(dataStream));

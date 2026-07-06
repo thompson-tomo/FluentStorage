@@ -19,9 +19,7 @@ using FluentStorage.Blobs;
 using FluentStorage.Azure.Blobs.Gen2.Model;
 
 namespace FluentStorage.Azure.Blobs {
-	//auth scenarios: https://github.com/Azure/azure-sdk-for-net/blob/master/sdk/storage/Azure.Storage.Blobs/samples/Sample02_Auth.cs
-
-
+	
 	class AzureBlobStorage : IAzureBlobStorage {
 
 		private readonly BlobServiceClient _client;
@@ -119,8 +117,20 @@ namespace FluentStorage.Azure.Blobs {
 
 		public Task<ITransaction> OpenTransactionAsync() => throw new NotImplementedException();
 
+		/// <summary>
+		/// Uploads a blob to Azure Blob storage, by automatically computing the Content-Type.
+		/// </summary>
 		public async Task WriteAsync(string fullPath, Stream dataStream,
-		   bool append = false, CancellationToken cancellationToken = default) {
+			bool append = false, CancellationToken cancellationToken = default) {
+			await WriteAsync(fullPath, dataStream, null, append, cancellationToken);
+		}
+
+		/// <summary>
+		/// Uploads a blob to Azure Blob storage, with the given Content-Type.
+		/// </summary>
+		public async Task WriteAsync(string fullPath, Stream dataStream,
+		    string contentType = null,
+			bool append = false, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 
 			if (dataStream == null)
@@ -130,7 +140,11 @@ namespace FluentStorage.Azure.Blobs {
 
 			BlockBlobClient client = container.GetBlockBlobClient(path);
 
-			string contentType = MimeUtility.GetMimeMapping(path);
+			// Auto compute a MIME type (content type) if not given
+			if (contentType == null) {
+				contentType = MimeUtility.GetMimeMapping(path);
+			}
+
 			try {
 				var options = new BlobUploadOptions {
 					HttpHeaders = new BlobHttpHeaders {

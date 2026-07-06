@@ -189,17 +189,7 @@ namespace FluentStorage.Blobs.Files {
 
 		private static string EncodePathPart(string path) {
 			return path;
-			//return path.UrlEncode();
 		}
-
-		private static string DecodePathPart(string path) {
-			return path;
-			//return path.UrlDecode();
-		}
-
-		/// <summary>
-		/// dispose
-		/// </summary>
 		public void Dispose() {
 		}
 
@@ -212,6 +202,9 @@ namespace FluentStorage.Blobs.Files {
 
 			using Stream stream = CreateStream(fullPath, !append);
 			await dataStream.CopyToAsync(stream);
+		}
+		public async Task WriteAsync(string fullPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken) {
+			await WriteAsync(fullPath, dataStream, append, cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>

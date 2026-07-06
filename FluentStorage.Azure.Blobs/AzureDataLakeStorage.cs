@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Storage;
@@ -10,6 +8,7 @@ using FluentStorage.Blobs;
 using FluentStorage.Azure.Blobs.Gen2.Model;
 using FluentStorage.Utils.Objects;
 using Azure.Core.Pipeline;
+using FluentStorage.Azure.Identity;
 
 namespace FluentStorage.Azure.Blobs {
 	class AzureDataLakeStorage : AzureBlobStorage, IAzureDataLakeStorage {

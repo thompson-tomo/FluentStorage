@@ -1,4 +1,4 @@
-﻿namespace FluentStorage.Azure.Blobs
+﻿namespace FluentStorage.Azure.Identity
 {
 	/// <summary>
 	/// Azure cloud environments with their respective endpoints

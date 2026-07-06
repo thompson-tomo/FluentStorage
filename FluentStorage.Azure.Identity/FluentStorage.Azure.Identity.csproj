@@ -2,15 +2,15 @@
 
    <PropertyGroup>
       <TargetFrameworks>netstandard2.0;netstandard2.1;net70;net80;net90</TargetFrameworks>
-      <PackageId>FluentStorage.Azure.Blobs</PackageId>
-      <RootNamespace>FluentStorage.Azure.Blobs</RootNamespace>
-      <AssemblyName>FluentStorage.Azure.Blobs</AssemblyName>
-      <Description>Extension to FluentStorage providing Azure blob storage.</Description>
+      <PackageId>FluentStorage.Azure.Identity</PackageId>
+      <RootNamespace>FluentStorage.Azure.Identity</RootNamespace>
+      <AssemblyName>FluentStorage.Azure.Identity</AssemblyName>
+      <Description>Extension to FluentStorage providing shared Azure identity helpers.</Description>
       <Copyright>Copyright (c) 2023 Robin Rodricks and FluentStorage Contributors</Copyright>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <PackageIcon>logo-nuget.png</PackageIcon>
       <Authors>Robin Rodricks, FluentStorage Contributors</Authors>
-      <Version>6.0.4</Version>
+      <Version>6.0.0</Version>
       <PackageProjectUrl>https://github.com/robinrodricks/FluentStorage</PackageProjectUrl>
       <RepositoryUrl>https://github.com/robinrodricks/FluentStorage</RepositoryUrl>
       <RepositoryType>GitHub</RepositoryType>
@@ -18,28 +18,17 @@
       <LangVersion>latest</LangVersion>
       <SignAssembly>True</SignAssembly>
       <AssemblyOriginatorKeyFile>..\FluentStorage\sn.snk</AssemblyOriginatorKeyFile>
-      <DocumentationFile>$(SolutionDir)build\FluentStorage.Azure.Blobs.xml</DocumentationFile>
-       <BaseOutputPath>$(SolutionDir)build\</BaseOutputPath>
-      
+      <DocumentationFile>$(SolutionDir)build\FluentStorage.Azure.Identity.xml</DocumentationFile>
+      <BaseOutputPath>$(SolutionDir)build\</BaseOutputPath>
+
    </PropertyGroup>
 
    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
       <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
    </PropertyGroup>
 
-
    <ItemGroup>
-      <PackageReference Include="Azure.Storage.Blobs" Version="12.20.0" />
-      <PackageReference Include="MimeMapping" Version="3.1.0" />
-   </ItemGroup>
-  
-   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1' ">
-      <PackageReference Include="System.Text.Json" Version="8.0.6" />
-   </ItemGroup>
-
-   <ItemGroup>
-      <ProjectReference Include="..\FluentStorage.Azure.Identity\FluentStorage.Azure.Identity.csproj" />
-      <ProjectReference Include="..\FluentStorage\FluentStorage.csproj" />
+      <PackageReference Include="Azure.Identity" Version="1.14.2" />
    </ItemGroup>
 
    <ItemGroup>

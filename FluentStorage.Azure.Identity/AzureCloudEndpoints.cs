@@ -1,8 +1,8 @@
-﻿using Azure.Identity;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Azure.Identity;
 
-namespace FluentStorage.Azure.Blobs {
+namespace FluentStorage.Azure.Identity {
 	/// <summary>
 	/// Provides Azure service endpoint hostnames and authority URIs for different cloud environments.
 	/// </summary>

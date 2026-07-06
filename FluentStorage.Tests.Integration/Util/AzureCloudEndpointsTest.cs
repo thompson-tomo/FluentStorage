@@ -1,7 +1,7 @@
 ﻿using System;
 using Xunit;
 using Azure.Identity;
-using FluentStorage.Azure.Blobs;
+using FluentStorage.Azure.Identity;
 
 namespace FluentStorage.Tests.Integration.Util {
 	public class AzureCloudEndpointsTest {

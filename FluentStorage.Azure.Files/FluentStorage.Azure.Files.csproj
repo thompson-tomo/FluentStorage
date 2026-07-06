@@ -19,7 +19,7 @@
       <AssemblyOriginatorKeyFile>..\FluentStorage\sn.snk</AssemblyOriginatorKeyFile>
       <DocumentationFile>$(SolutionDir)build\FluentStorage.Azure.Files.xml</DocumentationFile>
       <BaseOutputPath>$(SolutionDir)build\</BaseOutputPath>
-     
+
    </PropertyGroup>
 
    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -28,10 +28,11 @@
 
 
    <ItemGroup>
-       <PackageReference Include="Microsoft.Azure.Storage.File" Version="11.2.3" />
+      <PackageReference Include="Azure.Storage.Files.Shares" Version="12.18.0" />
    </ItemGroup>
 
    <ItemGroup>
+      <ProjectReference Include="..\FluentStorage.Azure.Identity\FluentStorage.Azure.Identity.csproj" />
       <ProjectReference Include="..\FluentStorage\FluentStorage.csproj" />
    </ItemGroup>
 

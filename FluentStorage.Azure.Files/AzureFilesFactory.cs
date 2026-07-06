@@ -32,7 +32,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		/// Creates a blob storage implementation based on Microsoft Azure Files.
+		/// Creates Azure Files from account name and key
 		/// </summary>
 		/// <param name="factory">Reference to factory</param>
 		/// <param name="accountName">Storage Account name</param>
@@ -45,7 +45,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		///
+		/// Creates Azure Files with Shared Key
 		/// </summary>
 		public static IBlobStorage AzureFilesWithSharedKey(this IBlobStorageFactory factory,
 		   string accountName,
@@ -55,7 +55,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		///
+		///Creates Azure Files with Shared Key
 		/// </summary>
 		public static IBlobStorage AzureFilesWithSharedKey(this IBlobStorageFactory factory,
 		   string accountName,
@@ -64,7 +64,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		///
+		///Creates Azure Files with Shared Key
 		/// </summary>
 		public static IBlobStorage AzureFilesWithSharedKey(this IBlobStorageFactory factory,
 		   string accountName,
@@ -74,7 +74,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		///
+		///Creates Azure Files with Shared Key
 		/// </summary>
 		public static IBlobStorage AzureFilesWithSharedKey(this IBlobStorageFactory factory,
 		   string accountName,
@@ -95,7 +95,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		/// Overload that accepts a cloud environment.
+		/// Create Azure Files with Azure AD 
 		/// </summary>
 		public static IBlobStorage AzureFilesWithAzureAd(this IBlobStorageFactory factory,
 		   string accountName,
@@ -107,7 +107,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		/// Overload that not accepts cloud environment and AD Authority endpoint.
+		/// Create Azure Files with Azure AD and Active Directory Authority endpoint.
 		/// </summary>
 		public static IBlobStorage AzureFilesWithAzureAd(this IBlobStorageFactory factory,
 		   string accountName,
@@ -118,7 +118,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		/// Overload that accepts a custom Active Directory authority endpoint.
+		/// Create Azure Files with Azure AD and Active Directory Authority endpoint.
 		/// </summary>
 		public static IBlobStorage AzureFilesWithAzureAd(this IBlobStorageFactory factory,
 		   string accountName,
@@ -130,7 +130,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		/// Canonical implementation (no optional parameters).
+		/// Create Azure Files with Azure AD and Active Directory Authority endpoint.
 		/// </summary>
 		public static IBlobStorage AzureFilesWithAzureAd(this IBlobStorageFactory factory,
 		   string accountName,
@@ -165,7 +165,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		///
+		/// Create Azure Files with Token Credentials
 		/// </summary>
 		public static IBlobStorage AzureFilesWithTokenCredential(this IBlobStorageFactory factory,
 		   string accountName,
@@ -174,7 +174,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		///
+		///Create Azure Files with Token Credentials
 		/// </summary>
 		public static IBlobStorage AzureFilesWithTokenCredential(this IBlobStorageFactory factory,
 		   string accountName,
@@ -193,7 +193,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		/// Creates Azure Files with Managed Identity
+		/// Creates Azure Files with Managed Identity (Managed Service Identity)
 		/// </summary>
 		public static IBlobStorage AzureFilesWithMsi(this IBlobStorageFactory factory,
 		   string accountName,
@@ -202,14 +202,14 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		/// Creates Azure Files with Managed Identity
+		/// Creates Azure Files with Managed Identity (Managed Service Identity)
 		/// </summary>
 		public static IBlobStorage AzureFilesWithMsi(this IBlobStorageFactory factory, string accountName) {
 			return AzureFilesWithMsi(factory, accountName, null, default);
 		}
 
 		/// <summary>
-		/// Creates Azure Files with Managed Identity (client id)
+		/// Creates Azure Files with Managed Identity (Managed Service Identity)
 		/// </summary>
 		public static IBlobStorage AzureFilesWithMsi(this IBlobStorageFactory factory,
 		   string accountName,
@@ -218,7 +218,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		/// Creates Azure Files with Managed Identity
+		/// Creates Azure Files with Managed Identity (Managed Service Identity)
 		/// </summary>
 		public static IBlobStorage AzureFilesWithMsi(this IBlobStorageFactory factory,
 		   string accountName,
@@ -236,7 +236,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		/// Create connection string for azure files storage
+		/// Create connection string for Azure Files with Shared Key
 		/// </summary>
 		public static StorageConnectionString ForAzureFilesStorageWithSharedKey(this IConnectionStringFactory factory,
 		   string accountName,
@@ -248,7 +248,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		///
+		/// Create connection string for Azure Files with Azure AD
 		/// </summary>
 		public static StorageConnectionString ForAzureFilesStorageWithAzureAd(this IConnectionStringFactory factory,
 		   string accountName,

@@ -156,6 +156,7 @@ In 2026, we added:
 
 * **Cloudflare R2** provider
 * **Azure.Identity support for Azure Files** with token credential, client secret, and managed identity authentication.
+* **Wiki** pages per provider
 
 In 2025, we added:
 

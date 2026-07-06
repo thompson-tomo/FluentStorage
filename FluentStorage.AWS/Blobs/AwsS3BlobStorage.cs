@@ -86,7 +86,7 @@ namespace FluentStorage.AWS.Blobs {
 		}
 #endif
 
-		// [ADD STORAGE PROVIDER]]
+		// [ADD STORAGE PROVIDER]
 
 
 		public AwsS3BlobStorage(string bucketName, string region, AWSCredentials credentials) {

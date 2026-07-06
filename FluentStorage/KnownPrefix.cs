@@ -28,7 +28,7 @@
 		/// </summary>
 		public static string CloudflareR2 = "cloudflare.r2";
 
-		// [ADD STORAGE PROVIDER]]
+		// [ADD STORAGE PROVIDER]
 
 		/// <summary>
 		/// Databricks on Azure or AWS

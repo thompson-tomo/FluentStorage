@@ -17,7 +17,7 @@ namespace FluentStorage.AWS {
 				connectionString.Prefix == KnownPrefix.Wasabi ||
 				connectionString.Prefix == KnownPrefix.DigitalOceanSpaces) {
 
-				// [ADD STORAGE PROVIDER]]
+				// [ADD STORAGE PROVIDER]
 
 				string region = String.Empty;
 
@@ -53,9 +53,10 @@ namespace FluentStorage.AWS {
 					string sessionToken = connectionString.Get(KnownParameter.SessionToken);
 
 
-					// USE SPECIAL CONSTRUCTORS
 
-					// [ADD STORAGE PROVIDER]]
+					// [ADD STORAGE PROVIDER]
+
+					// USE SPECIAL CONSTRUCTORS for special providers
 
 					if (connectionString.Prefix == KnownPrefix.MinIoS3) {
 						return AwsS3BlobStorage.FromMinIO(keyId, key, bucket, region, serviceUrl, sessionToken);
@@ -70,6 +71,8 @@ namespace FluentStorage.AWS {
 					else if (connectionString.Prefix == KnownPrefix.DigitalOceanSpaces) {
 						return AwsS3BlobStorage.FromDigitalOcean(keyId, key, bucket, region, sessionToken);
 					}
+
+					// fallback to S3 constructor if its not a special providr
 
 					else if (connectionString.Prefix == KnownPrefix.AwsS3) {
 						return new AwsS3BlobStorage(keyId, key, sessionToken, bucket, region, serviceUrl);

@@ -254,14 +254,6 @@ namespace FluentStorage {
 		/// <summary>
 		/// Create Azure DataLake Gen 2 Storage with Azure AD
 		/// </summary>
-		/// <param name="factory"></param>
-		/// <param name="accountName"></param>
-		/// <param name="tenantId"></param>
-		/// <param name="applicationId"></param>
-		/// <param name="applicationSecret"></param>
-		/// <param name="activeDirectoryAuthEndpoint"></param>
-		/// <param name="cloudEnvironment"></param>
-		/// <returns></returns>
 		public static IAzureDataLakeStorage AzureDataLakeStorageWithAzureAd(this IBlobStorageFactory factory,
 		   string accountName,
 		   string tenantId,
@@ -315,10 +307,6 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Blob Storage with Token Credential
 		/// </summary>
-		/// <param name="factory"></param>
-		/// <param name="sas"></param>
-		/// <param name="options"></param>
-		/// <returns></returns>
 		public static IAzureBlobStorage AzureBlobStorageWithSas(this IBlobStorageFactory factory,
 		   string sas, BlobClientOptions options = default) {
 			TryParseSasUrl(sas, out string accountName, out string containerName, out string sasQuery);
@@ -331,10 +319,6 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Blob Storage with Managed Identity
 		/// </summary>
-		/// <param name="factory"></param>
-		/// <param name="accountName"></param>
-		/// <param name="azureCloudEnvironment"></param>
-		/// <returns></returns>
 		public static IAzureBlobStorage AzureBlobStorageWithMsi(this IBlobStorageFactory factory,
 		   string accountName,
 		   AzureCloudEnvironment azureCloudEnvironment) {
@@ -344,9 +328,6 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Blob Storage with Managed Identity
 		/// </summary>
-		/// <param name="factory"></param>
-		/// <param name="accountName"></param>
-		/// <returns></returns>
 		public static IAzureBlobStorage AzureBlobStorageWithMsi(this IBlobStorageFactory factory, string accountName) {
 			return AzureBlobStorageWithMsi(factory, accountName, null, default);
 		}
@@ -354,10 +335,6 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Blob Storage with Managed Identity (client id)
 		/// </summary>
-		/// <param name="factory"></param>
-		/// <param name="accountName"></param>
-		/// <param name="clientId"></param>
-		/// <returns></returns>
 		public static IAzureBlobStorage AzureBlobStorageWithMsi(this IBlobStorageFactory factory,
 		   string accountName,
 		   string clientId) {
@@ -367,11 +344,6 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Blob Storage with Managed Identity
 		/// </summary>
-		/// <param name="factory"></param>
-		/// <param name="accountName"></param>
-		/// <param name="clientId"></param>
-		/// <param name="azureCloudEnvironment"></param>
-		/// <returns></returns>
 		public static IAzureBlobStorage AzureBlobStorageWithMsi(this IBlobStorageFactory factory,
 		   string accountName,
 		   string clientId,
@@ -386,10 +358,6 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Data Lake Gen 2 with Managed Identity
 		/// </summary>
-		/// <param name="factory"></param>
-		/// <param name="accountName"></param>
-		/// <param name="azureCloudEnvironment"></param>
-		/// <returns></returns>
 		public static IAzureDataLakeStorage AzureDataLakeStorageWithMsi(this IBlobStorageFactory factory,
 		   string accountName,
 		   AzureCloudEnvironment azureCloudEnvironment) {
@@ -399,9 +367,6 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Data Lake Gen 2 with Managed Identity
 		/// </summary>
-		/// <param name="factory"></param>
-		/// <param name="accountName"></param>
-		/// <returns></returns>
 		public static IAzureDataLakeStorage AzureDataLakeStorageWithMsi(this IBlobStorageFactory factory, string accountName) {
 			return AzureDataLakeStorageWithMsi(factory, accountName, null, default);
 		}
@@ -409,10 +374,6 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Data Lake Gen 2 with Managed Identity (client id)
 		/// </summary>
-		/// <param name="factory"></param>
-		/// <param name="accountName"></param>
-		/// <param name="clientId"></param>
-		/// <returns></returns>
 		public static IAzureDataLakeStorage AzureDataLakeStorageWithMsi(this IBlobStorageFactory factory,
 		   string accountName,
 		   string clientId) {
@@ -422,11 +383,6 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Data Lake Gen 2 Storage with Managed Identity
 		/// </summary>
-		/// <param name="factory"></param>
-		/// <param name="accountName"></param>
-		/// <param name="clientId"></param>
-		/// <param name="azureCloudEnvironment"></param>
-		/// <returns></returns>
 		public static IAzureDataLakeStorage AzureDataLakeStorageWithMsi(this IBlobStorageFactory factory,
 		   string accountName,
 		   string clientId,

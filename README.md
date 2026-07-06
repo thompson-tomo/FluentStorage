@@ -93,6 +93,8 @@ FluentStorage supports the following cloud storage providers:
 | **[DigitalOcean Spaces](https://www.digitalocean.com/products/spaces)**     | [FluentStorage.AWS -> DigitalOcean Spaces](https://github.com/robinrodricks/FluentStorage/wiki/DigitalOcean-Spaces-Storage)  |
 | **[Wasabi](https://wasabi.com/)**                                           | [FluentStorage.AWS -> Wasabi](https://github.com/robinrodricks/FluentStorage/wiki/Wasabi-Storage)         |
 
+To add support for a new provider, search for `[ADD STORAGE PROVIDER]` across all code files and make the required changes.
+
 
 
 ## Packages

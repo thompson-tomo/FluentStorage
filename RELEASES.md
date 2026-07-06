@@ -1,5 +1,11 @@
 ﻿# Release Notes
 
+#### FluentStorage 7.1.1
+ - **FluentStorage**
+   - Add connection string support for Wasabi, DigitalOcean Spaces, Cloudflare R2 
+ - **FluentStorage.AWS**
+   - Add connection string support for Wasabi, DigitalOcean Spaces, Cloudflare R2 
+
 #### FluentStorage 7.1.0
  - **FluentStorage**
    - New: All providers and sinks updated to support `WriteAsync` with content type

@@ -34,8 +34,6 @@ namespace FluentStorage.AWS.Blobs {
 		/// </summary>
 		public IAmazonS3 NativeBlobClient => _client;
 
-		//https://github.com/awslabs/aws-sdk-net-samples/blob/master/ConsoleSamples/AmazonS3Sample/AmazonS3Sample/S3Sample.cs
-
 		/// <summary>
 		/// Return bucket name.
 		/// </summary>
@@ -178,8 +176,6 @@ namespace FluentStorage.AWS.Blobs {
 				throw new NotSupportedException();
 			GenericValidation.CheckBlobFullPath(fullPath);
 			fullPath = StoragePath.Normalize(fullPath, true);
-
-			//http://docs.aws.amazon.com/AmazonS3/latest/dev/HLuploadFileDotNet.html
 
 			await _fileTransferUtility.UploadAsync(dataStream, _bucketName, fullPath, cancellationToken).ConfigureAwait(false);
 		}

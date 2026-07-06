@@ -2,7 +2,6 @@
 	using System;
 
 	public static class ByteFormat {
-		//http://en.wikipedia.org/wiki/Kibibyte
 
 		private const long Kb = 1000;         //kilobyte
 		private const long KiB = 1024;        //kikibyte

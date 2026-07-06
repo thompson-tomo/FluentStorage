@@ -155,7 +155,11 @@ Check the [Wiki](https://github.com/robinrodricks/FluentStorage/wiki).
 In 2026, we added:
 
 * **Cloudflare R2** provider
-* **Azure.Identity support for Azure Files**, bringing token credential, client secret, and managed identity authentication parity with Azure Blob Storage
+* **Azure.Identity support for Azure Files** with token credential, client secret, and managed identity authentication.
+
+In 2025, we added:
+
+* **Azure.Identity support for Azure Blobs** with token credential, client secret, and managed identity authentication.
 
 In 2024, we added:
 

@@ -1,6 +1,8 @@
 ﻿# Release Notes
 
 #### FluentStorage 7.0.0
+ - **FluentStorage**
+   - Fix: Make hash helpers thread-safe using new `MD5.HashData` and `SHA256.HashData` .NET APIs
  - **FluentStorage.Azure**
    - New: Add Azure identity authentication core framework
    - New: Add dependency on `Azure.Identity` SDK package

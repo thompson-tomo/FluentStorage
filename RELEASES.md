@@ -1,5 +1,19 @@
 ﻿# Release Notes
 
+#### FluentStorage 8.0.0
+ - **FluentStorage.Databricks**
+   - Deprecated and unlisted from Nuget.
+   - We will no longer maintain this package because DBFS isn't a mainstream storage backend for a storage abstraction library.
+ - **FluentStorage.Azure.EventHub**
+   - Deprecated and unlisted from Nuget.
+   - Due to low community usage, we will no longer maintain this library.
+ - **FluentStorage.Azure.DataLake**
+   - Deprecated and unlisted from Nuget.
+   - We are no longer maintaining this package as it only caters to DataLake Gen 1, which has been superseded by DataLake Gen2. Gen1 is considered a legacy service and is no longer the direction Microsoft recommends for new development.
+ - **FluentStorage.Azure.ServiceFabric**
+   - Deprecated and unlisted from Nuget.
+   - We will no longer maintain this package because ServiceFabric is not a first-class object storage or messaging service, which is outside our current scope, and it also has extremely low community usage.
+
 #### FluentStorage 7.1.1
  - **FluentStorage**
    - Add connection string support for Wasabi, DigitalOcean Spaces, Cloudflare R2 

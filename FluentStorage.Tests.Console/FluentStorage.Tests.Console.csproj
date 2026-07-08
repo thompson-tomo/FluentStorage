@@ -9,7 +9,6 @@
        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
        
      <ProjectReference Include="..\FluentStorage.AWS\FluentStorage.AWS.csproj" />
-     <ProjectReference Include="..\FluentStorage.Azure.EventHub\FluentStorage.Azure.EventHub.csproj" />
      <ProjectReference Include="..\FluentStorage.Tests.Integration\FluentStorage.Tests.Integration.csproj" />
    </ItemGroup>
 

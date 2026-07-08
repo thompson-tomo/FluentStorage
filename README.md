@@ -58,9 +58,9 @@ FluentStorage supports the following cloud storage providers:
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/r2.png" width="32"></img>| [Cloudflare R2](https://github.com/robinrodricks/FluentStorage/wiki/Cloudflare-R2-Storage)  |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/digitalocean.png" width="32"></img>|[DigitalOcean Spaces](https://github.com/robinrodricks/FluentStorage/wiki/DigitalOcean-Spaces-Storage)  |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/wasabi.png" width="32"></img>| [Wasabi](https://github.com/robinrodricks/FluentStorage/wiki/Wasabi-Storage)         |
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/backblaze.png" width="32"></img>|  Backblaze B2  |
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/hetzner.png" width="32"></img>|  Hetzner  |
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/vultr.png" width="32"></img>|  Vultr        |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/backblaze.png" width="32"></img>|  [Backblaze B2](https://github.com/robinrodricks/FluentStorage/wiki/Backblaze-B2-Storage)  |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/hetzner.png" width="32"></img>|  [Hetzner](https://github.com/robinrodricks/FluentStorage/wiki/Hetzner-Storage)  |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/vultr.png" width="32"></img>|  [Vultr](https://github.com/robinrodricks/FluentStorage/wiki/Vultr-Storage)        |
 
 To add support for a new provider, search for `[ADD STORAGE PROVIDER]` across all code files and make the required changes.
 

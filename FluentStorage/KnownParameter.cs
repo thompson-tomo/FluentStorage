@@ -46,6 +46,11 @@ namespace FluentStorage {
 		public static readonly string Region = "region";
 
 		/// <summary>
+		/// Host Name
+		/// </summary>
+		public static readonly string HostName = "hostname";
+
+		/// <summary>
 		/// Service URL
 		/// </summary>
 		public static readonly string ServiceUrl = "serviceUrl";

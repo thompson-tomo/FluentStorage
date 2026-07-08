@@ -47,14 +47,19 @@ namespace FluentStorage.AWS.Blobs {
 		public static AwsS3BlobStorage FromAwsCliProfile(string profileName, string bucketName, string region) {
 			return new AwsS3BlobStorage(bucketName, region, AwsCliCredentials.GetCredentials(profileName));
 		}
-
 		public static AwsS3BlobStorage FromAwsCredentials(AWSCredentials credentials, string bucketName, string region) {
 			return new AwsS3BlobStorage(bucketName, region, credentials);
 		}
+		/// <summary>
+		/// Creates an S3-compatible blob storage backed by DigitalOcean Spaces.
+		/// </summary>
 		public static AwsS3BlobStorage FromDigitalOcean(string accessKeyId, string secretAccessKey, string bucketName, string digitalOceanRegion, string sessionToken = null) {
 			var serviceUrl = $"https://{digitalOceanRegion}.digitaloceanspaces.com";
 			return new AwsS3BlobStorage(accessKeyId, secretAccessKey, sessionToken, bucketName, null, serviceUrl);
 		}
+		/// <summary>
+		/// Creates an S3-compatible blob storage backed by MinIO.
+		/// </summary>
 		public static AwsS3BlobStorage FromMinIO(string accessKeyId, string secretAccessKey, string bucketName, string awsRegion, string minioServerUrl, string sessionToken = null) {
 			var config = new AmazonS3Config {
 				AuthenticationRegion = awsRegion,
@@ -63,25 +68,88 @@ namespace FluentStorage.AWS.Blobs {
 			};
 			return new AwsS3BlobStorage(accessKeyId, secretAccessKey, sessionToken, bucketName, config);
 		}
+		/// <summary>
+		/// Creates an S3-compatible blob storage backed by Wasabi.
+		/// </summary>
 		public static AwsS3BlobStorage FromWasabi(string accessKeyId, string secretAccessKey, string bucketName, string wasabiServiceUrl, string sessionToken = null) {
 			return new AwsS3BlobStorage(accessKeyId, secretAccessKey, sessionToken, bucketName, null, wasabiServiceUrl);
 		}
-		public static AwsS3BlobStorage FromCloudflareR2(string accessKeyId, string secretAccessKey, string bucketName, string cloudflareAccountId) {
+		/// <summary>
+		/// Creates an S3-compatible blob storage backed by Cloudflare R2 Storage.
+		/// </summary>
+		public static AwsS3BlobStorage FromCloudflareR2(string accessKeyId, string secretAccessKey, string bucketName, string cloudflareAccountId, string sessionToken = null) {
 
 			var config = new AmazonS3Config {
 				// ServiceURL is always https://<account-id>.r2.cloudflarestorage.com.
 				ServiceURL = $"https://{cloudflareAccountId}.r2.cloudflarestorage.com",
 				// AuthenticationRegion = "auto" is the recommended value for R2
 				AuthenticationRegion = "auto",
-				// ForcePathStyle = false uses virtual-hosted style requests, which R2 supports and recommends
+				// Uses virtual-hosted style requests, which R2 supports and recommends
 				ForcePathStyle = false,
-				// UseHttp = false ensures HTTPS (the endpoint itself is HTTPS, but this makes it explicit).
+				// Ensures HTTPS (the endpoint itself is HTTPS, but this makes it explicit).
 				UseHttp = false,
 			};
 
-			var store = new AwsS3BlobStorage(accessKeyId, secretAccessKey, null, bucketName, config);
+			var store = new AwsS3BlobStorage(accessKeyId, secretAccessKey, sessionToken, bucketName, config);
 			store._usePutObject = true;
 			store._disablePayloadSigning = true;
+			return store;
+		}
+		/// <summary>
+		/// Creates an S3-compatible blob storage backed by Backblaze B2.
+		/// </summary>
+		public static AwsS3BlobStorage FromBackblazeB2(string accessKeyId,string secretAccessKey,string bucketName,string region, string sessionToken = null) {
+
+			var config = new AmazonS3Config {
+				// Endpoint format is https://s3.<region>.backblazeb2.com
+				ServiceURL = $"https://s3.{region}.backblazeb2.com",
+				// Requests are signed with the bucket region.
+				AuthenticationRegion = region,
+				// Uses virtual-hosted style requests, which B2 supports
+				ForcePathStyle = false,
+				// Ensures HTTPS (the endpoint itself is HTTPS, but this makes it explicit).
+				UseHttp = false,
+			};
+
+			var store = new AwsS3BlobStorage(accessKeyId, secretAccessKey, sessionToken, bucketName, config);
+			return store;
+		}
+		/// <summary>
+		/// Creates an S3-compatible blob storage backed by Hetzner Object Storage.
+		/// </summary>
+		public static AwsS3BlobStorage FromHetzner(string accessKeyId,string secretAccessKey,string bucketName,string region, string sessionToken = null) {
+
+			var config = new AmazonS3Config {
+				// Endpoint format is https://<region>.your-objectstorage.com
+				ServiceURL = $"https://{region}.your-objectstorage.com",
+				// Requests are signed with the bucket region.
+				AuthenticationRegion = region,
+				// Uses virtual-hosted style requests
+				ForcePathStyle = false,
+				// Ensures HTTPS (the endpoint itself is HTTPS, but this makes it explicit).
+				UseHttp = false,
+			};
+
+			var store = new AwsS3BlobStorage(accessKeyId, secretAccessKey, sessionToken, bucketName, config);
+			return store;
+		}
+		/// <summary>
+		/// Creates an S3-compatible blob storage backed by Vultr Object Storage.
+		/// </summary>
+		public static AwsS3BlobStorage FromVultr(string accessKeyId,string secretAccessKey,string bucketName,string hostname, string sessionToken = null) {
+
+			var config = new AmazonS3Config {
+				// Endpoint is unique per cluster.
+				ServiceURL = $"https://{hostname}",
+				// Vultr accepts us-east-1 for request signing.
+				AuthenticationRegion = "us-east-1",
+				// Uses virtual-hosted style requests
+				ForcePathStyle = false,
+				// Ensures HTTPS (the endpoint itself is HTTPS, but this makes it explicit).
+				UseHttp = false,
+			};
+
+			var store = new AwsS3BlobStorage(accessKeyId, secretAccessKey, sessionToken, bucketName, config);
 			return store;
 		}
 #endif

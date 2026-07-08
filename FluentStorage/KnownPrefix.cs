@@ -3,6 +3,19 @@
 	/// Known storage account prefixes
 	/// </summary>
 	public static class KnownPrefix {
+
+		/// <summary>
+		/// Returns true if the prefix is S3 or S3-compatible storage.
+		/// </summary>
+		public static bool IsS3Compatible(string prefix) {
+
+			// [ADD STORAGE PROVIDER]
+
+			return prefix == AwsS3 || prefix == MinIoS3 || prefix == CloudflareR2 ||
+				prefix == Wasabi || prefix == DigitalOceanSpaces ||
+				prefix == BackblazeB2 || prefix == Hetzner || prefix == Vultr;
+		}
+
 		/// <summary>
 		/// AWS S3 storage
 		/// </summary>
@@ -27,6 +40,21 @@
 		/// Cloudflare R2 storage
 		/// </summary>
 		public static string CloudflareR2 = "cloudflare.r2";
+
+		/// <summary>
+		/// Backblaze B2 S3-compatible object storage.
+		/// </summary>
+		public static string BackblazeB2 = "backblaze.b2";
+
+		/// <summary>
+		/// Hetzner S3-compatible object storage.
+		/// </summary>
+		public static string Hetzner = "hetzner";
+
+		/// <summary>
+		/// Vultr S3-compatible object storage.
+		/// </summary>
+		public static string Vultr = "vultr";
 
 		// [ADD STORAGE PROVIDER]
 

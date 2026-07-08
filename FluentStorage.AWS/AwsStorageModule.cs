@@ -11,13 +11,7 @@ namespace FluentStorage.AWS {
 		public IBlobStorage CreateBlobStorage(StorageConnectionString connectionString) {
 
 			// handle service specific prefixes
-			if (connectionString.Prefix == KnownPrefix.AwsS3 ||
-				connectionString.Prefix == KnownPrefix.MinIoS3 ||
-				connectionString.Prefix == KnownPrefix.CloudflareR2 ||
-				connectionString.Prefix == KnownPrefix.Wasabi ||
-				connectionString.Prefix == KnownPrefix.DigitalOceanSpaces) {
-
-				// [ADD STORAGE PROVIDER]
+			if (KnownPrefix.IsS3Compatible(connectionString.Prefix)) {
 
 				string region = String.Empty;
 
@@ -70,6 +64,18 @@ namespace FluentStorage.AWS {
 					}
 					else if (connectionString.Prefix == KnownPrefix.DigitalOceanSpaces) {
 						return AwsS3BlobStorage.FromDigitalOcean(keyId, key, bucket, region, sessionToken);
+					}
+					else if (connectionString.Prefix == KnownPrefix.BackblazeB2) {
+						string region = connectionString.Get(KnownParameter.Region);
+						return AwsS3BlobStorage.FromBackblazeB2(keyId, key, bucket, region);
+					}
+					else if (connectionString.Prefix == KnownPrefix.Hetzner) {
+						string region = connectionString.Get(KnownParameter.Region);
+						return AwsS3BlobStorage.FromHetzner(keyId, key, bucket, region);
+					}
+					else if (connectionString.Prefix == KnownPrefix.Vultr) {
+						string hostName = connectionString.Get(KnownParameter.HostName);
+						return AwsS3BlobStorage.FromVultr(keyId, key, bucket, hostName);
 					}
 
 					// fallback to S3 constructor if its not a special providr

@@ -175,13 +175,69 @@ namespace FluentStorage {
 		/// <param name="secretAccessKey">Secret access key</param>
 		/// <param name="bucketName">Bucket name</param>
 		/// <param name="cloudflareAccountId">Cloudflare Account ID</param>
+		/// <param name="sessionToken">Optional. Only required when using session credentials.</param>
 		/// <returns>A reference to the created storage</returns>
 		public static IBlobStorage CloudflareR2(this IBlobStorageFactory factory,
 			string accessKeyId,
 			string secretAccessKey,
 			string bucketName,
-			string cloudflareAccountId) {
-			return AwsS3BlobStorage.FromCloudflareR2(accessKeyId, secretAccessKey, bucketName, cloudflareAccountId);
+			string cloudflareAccountId,
+		   string sessionToken = null) {
+			return AwsS3BlobStorage.FromCloudflareR2(accessKeyId, secretAccessKey, bucketName, cloudflareAccountId, sessionToken);
+		}
+
+		/// <summary>
+		/// Creates a Backblaze B2 storage provider (S3-compatible).
+		/// </summary>
+		/// <param name="accessKeyId">Application Key ID</param>
+		/// <param name="secretAccessKey">Application Key</param>
+		/// <param name="bucketName">Bucket name</param>
+		/// <param name="region">Bucket region (e.g. `us-west-004`)</param>
+		/// <param name="sessionToken">Optional. Only required when using session credentials.</param>
+		/// <returns>A reference to the created storage</returns>
+		public static IBlobStorage BackblazeB2(this IBlobStorageFactory factory,
+			string accessKeyId,
+			string secretAccessKey,
+			string bucketName,
+			string region,
+		   string sessionToken = null) {
+			return AwsS3BlobStorage.FromBackblazeB2(accessKeyId, secretAccessKey, bucketName, region, sessionToken);
+		}
+
+		/// <summary>
+		/// Creates a Hetzner Object Storage provider (S3-compatible).
+		/// </summary>
+		/// <param name="accessKeyId">Access key ID</param>
+		/// <param name="secretAccessKey">Secret access key</param>
+		/// <param name="bucketName">Bucket name</param>
+		/// <param name="region">Storage region (e.g. `fsn1`, `nbg1`, `hel1`)</param>
+		/// <param name="sessionToken">Optional. Only required when using session credentials.</param>
+		/// <returns>A reference to the created storage</returns>
+		public static IBlobStorage Hetzner(this IBlobStorageFactory factory,
+			string accessKeyId,
+			string secretAccessKey,
+			string bucketName,
+			string region,
+		   string sessionToken = null) {
+			return AwsS3BlobStorage.FromHetzner(accessKeyId, secretAccessKey, bucketName, region, sessionToken);
+		}
+
+		/// <summary>
+		/// Creates a Vultr Object Storage provider (S3-compatible).
+		/// </summary>
+		/// <param name="accessKeyId">Access key ID</param>
+		/// <param name="secretAccessKey">Secret access key</param>
+		/// <param name="bucketName">Bucket name</param>
+		/// <param name="hostName">Storage endpoint hostname (e.g. `sgp1.vultrobjects.com`)</param>
+		/// <param name="sessionToken">Optional. Only required when using session credentials.</param>
+		/// <returns>A reference to the created storage</returns>
+		public static IBlobStorage Vultr(this IBlobStorageFactory factory,
+			string accessKeyId,
+			string secretAccessKey,
+			string bucketName,
+			string hostName,
+		   string sessionToken = null) {
+			return AwsS3BlobStorage.FromVultr(accessKeyId, secretAccessKey, bucketName, hostName, sessionToken);
 		}
 
 		// [ADD STORAGE PROVIDER]

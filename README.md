@@ -17,7 +17,7 @@
 
 FluentStorage is a field-tested polycloud .NET cloud storage library that helps you interface with multiple cloud providers from a single unified interface.
 
-It provides a generic interface for Blob storage across all cloud storage providers (AWS S3, GCP, FTP, SFTP, Azure Blob/File/Event Hub/Data Lake) and cloud messaging providers (AWS SQS, Azure Queue/ServiceBus).
+It provides a generic interface for Blob storage across all cloud storage providers and cloud messaging providers.
 
 It is written entirely in C#. Supports .NET 5+ and .NET Standard 2.0+. External dependencies are only added by FluentStorage sub-packages.
 

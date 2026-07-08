@@ -66,11 +66,9 @@ namespace FluentStorage.AWS {
 						return AwsS3BlobStorage.FromDigitalOcean(keyId, key, bucket, region, sessionToken);
 					}
 					else if (connectionString.Prefix == KnownPrefix.BackblazeB2) {
-						string region = connectionString.Get(KnownParameter.Region);
 						return AwsS3BlobStorage.FromBackblazeB2(keyId, key, bucket, region);
 					}
 					else if (connectionString.Prefix == KnownPrefix.Hetzner) {
-						string region = connectionString.Get(KnownParameter.Region);
 						return AwsS3BlobStorage.FromHetzner(keyId, key, bucket, region);
 					}
 					else if (connectionString.Prefix == KnownPrefix.Vultr) {

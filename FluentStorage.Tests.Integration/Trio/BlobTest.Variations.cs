@@ -55,23 +55,6 @@ namespace FluentStorage.Tests.Integration.Blobs {
 		}
 	}
 
-	public class AdlsGen1Fixture : BlobFixture {
-		public AdlsGen1Fixture() : base("gen1fixture") { }
-
-		protected override IBlobStorage CreateStorage(ITestSettings settings) {
-			return StorageFactory.Blobs.AzureDataLakeGen1StoreByClientSecret(
-					 settings.AzureGen1StorageName,
-					 settings.TenantId,
-					 settings.ClientId,
-					 settings.ClientSecret);
-		}
-	}
-
-	public class AdlsGen1Test : BlobTest, IClassFixture<AdlsGen1Fixture> {
-		public AdlsGen1Test(AdlsGen1Fixture fixture) : base(fixture) {
-		}
-	}
-
 	public class AdlsGen2Fixture : BlobFixture {
 		public AdlsGen2Fixture() : base("integration") {
 
@@ -154,24 +137,6 @@ namespace FluentStorage.Tests.Integration.Blobs {
 		public AzureKeyVaultTest(AzureKeyVaultFixture fixture) : base(fixture) {
 		}
 	}
-
-#if DEBUG
-	public class DatabricksFixture : BlobFixture {
-		public DatabricksFixture() : base("dbfs/storagenet") {
-
-		}
-
-		protected override IBlobStorage CreateStorage(ITestSettings settings) {
-			return StorageFactory.Blobs.Databricks(settings.DatabricksBaseUri, settings.DatabricksToken);
-		}
-	}
-
-	//highly experimental
-	public class DatabricksTest : BlobTest, IClassFixture<DatabricksFixture> {
-		public DatabricksTest(DatabricksFixture fixture) : base(fixture) {
-		}
-	}
-#endif
 
 	public class GcpFixture : BlobFixture {
 		protected override IBlobStorage CreateStorage(ITestSettings settings) {

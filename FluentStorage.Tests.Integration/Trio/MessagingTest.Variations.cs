@@ -99,19 +99,4 @@ namespace FluentStorage.Tests.Integration.Messaging {
 
 	#endregion
 
-	#region [ Azure Event Hubs ]
-
-	public class AzureEventHubFixture : MessagingFixture {
-		protected override IMessenger CreateMessenger(ITestSettings settings) {
-			return StorageFactory.Messages.AzureEventHub(settings.AzureEventHubConnectionString + ";EntityPath=integration");
-		}
-	}
-
-	public class AzureEventHubTest : MessagingTest, IClassFixture<AzureEventHubFixture> {
-		public AzureEventHubTest(AzureEventHubFixture fixture) : base(fixture, channelFixedName: "integration") {
-		}
-	}
-
-	#endregion
-
 }

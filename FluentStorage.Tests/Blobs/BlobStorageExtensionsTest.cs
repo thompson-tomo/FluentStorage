@@ -1,11 +1,11 @@
 ﻿using System.Text.Json;
 using System.Threading.Tasks;
-using FluentStorage.Blobs;
+using FluentStorage.Storage;
 using Xunit;
 
 namespace FluentStorage.Tests.Blobs {
 	public class BlobStorageExtensionsTest {
-		private readonly IBlobStorage _storage = StorageFactory.Blobs.InMemory();
+		private readonly IBucket _storage = StorageFactory.InMemory();
 
 		[Fact]
 		public async Task Write_read_object() {

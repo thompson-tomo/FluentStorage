@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 
-using FluentStorage.Messaging;
+using FluentStorage.Queue;
 using FluentStorage.Utils.Extensions;
 using Moq;
 
@@ -19,12 +19,12 @@ namespace FluentStorage.Tests.Messaging {
 
 
 	public class LocalDiskMessagingTest : IAsyncLifetime {
-		private readonly IMessenger _sut;
+		private readonly IQueue _sut;
 		private readonly string _path;
 
 		public LocalDiskMessagingTest() {
 			_path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-			_sut = StorageFactory.Messages.Disk(_path);
+			_sut = QueueFactory.Disk(_path);
 		}
 
 		///<inheritdoc/>
@@ -49,7 +49,7 @@ namespace FluentStorage.Tests.Messaging {
 		[Fact]
 		public void Should_throw_ArgumentNullException_when_channelName_is_null() {
 			// Assert
-			IMessageProcessor messageProcessor = Mock.Of<IMessageProcessor>();
+			IQueueProcessor messageProcessor = Mock.Of<IQueueProcessor>();
 
 			// Act
 			Func<Task> startingMessageProcessorWhenChannelNameIsNull = async () => await _sut.StartMessageProcessorAsync(null, messageProcessor)
@@ -82,7 +82,7 @@ namespace FluentStorage.Tests.Messaging {
 			string channelName = Guid.NewGuid().ToString();
 
 			// Act
-			Func<Task> startingMessageProcessorWhenChannelDoesNotExist = async () => await _sut.StartMessageProcessorAsync(channelName, Mock.Of<IMessageProcessor>())
+			Func<Task> startingMessageProcessorWhenChannelDoesNotExist = async () => await _sut.StartMessageProcessorAsync(channelName, Mock.Of<IQueueProcessor>())
 																							  .ConfigureAwait(false);
 
 			// Assert
@@ -97,7 +97,7 @@ namespace FluentStorage.Tests.Messaging {
 
 			await _sut.CreateChannelAsync(channelName).ConfigureAwait(false);
 
-			Mock<IMessageProcessor> messageProcessorMock = new();
+			Mock<IQueueProcessor> messageProcessorMock = new();
 
 			// Act
 			await _sut.StartMessageProcessorAsync(channelName, messageProcessorMock.Object).ConfigureAwait(false);
@@ -121,9 +121,9 @@ namespace FluentStorage.Tests.Messaging {
 
 			MockRepository mockRepository= new MockRepository(MockBehavior.Loose);
 
-			Mock<IMessageProcessor> firstProcessorMock = mockRepository.Create<IMessageProcessor>();
-			Mock<IMessageProcessor> secondProcessorMock = mockRepository.Create<IMessageProcessor>();
-			Mock<IMessageProcessor> thirdProcessorMock = mockRepository.Create<IMessageProcessor>();
+			Mock<IQueueProcessor> firstProcessorMock = mockRepository.Create<IQueueProcessor>();
+			Mock<IQueueProcessor> secondProcessorMock = mockRepository.Create<IQueueProcessor>();
+			Mock<IQueueProcessor> thirdProcessorMock = mockRepository.Create<IQueueProcessor>();
 
 			// Act
 			await _sut.StartMessageProcessorAsync(channelName, firstProcessorMock.Object).ConfigureAwait(false);
@@ -154,7 +154,7 @@ namespace FluentStorage.Tests.Messaging {
 	}
 
 
-	public class StoreEventMessageProcessor : IMessageProcessor {
+	public class StoreEventMessageProcessor : IQueueProcessor {
 
 		public IReadOnlyCollection<QueueMessage> Messages => _messages.ToImmutableArray();
 

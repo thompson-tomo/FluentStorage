@@ -1,4 +1,4 @@
-﻿using FluentStorage.Blobs;
+﻿using FluentStorage.Storage;
 using FluentStorage.Utils.Extensions;
 using System.IO;
 using System.Threading.Tasks;
@@ -6,9 +6,9 @@ using Xunit;
 
 namespace FluentStorage.Tests.Blobs.Sink {
 	public abstract class SinksTest {
-		private readonly IBlobStorage _storage;
+		private readonly IBucket _storage;
 
-		protected SinksTest(IBlobStorage storage) {
+		protected SinksTest(IBucket storage) {
 			_storage = storage;
 		}
 

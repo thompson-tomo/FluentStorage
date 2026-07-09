@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using FluentStorage.Blobs;
+using FluentStorage.Storage;
 using System.Linq;
-using FluentStorage.Messaging;
+using FluentStorage.Queue;
 
 namespace FluentStorage.ConnectionString {
 	static class ConnectionStringFactory {
@@ -19,11 +19,11 @@ namespace FluentStorage.ConnectionString {
 			Factories.Add(factory);
 		}
 
-		public static IBlobStorage CreateBlobStorage(string connectionString) {
+		public static IBucket CreateBlobStorage(string connectionString) {
 			return Create(connectionString, (factory, cs) => factory.CreateBlobStorage(cs));
 		}
 
-		public static IMessenger CreateMessager(string connectionString) {
+		public static IQueue CreateMessager(string connectionString) {
 			return Create(connectionString, (factory, cs) => factory.CreateMessenger(cs));
 		}
 

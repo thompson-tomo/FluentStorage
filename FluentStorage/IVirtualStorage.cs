@@ -1,13 +1,13 @@
-﻿using FluentStorage.Blobs;
+﻿using FluentStorage.Storage;
 
 namespace FluentStorage {
 	/// <summary>
 	/// Virtual storage
 	/// </summary>
-	public interface IVirtualStorage : IBlobStorage {
+	public interface IVirtualStorage : IBucket {
 		/// <summary>
 		/// Mounts a storage to virtual path
 		/// </summary>
-		void Mount(string path, IBlobStorage storage);
+		void Mount(string path, IBucket storage);
 	}
 }

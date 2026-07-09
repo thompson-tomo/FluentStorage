@@ -1,6 +1,6 @@
 ﻿using Microsoft.Azure.Storage.Queue;
 
-using FluentStorage.Messaging;
+using FluentStorage.Queue;
 using System;
 using System.IO;
 using System.Linq;

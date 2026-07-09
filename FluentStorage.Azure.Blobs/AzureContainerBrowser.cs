@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 
-using FluentStorage.Blobs;
+using FluentStorage.Storage;
 using FluentStorage.Utils.Performance;
 
 namespace FluentStorage.Azure.Blobs {
@@ -22,8 +22,8 @@ namespace FluentStorage.Azure.Blobs {
 			_maxTasks = maxTasks;
 		}
 
-		public async Task<IReadOnlyCollection<Blob>> ListFolderAsync(ListOptions options, CancellationToken cancellationToken) {
-			var result = new List<Blob>();
+		public async Task<IReadOnlyCollection<StorageObject>> ListFolderAsync(ListOptions options, CancellationToken cancellationToken) {
+			var result = new List<StorageObject>();
 			_asyncLimiter = new AsyncLimiter(options.NumberOfRecursionThreads ?? _maxTasks);
 			
 			await foreach (BlobHierarchyItem item in
@@ -32,7 +32,7 @@ namespace FluentStorage.Azure.Blobs {
 				  prefix: FormatFolderPrefix(options.FolderPath),
 				  traits: options.IncludeAttributes ? BlobTraits.Metadata : BlobTraits.None).ConfigureAwait(false)) {
 
-				Blob blob = AzConvert.ToBlob(_prependContainerName ? _client.Name : null, item);
+				StorageObject blob = AzConvert.ToBlob(_prependContainerName ? _client.Name : null, item);
 
 				if (options.IsMatch(blob) && (options.BrowseFilter == null || options.BrowseFilter(blob))) {
 					result.Add(blob);
@@ -48,16 +48,16 @@ namespace FluentStorage.Azure.Blobs {
 			return result;
 		}
 
-		private static void AssumeImplicitPrefixes(string absoluteRoot, List<Blob> blobs) {
+		private static void AssumeImplicitPrefixes(string absoluteRoot, List<StorageObject> blobs) {
 			absoluteRoot = StoragePath.Normalize(absoluteRoot);
 
-			List<Blob> implicitFolders = blobs
+			List<StorageObject> implicitFolders = blobs
 			   .Select(b => b.FullPath)
 			   .Select(p => p.Substring(absoluteRoot.Length))
 			   .Select(p => StoragePath.GetParent(p))
 			   .Where(p => !StoragePath.IsRootPath(p))
 			   .Distinct()
-			   .Select(p => new Blob(p, BlobItemKind.Folder))
+			   .Select(p => new StorageObject(p, BlobItemKind.Folder))
 			   .ToList();
 
 			blobs.AddRange(implicitFolders);

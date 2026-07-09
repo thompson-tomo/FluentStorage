@@ -1,9 +1,9 @@
 ﻿using System;
-using FluentStorage.Blobs.Sinks.Impl;
+using FluentStorage.Storage.Sinks.Impl;
 
 namespace FluentStorage.Tests.Blobs.Sink {
 	public class MemoryGzipSinkTest : SinksTest {
-		public MemoryGzipSinkTest() : base(StorageFactory.Blobs.InMemory().WithGzipCompression()) {
+		public MemoryGzipSinkTest() : base(StorageFactory.InMemory().WithGzipCompression()) {
 
 		}
 	}
@@ -11,7 +11,7 @@ namespace FluentStorage.Tests.Blobs.Sink {
 	public class MemorySymmetricEncryptionTest : SinksTest {
 		[Obsolete("Rijndael is obsolete in .Net 6 and above")]
 		public MemorySymmetricEncryptionTest() : base(
-		   StorageFactory.Blobs.InMemory().WithSymmetricEncryption("6qg/7EgPmrK9ZY70pnECtZ40g3dDe74czSvWJ+3dj0A=")) {
+		   StorageFactory.InMemory().WithSymmetricEncryption("6qg/7EgPmrK9ZY70pnECtZ40g3dDe74czSvWJ+3dj0A=")) {
 
 		}
 	}
@@ -19,7 +19,7 @@ namespace FluentStorage.Tests.Blobs.Sink {
 	public class MemoryCompressedAndEncryptedTest : SinksTest {
 		[Obsolete("Rijndael is obsolete in .Net 6 and above")]
 		public MemoryCompressedAndEncryptedTest() : base(
-		   StorageFactory.Blobs
+		   StorageFactory
 			  .InMemory()
 			  .WithSinks(
 				 new GZipSink(),
@@ -30,14 +30,14 @@ namespace FluentStorage.Tests.Blobs.Sink {
 
 	public class MemoryAesSymmetricEncryptionTest : SinksTest {
 		public MemoryAesSymmetricEncryptionTest() : base(
-		   StorageFactory.Blobs.InMemory().WithAesSymmetricEncryption("6qg/7EgPmrK9ZY70pnECtZ40g3dDe74czSvWJ+3dj0A=")) {
+		   StorageFactory.InMemory().WithAesSymmetricEncryption("6qg/7EgPmrK9ZY70pnECtZ40g3dDe74czSvWJ+3dj0A=")) {
 
 		}
 	}
 
 	public class MemoryCompressedAndAesEncryptedTest : SinksTest {
 		public MemoryCompressedAndAesEncryptedTest() : base(
-		   StorageFactory.Blobs
+		   StorageFactory
 			  .InMemory()
 			  .WithSinks(
 				 new GZipSink(),

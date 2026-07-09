@@ -1,11 +1,11 @@
 ﻿using System.Net;
-using FluentStorage.Blobs;
+using FluentStorage.Storage;
 using FluentStorage.ConnectionString;
-using FluentStorage.Messaging;
+using FluentStorage.Queue;
 
 namespace FluentStorage.FTP {
 	class ConnectionFactory : IConnectionFactory {
-		public IBlobStorage CreateBlobStorage(StorageConnectionString connectionString) {
+		public IBucket CreateBlobStorage(StorageConnectionString connectionString) {
 			if (connectionString.Prefix == "ftp") {
 				connectionString.GetRequired("host", true, out string host);
 				connectionString.GetRequired("user", true, out string user);
@@ -17,6 +17,6 @@ namespace FluentStorage.FTP {
 			return null;
 		}
 
-		public IMessenger CreateMessenger(StorageConnectionString connectionString) => null;
+		public IQueue CreateMessenger(StorageConnectionString connectionString) => null;
 	}
 }

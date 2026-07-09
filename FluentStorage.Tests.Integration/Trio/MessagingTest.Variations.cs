@@ -1,19 +1,18 @@
 ﻿using System;
 using Amazon;
 using FluentStorage.Azure.ServiceBus;
-using FluentStorage.Blobs;
-using FluentStorage.Messaging;
+using FluentStorage.Storage;
+using FluentStorage.Queue;
 using Xunit;
+using FluentStorage.AWS.Factory;
 
 namespace FluentStorage.Tests.Integration.Messaging {
 
 	#region [ Azure Storage Queue ]
 
 	public class AzureStorageQueueFixture : MessagingFixture {
-		protected override IMessenger CreateMessenger(ITestSettings settings) =>
-		   StorageFactory.Messages.AzureStorageQueue(
-			  settings.AzureStorageName,
-			  settings.AzureStorageKey);
+		protected override IQueue CreateMessenger(ITestSettings settings) =>
+		   AzureQueueStorage.FromCredentials(settings.AzureStorageName,settings.AzureStorageKey);
 	}
 
 	public class AzureStorageQueueTest : MessagingTest, IClassFixture<AzureStorageQueueFixture> {
@@ -26,8 +25,8 @@ namespace FluentStorage.Tests.Integration.Messaging {
 	#region [ In-Memory ]
 
 	public class InMemoryFixture : MessagingFixture {
-		protected override IMessenger CreateMessenger(ITestSettings settings) {
-			return StorageFactory.Messages.InMemory("test");
+		protected override IQueue CreateMessenger(ITestSettings settings) {
+			return QueueFactory.InMemory("test");
 		}
 	}
 
@@ -41,8 +40,8 @@ namespace FluentStorage.Tests.Integration.Messaging {
 	#region [ Disk ]
 
 	public class DiskFixture : MessagingFixture {
-		protected override IMessenger CreateMessenger(ITestSettings settings) {
-			return StorageFactory.Messages.Disk(_testDir);
+		protected override IQueue CreateMessenger(ITestSettings settings) {
+			return QueueFactory.Disk(_testDir);
 		}
 	}
 
@@ -56,8 +55,8 @@ namespace FluentStorage.Tests.Integration.Messaging {
 	#region [ AWS SQS ]
 
 	public class AwsSQSFixture : MessagingFixture {
-		protected override IMessenger CreateMessenger(ITestSettings settings) {
-			return StorageFactory.Messages.AwsSQS(
+		protected override IQueue CreateMessenger(ITestSettings settings) {
+			return AwsSqsStorage.FromCredentials(
 			   settings.AwsAccessKeyId,
 			   settings.AwsSecretAccessKey,
 			   "https://sqs.us-east-1.amazonaws.com",
@@ -75,8 +74,8 @@ namespace FluentStorage.Tests.Integration.Messaging {
 	#region [ Azure Service Bus ]
 
 	public class AzureServiceBusFixture : MessagingFixture {
-		protected override IMessenger CreateMessenger(ITestSettings settings) {
-			return StorageFactory.Messages.AzureServiceBus(settings.AzureServiceBusConnectionString);
+		protected override IQueue CreateMessenger(ITestSettings settings) {
+			return AzureServiceBus.FromConnectionString(settings.AzureServiceBusConnectionString);
 
 		}
 	}

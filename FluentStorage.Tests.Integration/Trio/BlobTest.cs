@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FluentStorage.Blobs;
+using FluentStorage.Storage;
 using FluentStorage.Tests.Integration.Util;
 using Xunit;
 using FluentStorage.Utils.Extensions;
@@ -13,7 +13,7 @@ using FluentStorage.Utils.Generator;
 namespace FluentStorage.Tests.Integration.Blobs {
 	[Trait("Category", "Blobs")]
 	public abstract class BlobTest : IAsyncLifetime {
-		private readonly IBlobStorage _storage;
+		private readonly IBucket _storage;
 		private readonly string _blobPrefix;
 		private readonly BlobFixture _fixture;
 
@@ -54,7 +54,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 			await _storage.WriteTextAsync(targetId, "test");
 
-			IReadOnlyCollection<Blob> rootContent = await _storage.ListAsync();
+			IReadOnlyCollection<StorageObject> rootContent = await _storage.ListAsync();
 
 			Assert.NotEmpty(rootContent);
 		}
@@ -73,7 +73,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			await _storage.WriteTextAsync(id2, RandomGenerator.RandomString);
 			await _storage.WriteTextAsync(id3, RandomGenerator.RandomString);
 
-			IReadOnlyCollection<Blob> items = (await _storage.ListAsync(new ListOptions { FolderPath = _blobPrefix, FilePrefix = prefix }));
+			IReadOnlyCollection<StorageObject> items = (await _storage.ListAsync(new ListOptions { FolderPath = _blobPrefix, FilePrefix = prefix }));
 			Assert.Equal(2 + countBefore, items.Count); //2 files + containing folder
 		}
 
@@ -83,11 +83,11 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 			await _storage.WriteTextAsync(id, RandomGenerator.RandomString);
 
-			List<Blob> items = (await _storage.ListAsync(new ListOptions { FolderPath = _blobPrefix, Recurse = false })).ToList();
+			List<StorageObject> items = (await _storage.ListAsync(new ListOptions { FolderPath = _blobPrefix, Recurse = false })).ToList();
 
 			Assert.True(items.Count > 0);
 
-			Blob tid = items.FirstOrDefault(i => i.FullPath == id);
+			StorageObject tid = items.FirstOrDefault(i => i.FullPath == id);
 			Assert.NotNull(tid);
 		}
 
@@ -103,7 +103,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 				await _storage.WriteTextAsync(id2, RandomGenerator.RandomString);
 				await _storage.WriteTextAsync(id3, RandomGenerator.RandomString);
 
-				IReadOnlyCollection<Blob> items = await _storage.ListAsync(recurse: true, folderPath: folderPath);
+				IReadOnlyCollection<StorageObject> items = await _storage.ListAsync(recurse: true, folderPath: folderPath);
 				Assert.Equal(4, items.Count); //1.txt + sub (folder) + 2.txt + 3.txt
 
 			}
@@ -114,7 +114,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 		[Fact]
 		public async Task List_InNonExistingFolder_EmptyCollection() {
-			IEnumerable<Blob> objects = await _storage.ListAsync(new ListOptions { FolderPath = RandomBlobPath() });
+			IEnumerable<StorageObject> objects = await _storage.ListAsync(new ListOptions { FolderPath = RandomBlobPath() });
 
 			Assert.NotNull(objects);
 			Assert.True(objects.Count() == 0);
@@ -122,7 +122,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 		[Fact]
 		public async Task List_FilesInNonExistingFolder_EmptyCollection() {
-			IEnumerable<Blob> objects = await _storage.ListFilesAsync(new ListOptions { FolderPath = RandomBlobPath() });
+			IEnumerable<StorageObject> objects = await _storage.ListFilesAsync(new ListOptions { FolderPath = RandomBlobPath() });
 
 			Assert.NotNull(objects);
 			Assert.True(objects.Count() == 0);
@@ -156,7 +156,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			await _storage.WriteTextAsync(id2, RandomGenerator.RandomString);
 
 			//dump compare
-			IReadOnlyCollection<Blob> files = await _storage.ListFilesAsync(new ListOptions {
+			IReadOnlyCollection<StorageObject> files = await _storage.ListFilesAsync(new ListOptions {
 				FolderPath = _blobPrefix,
 				Recurse = true
 			});
@@ -186,7 +186,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			}
 
 			//act
-			IReadOnlyCollection<Blob> blobs = await _storage.ListAsync(folderPath: _blobPrefix);
+			IReadOnlyCollection<StorageObject> blobs = await _storage.ListAsync(folderPath: _blobPrefix);
 
 			//assert
 			Assert.True(blobs.Count >= count, $"expected over {count}, but received only {blobs.Count}");
@@ -200,12 +200,12 @@ namespace FluentStorage.Tests.Integration.Blobs {
 				await _storage.WriteTextAsync(sub + "one.txt", "test");
 				await _storage.WriteTextAsync(sub + "sub/two.txt", "test");
 
-				IReadOnlyCollection<Blob> subItems = await _storage.ListAsync(recurse: false, folderPath: sub);
+				IReadOnlyCollection<StorageObject> subItems = await _storage.ListAsync(recurse: false, folderPath: sub);
 				Assert.Equal(2, subItems.Count);
 
 
-				Assert.Contains(new Blob(sub + "one.txt"), subItems);
-				Assert.Contains(new Blob(sub + "sub", BlobItemKind.Folder), subItems);
+				Assert.Contains(new StorageObject(sub + "one.txt"), subItems);
+				Assert.Contains(new StorageObject(sub + "sub", BlobItemKind.Folder), subItems);
 			}
 			catch (NotSupportedException) {
 				//hierarchy not supported
@@ -219,7 +219,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 			await _storage.WriteTextAsync(id, content);
 
-			Blob meta = await _storage.GetBlobAsync(id);
+			StorageObject meta = await _storage.GetBlobAsync(id);
 
 			long size = Encoding.UTF8.GetBytes(content).Length;
 			string md5 = content.MD5();
@@ -236,7 +236,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 		public async Task GetBlob_doesnt_exist_returns_null() {
 			string id = RandomBlobPath();
 
-			Blob meta = (await _storage.GetBlobsAsync(new[] { id })).First();
+			StorageObject meta = (await _storage.GetBlobsAsync(new[] { id })).First();
 
 			Assert.Null(meta);
 		}
@@ -256,7 +256,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			string root = StoragePath.Split(id)[0];
 
 			try {
-				Blob rb = await _storage.GetBlobAsync(root);
+				StorageObject rb = await _storage.GetBlobAsync(root);
 			}
 			catch (NotSupportedException) {
 
@@ -300,7 +300,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 		[Fact]
 		public async Task Open_copy_to_memory_stream_succeeds() {
 			string id = await GetRandomStreamIdAsync();
-			IBlobStorage ms = StorageFactory.Blobs.InMemory();
+			IBucket ms = StorageFactory.InMemory();
 
 			//if this doesn't crash it means the returned stream is compatible with usual .net streaming
 			await _storage.CopyToAsync(id, ms, id);
@@ -384,7 +384,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			}
 
 			//assert
-			IReadOnlyCollection<Blob> files = await _storage.ListAsync(prefix, recurse: true);
+			IReadOnlyCollection<StorageObject> files = await _storage.ListAsync(prefix, recurse: true);
 			Assert.True(files.Count == 0);
 		}
 
@@ -396,7 +396,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			try {
 				await _storage.WriteTextAsync(file, "test");
 				await _storage.RenameAsync(file, StoragePath.Combine(prefix, "2"));
-				IReadOnlyCollection<Blob> list = await _storage.ListAsync(prefix);
+				IReadOnlyCollection<StorageObject> list = await _storage.ListAsync(prefix);
 
 				Assert.Single(list);
 				Assert.True(list.First().Name == "2");
@@ -436,7 +436,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 			await _storage.RenameAsync(StoragePath.Combine(prefix, "old"), StoragePath.Combine(prefix, "new"));
 
-			IReadOnlyCollection<Blob> list = await _storage.ListAsync(prefix);
+			IReadOnlyCollection<StorageObject> list = await _storage.ListAsync(prefix);
 		}
 
 		[Fact]
@@ -457,12 +457,12 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 		[Fact]
 		public async Task UserMetadata_write_readsback() {
-			var blob = new Blob(RandomBlobPath());
+			var blob = new StorageObject(RandomBlobPath());
 			blob.Metadata["user"] = "ivan";
 			blob.Metadata["fun"] = "no";
 
 			await _storage.WriteTextAsync(blob, "test");
-			Blob blob2 = await _storage.GetBlobAsync(blob);
+			StorageObject blob2 = await _storage.GetBlobAsync(blob);
 
 			try {
 				await _storage.SetBlobAsync(blob);
@@ -484,7 +484,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 		[Fact]
 		public async Task UserMetadata_OverwriteWithLess_RemovesOld() {
 			//setup
-			var blob = new Blob(RandomBlobPath());
+			var blob = new StorageObject(RandomBlobPath());
 			blob.Metadata["user"] = "ivan";
 			blob.Metadata["fun"] = "no";
 			await _storage.WriteTextAsync(blob, "test");
@@ -500,7 +500,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			await _storage.SetBlobAsync(blob);
 
 			//test
-			Blob blob2 = await _storage.GetBlobAsync(blob);
+			StorageObject blob2 = await _storage.GetBlobAsync(blob);
 			Assert.NotNull(blob2.Metadata);
 			Assert.Single(blob2.Metadata);
 			Assert.Equal("ivan2", blob2.Metadata["user"]);
@@ -508,7 +508,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 		[Fact]
 		public async Task UserMetadata_openwrite_readsback() {
-			var blob = new Blob(RandomBlobPath());
+			var blob = new StorageObject(RandomBlobPath());
 			blob.Metadata["user"] = "ivan";
 			blob.Metadata["fun"] = "no";
 
@@ -522,7 +522,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			}
 
 			//test
-			Blob blob2 = await _storage.GetBlobAsync(blob);
+			StorageObject blob2 = await _storage.GetBlobAsync(blob);
 			Assert.NotNull(blob2.Metadata);
 			Assert.Equal("ivan", blob2.Metadata["user"]);
 			Assert.Equal("no", blob2.Metadata["fun"]);
@@ -531,7 +531,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 		[Fact]
 		public async Task UserMetadata_List_AlsoReturnsMetadata() {
-			var blob = new Blob(RandomBlobPath());
+			var blob = new StorageObject(RandomBlobPath());
 			blob.Metadata["user"] = "ivan";
 			blob.Metadata["fun"] = "no";
 			await _storage.WriteTextAsync(blob, "test2");
@@ -543,10 +543,10 @@ namespace FluentStorage.Tests.Integration.Blobs {
 				return;
 			}
 
-			IReadOnlyCollection<Blob> all = await _storage.ListAsync(folderPath: blob.FolderPath, includeAttributes: true);
+			IReadOnlyCollection<StorageObject> all = await _storage.ListAsync(folderPath: blob.FolderPath, includeAttributes: true);
 
 			//test
-			Blob blob2 = all.First(b => b.FullPath == blob.FullPath);
+			StorageObject blob2 = all.First(b => b.FullPath == blob.FullPath);
 			Assert.NotNull(blob2.Metadata);
 			Assert.Equal("ivan", blob2.Metadata["user"]);
 			Assert.Equal("no", blob2.Metadata["fun"]);
@@ -555,7 +555,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 		[Fact]
 		public async Task GetMd5HashAsync() {
-			var blob = new Blob(RandomBlobPath());
+			var blob = new StorageObject(RandomBlobPath());
 			string content = RandomGenerator.RandomString;
 			string hash = content.MD5();
 
@@ -572,7 +572,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			try {
 				await _storage.CreateFolderAsync(folderPath);
 
-				IReadOnlyCollection<Blob> files = await _storage.ListAsync(folderPath);
+				IReadOnlyCollection<StorageObject> files = await _storage.ListAsync(folderPath);
 				Assert.True(files.Any());  //check dummy file exists
 			}
 			catch (NotSupportedException) {

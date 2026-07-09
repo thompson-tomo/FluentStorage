@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FluentStorage.Blobs;
+using FluentStorage.Storage;
 using FluentStorage.Azure.Blobs;
 using FluentStorage.Azure.Blobs.Gen2.Model;
 using Xunit;
@@ -16,7 +16,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 
 		public LeakyAdlsGen2StorageTest() {
 			_settings = Settings.Instance;
-			_storage = StorageFactory.Blobs.AzureDataLakeStorageWithAzureAd(
+			_storage = AzureDataLakeStorage.FromAzureAd(
 			   _settings.AzureGen2StorageName,
 			   _settings.TenantId,
 			   _settings.ClientId,
@@ -26,7 +26,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 		[Fact]
 		public async Task Authenticate_with_shared_key() {
 			IAzureDataLakeStorage authInstance =
-			   StorageFactory.Blobs.AzureDataLakeStorageWithSharedKey(_settings.AzureGen2StorageName,
+			   AzureDataLakeStorage.FromSharedKey(_settings.AzureGen2StorageName,
 				  _settings.AzureGen2StorageKey);
 
 			//trigger any operation
@@ -37,7 +37,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 		public async Task Authenticate_with_service_principal() {
 			//needs to have "Storage Blob Data Owner"
 
-			IBlobStorage authInstance = StorageFactory.Blobs.AzureDataLakeStorageWithAzureAd(
+			IBucket authInstance = AzureDataLakeStorage.FromAzureAd(
 			   _settings.AzureGen2StorageName,
 			   _settings.TenantId,
 			   _settings.ClientId,
@@ -77,7 +77,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 
 			await _storage.WriteTextAsync(fsName + "/fff", "test");
 
-			Blob fsBlob = await _storage.GetBlobAsync(fsName);
+			StorageObject fsBlob = await _storage.GetBlobAsync(fsName);
 
 
 		}
@@ -235,7 +235,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 
 		public async Task InitializeAsync() {
 			//drop all blobs in test storage
-			IReadOnlyCollection<Blob> topLevel =
+			IReadOnlyCollection<StorageObject> topLevel =
 			   (await _storage.ListAsync(recurse: false, folderPath: Filesystem)).ToList();
 
 			try {

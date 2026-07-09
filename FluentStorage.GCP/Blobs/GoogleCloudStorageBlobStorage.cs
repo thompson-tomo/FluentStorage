@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Google.Api.Gax;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Storage.V1;
-using FluentStorage.Blobs;
+using FluentStorage.Storage;
 using Objects = Google.Apis.Storage.v1.Data.Objects;
 using Object = Google.Apis.Storage.v1.Data.Object;
 using Google;
@@ -28,13 +28,13 @@ namespace FluentStorage.Gcp.CloudStorage.Blobs {
 			_bucketName = bucketName;
 		}
 
-		protected override async Task<IReadOnlyCollection<Blob>> ListAtAsync(string path, ListOptions options, CancellationToken cancellationToken) {
+		protected override async Task<IReadOnlyCollection<StorageObject>> ListAtAsync(string path, ListOptions options, CancellationToken cancellationToken) {
 			ObjectsResource.ListRequest request = _client.Service.Objects.List(_bucketName);
 			request.Prefix = StoragePath.IsRootPath(path) ? null : (NormalisePath(path) + "/");
 			request.Delimiter = "/";
 			request.MaxResults = options.PageSize ?? ListOptions.PAGE_SIZE;
 			
-			var page = new List<Blob>();
+			var page = new List<StorageObject>();
 			do {
 				Objects serviceObjects = await request.ExecuteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
@@ -44,7 +44,7 @@ namespace FluentStorage.Gcp.CloudStorage.Blobs {
 
 				if (serviceObjects.Prefixes != null) {
 					//the only info we have about prefixes is it's name
-					page.AddRange(serviceObjects.Prefixes.Select(p => new Blob(p, BlobItemKind.Folder)));
+					page.AddRange(serviceObjects.Prefixes.Select(p => new StorageObject(p, BlobItemKind.Folder)));
 				}
 
 
@@ -56,7 +56,7 @@ namespace FluentStorage.Gcp.CloudStorage.Blobs {
 		}
 
 
-		private async Task<IReadOnlyCollection<Blob>> LegacyListAtAsync(string path, ListOptions options, CancellationToken cancellationToken) {
+		private async Task<IReadOnlyCollection<StorageObject>> LegacyListAtAsync(string path, ListOptions options, CancellationToken cancellationToken) {
 			PagedAsyncEnumerable<Objects, Object> objects = _client.ListObjectsAsync(
 			   _bucketName,
 			   StoragePath.IsRootPath(options.FolderPath) ? null : options.FolderPath,
@@ -67,13 +67,13 @@ namespace FluentStorage.Gcp.CloudStorage.Blobs {
 			return await GConvert.ToBlobsAsync(objects, options).ConfigureAwait(false);
 		}
 
-		public override async Task SetBlobsAsync(IEnumerable<Blob> blobs, CancellationToken cancellationToken = default) {
+		public override async Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPaths(blobs);
 
 			await Task.WhenAll(blobs.Select(b => SetBlobAsync(b, cancellationToken))).ConfigureAwait(false);
 		}
 
-		private async Task SetBlobAsync(Blob blob, CancellationToken cancellationToken = default) {
+		private async Task SetBlobAsync(StorageObject blob, CancellationToken cancellationToken = default) {
 			Object item = await _client.GetObjectAsync(_bucketName, NormalisePath(blob.FullPath), cancellationToken: cancellationToken).ConfigureAwait(false);
 
 			if (item.Metadata == null) {
@@ -92,7 +92,7 @@ namespace FluentStorage.Gcp.CloudStorage.Blobs {
 			await _client.UpdateObjectAsync(item, cancellationToken: cancellationToken).ConfigureAwait(false);
 		}
 
-		protected override async Task<Blob> GetBlobAsync(string fullPath, CancellationToken cancellationToken) {
+		protected override async Task<StorageObject> GetBlobAsync(string fullPath, CancellationToken cancellationToken) {
 			fullPath = NormalisePath(fullPath);
 
 			try {
@@ -117,9 +117,9 @@ namespace FluentStorage.Gcp.CloudStorage.Blobs {
 				//when not found, just ignore
 
 				//try delete everything recursively
-				IReadOnlyCollection<Blob?> childObjects = await ListAtAsync(fullPath, new ListOptions { Recurse = true }, cancellationToken).ConfigureAwait(false);
+				IReadOnlyCollection<StorageObject?> childObjects = await ListAtAsync(fullPath, new ListOptions { Recurse = true }, cancellationToken).ConfigureAwait(false);
 
-				foreach (Blob? blob in childObjects) {
+				foreach (StorageObject? blob in childObjects) {
 					if (blob == null) {
 						continue;
 					}

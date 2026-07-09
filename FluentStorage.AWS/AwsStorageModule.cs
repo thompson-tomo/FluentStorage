@@ -1,14 +1,14 @@
 ﻿using System;
 using FluentStorage.AWS.Blobs;
-using FluentStorage.Blobs;
+using FluentStorage.Storage;
 using FluentStorage.ConnectionString;
-using FluentStorage.Messaging;
+using FluentStorage.Queue;
 
 namespace FluentStorage.AWS {
 	class AwsStorageModule : IExternalModule, IConnectionFactory {
 		public IConnectionFactory ConnectionFactory => this;
 
-		public IBlobStorage CreateBlobStorage(StorageConnectionString connectionString) {
+		public IBucket CreateBlobStorage(StorageConnectionString connectionString) {
 
 			// handle service specific prefixes
 			if (KnownPrefix.IsS3Compatible(connectionString.Prefix)) {
@@ -29,7 +29,7 @@ namespace FluentStorage.AWS {
 					if (string.IsNullOrEmpty(keyId)) {
 						connectionString.GetRequired(KnownParameter.Region, true, out region);
 
-						return new AwsS3BlobStorage(bucket, region);
+						return new S3Store(bucket, region);
 					}
 
 					// get region and/or serviceUrl options from connection string ...
@@ -53,39 +53,39 @@ namespace FluentStorage.AWS {
 					// USE SPECIAL CONSTRUCTORS for special providers
 
 					if (connectionString.Prefix == KnownPrefix.MinIoS3) {
-						return AwsS3BlobStorage.FromMinIO(keyId, key, bucket, region, serviceUrl, sessionToken);
+						return S3Store.FromMinIO(keyId, key, bucket, region, serviceUrl, sessionToken);
 					}
 					else if (connectionString.Prefix == KnownPrefix.CloudflareR2) {
 						string accountId = connectionString.Get(KnownParameter.AccountId);
-						return AwsS3BlobStorage.FromCloudflareR2(keyId, key, bucket, accountId);
+						return S3Store.FromCloudflareR2(keyId, key, bucket, accountId);
 					}
 					else if (connectionString.Prefix == KnownPrefix.Wasabi) {
-						return AwsS3BlobStorage.FromWasabi(keyId, key, bucket, serviceUrl, sessionToken);
+						return S3Store.FromWasabi(keyId, key, bucket, serviceUrl, sessionToken);
 					}
 					else if (connectionString.Prefix == KnownPrefix.DigitalOceanSpaces) {
-						return AwsS3BlobStorage.FromDigitalOcean(keyId, key, bucket, region, sessionToken);
+						return S3Store.FromDigitalOcean(keyId, key, bucket, region, sessionToken);
 					}
 					else if (connectionString.Prefix == KnownPrefix.BackblazeB2) {
-						return AwsS3BlobStorage.FromBackblazeB2(keyId, key, bucket, region);
+						return S3Store.FromBackblazeB2(keyId, key, bucket, region);
 					}
 					else if (connectionString.Prefix == KnownPrefix.Hetzner) {
-						return AwsS3BlobStorage.FromHetzner(keyId, key, bucket, region);
+						return S3Store.FromHetzner(keyId, key, bucket, region);
 					}
 					else if (connectionString.Prefix == KnownPrefix.Vultr) {
 						string hostName = connectionString.Get(KnownParameter.HostName);
-						return AwsS3BlobStorage.FromVultr(keyId, key, bucket, hostName);
+						return S3Store.FromVultr(keyId, key, bucket, hostName);
 					}
 
 					// fallback to S3 constructor if its not a special providr
 
 					else if (connectionString.Prefix == KnownPrefix.AwsS3) {
-						return new AwsS3BlobStorage(keyId, key, sessionToken, bucket, region, serviceUrl);
+						return new S3Store(keyId, key, sessionToken, bucket, region, serviceUrl);
 					}
 
 				}
 #if !NET16
 				else {
-					return AwsS3BlobStorage.FromAwsCliProfile(cliProfileName, bucket, region);
+					return S3Store.FromAwsCliProfile(cliProfileName, bucket, region);
 				}
 #endif
 			}
@@ -94,6 +94,6 @@ namespace FluentStorage.AWS {
 			return null;
 		}
 
-		public IMessenger CreateMessenger(StorageConnectionString connectionString) => null;
+		public IQueue CreateMessenger(StorageConnectionString connectionString) => null;
 	}
 }

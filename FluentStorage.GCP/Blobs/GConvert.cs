@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Objects = Google.Apis.Storage.v1.Data.Objects;
 using Object = Google.Apis.Storage.v1.Data.Object;
-using FluentStorage.Blobs;
+using FluentStorage.Storage;
 
 using Google.Api.Gax;
 using System.Threading.Tasks;
@@ -13,8 +13,8 @@ using Google.Apis.Storage.v1.Data;
 
 namespace FluentStorage.Gcp.CloudStorage.Blobs {
 	static class GConvert {
-		public static Blob ToBlob(Object go) {
-			var blob = new Blob(go.Name) {
+		public static StorageObject ToBlob(Object go) {
+			var blob = new StorageObject(go.Name) {
 				LastModificationTime = go.Updated,
 				MD5 = go.Md5Hash.Base64DecodeAsBytes().ToHexString(),
 				Size = (long?)go.Size,
@@ -50,9 +50,9 @@ namespace FluentStorage.Gcp.CloudStorage.Blobs {
 			return blob;
 		}
 
-		public static IEnumerable<Blob> ToBlobs(IEnumerable<Object> objects, ListOptions options) {
+		public static IEnumerable<StorageObject> ToBlobs(IEnumerable<Object> objects, ListOptions options) {
 			foreach (Object obj in objects) {
-				Blob item = ToBlob(obj);
+				StorageObject item = ToBlob(obj);
 
 				if (options.FilePrefix != null && !item.Name.StartsWith(options.FilePrefix))
 					continue;
@@ -66,12 +66,12 @@ namespace FluentStorage.Gcp.CloudStorage.Blobs {
 			yield break;
 		}
 
-		public static async Task<IReadOnlyCollection<Blob>> ToBlobsAsync(PagedAsyncEnumerable<Objects, Object> objects, ListOptions options) {
-			var result = new List<Blob>();
+		public static async Task<IReadOnlyCollection<StorageObject>> ToBlobsAsync(PagedAsyncEnumerable<Objects, Object> objects, ListOptions options) {
+			var result = new List<StorageObject>();
 
 			await foreach (Object obj in objects) {
 
-				Blob blob = ToBlob(obj);
+				StorageObject blob = ToBlob(obj);
 
 				if (options.FilePrefix != null && !blob.Name.StartsWith(options.FilePrefix))
 					continue;

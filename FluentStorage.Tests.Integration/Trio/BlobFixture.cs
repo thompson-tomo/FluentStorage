@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Config.Net;
-using FluentStorage.Blobs;
+using FluentStorage.Storage;
 
 namespace FluentStorage.Tests.Integration.Blobs {
 	public abstract class BlobFixture : IDisposable {
@@ -19,9 +19,9 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			BlobPrefix = blobPrefix;
 		}
 
-		protected abstract IBlobStorage CreateStorage(ITestSettings settings);
+		protected abstract IBucket CreateStorage(ITestSettings settings);
 
-		public IBlobStorage Storage { get; private set; }
+		public IBucket Storage { get; private set; }
 		public string BlobPrefix { get; }
 
 		public string TestDir {
@@ -41,7 +41,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 			//drop all blobs in test storage
 
-			IReadOnlyCollection<Blob> topLevel = (await Storage.ListAsync(folderPath: BlobPrefix, recurse: false)).ToList();
+			IReadOnlyCollection<StorageObject> topLevel = (await Storage.ListAsync(folderPath: BlobPrefix, recurse: false)).ToList();
 
 			try {
 				await Storage.DeleteAsync(topLevel.Select(f => f.FullPath));

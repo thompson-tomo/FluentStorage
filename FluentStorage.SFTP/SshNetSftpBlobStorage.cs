@@ -8,7 +8,7 @@ using Polly;
 using Polly.Retry;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
-using FluentStorage.Blobs;
+using FluentStorage.Storage;
 
 namespace FluentStorage.SFTP {
 	public class SshNetSftpBlobStorage : IExtendedBlobStorage {
@@ -213,12 +213,12 @@ namespace FluentStorage.SFTP {
 		/// <returns>
 		/// List of blob IDs
 		/// </returns>
-		public async Task<IReadOnlyCollection<Blob>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public async Task<IReadOnlyCollection<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 
 			SftpClient client = GetClient();
 
-			var results = new List<Blob>();
+			var results = new List<StorageObject>();
 			var fullPathsWithRoot = fullPaths.Select(fullPath => StoragePath.Combine(RootDirectory, fullPath));
 			foreach (IGrouping<string, string> fullPathGrouping in fullPathsWithRoot.GroupBy(StoragePath.GetParent)) {
 				string fullPath = fullPathGrouping.SingleOrDefault();
@@ -228,7 +228,7 @@ namespace FluentStorage.SFTP {
 				}
 
 				try {
-					List<Blob> blobCollection = new List<Blob>();
+					List<StorageObject> blobCollection = new List<StorageObject>();
 
 					await foreach (SftpFile sftpFile in client.ListDirectoryAsync(fullPathGrouping.Key, cancellationToken)) {
 						if ((sftpFile.IsDirectory || sftpFile.IsRegularFile) && sftpFile.FullName == fullPath) {
@@ -268,7 +268,7 @@ namespace FluentStorage.SFTP {
 		/// <returns>
 		/// List of blob IDs
 		/// </returns>
-		public async Task<IReadOnlyCollection<Blob>> ListAsync(ListOptions options = null, CancellationToken cancellationToken = default) {
+		public async Task<IReadOnlyCollection<StorageObject>> ListAsync(ListOptions options = null, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 
 			options ??= new ListOptions();
@@ -299,9 +299,9 @@ namespace FluentStorage.SFTP {
 		/// <param name="options"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns>List of blob IDs</returns>
-		async Task<IReadOnlyCollection<Blob>> ListDirectoryAsync(SftpClient client, string folderToList, ListOptions options, CancellationToken cancellationToken) {
+		async Task<IReadOnlyCollection<StorageObject>> ListDirectoryAsync(SftpClient client, string folderToList, ListOptions options, CancellationToken cancellationToken) {
 
-			List<Blob> blobCollection = new List<Blob>();
+			List<StorageObject> blobCollection = new List<StorageObject>();
 
 			// Note: options.FolderPath is not used here, we use the folderToList which is passed in.
 			List<SftpFile> directoryContents = new List<SftpFile>();
@@ -410,7 +410,7 @@ namespace FluentStorage.SFTP {
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
 		/// <exception cref="System.NotSupportedException"></exception>
-		public Task SetBlobsAsync(IEnumerable<Blob> blobs, CancellationToken cancellationToken = default) {
+		public Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 			throw new NotSupportedException();
 		}
@@ -491,13 +491,13 @@ namespace FluentStorage.SFTP {
 		/// </summary>
 		/// <param name="file">The file.</param>
 		/// <returns></returns>
-		private static Blob ConvertSftpFileToBlob(SftpFile file) {
+		private static StorageObject ConvertSftpFileToBlob(SftpFile file) {
 			if (file.IsDirectory || file.IsRegularFile || file.OwnerCanRead) {
 				BlobItemKind itemKind = file.IsDirectory
 				   ? BlobItemKind.Folder
 				   : BlobItemKind.File;
 
-				return new Blob(file.FullName, itemKind) {
+				return new StorageObject(file.FullName, itemKind) {
 					Size = file.Length,
 					LastModificationTime = file.LastWriteTime
 				};

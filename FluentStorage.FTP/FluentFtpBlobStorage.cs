@@ -1,7 +1,7 @@
 ﻿using FluentFTP;
 using FluentFTP.Exceptions;
 
-using FluentStorage.Blobs;
+using FluentStorage.Storage;
 
 using Polly;
 using Polly.Retry;
@@ -15,7 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace FluentStorage.FTP {
-	class FluentFtpBlobStorage : IBlobStorage {
+	class FluentFtpBlobStorage : IBucket {
 		private readonly AsyncFtpClient _client;
 		private readonly bool _dispose;
 		private static readonly AsyncRetryPolicy retryPolicy = Policy.Handle<FtpException>().RetryAsync(3);
@@ -42,7 +42,7 @@ namespace FluentStorage.FTP {
 			return _client;
 		}
 
-		public async Task<IReadOnlyCollection<Blob>> ListAsync(ListOptions options = null, CancellationToken cancellationToken = default) {
+		public async Task<IReadOnlyCollection<StorageObject>> ListAsync(ListOptions options = null, CancellationToken cancellationToken = default) {
 			AsyncFtpClient client = await GetClientAsync().ConfigureAwait(false);
 
 			if (options == null)
@@ -57,13 +57,13 @@ namespace FluentStorage.FTP {
 
 			FtpListItem[] items = await client.GetListing(options.FolderPath, ftpListOption, cancellationToken).ConfigureAwait(false);
 
-			List<Blob> results = new List<Blob>();
+			List<StorageObject> results = new List<StorageObject>();
 			foreach (FtpListItem item in items) {
 				if (options.FilePrefix != null && !item.Name.StartsWith(options.FilePrefix)) {
 					continue;
 				}
 
-				Blob blob = ToBlobId(item);
+				StorageObject blob = ToBlobId(item);
 				if (blob == null)
 					continue;
 
@@ -82,11 +82,11 @@ namespace FluentStorage.FTP {
 			return results;
 		}
 
-		private Blob ToBlobId(FtpListItem ff) {
+		private StorageObject ToBlobId(FtpListItem ff) {
 			if (ff.Type != FtpObjectType.Directory && ff.Type != FtpObjectType.File)
 				return null;
 
-			Blob id = new Blob(ff.FullName,
+			StorageObject id = new StorageObject(ff.FullName,
 			   ff.Type == FtpObjectType.File
 			   ? BlobItemKind.File
 			   : BlobItemKind.Folder);
@@ -125,10 +125,10 @@ namespace FluentStorage.FTP {
 			return results;
 		}
 
-		public async Task<IReadOnlyCollection<Blob>> GetBlobsAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
+		public async Task<IReadOnlyCollection<StorageObject>> GetBlobsAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
 			AsyncFtpClient client = await GetClientAsync().ConfigureAwait(false);
 
-			List<Blob> results = new List<Blob>();
+			List<StorageObject> results = new List<StorageObject>();
 			foreach (string path in ids) {
 				string cpath = StoragePath.Normalize(path);
 				string parentPath = StoragePath.GetParent(cpath);
@@ -141,7 +141,7 @@ namespace FluentStorage.FTP {
 					continue;
 				}
 
-				Blob r = new Blob(path) {
+				StorageObject r = new StorageObject(path) {
 					Size = foundItem.Size,
 					LastModificationTime = foundItem.Modified
 				};
@@ -150,7 +150,7 @@ namespace FluentStorage.FTP {
 			return results;
 		}
 
-		public Task SetBlobsAsync(IEnumerable<Blob> blobs, CancellationToken cancellationToken = default) {
+		public Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 

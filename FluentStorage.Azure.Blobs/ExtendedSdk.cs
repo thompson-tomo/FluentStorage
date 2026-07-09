@@ -14,7 +14,7 @@ using Azure.Storage.Blobs;
 using Blobs.Gen2;
 
 using FluentStorage;
-using FluentStorage.Blobs;
+using FluentStorage.Storage;
 using FluentStorage.Azure.Blobs;
 using FluentStorage.Azure.Blobs.Gen2.Model;
 using FluentStorage.Azure;
@@ -67,7 +67,7 @@ namespace Blobs {
 			return response.Filesystems;
 		}
 
-		public async Task<IReadOnlyCollection<Blob>> ListFilesystemsAsBlobsAsync(CancellationToken cancellationToken) {
+		public async Task<IReadOnlyCollection<StorageObject>> ListFilesystemsAsBlobsAsync(CancellationToken cancellationToken) {
 			IReadOnlyCollection<Filesystem> fss = await ListFilesystemsAsync(cancellationToken).ConfigureAwait(false);
 
 			return fss.Select(AzConvert.ToBlob).ToList();
@@ -147,7 +147,7 @@ namespace Blobs {
 
 		}
 
-		public async Task<Blob> GetBlobAsync(string fullPath, CancellationToken cancellationToken) {
+		public async Task<StorageObject> GetBlobAsync(string fullPath, CancellationToken cancellationToken) {
 			DecomposePath(fullPath, out string fs, out string rp, false);
 
 			if (StoragePath.IsRootPath(rp)) {
@@ -180,12 +180,12 @@ namespace Blobs {
 
 		#region [ Native Browsing ]
 
-		public async Task<IReadOnlyCollection<Blob>> ListAsync(
+		public async Task<IReadOnlyCollection<StorageObject>> ListAsync(
 		   ListOptions options, CancellationToken cancellationToken) {
 			if (options == null)
 				options = new ListOptions();
 
-			IReadOnlyCollection<Blob> result = await InternalListAsync(options, cancellationToken).ConfigureAwait(false);
+			IReadOnlyCollection<StorageObject> result = await InternalListAsync(options, cancellationToken).ConfigureAwait(false);
 
 			if (options.IncludeAttributes) {
 				result = await Task.WhenAll(result.Select(b => GetWithMetadata(b, cancellationToken))).ConfigureAwait(false);
@@ -194,7 +194,7 @@ namespace Blobs {
 			return result;
 		}
 
-		private Task<Blob> GetWithMetadata(Blob b, CancellationToken cancellationToken) {
+		private Task<StorageObject> GetWithMetadata(StorageObject b, CancellationToken cancellationToken) {
 			if (b.IsFile) {
 				return GetBlobAsync(b, cancellationToken);
 			}
@@ -202,13 +202,13 @@ namespace Blobs {
 			return Task.FromResult(b);
 		}
 
-		public async Task<IReadOnlyCollection<Blob>> InternalListAsync(ListOptions options, CancellationToken cancellationToken) {
+		public async Task<IReadOnlyCollection<StorageObject>> InternalListAsync(ListOptions options, CancellationToken cancellationToken) {
 			if (StoragePath.IsRootPath(options.FolderPath)) {
 				//only filesystems are in the root path
-				var result = new List<Blob>(await ListFilesystemsAsBlobsAsync(cancellationToken).ConfigureAwait(false));
+				var result = new List<StorageObject>(await ListFilesystemsAsBlobsAsync(cancellationToken).ConfigureAwait(false));
 
 				if (options.Recurse) {
-					foreach (Blob folder in result.Where(b => b.IsFolder).ToList()) {
+					foreach (StorageObject folder in result.Where(b => b.IsFolder).ToList()) {
 						int? maxResults = options.MaxResults == null
 						   ? null
 						   : (int?)(options.MaxResults.Value - result.Count);
@@ -224,7 +224,7 @@ namespace Blobs {
 			}
 		}
 
-		private async Task<IReadOnlyCollection<Blob>> ListPathAsync(string path, int? maxResults, ListOptions options, CancellationToken cancellationToken) {
+		private async Task<IReadOnlyCollection<StorageObject>> ListPathAsync(string path, int? maxResults, ListOptions options, CancellationToken cancellationToken) {
 			//get filesystem name and folder path
 			string[] parts = StoragePath.Split(path);
 
@@ -250,10 +250,10 @@ namespace Blobs {
 			}
 			catch (RequestFailedException ex) when (ex.ErrorCode == "PathNotFound" || ex.ErrorCode == "FilesystemNotFound") {
 				// trying to list a path which doesn't exist, just return an empty result
-				return new List<Blob>();
+				return new List<StorageObject>();
 			}
 
-			IEnumerable<Blob> result = list.Select(p => AzConvert.ToBlob(fs, p));
+			IEnumerable<StorageObject> result = list.Select(p => AzConvert.ToBlob(fs, p));
 
 			if (options.FilePrefix != null)
 				result = result.Where(b => b.IsFolder || b.Name.StartsWith(options.FilePrefix));

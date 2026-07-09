@@ -1,6 +1,6 @@
-﻿using FluentStorage.Blobs;
+﻿using FluentStorage.Storage;
 using FluentStorage.ConnectionString;
-using FluentStorage.Messaging;
+using FluentStorage.Queue;
 
 namespace FluentStorage.SFTP {
 	/// <summary>
@@ -19,7 +19,7 @@ namespace FluentStorage.SFTP {
 		/// </summary>
 		/// <param name="connectionString">The connection string to parse.</param>
 		/// <returns></returns>
-		public IBlobStorage CreateBlobStorage(StorageConnectionString connectionString) {
+		public IBucket CreateBlobStorage(StorageConnectionString connectionString) {
 			if (connectionString.Prefix == "sftp") {
 				connectionString.GetRequired("host", true, out string host);
 				connectionString.GetRequired("user", true, out string user);
@@ -39,6 +39,6 @@ namespace FluentStorage.SFTP {
 		/// </summary>
 		/// <param name="connectionString">The connection string to parse.</param>
 		/// <returns></returns>
-		public IMessenger CreateMessenger(StorageConnectionString connectionString) => null;
+		public IQueue CreateMessenger(StorageConnectionString connectionString) => null;
 	}
 }

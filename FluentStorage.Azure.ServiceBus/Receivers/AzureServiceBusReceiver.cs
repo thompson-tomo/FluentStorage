@@ -5,11 +5,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
-using FluentStorage.Messaging;
-using IMessageReceiver = FluentStorage.Messaging.IMessageReceiver;
+using FluentStorage.Queue;
+using IQueueReceiver = FluentStorage.Queue.IQueueReceiver;
 
 namespace FluentStorage.Azure.ServiceBus.Receivers {
-	internal abstract class AzureServiceBusReceiver : IMessageReceiver {
+	internal abstract class AzureServiceBusReceiver : IQueueReceiver {
 		private readonly string _queueName;
 		private readonly string _topicName;
 		private readonly string _subscriptionName;

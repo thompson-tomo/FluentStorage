@@ -1,14 +1,14 @@
-﻿using FluentStorage.Blobs;
+﻿using FluentStorage.Storage;
 using FluentStorage.ConnectionString;
-using FluentStorage.Messaging;
+using FluentStorage.Queue;
 
 namespace FluentStorage.Azure.Queues {
 	class Module : IExternalModule, IConnectionFactory {
 		public IConnectionFactory ConnectionFactory => this;
 
-		public IBlobStorage CreateBlobStorage(StorageConnectionString connectionString) => null;
+		public IBucket CreateBlobStorage(StorageConnectionString connectionString) => null;
 
-		public IMessenger CreateMessenger(StorageConnectionString connectionString) {
+		public IQueue CreateMessenger(StorageConnectionString connectionString) {
 			if (connectionString.Prefix == KnownPrefix.AzureQueueStorage) {
 				connectionString.GetRequired(KnownParameter.AccountName, true, out string accountName);
 				connectionString.GetRequired(KnownParameter.KeyOrPassword, true, out string key);

@@ -1,12 +1,12 @@
 ﻿using System;
 using Azure.Storage.Files.Shares.Models;
-using FluentStorage.Blobs;
+using FluentStorage.Storage;
 using FluentStorage.Utils.Extensions;
 
 namespace FluentStorage.Azure.Files {
 	static class AzConvert {
-		public static Blob ToBlob(ShareItem share) {
-			var blob = new Blob(share.Name, BlobItemKind.Folder);
+		public static StorageObject ToBlob(ShareItem share) {
+			var blob = new StorageObject(share.Name, BlobItemKind.Folder);
 			blob.TryAddProperties(
 			   "ETag", share.Properties.ETag?.ToString(),
 			   "LastModified", share.Properties.LastModified?.ToString(),
@@ -15,9 +15,9 @@ namespace FluentStorage.Azure.Files {
 			return blob;
 		}
 
-		public static Blob ToBlob(string path, ShareFileItem item) {
+		public static StorageObject ToBlob(string path, ShareFileItem item) {
 			if (item.IsDirectory) {
-				var blob = new Blob(path, item.Name, BlobItemKind.Folder);
+				var blob = new StorageObject(path, item.Name, BlobItemKind.Folder);
 				blob.TryAddProperties(
 				   "ETag", item.Properties.ETag?.ToString(),
 				   "LastModified", item.Properties.LastModified?.ToString());
@@ -27,13 +27,13 @@ namespace FluentStorage.Azure.Files {
 			return ToFileBlob(path, item);
 		}
 
-		public static Blob ToBlob(string path, string name, ShareFileProperties properties) {
+		public static StorageObject ToBlob(string path, string name, ShareFileProperties properties) {
 			return ToBlob(path, name, properties, properties.Metadata);
 		}
 
-		private static Blob ToFileBlob(string path, ShareFileItem item) {
+		private static StorageObject ToFileBlob(string path, ShareFileItem item) {
 			ShareFileItemProperties properties = item.Properties;
-			var blob = new Blob(path, item.Name, BlobItemKind.File) {
+			var blob = new StorageObject(path, item.Name, BlobItemKind.File) {
 				LastModificationTime = properties.LastModified,
 				Size = item.FileSize
 			};
@@ -43,8 +43,8 @@ namespace FluentStorage.Azure.Files {
 			return blob;
 		}
 
-		private static Blob ToBlob(string path, string name, ShareFileProperties properties, System.Collections.Generic.IDictionary<string, string> metadata) {
-			var blob = new Blob(path, name, BlobItemKind.File) {
+		private static StorageObject ToBlob(string path, string name, ShareFileProperties properties, System.Collections.Generic.IDictionary<string, string> metadata) {
+			var blob = new StorageObject(path, name, BlobItemKind.File) {
 				LastModificationTime = properties.LastModified,
 				Size = properties.ContentLength,
 				MD5 = properties.ContentHash == null ? null : Convert.ToBase64String(properties.ContentHash)

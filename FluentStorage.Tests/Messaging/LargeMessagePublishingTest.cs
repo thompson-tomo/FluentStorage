@@ -1,18 +1,18 @@
-﻿using FluentStorage.Blobs;
-using FluentStorage.Messaging;
+﻿using FluentStorage.Storage;
+using FluentStorage.Queue;
 using FluentStorage.Utils.Generator;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace FluentStorage.Tests.Messaging {
 	public class LargeMessagePublishingTest {
-		private readonly IBlobStorage _blobStorage;
-		private readonly IMessenger _publisher;
+		private readonly IBucket _blobStorage;
+		private readonly IQueue _publisher;
 
 		public LargeMessagePublishingTest() {
-			_blobStorage = StorageFactory.Blobs.InMemory();
+			_blobStorage = StorageFactory.InMemory();
 
-			_publisher = StorageFactory.Messages
+			_publisher = QueueFactory
 				.InMemory(nameof(LargeMessagePublishingTest))
 				.HandleLargeContent(_blobStorage, 100);
 		}

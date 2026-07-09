@@ -1,4 +1,4 @@
-﻿using FluentStorage.Blobs;
+﻿using FluentStorage.Storage;
 using FluentStorage.Azure.Blobs;
 using System;
 using System.Collections.Generic;
@@ -19,7 +19,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 		public LeakyAzureBlobStorageTest() {
 			ITestSettings settings = Settings.Instance;
 
-			IBlobStorage storage = StorageFactory.Blobs.AzureBlobStorageWithSharedKey(
+			IBucket storage = AzureBlobStorage.FromSharedKey(
 			   settings.AzureStorageName, settings.AzureStorageKey);
 			_native = (IAzureBlobStorage)storage;
 		}
@@ -36,8 +36,8 @@ namespace FluentStorage.Tests.Integration.Azure {
 			Assert.NotNull(sas);
 
 			//check we can connect and list containers
-			IBlobStorage sasInstance = StorageFactory.Blobs.AzureBlobStorageWithSas(sas);
-			IReadOnlyCollection<Blob> containers = await sasInstance.ListAsync(StoragePath.RootFolderPath);
+			IBucket sasInstance = AzureBlobStorage.FromSas(sas);
+			IReadOnlyCollection<StorageObject> containers = await sasInstance.ListAsync(StoragePath.RootFolderPath);
 			Assert.True(containers.Count > 0);
 		}
 
@@ -52,7 +52,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 		   string sas = await _native.GetContainerSasAsync("test", policy, true);
 
 		   //check we can connect and list test file in the root
-		   IBlobStorage sasInstance = StorageFactory.Blobs.AzureBlobStorageWithSas(sas);
+		   IBlobStorage sasInstance = AzureBlobStorage.FromSas(sas);
 		   IReadOnlyCollection<Blob> blobs = await sasInstance.ListAsync(StoragePath.RootFolderPath);
 		   Blob testBlob = blobs.FirstOrDefault(b => b.FullPath == fileName);
 		   Assert.NotNull(testBlob);
@@ -159,9 +159,9 @@ namespace FluentStorage.Tests.Integration.Azure {
 
 		[Fact]
 		public async Task Top_level_folders_are_containers() {
-			IReadOnlyCollection<Blob> containers = await _native.ListAsync();
+			IReadOnlyCollection<StorageObject> containers = await _native.ListAsync();
 
-			foreach (Blob container in containers) {
+			foreach (StorageObject container in containers) {
 				Assert.Equal(BlobItemKind.Folder, container.Kind);
 				Assert.True(container.Properties?.ContainsKey("IsContainer"), "isContainer property not present at all");
 				Assert.Equal(true, container.Properties["IsContainer"]);
@@ -173,7 +173,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 			string containerName = Guid.NewGuid().ToString();
 			await _native.WriteTextAsync($"{containerName}/test.txt", "test");
 
-			IReadOnlyCollection<Blob> containers = await _native.ListAsync();
+			IReadOnlyCollection<StorageObject> containers = await _native.ListAsync();
 			Assert.Contains(containers, c => c.Name == containerName);
 
 			await _native.DeleteAsync(containerName);

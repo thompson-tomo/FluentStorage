@@ -1,11 +1,11 @@
-﻿using FluentStorage.Blobs;
-using FluentStorage.Blobs.Files;
-using FluentStorage.Messaging;
-using FluentStorage.Messaging.Files;
+﻿using FluentStorage.Storage;
+using FluentStorage.Storage.Files;
+using FluentStorage.Queue;
+using FluentStorage.Queue.Files;
 
 namespace FluentStorage.ConnectionString {
 	class BuiltInConnectionFactory : IConnectionFactory {
-		public IBlobStorage CreateBlobStorage(StorageConnectionString connectionString) {
+		public IBucket CreateBlobStorage(StorageConnectionString connectionString) {
 			if (connectionString.Prefix == "disk") {
 				connectionString.GetRequired("path", true, out string path);
 
@@ -25,7 +25,7 @@ namespace FluentStorage.ConnectionString {
 			return null;
 		}
 
-		public IMessenger CreateMessenger(StorageConnectionString connectionString) {
+		public IQueue CreateMessenger(StorageConnectionString connectionString) {
 			if (connectionString.Prefix == "inmemory") {
 				connectionString.GetRequired("name", true, out string name);
 

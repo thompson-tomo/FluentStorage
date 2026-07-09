@@ -1,5 +1,5 @@
 ﻿using Xunit;
-using FluentStorage.Messaging;
+using FluentStorage.Queue;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 		private readonly MessagingFixture _fixture;
 		private readonly string _channelPrefix;
 		private readonly string _receiveChannelSuffix;
-		private readonly IMessenger _msg;
+		private readonly IQueue _msg;
 		private readonly string _qn;
 
 		protected MessagingTest(MessagingFixture fixture, string channelPrefix = null, string channelFixedName = null, string receiveChannelSuffix = null) {

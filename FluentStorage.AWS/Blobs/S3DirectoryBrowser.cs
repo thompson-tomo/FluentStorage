@@ -1,0 +1,122 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Amazon.S3;
+using Amazon.S3.Model;
+
+using FluentStorage.Storage;
+using FluentStorage.Utils.Performance;
+
+namespace FluentStorage.AWS.Blobs {
+	class S3DirectoryBrowser : IDisposable {
+		private readonly AmazonS3Client _client;
+		private readonly string _bucketName;
+		private AsyncLimiter _limiter;
+
+		public S3DirectoryBrowser(AmazonS3Client client, string bucketName) {
+			_client = client;
+			_bucketName = bucketName;
+		}
+
+		public async Task<IReadOnlyCollection<StorageObject>> ListAsync(ListOptions options, CancellationToken cancellationToken) {
+			var container = new List<StorageObject>();
+
+			_limiter = new AsyncLimiter(options.NumberOfRecursionThreads ?? ListOptions.MAX_THREADS);
+
+			await ListFolderAsync(container, options.FolderPath, options, cancellationToken).ConfigureAwait(false);
+
+			return options.MaxResults == null
+			   ? container
+			   : container.Count > options.MaxResults.Value
+				  ? container.Take(options.MaxResults.Value).ToList()
+				  : container;
+		}
+
+		private async Task ListFolderAsync(List<StorageObject> container, string path, ListOptions options, CancellationToken cancellationToken) {
+			var request = new ListObjectsV2Request() {
+				MaxKeys = options.PageSize ?? ListOptions.PAGE_SIZE,
+				BucketName = _bucketName,
+				Prefix = FormatFolderPrefix(path),
+				Delimiter = options.Recurse ? null : "/"   //this tells S3 not to go into the folder recursively
+			};
+
+			// Server side filtering is supported by supplying a FilePrefix
+			if (!string.IsNullOrEmpty(options.FilePrefix)) {
+				request.Prefix += options.FilePrefix;
+			}
+
+			var folderContainer = new List<StorageObject>();
+
+			while (options.MaxResults == null || (container.Count < options.MaxResults)) {
+				ListObjectsV2Response response;
+
+				using (await _limiter.AcquireOneAsync().ConfigureAwait(false)) {
+					response = await _client.ListObjectsV2Async(request, cancellationToken).ConfigureAwait(false);
+				}
+
+				if (response != null) {
+					folderContainer.AddRange(response.ToBlobs(options));
+				}
+
+				if (response.NextContinuationToken == null) {
+					break;
+				}
+
+				request.ContinuationToken = response.NextContinuationToken;
+			}
+
+			container.AddRange(folderContainer);
+
+			if (options.Recurse && options.RecursionMode == RecursionMode.Local) {
+				List<StorageObject> folders = folderContainer.Where(b => b.Kind == BlobItemKind.Folder).ToList();
+
+				await Task.WhenAll(folders.Select(f => ListFolderAsync(container, f.FullPath, options, cancellationToken))).ConfigureAwait(false);
+			}
+		}
+
+
+		private static string FormatFolderPrefix(string folderPath) {
+			folderPath = StoragePath.Normalize(folderPath).Substring(1);
+
+			if (StoragePath.IsRootPath(folderPath))
+				return null;
+
+			if (!folderPath.EndsWith("/"))
+				folderPath += "/";
+
+			return folderPath;
+		}
+
+
+		public async Task DeleteRecursiveAsync(string fullPath, CancellationToken cancellationToken) {
+			var request = new ListObjectsV2Request() {
+				BucketName = _bucketName,
+				Prefix = fullPath + "/"
+			};
+
+			while (true) {
+				ListObjectsV2Response response = await _client.ListObjectsV2Async(request, cancellationToken).ConfigureAwait(false);
+
+				if (response?.S3Objects == null)
+					break;
+
+				await _client.DeleteObjectsAsync(new DeleteObjectsRequest() {
+					BucketName = _bucketName,
+					Objects = response.S3Objects.Select(s3 => new KeyVersion() { Key = s3.Key }).ToList()
+				}, cancellationToken).ConfigureAwait(false);
+
+				if (response.NextContinuationToken == null)
+					break;
+
+				request.ContinuationToken = response.NextContinuationToken;
+			}
+		}
+
+		public void Dispose() {
+			_limiter?.Dispose();
+		}
+	}
+}

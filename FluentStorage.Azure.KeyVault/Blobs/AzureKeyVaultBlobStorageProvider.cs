@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Threading;
 using System.Text.RegularExpressions;
-using FluentStorage.Blobs;
+using FluentStorage.Storage;
 using Azure.Security.KeyVault.Secrets;
 using Azure.Core;
 using Azure;
 using FluentStorage.Utils.Extensions;
 
 namespace FluentStorage.Azure.KeyVault.Blobs {
-	class AzureKeyVaultBlobStorageProvider : IBlobStorage {
+	class AzureKeyVaultBlobStorageProvider : IBucket {
 		private readonly SecretClient _client;
 		private readonly string _vaultUri;
 		private static readonly Regex secretNameRegex = new Regex("^[0-9a-zA-Z-]+$");
@@ -26,17 +26,17 @@ namespace FluentStorage.Azure.KeyVault.Blobs {
 
 		#region [ IBlobStorage ]
 
-		public async Task<IReadOnlyCollection<Blob>> ListAsync(ListOptions options, CancellationToken cancellationToken) {
+		public async Task<IReadOnlyCollection<StorageObject>> ListAsync(ListOptions options, CancellationToken cancellationToken) {
 			if (options == null) options = new ListOptions();
 
 			GenericValidation.CheckBlobPrefix(options.FilePrefix);
 
-			if (!StoragePath.IsRootPath(options.FolderPath)) return new List<Blob>();
+			if (!StoragePath.IsRootPath(options.FolderPath)) return new List<StorageObject>();
 
-			var secrets = new List<Blob>();
+			var secrets = new List<StorageObject>();
 
 			await foreach (SecretProperties secretProperties in _client.GetPropertiesOfSecretsAsync(cancellationToken).ConfigureAwait(false)) {
-				Blob blob = ToBlob(secretProperties);
+				StorageObject blob = ToBlob(secretProperties);
 				if (!options.IsMatch(blob))
 					continue;
 
@@ -52,8 +52,8 @@ namespace FluentStorage.Azure.KeyVault.Blobs {
 			return secrets;
 		}
 
-		private static Blob ToBlob(SecretProperties secretProperties) {
-			var blob = new Blob(secretProperties.Name, BlobItemKind.File);
+		private static StorageObject ToBlob(SecretProperties secretProperties) {
+			var blob = new StorageObject(secretProperties.Name, BlobItemKind.File);
 			blob.LastModificationTime = secretProperties.UpdatedOn;
 
 			blob.TryAddProperties(
@@ -142,17 +142,17 @@ namespace FluentStorage.Azure.KeyVault.Blobs {
 			return true;
 		}
 
-		public async Task<IReadOnlyCollection<Blob>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public async Task<IReadOnlyCollection<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPaths(fullPaths);
 
 			return await Task.WhenAll(fullPaths.Select(fullPath => GetBlobAsync(fullPath))).ConfigureAwait(false);
 		}
 
-		public Task SetBlobsAsync(IEnumerable<Blob> blobs, CancellationToken cancellationToken = default) {
+		public Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		private async Task<Blob> GetBlobAsync(string fullPath) {
+		private async Task<StorageObject> GetBlobAsync(string fullPath) {
 			fullPath = NormaliseSecretName(fullPath);
 
 			try {

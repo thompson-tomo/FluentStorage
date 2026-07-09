@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
-using FluentStorage.Messaging;
+using FluentStorage.Queue;
 
 namespace FluentStorage.Azure.ServiceBus.Messenger {
 	/// <summary>
@@ -187,7 +187,7 @@ namespace FluentStorage.Azure.ServiceBus.Messenger {
 		                        CancellationToken cancellationToken = default) => throw new NotImplementedException();
 
 		/// <exception cref="NotImplementedException"></exception>
-		public Task StartMessageProcessorAsync(string channelName, IMessageProcessor messageProcessor) =>
+		public Task StartMessageProcessorAsync(string channelName, IQueueProcessor messageProcessor) =>
 			throw new NotImplementedException();
 
 		public void Dispose() {

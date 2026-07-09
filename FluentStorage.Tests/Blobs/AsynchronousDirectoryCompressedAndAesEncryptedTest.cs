@@ -1,5 +1,5 @@
-﻿using FluentStorage.Blobs;
-using FluentStorage.Blobs.Sinks.Impl;
+﻿using FluentStorage.Storage;
+using FluentStorage.Storage.Sinks.Impl;
 using FluentStorage.Tests.Utils;
 using FluentStorage.Utils.Extensions;
 using System.IO;
@@ -14,7 +14,7 @@ namespace FluentStorage.Tests.Blobs.Sink
 	public class AsynchronousDirectoryCompressedAndAesEncryptedTest : AsynchronousSinksTest
 	{
 		public AsynchronousDirectoryCompressedAndAesEncryptedTest() : base(
-		   StorageFactory.Blobs
+		   StorageFactory
 			  .DirectoryFiles(PathHelper.GetLocalPath("Temp"))
 			  .WithSinks(
 				 new GZipSink(),

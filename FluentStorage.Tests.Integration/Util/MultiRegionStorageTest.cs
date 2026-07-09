@@ -2,7 +2,7 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Files.Shares;
 using FluentStorage.Azure.Blobs;
-using FluentStorage.Blobs;
+using FluentStorage.Storage;
 using System;
 using System.Reflection;
 using FluentStorage.Azure;
@@ -27,24 +27,24 @@ namespace FluentStorage.Tests.Integration.Util {
 			string validBase64Key = Convert.ToBase64String(new byte[32]);
 
 			// Shared key
-			IAzureBlobStorage blobSharedKey = StorageFactory.Blobs.AzureBlobStorageWithSharedKey(Account, validBase64Key, serviceUri: null, cloudEnvironment: environment);
+			IAzureBlobStorage blobSharedKey = AzureBlobStorage.FromSharedKey(Account, validBase64Key, serviceUri: null, cloudEnvironment: environment);
 			var client = GetBlobServiceClient(blobSharedKey);
 			Assert.Equal(expectedHost, client.Uri.Host);
 
 			// Token credential
 			var tokenCred = new ClientSecretCredential("test-tenant", "test-application", "test-secret", new TokenCredentialOptions { AuthorityHost = authorityHost });
 
-			IAzureBlobStorage blobToken = StorageFactory.Blobs.AzureBlobStorageWithTokenCredential(Account, tokenCred, environment);
+			IAzureBlobStorage blobToken = AzureBlobStorage.FromTokenCredential(Account, tokenCred, environment);
 			var client2 = GetBlobServiceClient(blobToken);
 			Assert.Equal(expectedHost, client2.Uri.Host);
 
 			// Managed identity
-			IAzureBlobStorage blobMsi = StorageFactory.Blobs.AzureBlobStorageWithMsi(Account, clientId: null, azureCloudEnvironment: environment);
+			IAzureBlobStorage blobMsi = AzureBlobStorage.FromMsi(Account, clientId: null, azureCloudEnvironment: environment);
 			var client3 = GetBlobServiceClient(blobMsi);
 			Assert.Equal(expectedHost, client3.Uri.Host);
 
 			// Azure Ad
-			IAzureBlobStorage blobAzureAd = StorageFactory.Blobs.AzureBlobStorageWithAzureAd(
+			IAzureBlobStorage blobAzureAd = AzureBlobStorage.FromAzureAd(
 				Account,
 				tenantId: "test-tenant",
 				applicationId: "test-application",
@@ -66,21 +66,21 @@ namespace FluentStorage.Tests.Integration.Util {
 
 			string validBase64Key = Convert.ToBase64String(new byte[32]);
 
-			IBlobStorage filesSharedKey = StorageFactory.Blobs.AzureFilesWithSharedKey(Account, validBase64Key, serviceUri: null, cloudEnvironment: environment);
+			IBucket filesSharedKey = AzureFilesStorage.FromSharedKey(Account, validBase64Key, serviceUri: null, cloudEnvironment: environment);
 			var client = GetShareServiceClient(filesSharedKey);
 			Assert.Equal(expectedHost, client.Uri.Host);
 
 			var tokenCred = new ClientSecretCredential("test-tenant", "test-application", "test-secret", new TokenCredentialOptions { AuthorityHost = authorityHost });
 
-			IBlobStorage filesToken = StorageFactory.Blobs.AzureFilesWithTokenCredential(Account, tokenCred, environment);
+			IBucket filesToken = AzureFilesStorage.FromTokenCredential(Account, tokenCred, environment);
 			var client2 = GetShareServiceClient(filesToken);
 			Assert.Equal(expectedHost, client2.Uri.Host);
 
-			IBlobStorage filesMsi = StorageFactory.Blobs.AzureFilesWithMsi(Account, clientId: null, azureCloudEnvironment: environment);
+			IBucket filesMsi = AzureFilesStorage.FromMsi(Account, clientId: null, azureCloudEnvironment: environment);
 			var client3 = GetShareServiceClient(filesMsi);
 			Assert.Equal(expectedHost, client3.Uri.Host);
 
-			IBlobStorage filesAzureAd = StorageFactory.Blobs.AzureFilesWithAzureAd(
+			IBucket filesAzureAd = AzureFilesStorage.FromAzureAd(
 				Account,
 				tenantId: "test-tenant",
 				applicationId: "test-application",
@@ -95,9 +95,9 @@ namespace FluentStorage.Tests.Integration.Util {
 		[InlineData("azure.file://account=testaccount;tenantId=test-tenant;principalId=test-application;principalSecret=test-secret")]
 		[InlineData("azure.file://account=testaccount;msi")]
 		public void Files_connection_string_authentication_modes_construct_storage(string connectionString) {
-			StorageFactory.Modules.UseAzureFilesStorage();
+			AzureFilesStorage.Use();
 
-			IBlobStorage storage = StorageFactory.Blobs.FromConnectionString(connectionString);
+			IBucket storage = StorageFactory.FromConnectionString(connectionString);
 
 			Assert.NotNull(storage);
 			var client = GetShareServiceClient(storage);

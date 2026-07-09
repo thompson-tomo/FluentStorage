@@ -1,22 +1,22 @@
-﻿using FluentStorage.Blobs;
+﻿using FluentStorage.Storage;
 using FluentStorage.ConnectionString;
-using FluentStorage.Messaging;
+using FluentStorage.Queue;
 
 namespace FluentStorage.Azure.Blobs {
 	class Module : IExternalModule, IConnectionFactory {
 		public IConnectionFactory ConnectionFactory => this;
 
-		public IBlobStorage CreateBlobStorage(StorageConnectionString connectionString) {
+		public IBucket CreateBlobStorage(StorageConnectionString connectionString) {
 			if (connectionString.Prefix == KnownPrefix.AzureBlobStorage) {
 				if (connectionString.Parameters.ContainsKey(KnownParameter.IsLocalEmulator)) {
-					return StorageFactory.Blobs.AzureBlobStorageWithLocalEmulator();
+					return AzureBlobStorage.FromLocalEmulator();
 				}
 
 				connectionString.GetRequired(KnownParameter.AccountName, true, out string accountName);
 
 				string sharedKey = connectionString.Get(KnownParameter.KeyOrPassword);
 				if (!string.IsNullOrEmpty(sharedKey)) {
-					return StorageFactory.Blobs.AzureBlobStorageWithSharedKey(accountName, sharedKey);
+					return AzureBlobStorage.FromSharedKey(accountName, sharedKey);
 				}
 
 				string tenantId = connectionString.Get(KnownParameter.TenantId);
@@ -24,11 +24,11 @@ namespace FluentStorage.Azure.Blobs {
 					connectionString.GetRequired(KnownParameter.ClientId, true, out string clientId);
 					connectionString.GetRequired(KnownParameter.ClientSecret, true, out string clientSecret);
 
-					return StorageFactory.Blobs.AzureBlobStorageWithAzureAd(accountName, tenantId, clientId, clientSecret);
+					return AzureBlobStorage.FromAzureAd(accountName, tenantId, clientId, clientSecret);
 				}
 
 				if (connectionString.Parameters.ContainsKey(KnownParameter.MsiEnabled)) {
-					return StorageFactory.Blobs.AzureBlobStorageWithMsi(accountName);
+					return AzureBlobStorage.FromMsi(accountName);
 				}
 			}
 			else if (connectionString.Prefix == KnownPrefix.AzureDataLakeGen2 || connectionString.Prefix == KnownPrefix.AzureDataLake) {
@@ -36,7 +36,7 @@ namespace FluentStorage.Azure.Blobs {
 
 				string sharedKey = connectionString.Get(KnownParameter.KeyOrPassword);
 				if (!string.IsNullOrEmpty(sharedKey)) {
-					return StorageFactory.Blobs.AzureDataLakeStorageWithSharedKey(accountName, sharedKey);
+					return AzureDataLakeStorage.FromSharedKey(accountName, sharedKey);
 				}
 
 				string tenantId = connectionString.Get(KnownParameter.TenantId);
@@ -44,11 +44,11 @@ namespace FluentStorage.Azure.Blobs {
 					connectionString.GetRequired(KnownParameter.ClientId, true, out string clientId);
 					connectionString.GetRequired(KnownParameter.ClientSecret, true, out string clientSecret);
 
-					return StorageFactory.Blobs.AzureDataLakeStorageWithAzureAd(accountName, tenantId, clientId, clientSecret);
+					return AzureDataLakeStorage.FromAzureAd(accountName, tenantId, clientId, clientSecret);
 				}
 
 				if (connectionString.Parameters.ContainsKey(KnownParameter.MsiEnabled)) {
-					return StorageFactory.Blobs.AzureDataLakeStorageWithMsi(accountName);
+					return AzureDataLakeStorage.FromMsi(accountName);
 				}
 
 			}
@@ -56,6 +56,6 @@ namespace FluentStorage.Azure.Blobs {
 			return null;
 		}
 
-		public IMessenger CreateMessenger(StorageConnectionString connectionString) => null;
+		public IQueue CreateMessenger(StorageConnectionString connectionString) => null;
 	}
 }

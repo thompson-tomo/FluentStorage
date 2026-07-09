@@ -1,10 +1,10 @@
-﻿using FluentStorage.Blobs;
+﻿using FluentStorage.Storage;
 
 namespace FluentStorage.Tests.Blobs.Sink {
 	public abstract class AsynchronousSinksTest {
-		protected readonly IBlobStorage _storage;
+		protected readonly IBucket _storage;
 
-		protected AsynchronousSinksTest(IBlobStorage storage) {
+		protected AsynchronousSinksTest(IBucket storage) {
 			_storage = storage;
 		}
 	}

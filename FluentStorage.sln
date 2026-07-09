@@ -23,8 +23,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentStorage.GCP", "Fluent
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentStorage.Tests", "FluentStorage.Tests\FluentStorage.Tests.csproj", "{0363E638-1B53-4B39-936C-452207CCA098}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentStorage.Tests.Console", "FluentStorage.Tests.Console\FluentStorage.Tests.Console.csproj", "{03A84A99-76B9-438F-AAFE-126ABAF6BDBC}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentStorage.Tests.Integration", "FluentStorage.Tests.Integration\FluentStorage.Tests.Integration.csproj", "{C146037F-2846-4AD9-B763-D2F09DD48555}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentStorage.SFTP", "FluentStorage.SFTP\FluentStorage.SFTP.csproj", "{48D1A85B-3E34-49BC-A2E9-24FE3B5293BA}"
@@ -163,18 +161,6 @@ Global
 		{0363E638-1B53-4B39-936C-452207CCA098}.Release|x64.Build.0 = Release|Any CPU
 		{0363E638-1B53-4B39-936C-452207CCA098}.Release|x86.ActiveCfg = Release|Any CPU
 		{0363E638-1B53-4B39-936C-452207CCA098}.Release|x86.Build.0 = Release|Any CPU
-		{03A84A99-76B9-438F-AAFE-126ABAF6BDBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{03A84A99-76B9-438F-AAFE-126ABAF6BDBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{03A84A99-76B9-438F-AAFE-126ABAF6BDBC}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{03A84A99-76B9-438F-AAFE-126ABAF6BDBC}.Debug|x64.Build.0 = Debug|Any CPU
-		{03A84A99-76B9-438F-AAFE-126ABAF6BDBC}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{03A84A99-76B9-438F-AAFE-126ABAF6BDBC}.Debug|x86.Build.0 = Debug|Any CPU
-		{03A84A99-76B9-438F-AAFE-126ABAF6BDBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{03A84A99-76B9-438F-AAFE-126ABAF6BDBC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{03A84A99-76B9-438F-AAFE-126ABAF6BDBC}.Release|x64.ActiveCfg = Release|Any CPU
-		{03A84A99-76B9-438F-AAFE-126ABAF6BDBC}.Release|x64.Build.0 = Release|Any CPU
-		{03A84A99-76B9-438F-AAFE-126ABAF6BDBC}.Release|x86.ActiveCfg = Release|Any CPU
-		{03A84A99-76B9-438F-AAFE-126ABAF6BDBC}.Release|x86.Build.0 = Release|Any CPU
 		{C146037F-2846-4AD9-B763-D2F09DD48555}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C146037F-2846-4AD9-B763-D2F09DD48555}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C146037F-2846-4AD9-B763-D2F09DD48555}.Debug|x64.ActiveCfg = Debug|Any CPU

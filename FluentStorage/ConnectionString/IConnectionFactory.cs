@@ -1,5 +1,5 @@
-﻿using FluentStorage.Blobs;
-using FluentStorage.Messaging;
+﻿using FluentStorage.Storage;
+using FluentStorage.Queue;
 
 namespace FluentStorage.ConnectionString {
 	/// <summary>
@@ -11,11 +11,11 @@ namespace FluentStorage.ConnectionString {
 		/// Creates a blob storage instance from connection string if possible. When this factory does not support this connection
 		/// string it returns null.
 		/// </summary>
-		IBlobStorage CreateBlobStorage(StorageConnectionString connectionString);
+		IBucket CreateBlobStorage(StorageConnectionString connectionString);
 
 		/// <summary>
 		/// Creates a message publisher
 		/// </summary>
-		IMessenger CreateMessenger(StorageConnectionString connectionString);
+		IQueue CreateMessenger(StorageConnectionString connectionString);
 	}
 }

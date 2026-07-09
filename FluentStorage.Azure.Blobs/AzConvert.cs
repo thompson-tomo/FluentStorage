@@ -6,7 +6,7 @@ using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 
-using FluentStorage.Blobs;
+using FluentStorage.Storage;
 using FluentStorage.Azure.Blobs.Gen2.Model;
 using FluentStorage.Utils.Extensions;
 
@@ -15,8 +15,8 @@ namespace FluentStorage.Azure.Blobs {
 		private static readonly char[] MetadataPairsSeparator = new[] { ',' };
 		private static readonly char[] MetadataPairSeparator = new[] { '=' };
 
-		public static Blob ToBlob(Filesystem fs) {
-			var blob = new Blob(fs.Name, BlobItemKind.Folder);
+		public static StorageObject ToBlob(Filesystem fs) {
+			var blob = new StorageObject(fs.Name, BlobItemKind.Folder);
 			blob.LastModificationTime = fs.LastModified;
 			blob.TryAddProperties(
 			   "ETag", fs.Etag,
@@ -24,16 +24,16 @@ namespace FluentStorage.Azure.Blobs {
 			return blob;
 		}
 
-		public static Blob ToBlob(BlobContainerItem item) {
-			var blob = new Blob(item.Name, BlobItemKind.Folder);
+		public static StorageObject ToBlob(BlobContainerItem item) {
+			var blob = new StorageObject(item.Name, BlobItemKind.Folder);
 			blob.TryAddProperties(
 			   "IsContainer", true);
 
 			return blob;
 		}
 
-		public static Blob ToBlob(BlobContainerClient client) {
-			var blob = new Blob(client.Name, BlobItemKind.Folder);
+		public static StorageObject ToBlob(BlobContainerClient client) {
+			var blob = new StorageObject(client.Name, BlobItemKind.Folder);
 			blob.Properties["IsContainer"] = true;
 			if (client.Name == "$logs") {
 				blob.Properties["IsLogsContainer"] = true;
@@ -41,12 +41,12 @@ namespace FluentStorage.Azure.Blobs {
 			return blob;
 		}
 
-		public static Blob ToBlob(string name, Response<BlobContainerProperties> properties) {
+		public static StorageObject ToBlob(string name, Response<BlobContainerProperties> properties) {
 			return ToBlob(name, properties.Value);
 		}
 
-		public static Blob ToBlob(string name, BlobContainerProperties properties) {
-			var blob = new Blob(name, BlobItemKind.Folder);
+		public static StorageObject ToBlob(string name, BlobContainerProperties properties) {
+			var blob = new StorageObject(name, BlobItemKind.Folder);
 			blob.LastModificationTime = properties.LastModified;
 
 			blob.TryAddProperties(
@@ -65,13 +65,13 @@ namespace FluentStorage.Azure.Blobs {
 			return blob;
 		}
 
-		public static Blob ToBlob(string containerName, BlobHierarchyItem bhi) {
+		public static StorageObject ToBlob(string containerName, BlobHierarchyItem bhi) {
 			string GetFullName(string name) => containerName == null
 			   ? name
 			   : StoragePath.Combine(containerName, name);
 
 			if (bhi.IsBlob) {
-				var blob = new Blob(GetFullName(bhi.Blob.Name), BlobItemKind.File);
+				var blob = new StorageObject(GetFullName(bhi.Blob.Name), BlobItemKind.File);
 				blob.MD5 = bhi.Blob.Properties.ContentHash.ToHexString();
 				blob.Size = bhi.Blob.Properties.ContentLength;
 				blob.LastModificationTime = bhi.Blob.Properties.LastModified;
@@ -83,7 +83,7 @@ namespace FluentStorage.Azure.Blobs {
 			}
 
 			if (bhi.IsPrefix) {
-				var blob = new Blob(GetFullName(bhi.Prefix), BlobItemKind.Folder);
+				var blob = new StorageObject(GetFullName(bhi.Prefix), BlobItemKind.Folder);
 				//nothing else we know about prefix
 				return blob;
 			}
@@ -91,16 +91,16 @@ namespace FluentStorage.Azure.Blobs {
 			throw new NotImplementedException();
 		}
 
-		public static Blob ToBlob(string containerName, string path, Response<BlobProperties> properties) {
+		public static StorageObject ToBlob(string containerName, string path, Response<BlobProperties> properties) {
 			return ToBlob(containerName, path, properties.Value);
 		}
 
-		public static Blob ToBlob(string containerName, string path, BlobProperties properties) {
+		public static StorageObject ToBlob(string containerName, string path, BlobProperties properties) {
 			string GetFullName(string name) => containerName == null
 			   ? name
 			   : StoragePath.Combine(containerName, name);
 
-			var blob = new Blob(GetFullName(path), BlobItemKind.File);
+			var blob = new StorageObject(GetFullName(path), BlobItemKind.File);
 			blob.MD5 = properties.ContentHash.ToHexString();
 			blob.Size = properties.ContentLength;
 			blob.LastModificationTime = properties.LastModified;
@@ -112,7 +112,7 @@ namespace FluentStorage.Azure.Blobs {
 			return blob;
 		}
 
-		private static void AddProperties(Blob blob, BlobItemProperties properties) {
+		private static void AddProperties(StorageObject blob, BlobItemProperties properties) {
 			blob.TryAddProperties(
 			   "CustomerProvidedKeySha256", properties.CustomerProvidedKeySha256,
 			   "IncrementalCopy", properties.IncrementalCopy,
@@ -147,7 +147,7 @@ namespace FluentStorage.Azure.Blobs {
 			   "LeaseStatus", properties.LeaseStatus);
 		}
 
-		private static void AddProperties(Blob blob, BlobProperties properties) {
+		private static void AddProperties(StorageObject blob, BlobProperties properties) {
 			blob.TryAddProperties(
 			   "AcceptRanges", properties.AcceptRanges,
 			   "AccessTier", properties.AccessTier,
@@ -182,8 +182,8 @@ namespace FluentStorage.Azure.Blobs {
 			   "LeaseStatus", properties.LeaseStatus);
 		}
 
-		public static Blob ToBlob(string filesystemName, Gen2Path path) {
-			var blob = new Blob(StoragePath.Combine(filesystemName, path.Name), path.IsDirectory ? BlobItemKind.Folder : BlobItemKind.File) {
+		public static StorageObject ToBlob(string filesystemName, Gen2Path path) {
+			var blob = new StorageObject(StoragePath.Combine(filesystemName, path.Name), path.IsDirectory ? BlobItemKind.Folder : BlobItemKind.File) {
 				Size = path.ContentLength,
 				LastModificationTime = path.LastModified
 			};
@@ -197,8 +197,8 @@ namespace FluentStorage.Azure.Blobs {
 			return blob;
 		}
 
-		public static Blob ToBlob(string fullPath, IDictionary<string, string> pathHeaders, bool isFilesystem) {
-			var blob = new Blob(fullPath);
+		public static StorageObject ToBlob(string fullPath, IDictionary<string, string> pathHeaders, bool isFilesystem) {
+			var blob = new StorageObject(fullPath);
 
 			if (pathHeaders.TryGetValue("Content-MD5", out string md5)) {
 				blob.MD5 = md5.Base64DecodeAsBytes().ToHexString();

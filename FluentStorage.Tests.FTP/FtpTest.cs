@@ -4,14 +4,14 @@ using FluentAssertions;
 
 using FluentFTP;
 
-using FluentStorage.Blobs;
+using FluentStorage.Storage;
 
 using Xunit.Abstractions;
 
 namespace FluentStorage.Tests.Integration.Ftp {
 	public class FtpTest : IClassFixture<FtpFixture>, IAsyncLifetime {
 
-		private IBlobStorage _storage;
+		private IBucket _storage;
 		private FtpFixture Fixture { get; }
 
 		private static readonly Faker Faker = new();
@@ -21,7 +21,7 @@ namespace FluentStorage.Tests.Integration.Ftp {
 		public FtpTest(ITestOutputHelper outputHelper, FtpFixture ftpFixture) {
 			_outputHelper = outputHelper;
 			Fixture = ftpFixture;
-			StorageFactory.Modules.UseFtpStorage();
+			FtpStorage.Use();
 		}
 
 		///<inheritdoc/>
@@ -31,7 +31,7 @@ namespace FluentStorage.Tests.Integration.Ftp {
 		public Task InitializeAsync() {
 			AsyncFtpClient client = new("localhost", Fixture.UserName, Fixture.Password, Fixture.GetPort());
 			_outputHelper?.WriteLine($"Port utilisé durant le test : {client.Port}");
-			_storage = StorageFactory.Blobs.FtpFromFluentFtpClient(client);
+			_storage = FtpStorage.FromClient(client);
 
 			return Task.CompletedTask;
 		}

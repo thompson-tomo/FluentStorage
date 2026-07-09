@@ -1,4 +1,4 @@
-﻿using FluentStorage.Blobs;
+﻿using FluentStorage.Storage;
 
 using System.IO;
 
@@ -9,9 +9,8 @@ namespace FluentStorage.Tests.Integration.Blobs {
 		public AzureBlobStorageFixture() : base("lakeyv12") {
 		}
 
-		protected override IBlobStorage CreateStorage(ITestSettings settings) {
-			return StorageFactory.Blobs
-			   .AzureBlobStorageWithSharedKey(settings.AzureStorageName, settings.AzureStorageKey);
+		protected override IBucket CreateStorage(ITestSettings settings) {
+			return AzureBlobStorage.FromSharedKey(settings.AzureStorageName, settings.AzureStorageKey);
 			//.WithGzipCompression();
 		}
 	}
@@ -27,8 +26,8 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 		}
 
-		protected override IBlobStorage CreateStorage(ITestSettings settings) {
-			return StorageFactory.Blobs.AzureBlobStorageWithLocalEmulator();
+		protected override IBucket CreateStorage(ITestSettings settings) {
+			return AzureBlobStorage.FromLocalEmulator();
 		}
 	}
 
@@ -44,8 +43,8 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 		}
 
-		protected override IBlobStorage CreateStorage(ITestSettings settings) {
-			return StorageFactory.Blobs.AzureFiles(settings.AzureStorageName, settings.AzureStorageKey);
+		protected override IBucket CreateStorage(ITestSettings settings) {
+			return AzureFilesStorage.FromCredentials(settings.AzureStorageName, settings.AzureStorageKey);
 		}
 	}
 
@@ -60,12 +59,12 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 		}
 
-		protected override IBlobStorage CreateStorage(ITestSettings settings) {
-			return StorageFactory.Blobs.AzureDataLakeStorageWithSharedKey(
+		protected override IBucket CreateStorage(ITestSettings settings) {
+			return AzureDataLakeStorage.FromSharedKey(
 			   settings.AzureGen2StorageName,
 			   settings.AzureGen2StorageKey);
 
-			//return StorageFactory.Blobs.AzureDataLakeGen2StoreBySharedAccessKey(settings.AzureDataLakeGen2Name, settings.AzureDataLakeGen2Key);
+			//return StorageFactory.AzureDataLakeGen2StoreBySharedAccessKey(settings.AzureDataLakeGen2Name, settings.AzureDataLakeGen2Key);
 		}
 	}
 
@@ -75,8 +74,8 @@ namespace FluentStorage.Tests.Integration.Blobs {
 	}
 
 	public class DiskDirectoryStorageFixture : BlobFixture {
-		protected override IBlobStorage CreateStorage(ITestSettings settings) {
-			return StorageFactory.Blobs.DirectoryFiles(TestDir);
+		protected override IBucket CreateStorage(ITestSettings settings) {
+			return StorageFactory.DirectoryFiles(TestDir);
 		}
 	}
 
@@ -86,8 +85,8 @@ namespace FluentStorage.Tests.Integration.Blobs {
 	}
 
 	public class ZipFileFixture : BlobFixture {
-		protected override IBlobStorage CreateStorage(ITestSettings settings) {
-			return StorageFactory.Blobs.ZipFile(Path.Combine(TestDir, "test.zip"));
+		protected override IBucket CreateStorage(ITestSettings settings) {
+			return StorageFactory.ZipFile(Path.Combine(TestDir, "test.zip"));
 		}
 	}
 
@@ -97,8 +96,8 @@ namespace FluentStorage.Tests.Integration.Blobs {
 	}
 
 	public class AwsS3Fixture : BlobFixture {
-		protected override IBlobStorage CreateStorage(ITestSettings settings) {
-			return StorageFactory.Blobs.AwsS3(
+		protected override IBucket CreateStorage(ITestSettings settings) {
+			return AwsS3Storage.FromCredentials(
 					 settings.AwsAccessKeyId,
 					 settings.AwsSecretAccessKey,
 					 null,
@@ -113,8 +112,8 @@ namespace FluentStorage.Tests.Integration.Blobs {
 	}
 
 	public class InMemoryFixture : BlobFixture {
-		protected override IBlobStorage CreateStorage(ITestSettings settings) {
-			return StorageFactory.Blobs.InMemory();
+		protected override IBucket CreateStorage(ITestSettings settings) {
+			return StorageFactory.InMemory();
 		}
 	}
 
@@ -124,8 +123,8 @@ namespace FluentStorage.Tests.Integration.Blobs {
 	}
 
 	public class AzureKeyVaultFixture : BlobFixture {
-		protected override IBlobStorage CreateStorage(ITestSettings settings) {
-			return StorageFactory.Blobs.AzureKeyVault(
+		protected override IBucket CreateStorage(ITestSettings settings) {
+			return AzureKeyVaultStorage.FromCredentials(
 					 settings.AzureKeyVaultUri,
 					 settings.TenantId,
 					 settings.ClientId,
@@ -139,8 +138,8 @@ namespace FluentStorage.Tests.Integration.Blobs {
 	}
 
 	public class GcpFixture : BlobFixture {
-		protected override IBlobStorage CreateStorage(ITestSettings settings) {
-			return StorageFactory.Blobs.GoogleCloudStorageFromJson(
+		protected override IBucket CreateStorage(ITestSettings settings) {
+			return GoogleCloudStorage.FromJson(
 			   settings.GcpStorageBucketName,
 			   settings.GcpStorageJsonCreds,
 			   true);
@@ -154,10 +153,10 @@ namespace FluentStorage.Tests.Integration.Blobs {
 	}
 
 	public class VirtualStorageFixture : BlobFixture {
-		protected override IBlobStorage CreateStorage(ITestSettings settings) {
-			IVirtualStorage vs = StorageFactory.Blobs.Virtual();
-			vs.Mount("/", StorageFactory.Blobs.InMemory());
-			vs.Mount("/mnt/s0", StorageFactory.Blobs.InMemory());
+		protected override IBucket CreateStorage(ITestSettings settings) {
+			IVirtualStorage vs = StorageFactory.Virtual();
+			vs.Mount("/", StorageFactory.InMemory());
+			vs.Mount("/mnt/s0", StorageFactory.InMemory());
 			return vs;
 		}
 	}

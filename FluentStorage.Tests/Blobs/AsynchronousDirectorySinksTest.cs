@@ -1,4 +1,4 @@
-﻿using FluentStorage.Blobs;
+﻿using FluentStorage.Storage;
 using FluentStorage.Tests.Utils;
 using FluentStorage.Utils.Extensions;
 using System.IO;
@@ -12,7 +12,7 @@ namespace FluentStorage.Tests.Blobs.Sink
 	/// </summary>
 	public class AsynchronousDirectoryAesSymmetricEncryptionTest : AsynchronousSinksTest {
 		public AsynchronousDirectoryAesSymmetricEncryptionTest() : base(
-		   StorageFactory.Blobs
+		   StorageFactory
 		   .DirectoryFiles(PathHelper.GetLocalPath("Temp"))
 		   .WithAesSymmetricEncryption("6qg/7EgPmrK9ZY70pnECtZ40g3dDe74czSvWJ+3dj0A=", "Ucu4aEHU6zTrgZVO+rJMyA=="))
 		{

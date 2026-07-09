@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Amazon.S3;
 using Amazon.S3.Model;
 
-using FluentStorage.Blobs;
+using FluentStorage.Storage;
 
 namespace FluentStorage.AWS.Blobs {
 	static class Converter {
@@ -15,7 +15,7 @@ namespace FluentStorage.AWS.Blobs {
 		/// </summary>
 		private const string MetaDataHeaderPrefix = "x-amz-meta-";
 
-		public static async Task UpdateMetadataAsync(AmazonS3Client client, Blob blob, string bucketName, string key) {
+		public static async Task UpdateMetadataAsync(AmazonS3Client client, StorageObject blob, string bucketName, string key) {
 			// there is no way to update metadata in S3, and the only way is to recreate it
 			// however, you can copy object on top of itself (effectively a replace) and rewrite metadata, and this won't have to download the blob on the client
 
@@ -36,7 +36,7 @@ namespace FluentStorage.AWS.Blobs {
 			await client.CopyObjectAsync(request).ConfigureAwait(false);
 		}
 
-		private static async Task AppendMetadataAsync(AmazonS3Client client, string bucketName, Blob blob, CancellationToken cancellationToken) {
+		private static async Task AppendMetadataAsync(AmazonS3Client client, string bucketName, StorageObject blob, CancellationToken cancellationToken) {
 			if (blob == null)
 				return;
 
@@ -45,16 +45,16 @@ namespace FluentStorage.AWS.Blobs {
 			AddMetadata(blob, obj);
 		}
 
-		public static async Task AppendMetadataAsync(AmazonS3Client client, string bucketName, IEnumerable<Blob> blobs, CancellationToken cancellationToken) {
+		public static async Task AppendMetadataAsync(AmazonS3Client client, string bucketName, IEnumerable<StorageObject> blobs, CancellationToken cancellationToken) {
 			await Task.WhenAll(
 			   blobs.Select(blob => AppendMetadataAsync(client, bucketName, blob, cancellationToken))).ConfigureAwait(false);
 		}
 
-		public static Blob ToBlob(this GetObjectMetadataResponse obj, string fullPath) {
+		public static StorageObject ToBlob(this GetObjectMetadataResponse obj, string fullPath) {
 			if (obj == null)
 				return null;
 
-			var r = new Blob(fullPath);
+			var r = new StorageObject(fullPath);
 			r.MD5 = obj.ETag.Trim('\"'); //ETag contains actual MD5 hash, not sure why!
 			r.Size = obj.ContentLength;
 			r.LastModificationTime = obj.LastModified.Value.ToUniversalTime();
@@ -64,7 +64,7 @@ namespace FluentStorage.AWS.Blobs {
 			return r;
 		}
 
-		private static void AddMetadata(Blob blob, GetObjectMetadataResponse response) {
+		private static void AddMetadata(StorageObject blob, GetObjectMetadataResponse response) {
 
 			
 			//add metadata and strip all
@@ -86,11 +86,11 @@ namespace FluentStorage.AWS.Blobs {
 
 		}
 
-		public static Blob ToBlob(this S3Object s3Obj) {
-			Blob blob = s3Obj.Key.EndsWith("/")
-			   ? new Blob(s3Obj.Key, BlobItemKind.Folder)
+		public static StorageObject ToBlob(this S3Object s3Obj) {
+			StorageObject blob = s3Obj.Key.EndsWith("/")
+			   ? new StorageObject(s3Obj.Key, BlobItemKind.Folder)
 			   //Key is an absolute path
-			   : new Blob(s3Obj.Key, BlobItemKind.File);
+			   : new StorageObject(s3Obj.Key, BlobItemKind.File);
 
 			blob.Size = s3Obj.Size;
 			blob.MD5 = s3Obj.ETag.Trim('\"');
@@ -101,8 +101,8 @@ namespace FluentStorage.AWS.Blobs {
 			return blob;
 		}
 
-		public static IReadOnlyCollection<Blob> ToBlobs(this ListObjectsV2Response response, ListOptions options) {
-			var result = new List<Blob>();
+		public static IReadOnlyCollection<StorageObject> ToBlobs(this ListObjectsV2Response response, ListOptions options) {
+			var result = new List<StorageObject>();
 
 			//the files are listed as the S3Objects member, but they don't specifically contain folders,
 			//but even if they do, they need to be filtered out
@@ -125,7 +125,7 @@ namespace FluentStorage.AWS.Blobs {
 			    result.AddRange(
 			        response.CommonPrefixes
 			            .Where(p => !StoragePath.IsRootPath(p))
-			            .Select(p => new Blob(p, BlobItemKind.Folder)));
+			            .Select(p => new StorageObject(p, BlobItemKind.Folder)));
 			}
 
 			return result;

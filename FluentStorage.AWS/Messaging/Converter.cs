@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Amazon.SQS.Model;
-using FluentStorage.Messaging;
+using FluentStorage.Queue;
 
 namespace FluentStorage.AWS.Messaging {
 	static class Converter {

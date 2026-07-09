@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Auth;
 using Microsoft.Azure.Storage.Queue;
-using FluentStorage.Messaging;
+using FluentStorage.Queue;
 using WSE = Microsoft.Azure.Storage.StorageException;
 
 namespace FluentStorage.Azure.Queues {
-	class AzureStorageQueueMessenger : IMessenger {
+	class AzureStorageQueueMessenger : IQueue {
 		private readonly CloudQueueClient _client;
 		private readonly ConcurrentDictionary<string, CloudQueue> _channelNameToQueue =
 		   new ConcurrentDictionary<string, CloudQueue>();
@@ -192,7 +192,7 @@ namespace FluentStorage.Azure.Queues {
 		}
 
 		public Task DeleteAsync(string channelName, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) => throw new NotImplementedException();
-		public Task StartMessageProcessorAsync(string channelName, IMessageProcessor messageProcessor) => throw new NotImplementedException();
+		public Task StartMessageProcessorAsync(string channelName, IQueueProcessor messageProcessor) => throw new NotImplementedException();
 
 
 		#endregion

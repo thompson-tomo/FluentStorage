@@ -2,14 +2,14 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentStorage.Blobs;
+using FluentStorage.Storage;
 
 namespace FluentStorage.Azure.Blobs {
 
 	/// <summary>
 	/// Azure blob storage specific operations
 	/// </summary>
-	public interface IAzureBlobStorage : IBlobStorage {
+	public interface IAzureBlobStorage : IBucket {
 		/// <summary>
 		/// Acquires a lease
 		/// </summary>

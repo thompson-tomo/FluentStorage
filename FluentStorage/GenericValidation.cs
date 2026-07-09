@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using FluentStorage.Blobs;
+using FluentStorage.Storage;
 
 namespace FluentStorage {
 	/// <summary>
@@ -50,7 +50,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Checks blob full path for generic rules
 		/// </summary>
-		public static void CheckBlobFullPaths(IEnumerable<Blob> blobs) {
+		public static void CheckBlobFullPaths(IEnumerable<StorageObject> blobs) {
 			if (blobs == null)
 				return;
 

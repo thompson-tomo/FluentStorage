@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Azure.Messaging.ServiceBus;
-using QueueMessage = FluentStorage.Messaging.QueueMessage;
+using QueueMessage = FluentStorage.Queue.QueueMessage;
 
 namespace FluentStorage.Azure.ServiceBus {
 	static class Converter {

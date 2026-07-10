@@ -8,8 +8,8 @@ using Amazon.S3.Model;
 using FluentStorage.Enums;
 using FluentStorage.Storage;
 
-namespace FluentStorage.AWS.Storage {
-	static class Converter {
+namespace FluentStorage.AWS.Utils {
+	static class AwsConverter {
 		/// <summary>
 		/// AWS prepends all the user metadata with this prefix, and all of your own keys are prepended with this automatically
 		/// </summary>

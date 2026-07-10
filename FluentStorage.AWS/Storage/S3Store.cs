@@ -261,7 +261,7 @@ namespace FluentStorage.AWS.Storage {
 				// added null check here to avoid intermittent exceptions when querying for metadata
 
 				foreach (IEnumerable<StorageObject> page in blobs.Where(b => b != null && !b.IsFolder).Chunk(ListChunkSize)) {
-					await Converter.AppendMetadataAsync(client, _bucketName, page, cancellationToken).ConfigureAwait(false);
+					await AwsConverter.AppendMetadataAsync(client, _bucketName, page, cancellationToken).ConfigureAwait(false);
 				}
 			}
 
@@ -462,7 +462,7 @@ namespace FluentStorage.AWS.Storage {
 
 			foreach (StorageObject blob in blobs.Where(b => b != null)) {
 				if (blob.Metadata != null) {
-					await Converter.UpdateMetadataAsync(
+					await AwsConverter.UpdateMetadataAsync(
 					   client,
 					   blob,
 					   _bucketName,

@@ -13,7 +13,7 @@ namespace FluentStorage.AWS.Factory {
 		/// <param name="region">Bucket region (e.g. `us-west-004`)</param>
 		/// <param name="sessionToken">Optional. Only required when using session credentials.</param>
 		/// <returns>A reference to the created storage</returns>
-		public static IBucket FromCredentials(
+		public static S3Store FromCredentials(
 			string accessKeyId,
 			string secretAccessKey,
 			string bucketName,

@@ -26,7 +26,7 @@ namespace FluentStorage {
 		/// <param name="factory"></param>
 		/// <param name="bucketName">Storage bucket name</param>
 		/// <returns></returns>
-		public static IBucket FromEnvironmentVariable(
+		public static GoogleCloudStore FromEnvironmentVariable(
 		   string bucketName) {
 			return new GoogleCloudStore(bucketName);
 		}
@@ -38,7 +38,7 @@ namespace FluentStorage {
 		/// <param name="bucketName"></param>
 		/// <param name="credentialsFilePath">Path to a json file containing credentials.</param>
 		/// <returns></returns>
-		public static IBucket FromJsonFile(
+		public static GoogleCloudStore FromJsonFile(
 		   string bucketName,
 		   string credentialsFilePath) {
 			GoogleCredential cred = GoogleCredential.FromFile(credentialsFilePath);
@@ -54,7 +54,7 @@ namespace FluentStorage {
 		/// <param name="credentialsJsonString">Json string containing credentials.</param>
 		/// <param name="isBase64EncodedString">When true, <paramref name="credentialsJsonString"/> is bas64 encoded</param>
 		/// <returns></returns>
-		public static IBucket FromJson(
+		public static GoogleCloudStore FromJson(
 		   string bucketName,
 		   string credentialsJsonString,
 		   bool isBase64EncodedString = false) {

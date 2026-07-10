@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Amazon.S3;
 using Amazon.S3.Model;
+using FluentStorage.AWS.Utils;
 using FluentStorage.Enums;
 using FluentStorage.Storage;
 using FluentStorage.Utils.Performance;

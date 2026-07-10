@@ -31,8 +31,8 @@
         "files": [
           "toc.yml",
           "index.md",
-          "articles/**.md",
-          "articles/toc.yml",
+          "wiki/**.md",
+          "wiki/toc.yml",
           "api/**.yml",
           "api/index.md"
         ]

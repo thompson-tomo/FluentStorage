@@ -22,7 +22,7 @@ namespace FluentStorage.Queue {
 		/// List available channels
 		/// </summary>
 		/// <returns></returns>
-		Task<IReadOnlyCollection<string>> ListChannelsAsync(CancellationToken cancellationToken = default);
+		Task<List<string>> ListChannelsAsync(CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Physically deletes channels
@@ -57,7 +57,7 @@ namespace FluentStorage.Queue {
 		/// <param name="visibility"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		Task<IReadOnlyCollection<QueueMessage>> ReceiveAsync(
+		Task<List<QueueMessage>> ReceiveAsync(
 		   string channelName,
 		   int count = 100,
 		   TimeSpan? visibility = null,
@@ -70,7 +70,7 @@ namespace FluentStorage.Queue {
 		/// <param name="count"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		Task<IReadOnlyCollection<QueueMessage>> PeekAsync(
+		Task<List<QueueMessage>> PeekAsync(
 		   string channelName,
 		   int count = 100,
 		   CancellationToken cancellationToken = default);

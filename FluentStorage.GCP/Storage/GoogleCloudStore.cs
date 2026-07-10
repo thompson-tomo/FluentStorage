@@ -15,28 +15,27 @@ using System.Linq;
 using Google.Apis.Storage.v1;
 using FluentStorage.Enums;
 
-namespace FluentStorage.Gcp.CloudStorage.Storage {
+namespace FluentStorage.GCP.Storage {
 	/// <summary>
 	/// Manages a single Google Cloud Storage bucket.
 	/// </summary>
-	public class GoogleCloudStore : GenericBlobStore {
-		//for intro see https://cloud.google.com/storage/docs/reference/libraries#client-libraries-install-csharp
-
+	public class GoogleCloudStore : BucketBase {
+		
 		private readonly StorageClient _client;
 		private readonly string _bucketName;
-
-		protected override bool CanListHierarchy => false;
 
 		public GoogleCloudStore(string bucketName, GoogleCredential credential = null, EncryptionKey encryptionKey = null) : base() {
 			_client = StorageClient.Create(credential, encryptionKey);
 			_bucketName = bucketName;
 		}
 
-		protected override async Task<IReadOnlyCollection<StorageObject>> ListAtAsync(string path, ListOptions options, CancellationToken cancellationToken) {
+		protected override async Task<List<StorageObject>> ListPathAsync(
+		   string path, StorageListOptions options, CancellationToken cancellationToken) {
+
 			ObjectsResource.ListRequest request = _client.Service.Objects.List(_bucketName);
 			request.Prefix = StoragePath.IsRootPath(path) ? null : (NormalisePath(path) + "/");
 			request.Delimiter = "/";
-			request.MaxResults = options.PageSize ?? ListOptions.PAGE_SIZE;
+			request.MaxResults = options.PageSize ?? StorageListOptions.PAGE_SIZE;
 			
 			var page = new List<StorageObject>();
 			do {
@@ -84,7 +83,7 @@ namespace FluentStorage.Gcp.CloudStorage.Storage {
 			await _client.UpdateObjectAsync(item, cancellationToken: cancellationToken).ConfigureAwait(false);
 		}
 
-		protected override async Task<StorageObject> GetBlobAsync(string fullPath, CancellationToken cancellationToken) {
+		public override async Task<StorageObject> GetBlobAsync(string fullPath, CancellationToken cancellationToken) {
 			fullPath = NormalisePath(fullPath);
 
 			try {
@@ -109,7 +108,7 @@ namespace FluentStorage.Gcp.CloudStorage.Storage {
 				//when not found, just ignore
 
 				//try delete everything recursively
-				IReadOnlyCollection<StorageObject?> childObjects = await ListAtAsync(fullPath, new ListOptions { Recurse = true }, cancellationToken).ConfigureAwait(false);
+				List<StorageObject?> childObjects = await ListPathAsync(fullPath, new StorageListOptions { Recurse = true }, cancellationToken).ConfigureAwait(false);
 
 				foreach (StorageObject? blob in childObjects) {
 					if (blob == null) {
@@ -126,7 +125,7 @@ namespace FluentStorage.Gcp.CloudStorage.Storage {
 			}
 		}
 
-		protected override async Task<bool> ExistsAsync(string fullPath, CancellationToken cancellationToken) {
+		public override async Task<bool> ExistsAsync(string fullPath, CancellationToken cancellationToken) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 
 			try {

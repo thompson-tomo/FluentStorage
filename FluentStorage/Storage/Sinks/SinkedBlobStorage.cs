@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace FluentStorage.Storage.Sinks {
-	class SinkedBlobStorage : IBucket {
+	class SinkedBlobStorage : BucketBase {
 		private readonly IBucket _parent;
 		private readonly ITransformSink[] _sinks;
 
@@ -24,19 +24,17 @@ namespace FluentStorage.Storage.Sinks {
 
 		public void Dispose() => _parent.Dispose();
 
-		public Task<IReadOnlyCollection<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public Task<List<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			return _parent.ExistsAsync(fullPaths, cancellationToken);
 		}
 
-		public Task<IReadOnlyCollection<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			return _parent.GetBlobsAsync(fullPaths, cancellationToken);
 		}
 
-		public Task<IReadOnlyCollection<StorageObject>> ListAsync(ListOptions options = null, CancellationToken cancellationToken = default) {
+		public Task<List<StorageObject>> ListAsync(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			return _parent.ListAsync(options, cancellationToken);
 		}
-
-		public Task<ITransaction> OpenTransactionAsync() => _parent.OpenTransactionAsync();
 
 		public Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) => _parent.SetBlobsAsync(blobs, cancellationToken);
 
@@ -70,6 +68,10 @@ namespace FluentStorage.Storage.Sinks {
 			using (var source = new SinkedStream(dataSourceStream, fullPath, _sinks)) {
 				await _parent.WriteAsync(fullPath, source, contentType, append, cancellationToken).ConfigureAwait(false);
 			}
+		}
+
+		public async Task RenameAsync(string oldPath, string newPath, CancellationToken cancellationToken) {
+			throw new NotImplementedException();
 		}
 
 	}

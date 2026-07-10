@@ -9,7 +9,7 @@ namespace FluentStorage.Storage {
 	/// <summary>
 	/// Options for listing storage content
 	/// </summary>
-	public class ListOptions {
+	public class StorageListOptions {
 
 		public const int MAX_THREADS = 10;
 		public const int PAGE_SIZE = 1000;
@@ -109,8 +109,8 @@ namespace FluentStorage.Storage {
 		/// Clones list options
 		/// </summary>
 		/// <returns></returns>
-		public ListOptions Clone() {
-			return (ListOptions)(MemberwiseClone());
+		public StorageListOptions Clone() {
+			return (StorageListOptions)(MemberwiseClone());
 		}
 	}
 }

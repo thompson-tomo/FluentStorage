@@ -10,7 +10,7 @@ using FluentStorage.Utils.IO;
 using FluentStorage.Enums;
 
 namespace FluentStorage.Storage {
-	class InMemoryBlobStorage : IBucket {
+	class InMemoryBlobStorage : BucketBase {
 		struct Tag {
 			public StorageObject blob;
 			public byte[] data;
@@ -18,8 +18,8 @@ namespace FluentStorage.Storage {
 
 		private readonly Dictionary<string, Tag> _pathToTag = new Dictionary<string, Tag>();
 
-		public Task<IReadOnlyCollection<StorageObject>> ListAsync(ListOptions options, CancellationToken cancellationToken) {
-			if (options == null) options = new ListOptions();
+		public Task<List<StorageObject>> ListAsync(StorageListOptions options, CancellationToken cancellationToken) {
+			if (options == null) options = new StorageListOptions();
 
 			IEnumerable<KeyValuePair<string, Tag>> query = _pathToTag;
 
@@ -46,7 +46,7 @@ namespace FluentStorage.Storage {
 				query = query.Take(options.MaxResults.Value);
 			}
 
-			IReadOnlyCollection<StorageObject> matches = query.Select(p => p.Value.blob).ToList();
+			List<StorageObject> matches = query.Select(p => p.Value.blob).ToList();
 
 			return Task.FromResult(matches);
 		}
@@ -123,17 +123,17 @@ namespace FluentStorage.Storage {
 			return Task.FromResult(true);
 		}
 
-		public Task<IReadOnlyCollection<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken) {
+		public Task<List<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken) {
 			var result = new List<bool>();
 
 			foreach (string fullPath in fullPaths) {
 				result.Add(_pathToTag.ContainsKey(StoragePath.Normalize(fullPath)));
 			}
 
-			return Task.FromResult<IReadOnlyCollection<bool>>(result);
+			return Task.FromResult<List<bool>>(result);
 		}
 
-		public Task<IReadOnlyCollection<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken) {
+		public Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken) {
 			GenericValidation.CheckBlobFullPaths(fullPaths);
 
 			var result = new List<StorageObject>();
@@ -147,7 +147,7 @@ namespace FluentStorage.Storage {
 				}
 			}
 
-			return Task.FromResult<IReadOnlyCollection<StorageObject>>(result);
+			return Task.FromResult<List<StorageObject>>(result);
 		}
 
 		public Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
@@ -213,8 +213,8 @@ namespace FluentStorage.Storage {
 		public void Dispose() {
 		}
 
-		public Task<ITransaction> OpenTransactionAsync() {
-			return Task.FromResult(EmptyTransaction.Instance);
+		public async Task RenameAsync(string oldPath, string newPath, CancellationToken cancellationToken) {
+			throw new NotImplementedException();
 		}
 	}
 }

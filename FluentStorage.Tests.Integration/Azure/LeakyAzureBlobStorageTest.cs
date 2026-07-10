@@ -40,7 +40,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 
 			//check we can connect and list containers
 			IBucket sasInstance = AzureBlobStorage.FromSas(sas);
-			IReadOnlyCollection<StorageObject> containers = await sasInstance.ListAsync(StoragePath.RootFolderPath);
+			List<StorageObject> containers = await sasInstance.ListDirectoryAsync(StoragePath.RootFolderPath);
 			Assert.True(containers.Count > 0);
 		}
 
@@ -56,7 +56,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 
 		   //check we can connect and list test file in the root
 		   IBlobStorage sasInstance = AzureBlobStorage.FromSas(sas);
-		   IReadOnlyCollection<Blob> blobs = await sasInstance.ListAsync(StoragePath.RootFolderPath);
+		   List<Blob> blobs = await sasInstance.ListAsync(StoragePath.RootFolderPath);
 		   Blob testBlob = blobs.FirstOrDefault(b => b.FullPath == fileName);
 		   Assert.NotNull(testBlob);
 		}*/
@@ -162,7 +162,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 
 		[Fact]
 		public async Task Top_level_folders_are_containers() {
-			IReadOnlyCollection<StorageObject> containers = await _native.ListAsync();
+			List<StorageObject> containers = await _native.ListAsync();
 
 			foreach (StorageObject container in containers) {
 				Assert.Equal(StorageObjectType.Folder, container.Type);
@@ -176,7 +176,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 			string containerName = Guid.NewGuid().ToString();
 			await _native.WriteTextAsync($"{containerName}/test.txt", "test");
 
-			IReadOnlyCollection<StorageObject> containers = await _native.ListAsync();
+			List<StorageObject> containers = await _native.ListAsync();
 			Assert.Contains(containers, c => c.Name == containerName);
 
 			await _native.DeleteAsync(containerName);
@@ -212,7 +212,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 		/*[Fact]
 		public async Task Analytics_has_logs_container()
 		{
-		   IReadOnlyCollection<Blob> containers = await _native.ListAsync();
+		   List<Blob> containers = await _native.ListAsync();
 		   Assert.Contains(containers, c => c.Name == "$logs");
 		}*/
 

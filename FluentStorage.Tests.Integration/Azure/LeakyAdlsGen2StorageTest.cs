@@ -50,7 +50,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 
 		[Fact]
 		public async Task FS_list_doesnt_crash() {
-			IReadOnlyCollection<Filesystem> list = await _storage.ListFilesystemsAsync();
+			List<Filesystem> list = await _storage.ListFilesystemsAsync();
 
 			Assert.True(list.Count > 0);
 		}
@@ -236,8 +236,8 @@ namespace FluentStorage.Tests.Integration.Azure {
 
 		public async Task InitializeAsync() {
 			//drop all blobs in test storage
-			IReadOnlyCollection<StorageObject> topLevel =
-			   (await _storage.ListAsync(recurse: false, folderPath: Filesystem)).ToList();
+			List<StorageObject> topLevel =
+			   (await _storage.ListDirectoryAsync(recurse: false, folderPath: Filesystem)).ToList();
 
 			try {
 				await _storage.DeleteAsync(topLevel.Select(f => f.FullPath));

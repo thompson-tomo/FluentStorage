@@ -14,7 +14,7 @@ namespace FluentStorage.Queue.Large {
 			_offloadStorage = offloadStorage;
 		}
 
-		public async Task ConfirmMessagesAsync(IReadOnlyCollection<QueueMessage> messages, CancellationToken cancellationToken = default) {
+		public async Task ConfirmMessagesAsync(List<QueueMessage> messages, CancellationToken cancellationToken = default) {
 			await _parentReceiver.ConfirmMessagesAsync(messages, cancellationToken).ConfigureAwait(false);
 
 			foreach (QueueMessage message in messages) {
@@ -42,16 +42,14 @@ namespace FluentStorage.Queue.Large {
 
 		public Task<int> GetMessageCountAsync() => _parentReceiver.GetMessageCountAsync();
 
-		public Task<ITransaction> OpenTransactionAsync() => _parentReceiver.OpenTransactionAsync();
-
-		public Task StartMessagePumpAsync(Func<IReadOnlyCollection<QueueMessage>, CancellationToken, Task> onMessageAsync, int maxBatchSize = 1, CancellationToken cancellationToken = default) {
+		public Task StartMessagePumpAsync(Func<List<QueueMessage>, CancellationToken, Task> onMessageAsync, int maxBatchSize = 1, CancellationToken cancellationToken = default) {
 			return _parentReceiver.StartMessagePumpAsync(
 			   (mms, ct) => DownloadingMessagePumpAsync(mms, onMessageAsync, ct),
 			   maxBatchSize, cancellationToken);
 		}
 
-		private async Task DownloadingMessagePumpAsync(IReadOnlyCollection<QueueMessage> messages,
-		   Func<IReadOnlyCollection<QueueMessage>, CancellationToken, Task> onParentMessagesAsync,
+		private async Task DownloadingMessagePumpAsync(List<QueueMessage> messages,
+		   Func<List<QueueMessage>, CancellationToken, Task> onParentMessagesAsync,
 		   CancellationToken cancellationToken) {
 			//process messages to download external content
 			foreach (QueueMessage message in messages) {
@@ -66,6 +64,6 @@ namespace FluentStorage.Queue.Large {
 
 		public Task KeepAliveAsync(QueueMessage message, TimeSpan? timeToLive = null, CancellationToken cancellationToken = default) =>
 		   _parentReceiver.KeepAliveAsync(message, timeToLive, cancellationToken);
-		public Task<IReadOnlyCollection<QueueMessage>> PeekMessagesAsync(int maxMessages, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+		public Task<List<QueueMessage>> PeekMessagesAsync(int maxMessages, CancellationToken cancellationToken = default) => throw new NotSupportedException();
 	}
 }

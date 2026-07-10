@@ -30,7 +30,7 @@ namespace FluentStorage.Azure.Blobs.DataLake {
 		}
 
 
-		public Task<IReadOnlyCollection<Filesystem>> ListFilesystemsAsync(CancellationToken cancellationToken = default) {
+		public Task<List<Filesystem>> ListFilesystemsAsync(CancellationToken cancellationToken = default) {
 			return _extended.ListFilesystemsAsync(cancellationToken);
 		}
 
@@ -55,8 +55,8 @@ namespace FluentStorage.Azure.Blobs.DataLake {
 			return _extended.DeleteAsync(fullPath, cancellationToken);
 		}
 
-		public override Task<IReadOnlyCollection<StorageObject>> ListAsync(
-		   ListOptions options, CancellationToken cancellationToken) {
+		public override Task<List<StorageObject>> ListAsync(
+		   StorageListOptions options, CancellationToken cancellationToken) {
 			return _extended.ListAsync(options, cancellationToken);
 		}
 

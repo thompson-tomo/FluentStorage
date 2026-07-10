@@ -22,7 +22,7 @@ namespace FluentStorage.Tests.Blobs {
 
 		[Fact]
 		public async Task Return_files_and_mounts_one_mount() {
-			IReadOnlyCollection<StorageObject> all = await _vs.ListAsync();
+			List<StorageObject> all = await _vs.ListAsync();
 
 			Assert.Equal(1, all.Count);   // "mnt" folder
 			Assert.Equal(new StorageObject("/mnt", StorageObjectType.Folder), all.First());
@@ -32,7 +32,7 @@ namespace FluentStorage.Tests.Blobs {
 		public async Task Return_files_and_mounts_one_mount_and_one_file() {
 			await _ms0.WriteTextAsync("1.txt", "test");
 
-			IReadOnlyCollection<StorageObject> all = await _vs.ListAsync();
+			List<StorageObject> all = await _vs.ListAsync();
 
 			Assert.Equal(2, all.Count);   // "mnt" folder
 			Assert.Equal(new StorageObject("/mnt", StorageObjectType.Folder), all.First());

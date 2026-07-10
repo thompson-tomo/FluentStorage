@@ -11,6 +11,7 @@ namespace FluentStorage.Azure.Blobs {
 	/// Azure blob storage specific operations
 	/// </summary>
 	public interface IAzureBlobStorage : IBucket {
+
 		/// <summary>
 		/// Acquires a lease
 		/// </summary>

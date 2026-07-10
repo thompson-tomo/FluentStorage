@@ -29,7 +29,7 @@ namespace FluentStorage.AWS.Storage {
 	/// <summary>
 	/// Manages a single S3 or S3-compatible bucket.
 	/// </summary>
-	public class S3Store : IBucket, IS3Storage {
+	public class S3Store : BucketBase, IS3Storage {
 		private const int ListChunkSize = 10;
 		private readonly string _bucketName;
 		private readonly AmazonS3Client _client;
@@ -243,15 +243,15 @@ namespace FluentStorage.AWS.Storage {
 		/// <summary>
 		/// Lists all buckets, optionaly filtering by prefix. Prefix filtering happens on client side.
 		/// </summary>
-		public async Task<IReadOnlyCollection<StorageObject>> ListAsync(ListOptions options = null, CancellationToken cancellationToken = default) {
+		public async Task<List<StorageObject>> ListAsync(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			if (options == null)
-				options = new ListOptions();
+				options = new StorageListOptions();
 
 			GenericValidation.CheckBlobPrefix(options.FilePrefix);
 
 			AmazonS3Client client = await GetClientAsync().ConfigureAwait(false);
 
-			IReadOnlyCollection<StorageObject> blobs;
+			List<StorageObject> blobs;
 			using (var browser = new S3DirectoryBrowser(client, _bucketName)) {
 				blobs = await browser.ListAsync(options, cancellationToken).ConfigureAwait(false);
 			}
@@ -261,7 +261,7 @@ namespace FluentStorage.AWS.Storage {
 				// added null check here to avoid intermittent exceptions when querying for metadata
 
 				foreach (IEnumerable<StorageObject> page in blobs.Where(b => b != null && !b.IsFolder).Chunk(ListChunkSize)) {
-					await Converter.AppendMetadataAsync(client, _bucketName, page, cancellationToken).ConfigureAwait(false);
+					await AwsConverter.AppendMetadataAsync(client, _bucketName, page, cancellationToken).ConfigureAwait(false);
 				}
 			}
 
@@ -390,10 +390,10 @@ namespace FluentStorage.AWS.Storage {
 		///
 		/// The existence checks are performed in parallel.
 		/// </summary>
-		public async Task<IReadOnlyCollection<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public async Task<List<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			AmazonS3Client client = await GetClientAsync().ConfigureAwait(false);
 
-			return await Task.WhenAll(fullPaths.Select(fullPath => ExistsAsync(client, fullPath, cancellationToken))).ConfigureAwait(false);
+			return (await Task.WhenAll(fullPaths.Select(fullPath => ExistsAsync(client, fullPath, cancellationToken))).ConfigureAwait(false)).ToList();
 		}
 
 		/// <summary>
@@ -421,8 +421,8 @@ namespace FluentStorage.AWS.Storage {
 		///
 		/// Blobs that do not exist are returned as <c>null</c>.
 		/// </summary>
-		public async Task<IReadOnlyCollection<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			return await Task.WhenAll(fullPaths.Select(GetBlobAsync)).ConfigureAwait(false);
+		public async Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+			return (await Task.WhenAll(fullPaths.Select(GetBlobAsync)).ConfigureAwait(false)).ToList();
 		}
 
 		/// <summary>
@@ -462,7 +462,7 @@ namespace FluentStorage.AWS.Storage {
 
 			foreach (StorageObject blob in blobs.Where(b => b != null)) {
 				if (blob.Metadata != null) {
-					await Converter.UpdateMetadataAsync(
+					await AwsConverter.UpdateMetadataAsync(
 					   client,
 					   blob,
 					   _bucketName,
@@ -508,10 +508,6 @@ namespace FluentStorage.AWS.Storage {
 		}
 
 		public void Dispose() {
-		}
-
-		public Task<ITransaction> OpenTransactionAsync() {
-			return Task.FromResult(EmptyTransaction.Instance);
 		}
 
 		/// <summary>

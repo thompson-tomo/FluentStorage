@@ -1,9 +1,9 @@
 ﻿using Google.Apis.Auth.OAuth2;
 using FluentStorage.Storage;
-using FluentStorage.Gcp.CloudStorage;
-using FluentStorage.Gcp.CloudStorage.Storage;
+using FluentStorage.GCP;
 using System;
 using FluentStorage.Utils.Extensions;
+using FluentStorage.GCP.Storage;
 
 namespace FluentStorage {
 	/// <summary>

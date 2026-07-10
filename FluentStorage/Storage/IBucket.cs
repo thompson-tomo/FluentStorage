@@ -1,6 +1,9 @@
-﻿using System;
+﻿using FluentStorage.Enums;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,85 +12,224 @@ namespace FluentStorage.Storage {
 	/// Interface to manage a single bucket across various cloud providers.
 	/// </summary>
 	public interface IBucket : IDisposable {
+
+
+		// ---------------------------------------------------------------------
+		// Listing / Discovery
+		// ---------------------------------------------------------------------
+
+		bool HasFileSystem();
+
+		/// <summary>Returns the list of objects in this bucket.</summary>
+		/// <param name="options">Listing options.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		/// <returns>The matching objects.</returns>
+		Task<List<StorageObject>> ListAsync(StorageListOptions options = null, CancellationToken cancellationToken = default);
+
 		/// <summary>
-		/// Returns the list of available blobs
+		/// Returns the list of objects in a specific directory of this bucket.
 		/// </summary>
-		/// <param name="options"></param>
-		/// <param name="cancellationToken"></param>
+		/// <param name="folderPath"><see cref="StorageListOptions.FolderPath"/></param>
+		/// <param name="browseFilter"><see cref="StorageListOptions.BrowseFilter"/></param>
+		/// <param name="filePrefix"><see cref="StorageListOptions.FilePrefix"/></param>
+		/// <param name="recurse"><see cref="StorageListOptions.Recurse"/></param>
+		/// <param name="recursionMode"><see cref="StorageListOptions.RecursionMode"/></param>
+		/// <param name="numberOfRecursionThreads"><see cref="StorageListOptions.NumberOfRecursionThreads"/></param>
+		/// <param name="maxResults"><see cref="StorageListOptions.MaxResults"/></param>
+		/// <param name="includeAttributes"><see cref="StorageListOptions.IncludeAttributes"/></param>
 		/// <returns>List of blob IDs</returns>
-		Task<IReadOnlyCollection<StorageObject>> ListAsync(
-		   ListOptions options = null,
+		Task<List<StorageObject>> ListDirectoryAsync(string folderPath = null, Func<StorageObject, bool> browseFilter = null,
+		   string filePrefix = null, bool recurse = false,
+		   StorageRecursion recursionMode = StorageRecursion.Remote,
+		   int numberOfRecursionThreads = StorageListOptions.MAX_THREADS,
+		   int? maxResults = null, bool includeAttributes = false,
 		   CancellationToken cancellationToken = default);
 
-		/// <summary>
-		/// Uploads data to a blob from stream.
-		/// overwritten.
-		/// </summary>
-		/// <param name="fullPath">Blob metadata</param>
-		/// <param name="dataStream">Stream to upload from</param>
-		/// <param name="cancellationToken"></param>
-		/// <param name="append">When true, appends to the file instead of writing a new one.</param>
-		/// <returns>Writeable stream</returns>
-		/// <exception cref="ArgumentNullException">Thrown when any parameter is null</exception>
-		/// <exception cref="ArgumentException">Thrown when ID is too long. Long IDs are the ones longer than 50 characters.</exception>
-		Task WriteAsync(string fullPath, Stream dataStream, bool append = false, CancellationToken cancellationToken = default);
+		/// <summary>Returns the list of files, excluding folders.</summary>
+		/// <param name="options">Listing options.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		/// <returns>The matching files.</returns>
+		Task<List<StorageObject>> ListFilesAsync(StorageListOptions options, CancellationToken cancellationToken = default);
 
-		/// <summary>
-		/// Uploads data to a blob from stream.
-		/// overwritten.
-		/// </summary>
-		/// <param name="fullPath">Blob metadata</param>
-		/// <param name="dataStream">Stream to upload from</param>
-		/// <param name="cancellationToken"></param>
-		/// <param name="contentType">A MIME type to upload the given file with.</param>
-		/// <param name="append">When true, appends to the file instead of writing a new one.</param>
-		/// <returns>Writeable stream</returns>
-		/// <exception cref="ArgumentNullException">Thrown when any parameter is null</exception>
-		/// <exception cref="ArgumentException">Thrown when ID is too long. Long IDs are the ones longer than 50 characters.</exception>
-		Task WriteAsync(string fullPath, Stream dataStream, string contentType, bool append = false, CancellationToken cancellationToken = default);
 
-		/// <summary>
-		/// Opens the blob stream to read.
-		/// </summary>
-		/// <param name="fullPath">Blob's full path</param>
-		/// <param name="cancellationToken"></param>
-		/// <returns>Stream in an open state, or null if blob doesn't exist by this ID. It is your responsibility to close and dispose this
-		/// stream after use.</returns>
-		/// <exception cref="ArgumentNullException">Thrown when any parameter is null</exception>
-		/// <exception cref="ArgumentException">Thrown when ID is too long. Long IDs are the ones longer than 50 characters.</exception>
-		Task<Stream> OpenReadAsync(string fullPath, CancellationToken cancellationToken = default);
+		// ---------------------------------------------------------------------
+		// Metadata & Existence
+		// ---------------------------------------------------------------------
 
-		/// <summary>
-		/// Deletes an object by it's full path.
-		/// </summary>
-		/// <param name="fullPaths">Path to delete. If this path points to a folder, the folder is deleted recursively.</param>
-		/// <param name="cancellationToken"></param>
-		/// <exception cref="ArgumentNullException">Thrown when ID is null.</exception>
-		/// <exception cref="ArgumentException">Thrown when ID is too long. Long IDs are the ones longer than 50 characters.</exception>
-		Task DeleteAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default);
+		/// <summary>Checks whether an object exists.</summary>
+		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		/// <returns><see langword="true"/> if the object exists; otherwise <see langword="false"/>.</returns>
+		Task<bool> ExistsAsync(string fullPath, CancellationToken cancellationToken = default);
 
-		/// <summary>
-		/// Checksi if blobs exists in the storage
-		/// </summary>
-		/// <param name="fullPaths">List of paths to blobs</param>
-		/// <param name="cancellationToken"></param>
-		/// <returns>List of results of true and false indicating existence</returns>
-		Task<IReadOnlyCollection<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default);
+		/// <summary>Checks if objects exist in the storage.</summary>
+		/// <param name="fullPaths">Full paths of the objects.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		/// <returns>A collection indicating whether each object exists.</returns>
+		Task<List<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default);
 
-		/// <summary>
-		/// Gets blob information which is useful for retreiving blob metadata
-		/// </summary>
-		Task<IReadOnlyCollection<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default);
+		/// <summary>Gets metadata for a single object.</summary>
+		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		/// <returns>The object metadata.</returns>
+		Task<StorageObject> GetBlobAsync(string fullPath, CancellationToken cancellationToken = default);
 
-		/// <summary>
-		/// Set blob information which is useful for setting blob attributes (user metadata etc.)
-		/// </summary>
+		/// <summary>Gets object information which is useful for retrieving object metadata.</summary>
+		/// <param name="fullPaths">Full paths of the objects.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		/// <returns>The object metadata.</returns>
+		Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default);
+
+		/// <summary>Updates metadata for a single object.</summary>
+		/// <param name="blob">Object metadata.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		Task SetBlobAsync(StorageObject blob, CancellationToken cancellationToken = default);
+
+		/// <summary>Sets object information which is useful for setting object attributes (user metadata etc.).</summary>
+		/// <param name="blobs">Object metadata.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
 		Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default);
 
-		/// <summary>
-		/// Starts a new transaction
-		/// </summary>
-		/// <returns></returns>
-		Task<ITransaction> OpenTransactionAsync();
+		/// <summary>Returns the MD5 hash of an object.</summary>
+		/// <param name="blob">Object.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		/// <returns>The MD5 hash.</returns>
+		Task<string> GetMD5HashAsync(StorageObject blob, CancellationToken cancellationToken = default);
+
+
+		// ---------------------------------------------------------------------
+		// Read
+		// ---------------------------------------------------------------------
+
+		/// <summary>Opens the object stream for reading.</summary>
+		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		/// <returns>An open readable stream.</returns>
+		Task<Stream> OpenReadAsync(string fullPath, CancellationToken cancellationToken = default);
+
+		/// <summary>Copies an object into an existing stream.</summary>
+		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="targetStream">Destination stream.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		Task ReadToStreamAsync(string fullPath, Stream targetStream, CancellationToken cancellationToken = default);
+
+		/// <summary>Reads an object into a byte array.</summary>
+		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		/// <returns>The object contents.</returns>
+		Task<byte[]> ReadBytesAsync(string fullPath, CancellationToken cancellationToken = default);
+
+		/// <summary>Reads an object as text.</summary>
+		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="textEncoding">Text encoding. Defaults to UTF-8.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		/// <returns>The object contents.</returns>
+		Task<string> ReadTextAsync(string fullPath, Encoding textEncoding = null, CancellationToken cancellationToken = default);
+
+		/// <summary>Reads and deserializes a JSON object.</summary>
+		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="ignoreInvalidJson">Whether invalid JSON should return the default value instead of throwing.</param>
+		/// <param name="options">JSON serializer options.</param>
+		/// <param name="encoding">Text encoding. Defaults to UTF-8.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		/// <returns>The deserialized object.</returns>
+		Task<T> ReadJsonAsync<T>(string fullPath, bool ignoreInvalidJson = false, JsonSerializerOptions options = null, Encoding encoding = null, CancellationToken cancellationToken = default);
+
+		/// <summary>Downloads an object to a local file.</summary>
+		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="filePath">Destination file path.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		Task ReadToFileAsync(string fullPath, string filePath, CancellationToken cancellationToken = default);
+
+
+		// ---------------------------------------------------------------------
+		// Write
+		// ---------------------------------------------------------------------
+
+		/// <summary>Uploads data to an object from a stream. Existing objects are overwritten.</summary>
+		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="dataStream">Source stream.</param>
+		/// <param name="append">Whether to append to an existing object.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		Task WriteAsync(string fullPath, Stream dataStream, bool append = false, CancellationToken cancellationToken = default);
+
+		/// <summary>Uploads data to an object from a stream. Existing objects are overwritten.</summary>
+		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="dataStream">Source stream.</param>
+		/// <param name="contentType">MIME content type.</param>
+		/// <param name="append">Whether to append to an existing object.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		Task WriteAsync(string fullPath, Stream dataStream, string contentType, bool append = false, CancellationToken cancellationToken = default);
+
+		/// <summary>Writes a byte array to an object.</summary>
+		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="data">Data to write.</param>
+		/// <param name="append">Whether to append to an existing object.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		Task WriteAsync(string fullPath, byte[] data, bool append = false, CancellationToken cancellationToken = default);
+
+		/// <summary>Writes text to an object.</summary>
+		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="text">Text to write.</param>
+		/// <param name="textEncoding">Text encoding. Defaults to UTF-8.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		Task WriteTextAsync(string fullPath, string text, Encoding textEncoding = null, CancellationToken cancellationToken = default);
+
+		/// <summary>Writes an object as JSON.</summary>
+		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="instance">Object to serialize.</param>
+		/// <param name="options">JSON serializer options.</param>
+		/// <param name="encoding">Text encoding. Defaults to UTF-8.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		Task WriteJsonAsync<T>(string fullPath, T instance, JsonSerializerOptions options = null, Encoding encoding = null, CancellationToken cancellationToken = default);
+
+		/// <summary>Uploads a local file to an object.</summary>
+		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="filePath">Source file path.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		Task WriteFileAsync(string fullPath, string filePath, CancellationToken cancellationToken = default);
+
+
+		// ---------------------------------------------------------------------
+		// Object Manipulation
+		// ---------------------------------------------------------------------
+
+		/// <summary>Copies an object to another bucket.</summary>
+		/// <param name="blobId">Source object identifier.</param>
+		/// <param name="targetStorage">Destination bucket.</param>
+		/// <param name="newId">Destination object identifier.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		Task CopyToAsync(string blobId, IBucket targetStorage, string newId, CancellationToken cancellationToken = default);
+
+		/// <summary>Renames an object (file or folder).</summary>
+		/// <param name="oldPath">Current path.</param>
+		/// <param name="newPath">New path.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		Task RenameAsync(string oldPath, string newPath, CancellationToken cancellationToken = default);
+
+		/// <summary>Deletes a single object or folder.</summary>
+		/// <param name="fullPath">Full path of the object or folder.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		Task DeleteAsync(string fullPath, CancellationToken cancellationToken = default);
+
+		/// <summary>Deletes an object by its full path.</summary>
+		/// <param name="fullPaths">Full paths of the objects or folders.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		Task DeleteAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default);
+
+		/// <summary>Deletes a collection of objects.</summary>
+		/// <param name="blobs">Objects to delete.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		Task DeleteAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default);
+
+
+		// ---------------------------------------------------------------------
+		// File Systems Only
+		// ---------------------------------------------------------------------
+
+		/// <summary>Creates a new folder.</summary>
+		/// <param name="folderPath">Path to the new folder.</param>
+		Task CreateFolderAsync(string folderPath, string dummyFileName = null, string dummyFileContent = null, CancellationToken cancellationToken = default);
+
 	}
 }

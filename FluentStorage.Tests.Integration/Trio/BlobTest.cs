@@ -55,7 +55,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 			await _storage.WriteTextAsync(targetId, "test");
 
-			IReadOnlyCollection<StorageObject> rootContent = await _storage.ListAsync();
+			List<StorageObject> rootContent = await _storage.ListAsync();
 
 			Assert.NotEmpty(rootContent);
 		}
@@ -64,7 +64,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 		public async Task List_ByFilePrefix_Filtered() {
 			string prefix = RandomGenerator.RandomString;
 
-			int countBefore = (await _storage.ListAsync(new ListOptions { FolderPath = _blobPrefix, FilePrefix = prefix })).Count;
+			int countBefore = (await _storage.ListAsync(new StorageListOptions { FolderPath = _blobPrefix, FilePrefix = prefix })).Count;
 
 			string id1 = RandomBlobPath(prefix);
 			string id2 = RandomBlobPath(prefix);
@@ -74,7 +74,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			await _storage.WriteTextAsync(id2, RandomGenerator.RandomString);
 			await _storage.WriteTextAsync(id3, RandomGenerator.RandomString);
 
-			IReadOnlyCollection<StorageObject> items = (await _storage.ListAsync(new ListOptions { FolderPath = _blobPrefix, FilePrefix = prefix }));
+			List<StorageObject> items = (await _storage.ListAsync(new StorageListOptions { FolderPath = _blobPrefix, FilePrefix = prefix }));
 			Assert.Equal(2 + countBefore, items.Count); //2 files + containing folder
 		}
 
@@ -84,7 +84,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 			await _storage.WriteTextAsync(id, RandomGenerator.RandomString);
 
-			List<StorageObject> items = (await _storage.ListAsync(new ListOptions { FolderPath = _blobPrefix, Recurse = false })).ToList();
+			List<StorageObject> items = (await _storage.ListAsync(new StorageListOptions { FolderPath = _blobPrefix, Recurse = false })).ToList();
 
 			Assert.True(items.Count > 0);
 
@@ -104,7 +104,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 				await _storage.WriteTextAsync(id2, RandomGenerator.RandomString);
 				await _storage.WriteTextAsync(id3, RandomGenerator.RandomString);
 
-				IReadOnlyCollection<StorageObject> items = await _storage.ListAsync(recurse: true, folderPath: folderPath);
+				List<StorageObject> items = await _storage.ListDirectoryAsync(recurse: true, folderPath: folderPath);
 				Assert.Equal(4, items.Count); //1.txt + sub (folder) + 2.txt + 3.txt
 
 			}
@@ -115,7 +115,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 		[Fact]
 		public async Task List_InNonExistingFolder_EmptyCollection() {
-			IEnumerable<StorageObject> objects = await _storage.ListAsync(new ListOptions { FolderPath = RandomBlobPath() });
+			IEnumerable<StorageObject> objects = await _storage.ListAsync(new StorageListOptions { FolderPath = RandomBlobPath() });
 
 			Assert.NotNull(objects);
 			Assert.True(objects.Count() == 0);
@@ -123,7 +123,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 		[Fact]
 		public async Task List_FilesInNonExistingFolder_EmptyCollection() {
-			IEnumerable<StorageObject> objects = await _storage.ListFilesAsync(new ListOptions { FolderPath = RandomBlobPath() });
+			IEnumerable<StorageObject> objects = await _storage.ListFilesAsync(new StorageListOptions { FolderPath = RandomBlobPath() });
 
 			Assert.NotNull(objects);
 			Assert.True(objects.Count() == 0);
@@ -131,7 +131,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 		[Fact]
 		public async Task List_VeryLongPrefix_NoResultsNoCrash() {
-			await Assert.ThrowsAsync<ArgumentException>(async () => await _storage.ListAsync(new ListOptions { FilePrefix = RandomGenerator.GetRandomString(100000, false) }));
+			await Assert.ThrowsAsync<ArgumentException>(async () => await _storage.ListAsync(new StorageListOptions { FilePrefix = RandomGenerator.GetRandomString(100000, false) }));
 		}
 
 		[Fact]
@@ -142,8 +142,8 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			await _storage.WriteTextAsync(id1, RandomGenerator.RandomString);
 			await _storage.WriteTextAsync(id2, RandomGenerator.RandomString);
 
-			int countAll = (await _storage.ListFilesAsync(new ListOptions { FolderPath = _blobPrefix, FilePrefix = prefix })).Count;
-			int countOne = (await _storage.ListAsync(new ListOptions { FolderPath = _blobPrefix, FilePrefix = prefix, MaxResults = 1 })).Count;
+			int countAll = (await _storage.ListFilesAsync(new StorageListOptions { FolderPath = _blobPrefix, FilePrefix = prefix })).Count;
+			int countOne = (await _storage.ListAsync(new StorageListOptions { FolderPath = _blobPrefix, FilePrefix = prefix, MaxResults = 1 })).Count;
 
 			Assert.Equal(2, countAll);
 			Assert.Equal(1, countOne);
@@ -157,14 +157,14 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			await _storage.WriteTextAsync(id2, RandomGenerator.RandomString);
 
 			//dump compare
-			IReadOnlyCollection<StorageObject> files = await _storage.ListFilesAsync(new ListOptions {
+			List<StorageObject> files = await _storage.ListFilesAsync(new StorageListOptions {
 				FolderPath = _blobPrefix,
 				Recurse = true
 			});
 			Assert.Contains(files, f => f.FullPath == id1 && f.Type == StorageObjectType.File);
 
 			//server-side filtering
-			files = await _storage.ListFilesAsync(new ListOptions {
+			files = await _storage.ListFilesAsync(new StorageListOptions {
 				FolderPath = _blobPrefix,
 				Recurse = true,
 				BrowseFilter = id => (id.Type != StorageObjectType.File || id.FullPath == id1)
@@ -187,7 +187,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			}
 
 			//act
-			IReadOnlyCollection<StorageObject> blobs = await _storage.ListAsync(folderPath: _blobPrefix);
+			List<StorageObject> blobs = await _storage.ListDirectoryAsync(folderPath: _blobPrefix);
 
 			//assert
 			Assert.True(blobs.Count >= count, $"expected over {count}, but received only {blobs.Count}");
@@ -201,7 +201,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 				await _storage.WriteTextAsync(sub + "one.txt", "test");
 				await _storage.WriteTextAsync(sub + "sub/two.txt", "test");
 
-				IReadOnlyCollection<StorageObject> subItems = await _storage.ListAsync(recurse: false, folderPath: sub);
+				List<StorageObject> subItems = await _storage.ListDirectoryAsync(recurse: false, folderPath: sub);
 				Assert.Equal(2, subItems.Count);
 
 
@@ -385,7 +385,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			}
 
 			//assert
-			IReadOnlyCollection<StorageObject> files = await _storage.ListAsync(prefix, recurse: true);
+			List<StorageObject> files = await _storage.ListDirectoryAsync(prefix, recurse: true);
 			Assert.True(files.Count == 0);
 		}
 
@@ -397,7 +397,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			try {
 				await _storage.WriteTextAsync(file, "test");
 				await _storage.RenameAsync(file, StoragePath.Combine(prefix, "2"));
-				IReadOnlyCollection<StorageObject> list = await _storage.ListAsync(prefix);
+				List<StorageObject> list = await _storage.ListDirectoryAsync(prefix);
 
 				Assert.Single(list);
 				Assert.True(list.First().Name == "2");
@@ -437,7 +437,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 			await _storage.RenameAsync(StoragePath.Combine(prefix, "old"), StoragePath.Combine(prefix, "new"));
 
-			IReadOnlyCollection<StorageObject> list = await _storage.ListAsync(prefix);
+			List<StorageObject> list = await _storage.ListDirectoryAsync(prefix);
 		}
 
 		[Fact]
@@ -544,7 +544,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 				return;
 			}
 
-			IReadOnlyCollection<StorageObject> all = await _storage.ListAsync(folderPath: blob.FolderPath, includeAttributes: true);
+			List<StorageObject> all = await _storage.ListDirectoryAsync(folderPath: blob.FolderPath, includeAttributes: true);
 
 			//test
 			StorageObject blob2 = all.First(b => b.FullPath == blob.FullPath);
@@ -573,7 +573,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			try {
 				await _storage.CreateFolderAsync(folderPath);
 
-				IReadOnlyCollection<StorageObject> files = await _storage.ListAsync(folderPath);
+				List<StorageObject> files = await _storage.ListDirectoryAsync(folderPath);
 				Assert.True(files.Any());  //check dummy file exists
 			}
 			catch (NotSupportedException) {

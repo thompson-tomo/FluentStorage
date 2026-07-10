@@ -18,7 +18,7 @@ namespace FluentStorage.FTP.Storage {
 	/// <summary>
 	/// Manages a single connected FTP server using FluentFTP.
 	/// </summary>
-	public class FtpStore : IBucket, IFileSystem {
+	public class FtpStore : BucketBase {
 		private readonly AsyncFtpClient _client;
 		private readonly bool _dispose;
 		private static readonly AsyncRetryPolicy retryPolicy = Policy.Handle<FtpException>().RetryAsync(3);
@@ -34,6 +34,9 @@ namespace FluentStorage.FTP.Storage {
 			_dispose = dispose;
 		}
 
+		public override bool HasFileSystem() {
+			return true;
+		}
 		private async Task<AsyncFtpClient> GetClientAsync() {
 			if (!_client.IsConnected) {
 				await _client.Connect().ConfigureAwait(false);
@@ -45,11 +48,11 @@ namespace FluentStorage.FTP.Storage {
 			return _client;
 		}
 
-		public async Task<IReadOnlyCollection<StorageObject>> ListAsync(ListOptions options = null, CancellationToken cancellationToken = default) {
+		public async Task<List<StorageObject>> ListAsync(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			AsyncFtpClient client = await GetClientAsync().ConfigureAwait(false);
 
 			if (options == null)
-				options = new ListOptions();
+				options = new StorageListOptions();
 
 			FtpListOption ftpListOption = FtpListOption.Auto;
 
@@ -116,7 +119,7 @@ namespace FluentStorage.FTP.Storage {
 			}
 		}
 
-		public async Task<IReadOnlyCollection<bool>> ExistsAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
+		public async Task<List<bool>> ExistsAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
 			AsyncFtpClient client = await GetClientAsync().ConfigureAwait(false);
 
 			List<bool> results = new List<bool>();
@@ -128,7 +131,7 @@ namespace FluentStorage.FTP.Storage {
 			return results;
 		}
 
-		public async Task<IReadOnlyCollection<StorageObject>> GetBlobsAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
+		public async Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
 			AsyncFtpClient client = await GetClientAsync().ConfigureAwait(false);
 
 			List<StorageObject> results = new List<StorageObject>();
@@ -167,8 +170,6 @@ namespace FluentStorage.FTP.Storage {
 				return null;
 			}
 		}
-
-		public Task<ITransaction> OpenTransactionAsync() => Task.FromResult(EmptyTransaction.Instance);
 
 		public async Task WriteAsync(string fullPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken) {
 			await WriteAsync(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);

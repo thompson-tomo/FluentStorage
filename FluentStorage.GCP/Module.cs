@@ -2,7 +2,7 @@
 using FluentStorage.ConnectionStrings;
 using FluentStorage.Queue;
 
-namespace FluentStorage.Gcp.CloudStorage {
+namespace FluentStorage.GCP {
 	class Module : IExternalModule, IConnectionFactory {
 		public IConnectionFactory ConnectionFactory => new Module();
 

@@ -22,7 +22,7 @@ namespace FluentStorage.Queue {
 		/// </summary>
 		/// <param name="messages"></param>
 		/// <param name="cancellationToken"></param>
-		Task ConfirmMessagesAsync(IReadOnlyCollection<QueueMessage> messages, CancellationToken cancellationToken = default);
+		Task ConfirmMessagesAsync(List<QueueMessage> messages, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Moves the message to a dead letter queue
@@ -36,13 +36,13 @@ namespace FluentStorage.Queue {
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
 		/// <exception cref="NotSupportedException">Thrown when peeking is not supported by the current provider</exception>
-		Task<IReadOnlyCollection<QueueMessage>> PeekMessagesAsync(int maxMessages, CancellationToken cancellationToken = default);
+		Task<List<QueueMessage>> PeekMessagesAsync(int maxMessages, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Starts automatic message pumping trying to use native features as much as possible. Message pump stops when you dispose the instance.
 		/// Disposing the instance will also stop message pump for you.
 		/// </summary>
-		Task StartMessagePumpAsync(Func<IReadOnlyCollection<QueueMessage>, CancellationToken, Task> onMessageAsync, int maxBatchSize = 1, CancellationToken cancellationToken = default);
+		Task StartMessagePumpAsync(Func<List<QueueMessage>, CancellationToken, Task> onMessageAsync, int maxBatchSize = 1, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Notifies the backend that processing is still happening and message should be marked alive.
@@ -53,10 +53,5 @@ namespace FluentStorage.Queue {
 		/// <returns></returns>
 		Task KeepAliveAsync(QueueMessage message, TimeSpan? timeToLive = null, CancellationToken cancellationToken = default);
 
-		/// <summary>
-		/// Starts a new transaction
-		/// </summary>
-		/// <returns></returns>
-		Task<ITransaction> OpenTransactionAsync();
 	}
 }

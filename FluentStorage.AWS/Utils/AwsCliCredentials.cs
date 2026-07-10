@@ -19,7 +19,7 @@ namespace FluentStorage.AWS.Utils {
 		/// Reads the list of profile names.
 		/// </summary>
 		/// <returns></returns>
-		public static IReadOnlyCollection<string> EnumerateProfiles() {
+		public static List<string> EnumerateProfiles() {
 			return ReadProfiles(GetCredentialsPath()).Keys.ToList();
 		}
 

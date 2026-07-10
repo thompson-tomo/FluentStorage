@@ -13,6 +13,6 @@ namespace FluentStorage.Queue {
 		/// </summary>
 		/// <param name="messages"></param>
 		/// <returns></returns>
-		Task ProcessMessagesAsync(IReadOnlyCollection<QueueMessage> messages);
+		Task ProcessMessagesAsync(List<QueueMessage> messages);
 	}
 }

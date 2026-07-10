@@ -23,7 +23,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			_maxTasks = maxTasks;
 		}
 
-		public async Task<IReadOnlyCollection<StorageObject>> ListFolderAsync(ListOptions options, CancellationToken cancellationToken) {
+		public async Task<List<StorageObject>> ListFolderAsync(StorageListOptions options, CancellationToken cancellationToken) {
 			var result = new List<StorageObject>();
 			_asyncLimiter = new AsyncLimiter(options.NumberOfRecursionThreads ?? _maxTasks);
 			

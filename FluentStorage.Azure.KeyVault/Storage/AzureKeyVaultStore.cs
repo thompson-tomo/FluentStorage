@@ -14,7 +14,7 @@ using FluentStorage.Utils.Extensions;
 using FluentStorage.Enums;
 
 namespace FluentStorage.Azure.KeyVault.Storage {
-	public class AzureKeyVaultStore : IBucket {
+	public class AzureKeyVaultStore : BucketBase {
 		private readonly SecretClient _client;
 		private readonly string _vaultUri;
 		private static readonly Regex secretNameRegex = new Regex("^[0-9a-zA-Z-]+$");
@@ -26,8 +26,8 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 		}
 
 
-		public async Task<IReadOnlyCollection<StorageObject>> ListAsync(ListOptions options, CancellationToken cancellationToken) {
-			if (options == null) options = new ListOptions();
+		public async Task<List<StorageObject>> ListAsync(StorageListOptions options, CancellationToken cancellationToken) {
+			if (options == null) options = new StorageListOptions();
 
 			GenericValidation.CheckBlobPrefix(options.FilePrefix);
 
@@ -121,10 +121,10 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 			}
 		}
 
-		public async Task<IReadOnlyCollection<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public async Task<List<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPaths(fullPaths);
 
-			return await Task.WhenAll(fullPaths.Select(fullPath => ExistsAsync(fullPath))).ConfigureAwait(false);
+			return (await Task.WhenAll(fullPaths.Select(fullPath => ExistsAsync(fullPath))).ConfigureAwait(false)).ToList();
 		}
 
 		private async Task<bool> ExistsAsync(string fullPath) {
@@ -142,10 +142,10 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 			return true;
 		}
 
-		public async Task<IReadOnlyCollection<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public async Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPaths(fullPaths);
 
-			return await Task.WhenAll(fullPaths.Select(fullPath => GetBlobAsync(fullPath))).ConfigureAwait(false);
+			return (await Task.WhenAll(fullPaths.Select(fullPath => GetBlobAsync(fullPath))).ConfigureAwait(false)).ToList();
 		}
 
 		public Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
@@ -179,8 +179,5 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 		public void Dispose() {
 		}
 
-		public Task<ITransaction> OpenTransactionAsync() {
-			return Task.FromResult(EmptyTransaction.Instance);
-		}
 	}
 }

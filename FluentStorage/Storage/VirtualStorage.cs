@@ -13,7 +13,7 @@ namespace FluentStorage.Storage {
 	/// Allows to combine several storage providers (or even of the same type) in one virtual storage interface.
 	/// Providers are distinguished using a prefix. Essentially this allows to mount providers in a virtual filesystem.
 	/// </summary>
-	public class VirtualStorage : IVirtualStorage {
+	public class VirtualStorage : BucketBase, IVirtualStorage {
 		private readonly ConcurrentDictionary<string, HashSet<StorageObject>> _pathToMountBlobs = new ConcurrentDictionary<string, HashSet<StorageObject>>();
 		private readonly List<StorageObject> _mountPoints = new List<StorageObject>();
 
@@ -196,9 +196,9 @@ namespace FluentStorage.Storage {
 		}
 
 
-		private async Task<IReadOnlyCollection<TResult>> ExecuteAsync<TResult>(
+		private async Task<List<TResult>> ExecuteAsync<TResult>(
 		   IEnumerable<string> fullPaths,
-		   Func<IBucket, IEnumerable<string>, Task<IReadOnlyCollection<TResult>>> action) {
+		   Func<IBucket, IEnumerable<string>, Task<List<TResult>>> action) {
 			Dictionary<IBucket, List<MpTag<TResult>>> dic = Explode(
 			   fullPaths,
 			   out Dictionary<string, MpTag<TResult>> fullPathToTag);
@@ -207,7 +207,7 @@ namespace FluentStorage.Storage {
 			foreach (KeyValuePair<IBucket, List<MpTag<TResult>>> pair in dic) {
 				IEnumerable<string> rps = pair.Value.Select(v => v.relPath);
 
-				IReadOnlyCollection<TResult> br = await action(pair.Key, rps).ConfigureAwait(false);
+				List<TResult> br = await action(pair.Key, rps).ConfigureAwait(false);
 
 				foreach (Tuple<TResult, MpTag<TResult>> doublePair in EnumerableExtensions.MultiIterate(br, pair.Value)) {
 					doublePair.Item2.result = doublePair.Item1;
@@ -233,21 +233,21 @@ namespace FluentStorage.Storage {
 
 		}
 
-		public virtual Task<IReadOnlyCollection<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public virtual Task<List<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			return ExecuteAsync(
 			   fullPaths,
 			   (storage, fps) => storage.ExistsAsync(fps, cancellationToken));
 		}
 
-		public virtual Task<IReadOnlyCollection<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public virtual Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			return ExecuteAsync(
 			   fullPaths,
 			   (storage, fps) => storage.GetBlobsAsync(fps, cancellationToken));
 		}
 
-		public async virtual Task<IReadOnlyCollection<StorageObject>> ListAsync(ListOptions options = null, CancellationToken cancellationToken = default) {
+		public async virtual Task<List<StorageObject>> ListAsync(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			if (options == null)
-				options = new ListOptions();
+				options = new StorageListOptions();
 
 			var result = new List<StorageObject>();
 
@@ -288,10 +288,10 @@ namespace FluentStorage.Storage {
 
 				string relPath = options.FolderPath.Substring(mountPoint.FullPath.Length);
 
-				ListOptions mountOptions = options.Clone();
+				StorageListOptions mountOptions = options.Clone();
 				mountOptions.FolderPath = StoragePath.Normalize(relPath);
 
-				IReadOnlyCollection<StorageObject> mountResults = await storage.ListAsync(mountOptions, cancellationToken).ConfigureAwait(false);
+				List<StorageObject> mountResults = await storage.ListAsync(mountOptions, cancellationToken).ConfigureAwait(false);
 				foreach (StorageObject blob in mountResults) {
 					blob.PrependPath(mountPoint.FullPath);
 				}
@@ -340,8 +340,6 @@ namespace FluentStorage.Storage {
 			return true;
 		}
 
-		public virtual Task<ITransaction> OpenTransactionAsync() => null;
-
 		public virtual async Task WriteAsync(string fullPath, Stream dataStream, bool append = false, CancellationToken cancellationToken = default) {
 			if (!TryExplodeToMountPoint(fullPath, out IBucket storage, out string relPath))
 				return;
@@ -355,6 +353,14 @@ namespace FluentStorage.Storage {
 
 
 			await storage.WriteAsync(relPath, dataStream, contentType, append, cancellationToken).ConfigureAwait(false);
+		}
+
+		public async Task RenameAsync(string oldPath, string newPath, CancellationToken cancellationToken) {
+			throw new NotImplementedException();
+		}
+
+		public async Task CreateFolderAsync(string folderPath, CancellationToken cancellationToken) {
+			throw new NotImplementedException();
 		}
 	}
 }

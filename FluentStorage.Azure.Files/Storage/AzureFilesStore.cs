@@ -16,12 +16,11 @@ namespace FluentStorage.Azure.Files.Storage {
 	/// <summary>
 	/// Manages a single Azure Files container.
 	/// </summary>
-	public class AzureFilesStore : GenericBlobStore {
+	public class AzureFilesStore : BucketBase {
 		private readonly ShareServiceClient _client;
 		private readonly ConcurrentDictionary<string, ShareClient> _shareNameToShareClient =
 		   new ConcurrentDictionary<string, ShareClient>();
 
-		protected override bool CanListHierarchy => false;
 
 		public AzureFilesStore(ShareServiceClient shareServiceClient, string accountName) {
 			_client = shareServiceClient ?? throw new ArgumentNullException(nameof(shareServiceClient));
@@ -50,8 +49,8 @@ namespace FluentStorage.Azure.Files.Storage {
 			return new AzureFilesStore(client, accountName);
 		}
 
-		protected override async Task<IReadOnlyCollection<StorageObject>> ListAtAsync(
-		   string path, ListOptions options, CancellationToken cancellationToken) {
+		protected override async Task<List<StorageObject>> ListPathAsync(
+		   string path, StorageListOptions options, CancellationToken cancellationToken) {
 			if (StoragePath.IsRootPath(path)) {
 				var shares = new List<StorageObject>();
 
@@ -145,7 +144,7 @@ namespace FluentStorage.Azure.Files.Storage {
 			}
 		}
 
-		protected override async Task<StorageObject> GetBlobAsync(string fullPath, CancellationToken cancellationToken) {
+		public override async Task<StorageObject> GetBlobAsync(string fullPath, CancellationToken cancellationToken) {
 			ShareFileClient file = await GetFileReferenceAsync(fullPath, false, cancellationToken).ConfigureAwait(false);
 			if (file == null) {
 				return null;
@@ -195,7 +194,7 @@ namespace FluentStorage.Azure.Files.Storage {
 			}
 		}
 
-		protected override async Task<bool> ExistsAsync(string fullPath, CancellationToken cancellationToken) {
+		public override async Task<bool> ExistsAsync(string fullPath, CancellationToken cancellationToken) {
 			ShareFileClient file = await GetFileReferenceAsync(fullPath, false, cancellationToken).ConfigureAwait(false);
 
 			if (file == null) {

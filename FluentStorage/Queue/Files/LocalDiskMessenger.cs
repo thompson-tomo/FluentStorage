@@ -42,13 +42,14 @@ namespace FluentStorage.Queue.Files {
 			return result;
 		}
 
-		private IReadOnlyCollection<FileInfo> GetMessageFiles(string channelName) {
+		private List<FileInfo> GetMessageFiles(string channelName) {
 			string directoryPath = Path.Combine(_root, channelName);
 
 			if (!Directory.Exists(directoryPath))
 				return new List<FileInfo>();
 
-			return new DirectoryInfo(directoryPath).GetFiles("*" + FileExtension, SearchOption.TopDirectoryOnly);
+			return new DirectoryInfo(directoryPath)
+				.GetFiles("*" + FileExtension, SearchOption.TopDirectoryOnly).ToList();
 		}
 
 		private string GetMessagePath(string channelName) {
@@ -73,8 +74,8 @@ namespace FluentStorage.Queue.Files {
 		}
 
 
-		public Task<IReadOnlyCollection<string>> ListChannelsAsync(CancellationToken cancellationToken = default) {
-			return Task.FromResult<IReadOnlyCollection<string>>(new DirectoryInfo(_root).GetDirectories().Select(d => d.Name).ToList());
+		public Task<List<string>> ListChannelsAsync(CancellationToken cancellationToken = default) {
+			return Task.FromResult<List<string>>(new DirectoryInfo(_root).GetDirectories().Select(d => d.Name).ToList());
 		}
 
 		public Task DeleteChannelsAsync(IEnumerable<string> channelNames, CancellationToken cancellationToken = default) {
@@ -122,7 +123,7 @@ namespace FluentStorage.Queue.Files {
 			return Task.FromResult(true);
 		}
 
-		public Task<IReadOnlyCollection<QueueMessage>> ReceiveAsync(
+		public Task<List<QueueMessage>> ReceiveAsync(
 		   string channelName,
 		   int count = 100,
 		   TimeSpan? visibility = null,
@@ -130,7 +131,7 @@ namespace FluentStorage.Queue.Files {
 			return Task.FromResult(GetMessages(channelName, count));
 		}
 
-		public Task<IReadOnlyCollection<QueueMessage>> PeekAsync(string channelName, int count = 100, CancellationToken cancellationToken = default) {
+		public Task<List<QueueMessage>> PeekAsync(string channelName, int count = 100, CancellationToken cancellationToken = default) {
 			return Task.FromResult(GetMessages(channelName, count));
 		}
 
@@ -148,11 +149,11 @@ namespace FluentStorage.Queue.Files {
 		public Task DeleteAsync(string channelName, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) => throw new NotImplementedException();
 
 
-		private IReadOnlyCollection<QueueMessage> GetMessages(
+		private List<QueueMessage> GetMessages(
 		   string channelName,
 		   int count) {
 			//get all files (not efficient, but we hope there won't be many)
-			IReadOnlyCollection<FileInfo> files = GetMessageFiles(channelName);
+			List<FileInfo> files = GetMessageFiles(channelName);
 
 			//sort files so that oldest appear first, take max and return
 			return files
@@ -196,7 +197,7 @@ namespace FluentStorage.Queue.Files {
 
 						foreach (IQueueProcessor item in messageProcessors) {
 							try {
-								item.ProcessMessagesAsync(new[] { queueMessage }).GetAwaiter().GetResult();
+								item.ProcessMessagesAsync((new[] { queueMessage }).ToList()).GetAwaiter().GetResult();
 							}
 							catch (Exception) {
 								// swalllow the exception has no caller can could be notified anyway

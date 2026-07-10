@@ -42,7 +42,6 @@ namespace FluentStorage.Tests.Integration.Ftp {
 			// Arrange
 			byte[] bytesSent = Faker.Random.Bytes(1025);
 			const string fullPath = "/test/test-file.txt";
-			await _storage.OpenTransactionAsync();
 			await _storage.WriteAsync(fullPath, bytesSent.Take(1024).ToArray(), true);
 
 			// Act

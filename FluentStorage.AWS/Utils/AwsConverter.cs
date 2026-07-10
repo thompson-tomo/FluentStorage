@@ -9,7 +9,7 @@ using FluentStorage.Enums;
 using FluentStorage.Storage;
 
 namespace FluentStorage.AWS.Storage {
-	static class Converter {
+	static class AwsConverter {
 		/// <summary>
 		/// AWS prepends all the user metadata with this prefix, and all of your own keys are prepended with this automatically
 		/// </summary>
@@ -101,7 +101,7 @@ namespace FluentStorage.AWS.Storage {
 			return blob;
 		}
 
-		public static IReadOnlyCollection<StorageObject> ToBlobs(this ListObjectsV2Response response, ListOptions options) {
+		public static List<StorageObject> ToBlobs(this ListObjectsV2Response response, StorageListOptions options) {
 			var result = new List<StorageObject>();
 
 			//the files are listed as the S3Objects member, but they don't specifically contain folders,

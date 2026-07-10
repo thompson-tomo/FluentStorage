@@ -50,14 +50,14 @@ namespace FluentStorage.Queue.Large {
 
 
 
-		public Task<IReadOnlyCollection<string>> ListChannelsAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
+		public Task<List<string>> ListChannelsAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
 		public Task<long> GetMessageCountAsync(string channelName, CancellationToken cancellationToken = default) => throw new NotImplementedException();
 		public async Task SendAsync(string channelName, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) {
 			await Task.WhenAll(messages.Select(m => SendAsync(channelName, m, cancellationToken))).ConfigureAwait(false);
 		}
 
-		public Task<IReadOnlyCollection<QueueMessage>> ReceiveAsync(string channelName, int count = 100, TimeSpan? visibility = null, CancellationToken cancellationToken = default) => throw new NotImplementedException();
-		public Task<IReadOnlyCollection<QueueMessage>> PeekAsync(string channelName, int count = 100, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+		public Task<List<QueueMessage>> ReceiveAsync(string channelName, int count = 100, TimeSpan? visibility = null, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+		public Task<List<QueueMessage>> PeekAsync(string channelName, int count = 100, CancellationToken cancellationToken = default) => throw new NotImplementedException();
 
 		public void Dispose() {
 			if (!_keepPublisherOpen) {

@@ -15,7 +15,7 @@ namespace FluentStorage.SFTP {
 	/// <summary>
 	/// Manages a single connected SFTP server using SSH.NET.
 	/// </summary>
-	public class SftpStore : IBucket, IFileSystem {
+	public class SftpStore : BucketBase {
 		/// <summary>
 		/// The retry policy
 		/// </summary>
@@ -138,6 +138,10 @@ namespace FluentStorage.SFTP {
 			_disposeClient = disposeClient;
 		}
 
+		public override bool HasFileSystem() {
+			return true;
+		}
+
 		/// <summary>
 		/// Deletes a list of objects by their full path.
 		/// </summary>
@@ -180,12 +184,12 @@ namespace FluentStorage.SFTP {
 		/// <returns>
 		/// List of results of true and false indicating existence
 		/// </returns>
-		public async Task<IReadOnlyCollection<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public async Task<List<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 
 			SftpClient client = GetClient();
 
-			return await Task.WhenAll(fullPaths.Select(fullPath => ExistsAsync(fullPath, client, cancellationToken))).ConfigureAwait(false);
+			return (await Task.WhenAll(fullPaths.Select(fullPath => ExistsAsync(fullPath, client, cancellationToken))).ConfigureAwait(false)).ToList();
 		}
 
 		/// <summary>
@@ -217,7 +221,7 @@ namespace FluentStorage.SFTP {
 		/// <returns>
 		/// List of blob IDs
 		/// </returns>
-		public async Task<IReadOnlyCollection<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public async Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 
 			SftpClient client = GetClient();
@@ -272,10 +276,10 @@ namespace FluentStorage.SFTP {
 		/// <returns>
 		/// List of blob IDs
 		/// </returns>
-		public async Task<IReadOnlyCollection<StorageObject>> ListAsync(ListOptions options = null, CancellationToken cancellationToken = default) {
+		public async Task<List<StorageObject>> ListAsync(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 
-			options ??= new ListOptions();
+			options ??= new StorageListOptions();
 			options.MaxResults ??= int.MaxValue;
 			options.BrowseFilter ??= _ => true;
 
@@ -303,7 +307,7 @@ namespace FluentStorage.SFTP {
 		/// <param name="options"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns>List of blob IDs</returns>
-		async Task<IReadOnlyCollection<StorageObject>> ListDirectoryAsync(SftpClient client, string folderToList, ListOptions options, CancellationToken cancellationToken) {
+		async Task<List<StorageObject>> ListDirectoryAsync(SftpClient client, string folderToList, StorageListOptions options, CancellationToken cancellationToken) {
 
 			List<StorageObject> blobCollection = new List<StorageObject>();
 
@@ -376,15 +380,6 @@ namespace FluentStorage.SFTP {
 				stream?.Dispose();
 				return null;
 			}
-		}
-
-		/// <summary>
-		/// Starts a new transaction
-		/// </summary>
-		/// <returns></returns>
-		public Task<ITransaction> OpenTransactionAsync() {
-			ThrowIfDisposed();
-			return Task.FromResult(EmptyTransaction.Instance);
 		}
 
 		/// <summary>

@@ -11,7 +11,7 @@ using System.Collections;
 using FluentStorage.Utils.Extensions;
 using Google.Apis.Storage.v1.Data;
 
-namespace FluentStorage.Gcp.CloudStorage.Storage {
+namespace FluentStorage.GCP.Storage {
 	static class GConvert {
 		public static StorageObject ToBlob(Object go) {
 			var blob = new StorageObject(go.Name) {
@@ -50,7 +50,7 @@ namespace FluentStorage.Gcp.CloudStorage.Storage {
 			return blob;
 		}
 
-		public static IEnumerable<StorageObject> ToBlobs(IEnumerable<Object> objects, ListOptions options) {
+		public static IEnumerable<StorageObject> ToBlobs(IEnumerable<Object> objects, StorageListOptions options) {
 			foreach (Object obj in objects) {
 				StorageObject item = ToBlob(obj);
 
@@ -66,7 +66,7 @@ namespace FluentStorage.Gcp.CloudStorage.Storage {
 			yield break;
 		}
 
-		public static async Task<IReadOnlyCollection<StorageObject>> ToBlobsAsync(PagedAsyncEnumerable<Objects, Object> objects, ListOptions options) {
+		public static async Task<List<StorageObject>> ToBlobsAsync(PagedAsyncEnumerable<Objects, Object> objects, StorageListOptions options) {
 			var result = new List<StorageObject>();
 
 			await foreach (Object obj in objects) {

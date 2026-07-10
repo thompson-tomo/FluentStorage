@@ -84,7 +84,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 			const int maxRetries = 10;
 
 			for (int i = 0; i < maxRetries; i++) {
-				IReadOnlyCollection<string> channels = await _msg.ListChannelsAsync();
+				List<string> channels = await _msg.ListChannelsAsync();
 
 				if (channels.Contains(channelName))
 					return;
@@ -108,7 +108,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 
 			await _msg.DeleteChannelAsync(channelName);
 
-			IReadOnlyCollection<string> channels = await _msg.ListChannelsAsync();
+			List<string> channels = await _msg.ListChannelsAsync();
 
 			Assert.DoesNotContain(channelName, channels);
 
@@ -157,7 +157,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 			string tag = await SendAsync();
 
 			try {
-				IReadOnlyCollection<QueueMessage> messages = await _msg.ReceiveAsync(_qn);
+				List<QueueMessage> messages = await _msg.ReceiveAsync(_qn);
 
 				Assert.Contains(messages, m => m.Properties.TryGetValue("tag", out string itag) && itag == tag);
 			}
@@ -176,7 +176,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 			try {
 				await SendAsync();
 
-				IReadOnlyCollection<QueueMessage> messages = await _msg.PeekAsync(_qn);
+				List<QueueMessage> messages = await _msg.PeekAsync(_qn);
 
 				Assert.NotEmpty(messages);
 			}

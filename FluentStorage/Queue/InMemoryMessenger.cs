@@ -30,8 +30,8 @@ namespace FluentStorage.Queue {
 			return Task.FromResult((long)queue.Count);
 		}
 
-		public Task<IReadOnlyCollection<string>> ListChannelsAsync(CancellationToken cancellationToken = default) {
-			return Task.FromResult<IReadOnlyCollection<string>>(_queues.Select(q => q.Key).ToList());
+		public Task<List<string>> ListChannelsAsync(CancellationToken cancellationToken = default) {
+			return Task.FromResult<List<string>>(_queues.Select(q => q.Key).ToList());
 		}
 
 		public Task DeleteChannelsAsync(IEnumerable<string> channelNames, CancellationToken cancellationToken = default) {
@@ -45,19 +45,19 @@ namespace FluentStorage.Queue {
 			return Task.CompletedTask;
 		}
 
-		public Task<IReadOnlyCollection<QueueMessage>> PeekAsync(string channelName, int count = 100, CancellationToken cancellationToken = default) {
+		public Task<List<QueueMessage>> PeekAsync(string channelName, int count = 100, CancellationToken cancellationToken = default) {
 			if (channelName is null)
 				throw new ArgumentNullException(nameof(channelName));
 
-			return Task.FromResult<IReadOnlyCollection<QueueMessage>>(GetMessages(channelName, count, true, null));
+			return Task.FromResult<List<QueueMessage>>(GetMessages(channelName, count, true, null));
 		}
 
-		public Task<IReadOnlyCollection<QueueMessage>> ReceiveAsync(
+		public Task<List<QueueMessage>> ReceiveAsync(
 		   string channelName, int count = 100, TimeSpan? visibility = null, CancellationToken cancellationToken = default) {
 			if (channelName is null)
 				throw new ArgumentNullException(nameof(channelName));
 
-			return Task.FromResult<IReadOnlyCollection<QueueMessage>>(GetMessages(channelName, count, false, visibility));
+			return Task.FromResult<List<QueueMessage>>(GetMessages(channelName, count, false, visibility));
 		}
 
 		private List<QueueMessage> GetMessages(string channelName, int count, bool peekOnly, TimeSpan? visibility) {

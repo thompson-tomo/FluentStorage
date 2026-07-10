@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace FluentStorage.Storage.Files {
-	class ZipStore : IBucket {
+	class ZipStore : BucketBase {
 		private Stream _fileStream;
 		private ZipArchive _archive;
 		private readonly string _filePath;
@@ -36,10 +36,10 @@ namespace FluentStorage.Storage.Files {
 			}
 		}
 
-		public Task<IReadOnlyCollection<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public Task<List<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			ZipArchive zipArchive = GetArchive(false);
 			if (zipArchive == null) {
-				return Task.FromResult<IReadOnlyCollection<bool>>(new bool[fullPaths.Count()]);
+				return Task.FromResult<List<bool>>(new bool[fullPaths.Count()].ToList());
 			}
 
 			var result = new List<bool>();
@@ -52,10 +52,10 @@ namespace FluentStorage.Storage.Files {
 				result.Add(entry != null);
 			}
 
-			return Task.FromResult<IReadOnlyCollection<bool>>(result);
+			return Task.FromResult<List<bool>>(result);
 		}
 
-		public Task<IReadOnlyCollection<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			var result = new List<StorageObject>();
 			ZipArchive zipArchive = GetArchive(false);
 
@@ -74,21 +74,21 @@ namespace FluentStorage.Storage.Files {
 				}
 			}
 
-			return Task.FromResult<IReadOnlyCollection<StorageObject>>(result);
+			return Task.FromResult<List<StorageObject>>(result);
 		}
 
 		public Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		public Task<IReadOnlyCollection<StorageObject>> ListAsync(ListOptions options, CancellationToken cancellationToken = default) {
+		public Task<List<StorageObject>> ListAsync(StorageListOptions options, CancellationToken cancellationToken = default) {
 			if (!File.Exists(_filePath))
-				return Task.FromResult<IReadOnlyCollection<StorageObject>>(new List<StorageObject>());
+				return Task.FromResult<List<StorageObject>>(new List<StorageObject>());
 
 			ZipArchive archive = GetArchive(false);
 
 			if (options == null)
-				options = new ListOptions();
+				options = new StorageListOptions();
 
 			IEnumerable<StorageObject> blobs = archive.Entries.Select(ze => new StorageObject(ze.FullName, StorageObjectType.File));
 
@@ -119,7 +119,7 @@ namespace FluentStorage.Storage.Files {
 			if (options.MaxResults != null)
 				blobs = blobs.Take(options.MaxResults.Value);
 
-			return Task.FromResult<IReadOnlyCollection<StorageObject>>(blobs.ToList());
+			return Task.FromResult<List<StorageObject>>(blobs.ToList());
 		}
 
 		private IEnumerable<StorageObject> AppendVirtualFolders(string rootFolderPath, List<StorageObject> files) {
@@ -143,10 +143,6 @@ namespace FluentStorage.Storage.Files {
 				return Task.FromResult<Stream>(null);
 
 			return Task.FromResult(entry.Open());
-		}
-
-		public Task<ITransaction> OpenTransactionAsync() {
-			return Task.FromResult(EmptyTransaction.Instance);
 		}
 
 		public async Task WriteAsync(string fullPath, Stream sourceStream, string contentType, bool append, CancellationToken cancellationToken) {
@@ -241,6 +237,10 @@ namespace FluentStorage.Storage.Files {
 			}
 
 			return _archive;
+		}
+
+		public async Task RenameAsync(string oldPath, string newPath, CancellationToken cancellationToken) {
+			throw new NotImplementedException();
 		}
 	}
 }

@@ -64,7 +64,7 @@ namespace FluentStorage.Azure.ServiceBus.Messenger {
 			}
 		}
 
-		public async Task<IReadOnlyCollection<string>> ListChannelsAsync(CancellationToken cancellationToken = default) {
+		public async Task<List<string>> ListChannelsAsync(CancellationToken cancellationToken = default) {
 			var channels = new List<string>();
 
 			var queues = _mgmtAdminClient.GetQueuesAsync(cancellationToken).ConfigureAwait(false);
@@ -160,7 +160,7 @@ namespace FluentStorage.Azure.ServiceBus.Messenger {
 			}
 		}
 
-		public async Task<IReadOnlyCollection<QueueMessage>> ReceiveAsync(string channelName, int count = 100, TimeSpan? visibility = null,
+		public async Task<List<QueueMessage>> ReceiveAsync(string channelName, int count = 100, TimeSpan? visibility = null,
 																		   CancellationToken cancellationToken = default) {
 			if (channelName is null)
 				throw new ArgumentNullException(nameof(channelName));
@@ -171,7 +171,7 @@ namespace FluentStorage.Azure.ServiceBus.Messenger {
 			return messages.Select(Converter.ToQueueMessage).ToList();
 		}
 
-		public async Task<IReadOnlyCollection<QueueMessage>> PeekAsync(string channelName, int count = 100, CancellationToken cancellationToken = default) {
+		public async Task<List<QueueMessage>> PeekAsync(string channelName, int count = 100, CancellationToken cancellationToken = default) {
 			if (channelName is null)
 				throw new ArgumentNullException(nameof(channelName));
 

@@ -11,7 +11,7 @@ namespace FluentStorage.Storage.Files {
 	/// <summary>
 	/// Blob storage implementation which uses local file system directory
 	/// </summary>
-	internal class DiskStore : IBucket {
+	internal class DiskStore : BucketBase {
 		private readonly System.IO.Abstractions.IFileSystem _fileSystem;
 		private readonly string _directoryFullName;
 		private const string AttributesFileExtension = ".attr";
@@ -40,15 +40,15 @@ namespace FluentStorage.Storage.Files {
 		/// <summary>
 		/// Returns the list of blob names in this storage, optionally filtered by prefix
 		/// </summary>
-		public Task<IReadOnlyCollection<StorageObject>> ListAsync(ListOptions options, CancellationToken cancellationToken) {
-			if (options == null) options = new ListOptions();
+		public Task<List<StorageObject>> ListAsync(StorageListOptions options, CancellationToken cancellationToken) {
+			if (options == null) options = new StorageListOptions();
 
 			GenericValidation.CheckBlobPrefix(options.FilePrefix);
 
-			if (!_fileSystem.Directory.Exists(_directoryFullName)) return Task.FromResult<IReadOnlyCollection<StorageObject>>(new List<StorageObject>());
+			if (!_fileSystem.Directory.Exists(_directoryFullName)) return Task.FromResult<List<StorageObject>>(new List<StorageObject>());
 
 			string fullPath = GetFolder(options?.FolderPath, false);
-			if (fullPath == null) return Task.FromResult<IReadOnlyCollection<StorageObject>>(new List<StorageObject>());
+			if (fullPath == null) return Task.FromResult<List<StorageObject>>(new List<StorageObject>());
 
 			string[] fileIds = _fileSystem.Directory.GetFiles(
 			   fullPath,
@@ -72,7 +72,7 @@ namespace FluentStorage.Storage.Files {
 			   .Where(i => options.BrowseFilter == null || options.BrowseFilter(i))
 			   .Take(options.MaxResults == null ? int.MaxValue : options.MaxResults.Value)
 			   .ToList();
-			return Task.FromResult<IReadOnlyCollection<StorageObject>>(result);
+			return Task.FromResult<List<StorageObject>>(result);
 		}
 
 		private static string FormatFlags(FileAttributes fa) {
@@ -244,7 +244,7 @@ namespace FluentStorage.Storage.Files {
 		/// <summary>
 		/// Checks if files exist on disk
 		/// </summary>
-		public Task<IReadOnlyCollection<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken) {
+		public Task<List<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken) {
 			var result = new List<bool>();
 
 			if (fullPaths != null) {
@@ -256,13 +256,13 @@ namespace FluentStorage.Storage.Files {
 				}
 			}
 
-			return Task.FromResult((IReadOnlyCollection<bool>)result);
+			return Task.FromResult((List<bool>)result);
 		}
 
 		/// <summary>
 		/// See interface
 		/// </summary>
-		public Task<IReadOnlyCollection<StorageObject>> GetBlobsAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
+		public Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
 			var result = new List<StorageObject>();
 
 			foreach (string blobId in ids) {
@@ -278,7 +278,7 @@ namespace FluentStorage.Storage.Files {
 				result.Add(ToBlobItem(filePath, StorageObjectType.File, true));
 			}
 
-			return Task.FromResult<IReadOnlyCollection<StorageObject>>(result);
+			return Task.FromResult<List<StorageObject>>(result);
 		}
 
 		public Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
@@ -319,11 +319,8 @@ namespace FluentStorage.Storage.Files {
 			}
 		}
 
-		/// <summary>
-		/// Returns empty transaction as filesystem has no transaction support
-		/// </summary>
-		public Task<ITransaction> OpenTransactionAsync() {
-			return Task.FromResult(EmptyTransaction.Instance);
+		public async Task RenameAsync(string oldPath, string newPath, CancellationToken cancellationToken) {
+			throw new NotImplementedException();
 		}
 	}
 }

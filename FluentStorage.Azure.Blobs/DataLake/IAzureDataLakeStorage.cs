@@ -13,7 +13,7 @@ namespace FluentStorage.Azure.Blobs {
 		/// Lists filesystems using Data Lake native REST API
 		/// </summary>
 		/// <returns></returns>
-		Task<IReadOnlyCollection<Filesystem>> ListFilesystemsAsync(CancellationToken cancellationToken = default);
+		Task<List<Filesystem>> ListFilesystemsAsync(CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Creates a filesystem

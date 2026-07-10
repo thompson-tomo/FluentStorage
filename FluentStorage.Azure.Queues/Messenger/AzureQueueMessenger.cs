@@ -111,7 +111,7 @@ namespace FluentStorage.Azure.Queues.Messenger {
 			return queue.ApproximateMessageCount ?? 0;
 		}
 
-		public async Task<IReadOnlyCollection<string>> ListChannelsAsync(CancellationToken cancellationToken = default) {
+		public async Task<List<string>> ListChannelsAsync(CancellationToken cancellationToken = default) {
 			var queueNames = new List<string>();
 
 			QueueContinuationToken token = null;
@@ -149,7 +149,7 @@ namespace FluentStorage.Azure.Queues.Messenger {
 			})).ConfigureAwait(false);
 		}
 
-		public async Task<IReadOnlyCollection<QueueMessage>> PeekAsync(string channelName, int count = 100, CancellationToken cancellationToken = default) {
+		public async Task<List<QueueMessage>> PeekAsync(string channelName, int count = 100, CancellationToken cancellationToken = default) {
 			if (channelName is null)
 				throw new ArgumentNullException(nameof(channelName));
 
@@ -165,7 +165,7 @@ namespace FluentStorage.Azure.Queues.Messenger {
 
 		}
 
-		public async Task<IReadOnlyCollection<QueueMessage>> ReceiveAsync(
+		public async Task<List<QueueMessage>> ReceiveAsync(
 		   string channelName, int count = 100, TimeSpan? visibility = null, CancellationToken cancellationToken = default) {
 			if (channelName is null)
 				throw new ArgumentNullException(nameof(channelName));
@@ -179,7 +179,7 @@ namespace FluentStorage.Azure.Queues.Messenger {
 			IEnumerable<CloudQueueMessage> batch = await queue.GetMessagesAsync(count, visibility, null, null, cancellationToken).ConfigureAwait(false);
 
 			if (batch == null)
-				return new QueueMessage[0];
+				return new List<QueueMessage>();
 
 			List<QueueMessage> result = batch.Select(Converter.ToQueueMessage).ToList();
 			return result;

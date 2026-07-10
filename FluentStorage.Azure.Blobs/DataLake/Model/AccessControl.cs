@@ -46,12 +46,12 @@ namespace FluentStorage.Azure.Blobs.DataLake.Model {
 		/// <summary>
 		/// Parsed Access Control List
 		/// </summary>
-		public IList<AclEntry> Acl { get; } = new List<AclEntry>();
+		public List<AclEntry> Acl { get; } = new List<AclEntry>();
 
 		/// <summary>
 		/// Parsed Access Control list for defeault entries
 		/// </summary>
-		public IList<AclEntry> DefaultAcl { get; } = new List<AclEntry>();
+		public List<AclEntry> DefaultAcl { get; } = new List<AclEntry>();
 
 		/// <summary>
 		/// Owning user permissions

@@ -41,7 +41,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 			//drop all blobs in test storage
 
-			IReadOnlyCollection<StorageObject> topLevel = (await Storage.ListAsync(folderPath: BlobPrefix, recurse: false)).ToList();
+			List<StorageObject> topLevel = (await Storage.ListDirectoryAsync(folderPath: BlobPrefix, recurse: false)).ToList();
 
 			try {
 				await Storage.DeleteAsync(topLevel.Select(f => f.FullPath));

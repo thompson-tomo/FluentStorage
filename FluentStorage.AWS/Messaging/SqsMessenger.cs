@@ -50,7 +50,7 @@ namespace FluentStorage.AWS.Messaging {
 			await Task.WhenAll(channelNames.Select(cn => _client.CreateQueueAsync(cn, cancellationToken))).ConfigureAwait(false);
 		}
 
-		public async Task<IReadOnlyCollection<string>> ListChannelsAsync(CancellationToken cancellationToken = default) {
+		public async Task<List<string>> ListChannelsAsync(CancellationToken cancellationToken = default) {
 			ListQueuesResponse queues = await _client.ListQueuesAsync(new ListQueuesRequest { }).ConfigureAwait(false);
 
 			return queues.QueueUrls.Select(u => u.Substring(u.LastIndexOf("/") + 1)).ToList();
@@ -104,15 +104,15 @@ namespace FluentStorage.AWS.Messaging {
 			}
 		}
 
-		public Task<IReadOnlyCollection<QueueMessage>> ReceiveAsync(string channelName, int count = 100, TimeSpan? visibility = null, CancellationToken cancellationToken = default) {
+		public Task<List<QueueMessage>> ReceiveAsync(string channelName, int count = 100, TimeSpan? visibility = null, CancellationToken cancellationToken = default) {
 			return ReceiveInternalAsync(channelName, count, visibility ?? TimeSpan.FromMinutes(1), cancellationToken);
 		}
 
-		public Task<IReadOnlyCollection<QueueMessage>> PeekAsync(string channelName, int count = 100, CancellationToken cancellationToken = default) {
+		public Task<List<QueueMessage>> PeekAsync(string channelName, int count = 100, CancellationToken cancellationToken = default) {
 			return ReceiveInternalAsync(channelName, count, TimeSpan.FromSeconds(1), cancellationToken);
 		}
 
-		private async Task<IReadOnlyCollection<QueueMessage>> ReceiveInternalAsync(
+		private async Task<List<QueueMessage>> ReceiveInternalAsync(
 		   string channelName, int count, TimeSpan visibility, CancellationToken cancellationToken) {
 			if (channelName is null)
 				throw new ArgumentNullException(nameof(channelName));

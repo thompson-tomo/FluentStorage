@@ -21,7 +21,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 	/// <summary>
 	/// Manages a single Azure Blob container.
 	/// </summary>
-	public class AzureBlobStore : IAzureBlobStorage {
+	public class AzureBlobStore : BucketBase, IAzureBlobStorage {
 
 		private readonly BlobServiceClient _client;
 		private readonly StorageSharedKeyCredential _sasSigningCredentials;
@@ -41,9 +41,9 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		}
 
 
-		public virtual async Task<IReadOnlyCollection<StorageObject>> ListAsync(ListOptions options = null, CancellationToken cancellationToken = default) {
+		public virtual async Task<List<StorageObject>> ListAsync(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			if (options == null)
-				options = new ListOptions();
+				options = new StorageListOptions();
 
 			var result = new List<StorageObject>();
 			var containers = new List<BlobContainerClient>();
@@ -83,12 +83,12 @@ namespace FluentStorage.Azure.Blobs.Storage {
 
 		public void Dispose() { }
 
-		public async Task<IReadOnlyCollection<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			return await Task.WhenAll(fullPaths.Select(p => ExistsAsync(p, cancellationToken))).ConfigureAwait(false);
+		public async Task<List<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+			return (await Task.WhenAll(fullPaths.Select(p => ExistsAsync(p, cancellationToken))).ConfigureAwait(false)).ToList();
 		}
 
-		public async Task<IReadOnlyCollection<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			return await Task.WhenAll(fullPaths.Select(p => GetBlobAsync(p, cancellationToken))).ConfigureAwait(false);
+		public async Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+			return (await Task.WhenAll(fullPaths.Select(p => GetBlobAsync(p, cancellationToken))).ConfigureAwait(false)).ToList();
 		}
 
 		public async Task<Stream> OpenReadAsync(string fullPath, CancellationToken cancellationToken = default) {
@@ -113,9 +113,6 @@ namespace FluentStorage.Azure.Blobs.Storage {
 				return null;
 			}
 		}
-
-
-		public Task<ITransaction> OpenTransactionAsync() => throw new NotImplementedException();
 
 		/// <summary>
 		/// Uploads a blob to Azure Blob storage, by automatically computing the Content-Type.
@@ -390,7 +387,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		}
 
 
-		private async Task<IReadOnlyCollection<BlobContainerClient>> ListContainersAsync(CancellationToken cancellationToken) {
+		private async Task<List<BlobContainerClient>> ListContainersAsync(CancellationToken cancellationToken) {
 			var r = new List<BlobContainerClient>();
 
 			//check that the special "$logs" container exists
@@ -418,10 +415,10 @@ namespace FluentStorage.Azure.Blobs.Storage {
 
 		private async Task ListAsync(BlobContainerClient container,
 		   List<StorageObject> result,
-		   ListOptions options,
+		   StorageListOptions options,
 		   CancellationToken cancellationToken) {
-			using (var browser = new AzureContainerBrowser(container, _containerName == null, options.NumberOfRecursionThreads ?? ListOptions.MAX_THREADS)) {
-				IReadOnlyCollection<StorageObject> containerBlobs =
+			using (var browser = new AzureContainerBrowser(container, _containerName == null, options.NumberOfRecursionThreads ?? StorageListOptions.MAX_THREADS)) {
+				List<StorageObject> containerBlobs =
 				   await browser.ListFolderAsync(options, cancellationToken)
 					  .ConfigureAwait(false);
 

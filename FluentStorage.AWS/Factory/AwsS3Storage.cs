@@ -2,11 +2,11 @@
 using Amazon.Runtime;
 using Amazon.S3;
 using FluentStorage.AWS.Messaging;
-using FluentStorage.AWS.Blobs;
+using FluentStorage.AWS.Storage;
 using FluentStorage.Storage;
 using FluentStorage.Queue;
 using FluentStorage.AWS;
-using FluentStorage.ConnectionString;
+using FluentStorage.ConnectionStrings;
 using Amazon.S3.Transfer;
 
 namespace FluentStorage {
@@ -121,7 +121,7 @@ namespace FluentStorage {
 		/// <param name="bucketName"></param>
 		/// <param name="region"></param>
 		/// <returns></returns>
-		public static StorageConnectionString CreateConnectionStringFromCliProfile(
+		public static ConnectionString CreateConnectionStringFromCliProfile(
 		   string profileName,
 		   string bucketName,
 		   string region) {
@@ -131,10 +131,10 @@ namespace FluentStorage {
 				throw new System.ArgumentNullException(nameof(bucketName));
 			if (region is null)
 				throw new System.ArgumentNullException(nameof(region));
-			var cs = new StorageConnectionString(KnownPrefix.AwsS3 + "://");
-			cs[KnownParameter.LocalProfileName] = profileName;
-			cs[KnownParameter.BucketName] = bucketName;
-			cs[KnownParameter.Region] = region;
+			var cs = new ConnectionString(ConnectionStringPrefix.AwsS3 + "://");
+			cs[ConnectionStringParam.LocalProfileName] = profileName;
+			cs[ConnectionStringParam.BucketName] = bucketName;
+			cs[ConnectionStringParam.Region] = region;
 			return cs;
 		}
 

@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentStorage.Storage;
-using FluentStorage.Azure.Blobs;
-using FluentStorage.Azure.Blobs.Gen2.Model;
 using Xunit;
+using FluentStorage.Azure.Blobs.DataLake;
+using FluentStorage.Azure.Blobs.DataLake.Model;
+using FluentStorage.Azure.Blobs;
 
 namespace FluentStorage.Tests.Integration.Azure {
 	[Trait("Category", "Blobs")]

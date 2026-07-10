@@ -1,7 +1,7 @@
 ﻿using Google.Apis.Auth.OAuth2;
 using FluentStorage.Storage;
 using FluentStorage.Gcp.CloudStorage;
-using FluentStorage.Gcp.CloudStorage.Blobs;
+using FluentStorage.Gcp.CloudStorage.Storage;
 using System;
 using FluentStorage.Utils.Extensions;
 
@@ -28,7 +28,7 @@ namespace FluentStorage {
 		/// <returns></returns>
 		public static IBucket FromEnvironmentVariable(
 		   string bucketName) {
-			return new GoogleCloudStorageBlobStorage(bucketName);
+			return new GoogleCloudStore(bucketName);
 		}
 
 		/// <summary>
@@ -43,7 +43,7 @@ namespace FluentStorage {
 		   string credentialsFilePath) {
 			GoogleCredential cred = GoogleCredential.FromFile(credentialsFilePath);
 
-			return new GoogleCloudStorageBlobStorage(bucketName, cred);
+			return new GoogleCloudStore(bucketName, cred);
 		}
 
 		/// <summary>
@@ -62,7 +62,7 @@ namespace FluentStorage {
 
 			GoogleCredential cred = GoogleCredential.FromJson(json);
 
-			return new GoogleCloudStorageBlobStorage(bucketName, cred);
+			return new GoogleCloudStore(bucketName, cred);
 		}
 	}
 }

@@ -3,9 +3,11 @@ using Azure.Core;
 using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Sas;
-using FluentStorage.ConnectionString;
+using FluentStorage.ConnectionStrings;
 using FluentStorage.Azure.Blobs;
 using FluentStorage.Azure;
+using FluentStorage.Azure.Blobs.Storage;
+using FluentStorage.Azure.Blobs.Utils;
 
 namespace FluentStorage {
 	/// <summary>
@@ -245,28 +247,28 @@ namespace FluentStorage {
 		/// <summary>
 		/// Create connection string for azure blob storage
 		/// </summary>
-		public static StorageConnectionString CreateConnectionStringFromSharedKey(
+		public static ConnectionString CreateConnectionStringFromSharedKey(
 		   string accountName,
 		   string accountKey) {
-			var cs = new StorageConnectionString(KnownPrefix.AzureBlobStorage);
-			cs.Parameters[KnownParameter.AccountName] = accountName;
-			cs.Parameters[KnownParameter.KeyOrPassword] = accountKey;
+			var cs = new ConnectionString(ConnectionStringPrefix.AzureBlobStorage);
+			cs.Parameters[ConnectionStringParam.AccountName] = accountName;
+			cs.Parameters[ConnectionStringParam.KeyOrPassword] = accountKey;
 			return cs;
 		}
 
 		/// <summary>
 		/// Create connection string for Azure Blob with Azure AD
 		/// </summary>
-		public static StorageConnectionString CreateConnectionStringFromAzureAd(
+		public static ConnectionString CreateConnectionStringFromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
 		   string applicationSecret) {
-			var cs = new StorageConnectionString(KnownPrefix.AzureBlobStorage);
-			cs.Parameters[KnownParameter.AccountName] = accountName;
-			cs.Parameters[KnownParameter.TenantId] = tenantId;
-			cs.Parameters[KnownParameter.ClientId] = applicationId;
-			cs.Parameters[KnownParameter.ClientSecret] = applicationSecret;
+			var cs = new ConnectionString(ConnectionStringPrefix.AzureBlobStorage);
+			cs.Parameters[ConnectionStringParam.AccountName] = accountName;
+			cs.Parameters[ConnectionStringParam.TenantId] = tenantId;
+			cs.Parameters[ConnectionStringParam.ClientId] = applicationId;
+			cs.Parameters[ConnectionStringParam.ClientSecret] = applicationSecret;
 			return cs;
 		}
 

@@ -1,4 +1,5 @@
-﻿using FluentStorage.Utils.Extensions;
+﻿using FluentStorage.Enums;
+using FluentStorage.Utils.Extensions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -65,12 +66,12 @@ namespace FluentStorage.Storage {
 
 			// this is the mount
 			if (isMountPoint) {
-				var mountBlob = new StorageObject(path, BlobItemKind.Folder) { Tag = storage };
+				var mountBlob = new StorageObject(path, StorageObjectType.Folder) { Tag = storage };
 				mountBlob.TryAddProperties("IsMountPoint", true);
 				blobs.Add(mountBlob);
 			}
 			else {
-				var intBlob = new StorageObject(path, BlobItemKind.Folder);
+				var intBlob = new StorageObject(path, StorageObjectType.Folder);
 				blobs.Add(intBlob);
 			}
 		}

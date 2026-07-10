@@ -9,6 +9,7 @@ using FluentStorage.Tests.Integration.Util;
 using Xunit;
 using FluentStorage.Utils.Extensions;
 using FluentStorage.Utils.Generator;
+using FluentStorage.Enums;
 
 namespace FluentStorage.Tests.Integration.Blobs {
 	[Trait("Category", "Blobs")]
@@ -160,13 +161,13 @@ namespace FluentStorage.Tests.Integration.Blobs {
 				FolderPath = _blobPrefix,
 				Recurse = true
 			});
-			Assert.Contains(files, f => f.FullPath == id1 && f.Kind == BlobItemKind.File);
+			Assert.Contains(files, f => f.FullPath == id1 && f.Type == StorageObjectType.File);
 
 			//server-side filtering
 			files = await _storage.ListFilesAsync(new ListOptions {
 				FolderPath = _blobPrefix,
 				Recurse = true,
-				BrowseFilter = id => (id.Kind != BlobItemKind.File || id.FullPath == id1)
+				BrowseFilter = id => (id.Type != StorageObjectType.File || id.FullPath == id1)
 			});
 
 
@@ -205,7 +206,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 
 				Assert.Contains(new StorageObject(sub + "one.txt"), subItems);
-				Assert.Contains(new StorageObject(sub + "sub", BlobItemKind.Folder), subItems);
+				Assert.Contains(new StorageObject(sub + "sub", StorageObjectType.Folder), subItems);
 			}
 			catch (NotSupportedException) {
 				//hierarchy not supported
@@ -228,8 +229,8 @@ namespace FluentStorage.Tests.Integration.Blobs {
 				Assert.Equal(size, meta.Size);
 			if (meta.MD5 != null)
 				Assert.Equal(md5, meta.MD5);
-			if (meta.LastModificationTime != null)
-				Assert.Equal(DateTime.UtcNow.RoundToDay(), meta.LastModificationTime.Value.DateTime.RoundToDay());
+			if (meta.DateModified != null)
+				Assert.Equal(DateTime.UtcNow.RoundToDay(), meta.DateModified.Value.DateTime.RoundToDay());
 		}
 
 		[Fact]

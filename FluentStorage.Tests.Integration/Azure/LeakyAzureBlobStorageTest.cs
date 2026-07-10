@@ -10,6 +10,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using FluentStorage.Azure.Blobs.Policy;
+using FluentStorage.Exceptions;
+using FluentStorage.Enums;
 
 namespace FluentStorage.Tests.Integration.Azure {
 	[Trait("Category", "Blobs")]
@@ -162,7 +165,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 			IReadOnlyCollection<StorageObject> containers = await _native.ListAsync();
 
 			foreach (StorageObject container in containers) {
-				Assert.Equal(BlobItemKind.Folder, container.Kind);
+				Assert.Equal(StorageObjectType.Folder, container.Type);
 				Assert.True(container.Properties?.ContainsKey("IsContainer"), "isContainer property not present at all");
 				Assert.Equal(true, container.Properties["IsContainer"]);
 			}

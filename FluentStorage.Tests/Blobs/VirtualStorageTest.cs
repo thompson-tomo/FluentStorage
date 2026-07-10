@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FluentStorage.Enums;
 using FluentStorage.Storage;
 using Xunit;
 
@@ -24,7 +25,7 @@ namespace FluentStorage.Tests.Blobs {
 			IReadOnlyCollection<StorageObject> all = await _vs.ListAsync();
 
 			Assert.Equal(1, all.Count);   // "mnt" folder
-			Assert.Equal(new StorageObject("/mnt", BlobItemKind.Folder), all.First());
+			Assert.Equal(new StorageObject("/mnt", StorageObjectType.Folder), all.First());
 		}
 
 		[Fact]
@@ -34,7 +35,7 @@ namespace FluentStorage.Tests.Blobs {
 			IReadOnlyCollection<StorageObject> all = await _vs.ListAsync();
 
 			Assert.Equal(2, all.Count);   // "mnt" folder
-			Assert.Equal(new StorageObject("/mnt", BlobItemKind.Folder), all.First());
+			Assert.Equal(new StorageObject("/mnt", StorageObjectType.Folder), all.First());
 			Assert.Equal(new StorageObject("1.txt"), all.Skip(1).First());
 		}
 

@@ -1,12 +1,13 @@
 ﻿using Azure.Identity;
 using Azure.Storage.Blobs;
 using Azure.Storage.Files.Shares;
-using FluentStorage.Azure.Blobs;
 using FluentStorage.Storage;
 using System;
 using System.Reflection;
 using FluentStorage.Azure;
 using Xunit;
+using FluentStorage.Azure.Blobs.Storage;
+using FluentStorage.Azure.Blobs;
 
 namespace FluentStorage.Tests.Integration.Util {
 	[Trait("Category", "Blobs")]

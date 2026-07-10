@@ -1,4 +1,4 @@
-﻿using FluentStorage.ConnectionString;
+﻿using FluentStorage.ConnectionStrings;
 using FluentStorage.Queue;
 using FluentStorage.Queue.Files;
 

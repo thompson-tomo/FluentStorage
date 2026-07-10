@@ -1,4 +1,4 @@
-﻿using FluentStorage.AWS.Blobs;
+﻿using FluentStorage.AWS.Storage;
 using FluentStorage.Storage;
 
 namespace FluentStorage.AWS.Factory {

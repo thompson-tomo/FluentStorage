@@ -1,6 +1,6 @@
 ﻿using FluentStorage.Storage;
 using FluentStorage.Storage.Files;
-using FluentStorage.ConnectionString;
+using FluentStorage.ConnectionStrings;
 using FluentStorage.Queue;
 using System;
 
@@ -37,14 +37,14 @@ namespace FluentStorage {
 		/// <param name="directoryFullName">Root directory</param>
 		/// </summary>
 		public static IBucket DirectoryFiles(string directoryFullName) {
-			return new DiskDirectoryBlobStorage(directoryFullName);
+			return new DiskStore(directoryFullName);
 		}
 
 		/// <summary>
 		/// Zip file
 		/// </summary>
 		public static IBucket ZipFile(string filePath) {
-			return new ZipFileBlobStorage(filePath);
+			return new ZipStore(filePath);
 		}
 
 		/// <summary>

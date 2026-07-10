@@ -1,4 +1,6 @@
-﻿using FluentStorage.Utils.Extensions;
+﻿using FluentStorage.Enums;
+using FluentStorage.Exceptions;
+using FluentStorage.Utils.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -47,7 +49,7 @@ namespace FluentStorage.Storage {
 		   Func<StorageObject, bool> browseFilter = null,
 		   string filePrefix = null,
 		   bool recurse = false,
-		   RecursionMode recursionMode = RecursionMode.Remote,
+		   StorageRecursion recursionMode = StorageRecursion.Remote,
 		   int numberOfRecursionThreads = ListOptions.MAX_THREADS,
 		   int? maxResults = null,
 		   bool includeAttributes = false,
@@ -206,7 +208,7 @@ namespace FluentStorage.Storage {
 		/// <param name="cancellationToken"></param>
 		/// <exception cref="System.ArgumentNullException">Thrown when any parameter is null</exception>
 		/// <exception cref="System.ArgumentException">Thrown when ID is too long. Long IDs are the ones longer than 50 characters.</exception>
-		/// <exception cref="StorageException">Thrown when blob does not exist, error code set to <see cref="ErrorCode.NotFound"/></exception>
+		/// <exception cref="StorageException">Thrown when blob does not exist, error code set to <see cref="StorageErrorCode.NotFound"/></exception>
 		public static async Task ReadToStreamAsync(
 		   this IBucket provider,
 		   string fullPath, Stream targetStream, CancellationToken cancellationToken = default) {
@@ -379,7 +381,7 @@ namespace FluentStorage.Storage {
 				throw new ArgumentNullException(nameof(newPath));
 
 			//try to use extended client here
-			if (blobStorage is IExtendedBlobStorage extendedBlobStorage) {
+			if (blobStorage is IFileSystem extendedBlobStorage) {
 				await extendedBlobStorage.RenameAsync(oldPath, newPath, cancellationToken).ConfigureAwait(false);
 			}
 			else {
@@ -413,7 +415,7 @@ namespace FluentStorage.Storage {
 		/// <returns></returns>
 		public static async Task CreateFolderAsync(
 		   this IBucket blobStorage, string folderPath, string dummyFileName = null, string dummyFileContent = null, CancellationToken cancellationToken = default) {
-			if (blobStorage is IHierarchicalBlobStorage hierarchicalBlobStorage) {
+			if (blobStorage is IFileSystem hierarchicalBlobStorage) {
 				await hierarchicalBlobStorage.CreateFolderAsync(folderPath, cancellationToken).ConfigureAwait(false);
 			}
 			else {

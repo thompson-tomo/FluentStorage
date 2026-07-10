@@ -1,28 +1,31 @@
-﻿using System;
+﻿using FluentStorage.Enums;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 
 namespace FluentStorage.Storage {
+
 	/// <summary>
-	/// Blob item description
+	/// Manages a single object inside a bucket or file system.
 	/// </summary>
 	public sealed class StorageObject : IEquatable<StorageObject>, ICloneable {
-		/// <summary>
-		/// Gets the kind of item
-		/// </summary>
-		public BlobItemKind Kind { get; private set; }
 
 		/// <summary>
-		/// Simply checks if kind of this item is <see cref="BlobItemKind.Folder"/>
+		/// Gets the type of the storage object (file/folder)
 		/// </summary>
-		public bool IsFolder => Kind == BlobItemKind.Folder;
+		public StorageObjectType Type { get; private set; }
 
 		/// <summary>
-		/// Simply checks if kind of this item is <see cref="BlobItemKind.File"/>
+		/// Returns true if the object is a folder
 		/// </summary>
-		public bool IsFile => Kind == BlobItemKind.File;
+		public bool IsFolder => Type == StorageObjectType.Folder;
+
+		/// <summary>
+		/// Returns true if the object is a file
+		/// </summary>
+		public bool IsFile => Type == StorageObjectType.File;
 
 		/// <summary>
 		/// Gets the folder path containing this item
@@ -47,14 +50,14 @@ namespace FluentStorage.Storage {
 		public string MD5 { get; set; }
 
 		/// <summary>
-		/// Creation time when known
+		/// The date and time when the object was created
 		/// </summary>
-		public DateTimeOffset? CreatedTime { get; set; }
+		public DateTimeOffset? DateCreated { get; set; }
 
 		/// <summary>
-		/// Last modification time when known
+		/// The date and time when the object was last modified
 		/// </summary>
-		public DateTimeOffset? LastModificationTime { get; set; }
+		public DateTimeOffset? DateModified { get; set; }
 
 		/// <summary>
 		/// Gets full path to this blob which is a combination of folder path and blob name
@@ -143,11 +146,11 @@ namespace FluentStorage.Storage {
 		/// Create a new instance
 		/// </summary>
 		/// <param name="fullPath"></param>
-		/// <param name="kind"></param>
-		public StorageObject(string fullPath, BlobItemKind kind = BlobItemKind.File) {
+		/// <param name="objType"></param>
+		public StorageObject(string fullPath, StorageObjectType objType = StorageObjectType.File) {
 			SetFullPath(fullPath);
 
-			Kind = kind;
+			Type = objType;
 		}
 
 		/// <summary>
@@ -155,24 +158,24 @@ namespace FluentStorage.Storage {
 		/// </summary>
 		/// <param name="folderPath">Folder path to the blob</param>
 		/// <param name="name">Name of the blob withing a specific folder.</param>
-		/// <param name="kind">Blob kind (file or folder)</param>
-		public StorageObject(string folderPath, string name, BlobItemKind kind) {
+		/// <param name="objType">Blob kind (file or folder)</param>
+		public StorageObject(string folderPath, string name, StorageObjectType objType) {
 			Name = name ?? throw new ArgumentNullException(nameof(name));
 			Name = StoragePath.NormalizePart(Name);
 			FolderPath = StoragePath.Normalize(folderPath);
-			Kind = kind;
+			Type = objType;
 		}
 
 		/// <summary>
 		/// Returns true if this item is a folder and it's a root folder
 		/// </summary>
-		public bool IsRootFolder => Kind == BlobItemKind.Folder && StoragePath.IsRootPath(FullPath);
+		public bool IsRootFolder => Type == StorageObjectType.Folder && StoragePath.IsRootPath(FullPath);
 
 		/// <summary>
 		/// Full blob info, i.e type, id and path
 		/// </summary>
 		public override string ToString() {
-			string k = Kind == BlobItemKind.File ? "file" : "folder";
+			string k = Type == StorageObjectType.File ? "file" : "folder";
 
 			return $"{k}: {Name}@{FolderPath}";
 		}
@@ -187,7 +190,7 @@ namespace FluentStorage.Storage {
 
 			return
 			   other.FullPath == FullPath &&
-			   other.Kind == Kind;
+			   other.Type == Type;
 		}
 
 		/// <summary>
@@ -209,14 +212,14 @@ namespace FluentStorage.Storage {
 		/// Hash code calculation
 		/// </summary>
 		public override int GetHashCode() {
-			return FullPath.GetHashCode() * Kind.GetHashCode();
+			return FullPath.GetHashCode() * Type.GetHashCode();
 		}
 
 		/// <summary>
 		/// Constructs a file blob by full ID
 		/// </summary>
 		public static implicit operator StorageObject(string fullPath) {
-			return new StorageObject(fullPath, BlobItemKind.File);
+			return new StorageObject(fullPath, StorageObjectType.File);
 		}
 
 		/// <summary>

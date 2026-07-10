@@ -1,6 +1,6 @@
 ﻿using Renci.SshNet;
 using FluentStorage.Storage;
-using FluentStorage.ConnectionString;
+using FluentStorage.ConnectionStrings;
 using FluentStorage.SFTP;
 
 namespace FluentStorage {
@@ -25,7 +25,7 @@ namespace FluentStorage {
 		/// <param name="connectionInfo">The connection info.</param>
 		/// <exception cref="T:System.ArgumentNullException"><paramref name="connectionInfo" /> is <b>null</b>.</exception>
 		public static IBucket FromConnectionInfo(ConnectionInfo connectionInfo)
-		   => new SshNetSftpBlobStorage(connectionInfo);
+		   => new SftpStore(connectionInfo);
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="T:FluentStorage.SFTP.SshNetSftpBlobStorage" /> class.
@@ -38,7 +38,7 @@ namespace FluentStorage {
 		/// <exception cref="T:System.ArgumentException"><paramref name="host" /> is invalid. <para>-or-</para> <paramref name="username" /> is <b>null</b> or contains only whitespace characters.</exception>
 		/// <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="port" /> is not within <see cref="F:System.Net.IPEndPoint.MinPort" /> and <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
 		public static IBucket FromCredentials(string host, int port, string username, string password)
-		   => new SshNetSftpBlobStorage(host, port, username, password, null);
+		   => new SftpStore(host, port, username, password, null);
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="T:FluentStorage.SFTP.SshNetSftpBlobStorage" /> class.
@@ -49,7 +49,7 @@ namespace FluentStorage {
 		/// <exception cref="T:System.ArgumentNullException"><paramref name="password" /> is <b>null</b>.</exception>
 		/// <exception cref="T:System.ArgumentException"><paramref name="host" /> is invalid. <para>-or-</para> <paramref name="username" /> is <b>null</b> contains only whitespace characters.</exception>
 		public static IBucket FromCredentials(string host, string username, string password)
-		   => new SshNetSftpBlobStorage(host, username, password);
+		   => new SftpStore(host, username, password);
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="T:FluentStorage.SFTP.SshNetSftpBlobStorage" /> class.
@@ -62,7 +62,7 @@ namespace FluentStorage {
 		/// <exception cref="T:System.ArgumentException"><paramref name="host" /> is invalid. <para>-or-</para> <paramref name="username" /> is nu<b>null</b>ll or contains only whitespace characters.</exception>
 		/// <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="port" /> is not within <see cref="F:System.Net.IPEndPoint.MinPort" /> and <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
 		public static IBucket FromPrivateKey(string host, int port, string username, params PrivateKeyFile[] keyFiles)
-		   => new SshNetSftpBlobStorage(host, port, username, keyFiles);
+		   => new SftpStore(host, port, username, keyFiles);
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="T:FluentStorage.SFTP.SshNetSftpBlobStorage" /> class.
@@ -73,7 +73,7 @@ namespace FluentStorage {
 		/// <exception cref="T:System.ArgumentNullException"><paramref name="keyFiles" /> is <b>null</b>.</exception>
 		/// <exception cref="T:System.ArgumentException"><paramref name="host" /> is invalid. <para>-or-</para> <paramref name="username" /> is <b>null</b> or contains only whitespace characters.</exception>
 		public static IBucket FromPrivateKey(string host, string username, params PrivateKeyFile[] keyFiles)
-		   => new SshNetSftpBlobStorage(host, username, keyFiles);
+		   => new SftpStore(host, username, keyFiles);
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="T:FluentStorage.SFTP.SshNetSftpBlobStorage" /> class.
@@ -82,6 +82,6 @@ namespace FluentStorage {
 		/// <param name="disposeClient">if set to <see langword="true" /> [dispose client].</param>
 		/// <exception cref="System.ArgumentNullException">sftpClient</exception>
 		public static IBucket FromClient(SftpClient sftpClient, bool disposeClient = false)
-		   => new SshNetSftpBlobStorage(sftpClient, disposeClient);
+		   => new SftpStore(sftpClient, disposeClient);
 	}
 }

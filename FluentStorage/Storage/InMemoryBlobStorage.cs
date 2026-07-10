@@ -7,6 +7,7 @@ using System.Threading;
 using FluentStorage.Streaming;
 using FluentStorage.Utils.Extensions;
 using FluentStorage.Utils.IO;
+using FluentStorage.Enums;
 
 namespace FluentStorage.Storage {
 	class InMemoryBlobStorage : IBucket {
@@ -176,7 +177,7 @@ namespace FluentStorage.Storage {
 					data = data,
 					blob = new StorageObject(fullPath) {
 						Size = data.Length,
-						LastModificationTime = DateTime.UtcNow,
+						DateModified = DateTime.UtcNow,
 						MD5 = data.MD5().ToHexString()
 					}
 				};
@@ -184,7 +185,7 @@ namespace FluentStorage.Storage {
 			else {
 				tag.data = data;
 				tag.blob.Size = data.Length;
-				tag.blob.LastModificationTime = DateTime.UtcNow;
+				tag.blob.DateModified = DateTime.UtcNow;
 				tag.blob.MD5 = data.MD5().ToHexString();
 			}
 			_pathToTag[fullPath] = tag;
@@ -196,7 +197,7 @@ namespace FluentStorage.Storage {
 			string path = fileBlob.FolderPath;
 
 			while (!StoragePath.IsRootPath(path)) {
-				var vf = new StorageObject(path, BlobItemKind.Folder);
+				var vf = new StorageObject(path, StorageObjectType.Folder);
 				_pathToTag[path] = new Tag { blob = vf };
 
 				path = StoragePath.GetParent(path);

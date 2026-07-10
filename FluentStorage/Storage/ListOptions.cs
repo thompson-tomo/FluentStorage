@@ -1,4 +1,5 @@
-﻿using FluentStorage.Utils.Extensions;
+﻿using FluentStorage.Enums;
+using FluentStorage.Utils.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,7 +59,7 @@ namespace FluentStorage.Storage {
 		///  * Azure/GCP/FTP : recursion always occurs remotely regardless of this setting
 		///  * SFTP/Disk/ZIP : recursion always occurs locally regardless of this setting
 		/// </summary>
-		public RecursionMode RecursionMode { get; set; } = RecursionMode.Remote;
+		public StorageRecursion RecursionMode { get; set; } = StorageRecursion.Remote;
 
 		/// <summary>
 		/// Specify the number of parallel tasks to use when querying (default 10)
@@ -88,7 +89,7 @@ namespace FluentStorage.Storage {
 		/// Helper method that returns true if a <see cref="StorageObject"/> matches these list options.
 		/// </summary>
 		public bool IsMatch(StorageObject blob) {
-			return _prefix == null || blob.Kind != BlobItemKind.File || blob.Name.StartsWith(_prefix);
+			return _prefix == null || blob.Type != StorageObjectType.File || blob.Name.StartsWith(_prefix);
 		}
 
 		/// <summary>

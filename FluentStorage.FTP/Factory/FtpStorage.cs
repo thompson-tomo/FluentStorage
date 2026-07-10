@@ -2,8 +2,9 @@
 using System.Net;
 using FluentFTP;
 using FluentStorage.Storage;
-using FluentStorage.ConnectionString;
+using FluentStorage.ConnectionStrings;
 using FluentStorage.FTP;
+using FluentStorage.FTP.Storage;
 
 namespace FluentStorage {
 	/// <summary>
@@ -27,7 +28,7 @@ namespace FluentStorage {
 		public static IBucket FromCredentials(
 		   string hostNameOrAddress, NetworkCredential credentials,
 		   FtpDataConnectionType dataConnectionType = FtpDataConnectionType.AutoActive) {
-			return new FluentFtpBlobStorage(hostNameOrAddress, credentials, dataConnectionType);
+			return new FtpStore(hostNameOrAddress, credentials, dataConnectionType);
 		}
 
 		/// <summary>
@@ -35,7 +36,7 @@ namespace FluentStorage {
 		/// </summary>
 		public static IBucket FromClient(
 		   AsyncFtpClient ftpClient) {
-			return new FluentFtpBlobStorage(ftpClient, false);
+			return new FtpStore(ftpClient, false);
 		}
 
 	}

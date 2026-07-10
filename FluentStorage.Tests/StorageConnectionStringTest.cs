@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FluentStorage.ConnectionString;
+using FluentStorage.ConnectionStrings;
 using Xunit;
 
 namespace FluentStorage.Tests {
@@ -12,9 +12,9 @@ namespace FluentStorage.Tests {
 		public void Ideal_connection_string_parsed() {
 			string cs = "azure.blob://account=accname;key=keywithequals==;container=me";
 
-			var scs = new StorageConnectionString(cs);
+			var scs = new ConnectionString(cs);
 
-			Assert.Equal(cs, scs.ConnectionString);
+			Assert.Equal(cs, scs.Raw);
 
 			scs.GetRequired("account", false, out string account);
 			scs.GetRequired("key", false, out string key);
@@ -29,7 +29,7 @@ namespace FluentStorage.Tests {
 
 		[Fact]
 		public void Construct_with_prefix() {
-			var cs = new StorageConnectionString("disk");
+			var cs = new ConnectionString("disk");
 
 			Assert.Equal("disk", cs.Prefix);
 			Assert.Empty(cs.Parameters);
@@ -37,7 +37,7 @@ namespace FluentStorage.Tests {
 
 		[Fact]
 		public void Build_with_parameter_map() {
-			var cs = new StorageConnectionString("aws.s3");
+			var cs = new ConnectionString("aws.s3");
 			cs.Parameters["key1"] = "value1";
 			cs.Parameters["key2"] = "value2";
 
@@ -46,7 +46,7 @@ namespace FluentStorage.Tests {
 
 		[Fact]
 		public void Parameter_with_no_value() {
-			var cs = new StorageConnectionString("local://account=my;msi");
+			var cs = new ConnectionString("local://account=my;msi");
 
 			Assert.True(cs.Parameters.ContainsKey("msi"));
 		}
@@ -55,7 +55,7 @@ namespace FluentStorage.Tests {
 		public void Native_Parsed() {
 			const string native = "t=6;iiiifldjfljd fla dfj;;df";
 
-			var cs = new StorageConnectionString("local://native=" + native);
+			var cs = new ConnectionString("local://native=" + native);
 
 			Assert.Equal("local", cs.Prefix);
 			Assert.Single(cs.Parameters);
@@ -73,12 +73,12 @@ namespace FluentStorage.Tests {
 		[InlineData("va=lue")]
 		[InlineData("va;lue")]
 		public void Handles_special_characters(string valueToSave) {
-			var cs = new StorageConnectionString("local://");
+			var cs = new ConnectionString("local://");
 			cs["key"] = valueToSave;
 
 			string css = cs.ToString();
 
-			cs = new StorageConnectionString(css);
+			cs = new ConnectionString(css);
 			Assert.Equal(valueToSave, cs["key"]);
 		}
 	}

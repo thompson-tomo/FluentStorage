@@ -5,7 +5,8 @@ using Azure.Storage.Files.Shares;
 using FluentStorage.Azure.Files;
 using FluentStorage.Azure;
 using FluentStorage.Storage;
-using FluentStorage.ConnectionString;
+using FluentStorage.ConnectionStrings;
+using FluentStorage.Azure.Files.Storage;
 
 namespace FluentStorage {
 	/// <summary>
@@ -28,7 +29,7 @@ namespace FluentStorage {
 				throw new ArgumentNullException(nameof(shareServiceClient));
 			}
 
-			return new AzureFilesBlobStore(shareServiceClient, shareServiceClient.AccountName);
+			return new AzureFilesStore(shareServiceClient, shareServiceClient.AccountName);
 		}
 
 		/// <summary>
@@ -91,7 +92,7 @@ namespace FluentStorage {
 			var credential = new StorageSharedKeyCredential(accountName, key);
 			var client = new ShareServiceClient(serviceUri ?? GetServiceUri(accountName, cloudEnvironment), credential);
 
-			return new AzureFilesBlobStore(client, accountName);
+			return new AzureFilesStore(client, accountName);
 		}
 
 		/// <summary>
@@ -161,7 +162,7 @@ namespace FluentStorage {
 
 			var client = new ShareServiceClient(GetServiceUri(accountName, cloudEnvironment), credential);
 
-			return new AzureFilesBlobStore(client, accountName);
+			return new AzureFilesStore(client, accountName);
 		}
 
 		/// <summary>
@@ -189,7 +190,7 @@ namespace FluentStorage {
 
 			var client = new ShareServiceClient(GetServiceUri(accountName, azureCloudEnvironment), tokenCredential);
 
-			return new AzureFilesBlobStore(client, accountName);
+			return new AzureFilesStore(client, accountName);
 		}
 
 		/// <summary>
@@ -232,34 +233,34 @@ namespace FluentStorage {
 
 			var client = new ShareServiceClient(GetServiceUri(accountName, azureCloudEnvironment), credential);
 
-			return new AzureFilesBlobStore(client, accountName);
+			return new AzureFilesStore(client, accountName);
 		}
 
 		/// <summary>
 		/// Create connection string for Azure Files with Shared Key
 		/// </summary>
-		public static StorageConnectionString CreateConnectionStringFromSharedKey(
+		public static ConnectionString CreateConnectionStringFromSharedKey(
 		   string accountName,
 		   string accountKey) {
-			var cs = new StorageConnectionString(KnownPrefix.AzureFilesStorage);
-			cs.Parameters[KnownParameter.AccountName] = accountName;
-			cs.Parameters[KnownParameter.KeyOrPassword] = accountKey;
+			var cs = new ConnectionString(ConnectionStringPrefix.AzureFilesStorage);
+			cs.Parameters[ConnectionStringParam.AccountName] = accountName;
+			cs.Parameters[ConnectionStringParam.KeyOrPassword] = accountKey;
 			return cs;
 		}
 
 		/// <summary>
 		/// Create connection string for Azure Files with Azure AD
 		/// </summary>
-		public static StorageConnectionString CreateConnectionStringFromAzureAd(
+		public static ConnectionString CreateConnectionStringFromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
 		   string applicationSecret) {
-			var cs = new StorageConnectionString(KnownPrefix.AzureFilesStorage);
-			cs.Parameters[KnownParameter.AccountName] = accountName;
-			cs.Parameters[KnownParameter.TenantId] = tenantId;
-			cs.Parameters[KnownParameter.ClientId] = applicationId;
-			cs.Parameters[KnownParameter.ClientSecret] = applicationSecret;
+			var cs = new ConnectionString(ConnectionStringPrefix.AzureFilesStorage);
+			cs.Parameters[ConnectionStringParam.AccountName] = accountName;
+			cs.Parameters[ConnectionStringParam.TenantId] = tenantId;
+			cs.Parameters[ConnectionStringParam.ClientId] = applicationId;
+			cs.Parameters[ConnectionStringParam.ClientSecret] = applicationSecret;
 			return cs;
 		}
 

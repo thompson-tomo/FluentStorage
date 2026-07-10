@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Amazon;
-using FluentStorage.AWS.Blobs;
+using FluentStorage.AWS.Storage;
 using FluentStorage.Storage;
 using Xunit;
 

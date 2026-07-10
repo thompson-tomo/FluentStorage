@@ -2,7 +2,7 @@
 using Azure.Identity;
 using FluentStorage.Storage;
 using FluentStorage.Azure.KeyVault;
-using FluentStorage.Azure.KeyVault.Blobs;
+using FluentStorage.Azure.KeyVault.Storage;
 using System;
 using System.Net;
 
@@ -33,7 +33,7 @@ namespace FluentStorage {
 					applicationSecret,
 					new TokenCredentialOptions() { AuthorityHost = new Uri(activeDirectoryAuthEndpoint) });
 
-			return new AzureKeyVaultBlobStorageProvider(vaultUri, credential);
+			return new AzureKeyVaultStore(vaultUri, credential);
 		}
 
 		/// <summary>
@@ -43,7 +43,7 @@ namespace FluentStorage {
 		/// <param name="vaultUri"></param>
 		/// <returns></returns>
 		public static IBucket FromMsi(Uri vaultUri) {
-			return new AzureKeyVaultBlobStorageProvider(vaultUri, new ManagedIdentityCredential());
+			return new AzureKeyVaultStore(vaultUri, new ManagedIdentityCredential());
 		}
 
 	}

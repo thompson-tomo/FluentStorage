@@ -1,0 +1,75 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "..",
+          "files": [
+            "FluentStorage/FluentStorage.csproj",
+            "FluentStorage.AWS/FluentStorage.AWS.csproj",
+            "FluentStorage.Azure/FluentStorage.Azure.csproj",
+            "FluentStorage.Azure.Blobs/FluentStorage.Azure.Blobs.csproj",
+            "FluentStorage.Azure.Files/FluentStorage.Azure.Files.csproj",
+            "FluentStorage.Azure.KeyVault/FluentStorage.Azure.KeyVault.csproj",
+            "FluentStorage.Azure.Queues/FluentStorage.Azure.Queues.csproj",
+            "FluentStorage.Azure.ServiceBus/FluentStorage.Azure.ServiceBus.csproj",
+            "FluentStorage.FTP/FluentStorage.FTP.csproj",
+            "FluentStorage.GCP/FluentStorage.GCP.csproj",
+            "FluentStorage.SFTP/FluentStorage.SFTP.csproj"
+          ]
+        }
+      ],
+      "dest": "api",
+      "properties": {
+        "TargetFramework": "netstandard2.0"
+      }
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "toc.yml",
+          "index.md",
+          "articles/**.md",
+          "articles/toc.yml",
+          "api/**.yml",
+          "api/index.md"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "images/**"
+        ]
+      }
+    ],
+    "dest": "_site",
+    "globalMetadata": {
+      "_appName":"FluentStorage",
+      "_disableContribution": false,
+      "_enableSearch": true,
+      "_gitContribute": {
+        "branch": "develop",
+        "apiSpecFolder":"api",
+        "repo": "https://github.com/robinrodricks/FluentStorage"
+      },
+      "_gitUrlPattern": "github",
+      "_disableSideFilter":true,
+      "_appLogoPath": "images/logo.png"
+    },
+    "globalMetadataFiles": [],
+    "fileMetadataFiles": [],
+    "template": [
+      "default",
+      "modern",
+      "templates"
+    ],
+    "postProcessors": [ "ExtractSearchIndex" ],
+    "noLangKeyword": false,
+    "keepFileLink": true,
+    "cleanupCacheHistory": false,
+    "disableGitFeatures": false
+  }
+}

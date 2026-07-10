@@ -31,6 +31,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentStorage.Tests.FTP", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentStorage.Azure", "FluentStorage.Azure\FluentStorage.Azure.csproj", "{D5FC3BA6-3C86-4DE5-A3E7-BA5F3AA1623C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{FF16C733-2521-4D9B-9B32-7834EFD89BA8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentStorage.Docs", "docs\FluentStorage.Docs.csproj", "{765ADC12-5BCC-4BEE-8B6A-EB05800D7DAA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -209,11 +213,26 @@ Global
 		{D5FC3BA6-3C86-4DE5-A3E7-BA5F3AA1623C}.Release|x64.Build.0 = Release|Any CPU
 		{D5FC3BA6-3C86-4DE5-A3E7-BA5F3AA1623C}.Release|x86.ActiveCfg = Release|Any CPU
 		{D5FC3BA6-3C86-4DE5-A3E7-BA5F3AA1623C}.Release|x86.Build.0 = Release|Any CPU
+		{765ADC12-5BCC-4BEE-8B6A-EB05800D7DAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{765ADC12-5BCC-4BEE-8B6A-EB05800D7DAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{765ADC12-5BCC-4BEE-8B6A-EB05800D7DAA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{765ADC12-5BCC-4BEE-8B6A-EB05800D7DAA}.Debug|x64.Build.0 = Debug|Any CPU
+		{765ADC12-5BCC-4BEE-8B6A-EB05800D7DAA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{765ADC12-5BCC-4BEE-8B6A-EB05800D7DAA}.Debug|x86.Build.0 = Debug|Any CPU
+		{765ADC12-5BCC-4BEE-8B6A-EB05800D7DAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{765ADC12-5BCC-4BEE-8B6A-EB05800D7DAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{765ADC12-5BCC-4BEE-8B6A-EB05800D7DAA}.Release|x64.ActiveCfg = Release|Any CPU
+		{765ADC12-5BCC-4BEE-8B6A-EB05800D7DAA}.Release|x64.Build.0 = Release|Any CPU
+		{765ADC12-5BCC-4BEE-8B6A-EB05800D7DAA}.Release|x86.ActiveCfg = Release|Any CPU
+		{765ADC12-5BCC-4BEE-8B6A-EB05800D7DAA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5D54105E-9F32-4017-85A4-4DB893648110}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{765ADC12-5BCC-4BEE-8B6A-EB05800D7DAA} = {FF16C733-2521-4D9B-9B32-7834EFD89BA8}
 	EndGlobalSection
 EndGlobal

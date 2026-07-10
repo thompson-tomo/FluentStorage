@@ -13,7 +13,7 @@ namespace FluentStorage.AWS.Factory {
 		/// <param name="hostName">Storage endpoint hostname (e.g. `sgp1.vultrobjects.com`)</param>
 		/// <param name="sessionToken">Optional. Only required when using session credentials.</param>
 		/// <returns>A reference to the created storage</returns>
-		public static S3Store FromCredentials(
+		public static IBucket FromCredentials(
 			string accessKeyId,
 			string secretAccessKey,
 			string bucketName,

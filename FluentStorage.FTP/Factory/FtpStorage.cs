@@ -25,7 +25,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Constructs an instance of FTP client from host name and credentials
 		/// </summary>
-		public static FtpStore FromCredentials(
+		public static IBucket FromCredentials(
 		   string hostNameOrAddress, NetworkCredential credentials,
 		   FtpDataConnectionType dataConnectionType = FtpDataConnectionType.AutoActive) {
 			return new FtpStore(hostNameOrAddress, credentials, dataConnectionType);
@@ -34,7 +34,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Constructs an instance of FTP client by accepting a custom instance of FluentFTP client
 		/// </summary>
-		public static FtpStore FromClient(
+		public static IBucket FromClient(
 		   AsyncFtpClient ftpClient) {
 			return new FtpStore(ftpClient, false);
 		}

@@ -45,7 +45,6 @@ namespace FluentStorage.AWS.Messaging {
 			return _queueNameToUri.GetOrAdd(queueName, qn => new Uri(new Uri(_serviceUrl), queueName).ToString());
 		}
 
-		#region [ IMessenger ]
 
 		public async Task CreateChannelsAsync(IEnumerable<string> channelNames, CancellationToken cancellationToken = default) {
 			await Task.WhenAll(channelNames.Select(cn => _client.CreateQueueAsync(cn, cancellationToken))).ConfigureAwait(false);
@@ -136,6 +135,5 @@ namespace FluentStorage.AWS.Messaging {
 		public Task DeleteAsync(string channelName, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) => throw new NotImplementedException();
 		public Task StartMessageProcessorAsync(string channelName, IQueueProcessor messageProcessor) => throw new NotImplementedException();
 
-		#endregion
 	}
 }

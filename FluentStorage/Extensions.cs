@@ -27,7 +27,6 @@ namespace FluentStorage {
 			return new LargeMessageMessenger(messenger, offloadStorage, minSizeLarge, blobPathGenerator, false);
 		}
 
-		#region [ Data Decorators ]
 
 		/// <summary>
 		/// 
@@ -109,7 +108,6 @@ namespace FluentStorage {
 
 #endif
 
-		#endregion
 
 	}
 }

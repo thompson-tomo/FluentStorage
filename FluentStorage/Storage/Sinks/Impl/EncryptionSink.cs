@@ -35,7 +35,6 @@ namespace FluentStorage.Storage.Sinks.Impl {
 		/// </summary>
 		public string Secret => Convert.ToBase64String(_cryptoAlgorithm.IV);
 
-		#region ITransformSink impls
 
 		/// <summary>
 		/// 
@@ -47,7 +46,6 @@ namespace FluentStorage.Storage.Sinks.Impl {
 		/// </summary>
 		public Stream OpenWriteStream(string fullPath, Stream parentStream) => new CryptoStream(parentStream, _cryptoAlgorithm.CreateEncryptor(), CryptoStreamMode.Write);
 
-		#endregion
 	}
 }
 #endif

@@ -86,7 +86,6 @@ namespace FluentStorage.Azure.Queues {
 			return queue;
 		}
 
-		#region [ IMessenger ]
 
 		public async Task CreateChannelsAsync(IEnumerable<string> channelNames, CancellationToken cancellationToken = default) {
 			await Task.WhenAll(channelNames.Select(cn => GetQueueAsync(cn, true))).ConfigureAwait(false);
@@ -195,7 +194,6 @@ namespace FluentStorage.Azure.Queues {
 		public Task StartMessageProcessorAsync(string channelName, IQueueProcessor messageProcessor) => throw new NotImplementedException();
 
 
-		#endregion
 
 	}
 }

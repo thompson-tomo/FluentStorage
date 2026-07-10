@@ -24,7 +24,6 @@ namespace FluentStorage.Azure.KeyVault.Blobs {
 			_vaultUri = vaultUri.ToString().Trim('/');
 		}
 
-		#region [ IBlobStorage ]
 
 		public async Task<IReadOnlyCollection<StorageObject>> ListAsync(ListOptions options, CancellationToken cancellationToken) {
 			if (options == null) options = new ListOptions();
@@ -165,7 +164,6 @@ namespace FluentStorage.Azure.KeyVault.Blobs {
 			}
 		}
 
-		#endregion
 
 		private static string NormaliseSecretName(string fullPath) {
 			fullPath = StoragePath.Normalize(fullPath).Substring(1);

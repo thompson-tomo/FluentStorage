@@ -44,7 +44,7 @@ namespace Blobs {
 			var endpoint = AzureCloudEndpoints.GetDataLakeEndpoint(azureCloudEnvironment);
 			return $"https://{accountName}.{endpoint}/";
 		}
-		  
+
 
 		private static HttpPipeline GetHttpPipeline(BlobServiceClient sdkClient) {
 			PropertyInfo httpPipelineProperty =
@@ -178,7 +178,6 @@ namespace Blobs {
 			}
 		}
 
-		#region [ Native Browsing ]
 
 		public async Task<IReadOnlyCollection<StorageObject>> ListAsync(
 		   ListOptions options, CancellationToken cancellationToken) {
@@ -267,7 +266,6 @@ namespace Blobs {
 			return result.ToList();
 		}
 
-		#endregion
 
 		private HttpMessage CreateHttpMessage(
 		   string relativeUrl,

@@ -60,7 +60,6 @@ namespace FluentStorage.Queue.Files {
 		}
 		private string GetChannelPath(string channelName) => Path.Combine(_root, channelName);
 
-		#region [ IMessenger ]
 
 		public Task CreateChannelsAsync(IEnumerable<string> channelNames, CancellationToken cancellation = default) {
 			foreach (string channelName in channelNames) {
@@ -147,7 +146,6 @@ namespace FluentStorage.Queue.Files {
 
 		public Task DeleteAsync(string channelName, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) => throw new NotImplementedException();
 
-		#endregion
 
 		private IReadOnlyCollection<QueueMessage> GetMessages(
 		   string channelName,

@@ -9,14 +9,9 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace FluentStorage.Storage {
-	/// <summary>
-	/// Blob storage on steroids. Takes in <see cref="IBucket"/> and adds a lot of extra useful operations on top we as
-	/// normal people use every day.
-	/// </summary>
 	public static class BlobStorageExtensions {
 		private const int BufferSize = 81920;
 
-		#region [ List Helpers ]
 
 		/// <summary>
 		/// Returns the list of available files, excluding folders.
@@ -74,9 +69,7 @@ namespace FluentStorage.Storage {
 			return blobStorage.ListAsync(options, cancellationToken);
 		}
 
-		#endregion
 
-		#region [ Text ]
 
 		/// <summary>
 		/// Reads blob content and converts to text in UTF-8 encoding
@@ -121,9 +114,7 @@ namespace FluentStorage.Storage {
 			}
 		}
 
-		#endregion
 
-		#region [ Singletons ]
 
 		/// <summary>
 		/// Checksi if blobs exists in the storage
@@ -174,9 +165,7 @@ namespace FluentStorage.Storage {
 			return storage.SetBlobsAsync(new[] { blob }, cancellationToken);
 		}
 
-		#endregion
 
-		#region [ Bytes ]
 
 		/// <summary>
 		/// Writes byte array to the target storage. If you can, never use large byte arrays, they are terrible!
@@ -206,9 +195,7 @@ namespace FluentStorage.Storage {
 			return ms.ToArray();
 		}
 
-		#endregion
 
-		#region [ Streaming ]
 
 		/// <summary>
 		/// Downloads blob to a stream
@@ -234,9 +221,7 @@ namespace FluentStorage.Storage {
 			}
 		}
 
-		#endregion
 
-		#region [ Files ]
 
 		/// <summary>
 		/// Downloads a blob to the local filesystem.
@@ -274,9 +259,7 @@ namespace FluentStorage.Storage {
 			}
 		}
 
-		#endregion
 
-		#region [ Objects ]
 
 		/// <summary>
 		/// Writes an object to blob storage using <see cref="JsonSerializer"/>
@@ -331,9 +314,7 @@ namespace FluentStorage.Storage {
 			}
 		}
 
-		#endregion
 
-		#region [ Uniqueue ]
 
 		/// <summary>
 		/// Copies blob to another storage
@@ -420,9 +401,7 @@ namespace FluentStorage.Storage {
 
 		}
 
-		#endregion
 
-		#region [ Folders ]
 
 		/// <summary>
 		/// Creates a new folder in this storage. If storage supports hierarchy, the folder is created as is, otherwise a folder is created by putting a dummy zero size file in that folder.
@@ -454,6 +433,5 @@ namespace FluentStorage.Storage {
 			}
 		}
 
-		#endregion
 	}
 }

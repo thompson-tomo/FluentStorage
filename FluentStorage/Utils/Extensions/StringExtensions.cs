@@ -38,7 +38,6 @@
 			return raw;
 		}
 
-		#region [ HTML Helpers ]
 
 		/// <summary>
 		/// Strips HTML string from any tags leaving text only.
@@ -59,9 +58,7 @@
 			return Regex.Replace(s, HtmlStripPattern, string.Empty);
 		}
 
-		#endregion
 
-		#region [ Encoding ]
 
 		/// <summary>
 		/// Encodes a string to BASE64 format
@@ -123,9 +120,7 @@
 			return Encoding.UTF8.GetBytes(s);
 		}
 
-		#endregion
 
-		#region [ Hashing ]
 
 		public static string? MD5(this string? s) {
 			if (s == null)
@@ -149,9 +144,7 @@
 		}
 
 
-		#endregion
 
-		#region [ Stream Conversion ]
 
 		/// <summary>
 		/// Converts to MemoryStream with a specific encoding
@@ -173,9 +166,7 @@
 			return ToMemoryStream(s, null);
 		}
 
-		#endregion
 
-		#region [ String Manipulation ]
 
 		private static bool FindTagged(ref string s, ref string startToken, ref string endToken, bool includeOuterTokens, out int startIdx, out int length) {
 			int idx0 = s.IndexOf(startToken, StringComparison.Ordinal);
@@ -384,9 +375,7 @@
 		}
 
 
-		#endregion
 
-		#region [ JSON ]
 
 		/// <summary>
 		/// Escapes a string for JSON encoding
@@ -441,9 +430,7 @@
 			return result;
 		}
 
-		#endregion
 
-		#region [ Networking ]
 
 		/// <summary>
 		/// Treat this string as URL and download it as stream
@@ -465,6 +452,5 @@
 			return tf;
 		}
 
-		#endregion
 	}
 }

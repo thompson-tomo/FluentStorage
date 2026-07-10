@@ -59,11 +59,6 @@
 		// [ADD STORAGE PROVIDER]
 
 		/// <summary>
-		/// Databricks on Azure or AWS
-		/// </summary>
-		public static string Databricks = "databricks";
-
-		/// <summary>
 		/// Azure Data Lake Gen 1
 		/// </summary>
 		public static string AzureDataLakeGen1 = "azure.datalake.gen1";
@@ -87,11 +82,6 @@
 		/// Azure Blob Storage
 		/// </summary>
 		public const string AzureBlobStorage = "azure.blob";
-
-		/// <summary>
-		/// Azure Event Hubs
-		/// </summary>
-		public const string AzureEventHub = "azure.eventhub";
 
 		/// <summary>
 		/// Azure File Storage

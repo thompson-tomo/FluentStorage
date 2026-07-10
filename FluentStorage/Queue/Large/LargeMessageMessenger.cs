@@ -49,7 +49,6 @@ namespace FluentStorage.Queue.Large {
 		}
 
 
-		#region [ IMessenger ]
 
 		public Task<IReadOnlyCollection<string>> ListChannelsAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
 		public Task<long> GetMessageCountAsync(string channelName, CancellationToken cancellationToken = default) => throw new NotImplementedException();
@@ -71,6 +70,5 @@ namespace FluentStorage.Queue.Large {
 		public Task DeleteAsync(string channelName, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) => throw new NotImplementedException();
 		public Task StartMessageProcessorAsync(string channelName, IQueueProcessor messageProcessor) => throw new NotImplementedException();
 
-		#endregion
 	}
 }

@@ -8,11 +8,10 @@ using FluentStorage.AWS.Factory;
 
 namespace FluentStorage.Tests.Integration.Messaging {
 
-	#region [ Azure Storage Queue ]
 
 	public class AzureStorageQueueFixture : MessagingFixture {
 		protected override IQueue CreateMessenger(ITestSettings settings) =>
-		   AzureQueueStorage.FromCredentials(settings.AzureStorageName,settings.AzureStorageKey);
+		   AzureQueueStorage.FromCredentials(settings.AzureStorageName, settings.AzureStorageKey);
 	}
 
 	public class AzureStorageQueueTest : MessagingTest, IClassFixture<AzureStorageQueueFixture> {
@@ -20,9 +19,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 		}
 	}
 
-	#endregion
 
-	#region [ In-Memory ]
 
 	public class InMemoryFixture : MessagingFixture {
 		protected override IQueue CreateMessenger(ITestSettings settings) {
@@ -35,9 +32,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 		}
 	}
 
-	#endregion
 
-	#region [ Disk ]
 
 	public class DiskFixture : MessagingFixture {
 		protected override IQueue CreateMessenger(ITestSettings settings) {
@@ -50,9 +45,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 		}
 	}
 
-	#endregion
 
-	#region [ AWS SQS ]
 
 	public class AwsSQSFixture : MessagingFixture {
 		protected override IQueue CreateMessenger(ITestSettings settings) {
@@ -69,9 +62,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 		public AwsSQSTest(AwsSQSFixture fixture) : base(fixture) {
 		}
 	}
-	#endregion
 
-	#region [ Azure Service Bus ]
 
 	public class AzureServiceBusFixture : MessagingFixture {
 		protected override IQueue CreateMessenger(ITestSettings settings) {
@@ -96,6 +87,5 @@ namespace FluentStorage.Tests.Integration.Messaging {
 		}
 	}
 
-	#endregion
 
 }

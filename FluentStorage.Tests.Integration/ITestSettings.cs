@@ -21,7 +21,6 @@ namespace FluentStorage.Tests {
 
 		string TenantId { get; }
 
-		#region [ Azure ]
 
 		string AzureStorageName { get; }
 
@@ -35,17 +34,13 @@ namespace FluentStorage.Tests {
 
 		string AzureServiceBusConnectionString { get; }
 
-		string AzureEventHubConnectionString { get; }
-
 		string AzureStorageNativeConnectionString { get; }
 
 		string AzureGen1StorageName { get; }
 
 		Uri AzureKeyVaultUri { get; }
 
-		#endregion
 
-		#region [ Amazon Web Services ]
 
 		[Option(Alias = "Aws.AccessKeyId")]
 		string AwsAccessKeyId { get; }
@@ -59,9 +54,7 @@ namespace FluentStorage.Tests {
 		[Option(Alias = "Aws.TestBucketRegion", DefaultValue = "eu-west-1")]
 		string AwsTestBucketRegion { get; }
 
-		#endregion
 
-		#region [ Google Cloud Platform ]
 
 		[Option(Alias = "Gcp.Storage.BucketName")]
 		string GcpStorageBucketName { get; }
@@ -69,17 +62,13 @@ namespace FluentStorage.Tests {
 		[Option(Alias = "Gcp.Storage.JsonKey")]
 		string GcpStorageJsonCreds { get; }
 
-		#endregion
 
 
-		#region [ MSSQL ]
 
 		[Option(Alias = "Mssql.ConnectionString")]
 		string MssqlConnectionString { get; }
 
-		#endregion
 
-		#region [ General ]
 
 		[Option(Alias = "Ftp.Hostname")]
 		string FtpHostName { get; }
@@ -90,11 +79,6 @@ namespace FluentStorage.Tests {
 		[Option(Alias = "Ftp.Password")]
 		string FtpPassword { get; }
 
-		#endregion
-
-		string DatabricksBaseUri { get; set; }
-
-		string DatabricksToken { get; set; }
 	}
 
 	public static class Settings {

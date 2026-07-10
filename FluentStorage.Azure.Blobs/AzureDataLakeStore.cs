@@ -29,7 +29,6 @@ namespace FluentStorage.Azure.Blobs {
 
 		}
 
-		#region [ Data Lake Storage ]
 
 		public Task<IReadOnlyCollection<Filesystem>> ListFilesystemsAsync(CancellationToken cancellationToken = default) {
 			return _extended.ListFilesystemsAsync(cancellationToken);
@@ -51,7 +50,6 @@ namespace FluentStorage.Azure.Blobs {
 			return _extended.GetAccessControlAsync(fullPath, getUpn, cancellationToken);
 		}
 
-		#endregion
 
 		protected override Task DeleteAsync(string fullPath, CancellationToken cancellationToken) {
 			return _extended.DeleteAsync(fullPath, cancellationToken);

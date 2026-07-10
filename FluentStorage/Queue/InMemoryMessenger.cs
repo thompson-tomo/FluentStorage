@@ -13,7 +13,6 @@ namespace FluentStorage.Queue {
 		private readonly ConcurrentDictionary<string, ConcurrentQueue<QueueMessage>> _queues =
 		   new ConcurrentDictionary<string, ConcurrentQueue<QueueMessage>>();
 
-		#region [ IMessenger ]
 
 		public Task CreateChannelsAsync(IEnumerable<string> channelNames, CancellationToken cancellationToken = default) {
 			foreach (string channelName in channelNames) {
@@ -111,7 +110,6 @@ namespace FluentStorage.Queue {
 		}
 
 
-		#endregion
 
 		private ConcurrentQueue<QueueMessage> GetQueue(string channelName) {
 			return _queues.GetOrAdd(channelName, new ConcurrentQueue<QueueMessage>());

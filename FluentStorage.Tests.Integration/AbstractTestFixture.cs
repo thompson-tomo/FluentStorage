@@ -96,8 +96,6 @@ namespace FluentStorage.Tests.Integration {
 		}
 
 
-		#region [ Assert Helpers ]
 
-		#endregion
 	}
 }

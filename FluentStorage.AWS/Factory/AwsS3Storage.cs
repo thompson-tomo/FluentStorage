@@ -112,7 +112,6 @@ namespace FluentStorage {
 #endif
 
 
-		#region [ Connection Strings ]
 
 		/// <summary>
 		/// Creates a connection string from AWS CLI profile name
@@ -139,6 +138,5 @@ namespace FluentStorage {
 			return cs;
 		}
 
-		#endregion
 	}
 }

@@ -19,7 +19,7 @@ using FluentStorage.Storage;
 using FluentStorage.Azure.Blobs.Gen2.Model;
 
 namespace FluentStorage.Azure.Blobs {
-	
+
 	class AzureBlobStore : IAzureBlobStorage {
 
 		private readonly BlobServiceClient _client;
@@ -39,7 +39,6 @@ namespace FluentStorage.Azure.Blobs {
 
 		}
 
-		#region [ Interface Methods ]
 
 		public virtual async Task<IReadOnlyCollection<StorageObject>> ListAsync(ListOptions options = null, CancellationToken cancellationToken = default) {
 			if (options == null)
@@ -129,7 +128,7 @@ namespace FluentStorage.Azure.Blobs {
 		/// Uploads a blob to Azure Blob storage, with the given Content-Type.
 		/// </summary>
 		public async Task WriteAsync(string fullPath, Stream dataStream,
-		    string contentType = null,
+			string contentType = null,
 			bool append = false, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 
@@ -166,9 +165,7 @@ namespace FluentStorage.Azure.Blobs {
 			await Task.WhenAll(blobs.Select(b => SetBlobAsync(b, cancellationToken))).ConfigureAwait(false);
 		}
 
-		#endregion
 
-		#region [ IAzureBlobStorage Specific ]
 
 		public async Task<AzureStorageLease> AcquireLeaseAsync(
 		   string fullPath,
@@ -345,7 +342,6 @@ namespace FluentStorage.Azure.Blobs {
 			return null;
 		}
 
-		#endregion
 
 
 		private async Task SetBlobAsync(StorageObject blob, CancellationToken cancellationToken) {

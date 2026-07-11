@@ -27,11 +27,11 @@ namespace FluentStorage.Storage {
 			return false;
 		}
 
-		public virtual Task<Stream> OpenReadAsync(string fullPath, CancellationToken cancellationToken = default) {
+		public virtual Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		public virtual async Task<List<StorageObject>> ListAsync(StorageListOptions options = null, CancellationToken cancellationToken = default) {
+		public virtual async Task<List<StorageObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			var result = new List<StorageObject>();
 			if (options == null) options = new StorageListOptions();
 
@@ -69,21 +69,21 @@ namespace FluentStorage.Storage {
 			}
 		}
 
-		public virtual Task DeleteAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public virtual Task DeleteObject(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			return Task.WhenAll(fullPaths.Select(fp => DeleteSingleAsync(fp, cancellationToken)));
 		}
 		protected virtual Task DeleteSingleAsync(string fullPath, CancellationToken cancellationToken) {
 			throw new NotSupportedException();
 		}
-		public virtual async Task<List<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			return (await (Task.WhenAll(fullPaths.Select(fp => ExistsAsync(fp, cancellationToken))).ConfigureAwait(false))).ToList();
+		public virtual async Task<List<bool>> ObjectExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+			return (await (Task.WhenAll(fullPaths.Select(fp => ObjectExists(fp, cancellationToken))).ConfigureAwait(false))).ToList();
 		}
 
-		public virtual async Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			return (await (Task.WhenAll(fullPaths.Select(fp => GetBlobAsync(fp, cancellationToken))).ConfigureAwait(false))).ToList();
+		public virtual async Task<List<StorageObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+			return (await (Task.WhenAll(fullPaths.Select(fp => GetObjectInfo(fp, cancellationToken))).ConfigureAwait(false))).ToList();
 		}
-		public virtual async Task WriteAsync(string fullPath, Stream sourceStream, string contentType, bool append, CancellationToken cancellationToken) {
-			await WriteAsync(fullPath, sourceStream, null, append, cancellationToken).ConfigureAwait(false);
+		public virtual async Task SetObject(string fullPath, Stream sourceStream, string contentType, bool append, CancellationToken cancellationToken) {
+			await SetObject(fullPath, sourceStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
 
 
@@ -92,9 +92,9 @@ namespace FluentStorage.Storage {
 		/// Returns the list of available files, excluding folders.
 		/// </summary>
 		/// <returns>List of blob IDs</returns>
-		public virtual async Task<List<StorageObject>> ListFilesAsync(StorageListOptions options,
+		public virtual async Task<List<StorageObject>> ListFiles(StorageListOptions options,
 		   CancellationToken cancellationToken = default) {
-			List<StorageObject> all = await ListAsync(options, cancellationToken).ConfigureAwait(false);
+			List<StorageObject> all = await ListObjects(options, cancellationToken).ConfigureAwait(false);
 
 			return all.Where(i => i != null && i.IsFile).ToList();
 		}
@@ -111,7 +111,7 @@ namespace FluentStorage.Storage {
 		/// <param name="maxResults"><see cref="StorageListOptions.MaxResults"/></param>
 		/// <param name="includeAttributes"><see cref="StorageListOptions.IncludeAttributes"/></param>
 		/// <returns>List of blob IDs</returns>
-		public virtual async Task<List<StorageObject>> ListDirectoryAsync(string folderPath = null,
+		public virtual async Task<List<StorageObject>> ListDirectory(string folderPath = null,
 		   Func<StorageObject, bool> browseFilter = null,
 		   string filePrefix = null,
 		   bool recurse = false,
@@ -134,7 +134,7 @@ namespace FluentStorage.Storage {
 				options.MaxResults = maxResults;
 			options.IncludeAttributes = includeAttributes;
 
-			return await ListAsync(options, cancellationToken).ConfigureAwait(false);
+			return await ListObjects(options, cancellationToken).ConfigureAwait(false);
 		}
 
 
@@ -145,11 +145,11 @@ namespace FluentStorage.Storage {
 		/// <param name="fullPath">Blob id</param>
 		/// <param name="textEncoding">Optional text encoding. When not specified, <see cref="UTF8Encoding"/> is used.</param>
 		/// <returns></returns>
-		public virtual async Task<string> ReadTextAsync(
+		public virtual async Task<string> GetText(
 		   string fullPath,
 		   Encoding textEncoding = null,
 		   CancellationToken cancellationToken = default) {
-			Stream src = await OpenReadAsync(fullPath, cancellationToken).ConfigureAwait(false);
+			Stream src = await OpenRead(fullPath, cancellationToken).ConfigureAwait(false);
 			if (src == null) return null;
 
 			var ms = new MemoryStream();
@@ -167,12 +167,12 @@ namespace FluentStorage.Storage {
 		/// <param name="text">Text to write, treated in UTF-8 encoding</param>
 		/// <param name="textEncoding">Optional text encoding. When not specified, <see cref="UTF8Encoding"/> is used.</param>
 		/// <returns></returns>
-		public virtual async Task WriteTextAsync(
+		public virtual async Task SetText(
 		   string fullPath, string text,
 		   Encoding textEncoding = null,
 		   CancellationToken cancellationToken = default) {
 			using (Stream s = text.ToMemoryStream(textEncoding ?? Encoding.UTF8)) {
-				await WriteAsync(fullPath, s, null, false, cancellationToken).ConfigureAwait(false);
+				await SetObject(fullPath, s, null, false, cancellationToken).ConfigureAwait(false);
 			}
 		}
 
@@ -181,8 +181,8 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Checks if blobs exists in the storage
 		/// </summary>
-		public virtual async Task<bool> ExistsAsync(string fullPath, CancellationToken cancellationToken = default) {
-			IEnumerable<bool> r = await ExistsAsync(new[] { fullPath }, cancellationToken).ConfigureAwait(false);
+		public virtual async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken = default) {
+			IEnumerable<bool> r = await ObjectExists(new[] { fullPath }, cancellationToken).ConfigureAwait(false);
 			return r.First();
 		}
 
@@ -190,62 +190,62 @@ namespace FluentStorage.Storage {
 		/// Deletes a single blob or a folder recursively.
 		/// </summary>
 		/// <returns></returns>
-		public virtual async Task DeleteAsync(
+		public virtual async Task DeleteObject(
 		   string fullPath, CancellationToken cancellationToken = default) {
-			await DeleteAsync(new[] { fullPath }, cancellationToken).ConfigureAwait(false);
+			await DeleteObject(new[] { fullPath }, cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>
 		/// Deletes a collection of blobs or folders
 		/// </summary>
-		public virtual async Task DeleteAsync(
+		public virtual async Task DeleteObjects(
 		   IEnumerable<StorageObject> blobs,
 		   CancellationToken cancellationToken = default) {
-			await DeleteAsync(blobs.Select(b => b.FullPath), cancellationToken).ConfigureAwait(false);
+			await DeleteObject(blobs.Select(b => b.FullPath), cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>
 		/// Gets basic blob metadata
 		/// </summary>
 		/// <returns>Blob metadata or null if blob doesn't exist</returns>
-		public virtual async Task<StorageObject> GetBlobAsync(string fullPath, CancellationToken cancellationToken = default) {
-			return (await GetBlobsAsync(new[] { fullPath }, cancellationToken).ConfigureAwait(false)).First();
+		public virtual async Task<StorageObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken = default) {
+			return (await GetObjectsInfo(new[] { fullPath }, cancellationToken).ConfigureAwait(false)).First();
 		}
 
 		/// <summary>
 		/// Set blob attributes
 		/// </summary>
-		public virtual async Task SetBlobAsync(StorageObject blob, CancellationToken cancellationToken = default) {
-			await SetBlobsAsync(new[] { blob }, cancellationToken).ConfigureAwait(false);
+		public virtual async Task SetObjectInfo(StorageObject blob, CancellationToken cancellationToken = default) {
+			await SetObjectsInfo(new[] { blob }, cancellationToken).ConfigureAwait(false);
 		}
 
-		public virtual Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
+		public virtual Task SetObjectsInfo(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
 
-		public virtual async Task WriteAsync(string fullPath, Stream dataStream, bool append, CancellationToken cancellationToken) {
+		public virtual async Task SetObject(string fullPath, Stream dataStream, bool append, CancellationToken cancellationToken) {
 			throw new NotImplementedException();
 		}
 
 		/// <summary>
 		/// Writes byte array to the target.
 		/// </summary>
-		public virtual async Task WriteAsync(string fullPath, byte[] data, bool append = false, CancellationToken cancellationToken = default) {
+		public virtual async Task SetBytes(string fullPath, byte[] data, bool append = false, CancellationToken cancellationToken = default) {
 			if (data == null) {
 				throw new ArgumentNullException(nameof(data));
 			}
 
 			using (var source = new MemoryStream(data)) {
-				await WriteAsync(fullPath, source, null, append, cancellationToken).ConfigureAwait(false);
+				await SetObject(fullPath, source, null, append, cancellationToken).ConfigureAwait(false);
 			}
 		}
 
 		/// <summary>
 		/// Reads blob content as byte array
 		/// </summary>
-		public virtual async Task<byte[]> ReadBytesAsync(string fullPath, CancellationToken cancellationToken = default) {
-			Stream src = await OpenReadAsync(fullPath, cancellationToken).ConfigureAwait(false);
+		public virtual async Task<byte[]> GetBytes(string fullPath, CancellationToken cancellationToken = default) {
+			Stream src = await OpenRead(fullPath, cancellationToken).ConfigureAwait(false);
 			if (src == null) return null;
 
 			var ms = new MemoryStream();
@@ -266,12 +266,12 @@ namespace FluentStorage.Storage {
 		/// <exception cref="System.ArgumentNullException">Thrown when any parameter is null</exception>
 		/// <exception cref="System.ArgumentException">Thrown when ID is too long. Long IDs are the ones longer than 50 characters.</exception>
 		/// <exception cref="StorageException">Thrown when blob does not exist, error code set to <see cref="StorageErrorCode.NotFound"/></exception>
-		public virtual async Task ReadToStreamAsync(
+		public virtual async Task GetObject(
 		   string fullPath, Stream targetStream, CancellationToken cancellationToken = default) {
 			if (targetStream == null)
 				throw new ArgumentNullException(nameof(targetStream));
 
-			Stream src = await OpenReadAsync(fullPath, cancellationToken).ConfigureAwait(false);
+			Stream src = await OpenRead(fullPath, cancellationToken).ConfigureAwait(false);
 			if (src == null) return;
 
 			using (src) {
@@ -286,9 +286,9 @@ namespace FluentStorage.Storage {
 		/// </summary>
 		/// <param name="fullPath">Blob ID to download</param>
 		/// <param name="filePath">Full path to the local file to be downloaded to. If the file exists it will be recreated wtih blob data.</param>
-		public virtual async Task ReadToFileAsync(
+		public virtual async Task DownloadObject(
 		   string fullPath, string filePath, CancellationToken cancellationToken = default) {
-			Stream src = await OpenReadAsync(fullPath, cancellationToken).ConfigureAwait(false);
+			Stream src = await OpenRead(fullPath, cancellationToken).ConfigureAwait(false);
 			if (src == null) return;
 
 			using (src) {
@@ -304,10 +304,10 @@ namespace FluentStorage.Storage {
 		/// </summary>
 		/// <param name="fullPath">Blob ID to create or overwrite</param>
 		/// <param name="filePath">Path to local file</param>
-		public virtual async Task WriteFileAsync(
+		public virtual async Task UploadObject(
 		   string fullPath, string filePath, CancellationToken cancellationToken = default) {
 			using (Stream src = File.OpenRead(filePath)) {
-				await WriteAsync(fullPath, src, null, false, cancellationToken).ConfigureAwait(false);
+				await SetObject(fullPath, src, null, false, cancellationToken).ConfigureAwait(false);
 			}
 		}
 
@@ -322,13 +322,13 @@ namespace FluentStorage.Storage {
 		/// <param name="options">Optional serialiser options</param>
 		/// <param name="encoding">Text encoding used to write to the blob storage, defaults to <see cref="UTF8Encoding"/></param>
 		/// <returns></returns>
-		public virtual async Task WriteJsonAsync<T>(
+		public virtual async Task SetJson<T>(
 		   string fullPath, T instance,
 		   JsonSerializerOptions options = null,
 		   Encoding encoding = null,
 		   CancellationToken cancellationToken = default) {
 			string jsonText = JsonSerializer.Serialize(instance, options);
-			await WriteTextAsync(fullPath, jsonText, encoding, cancellationToken).ConfigureAwait(false);
+			await SetText(fullPath, jsonText, encoding, cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>
@@ -339,12 +339,12 @@ namespace FluentStorage.Storage {
 		/// <param name="options">Optional serialiser options</param>
 		/// <param name="encoding">Text encoding used to write to the blob storage, defaults to <see cref="UTF8Encoding"/></param>
 		/// <returns></returns>
-		public virtual async Task<T> ReadJsonAsync<T>(string fullPath,
+		public virtual async Task<T> GetJson<T>(string fullPath,
 		   bool ignoreInvalidJson = false,
 		   JsonSerializerOptions options = null,
 		   Encoding encoding = null,
 		   CancellationToken cancellationToken = default) {
-			string jsonText = await ReadTextAsync(fullPath, encoding, cancellationToken).ConfigureAwait(false);
+			string jsonText = await GetText(fullPath, encoding, cancellationToken).ConfigureAwait(false);
 			if (string.IsNullOrEmpty(jsonText))
 				return default;
 
@@ -367,13 +367,13 @@ namespace FluentStorage.Storage {
 		/// <param name="blobId">Blob ID to copy</param>
 		/// <param name="targetStorage">Target storage</param>
 		/// <param name="newId">Optional, when specified uses this id in the target  If null uses the original ID.</param>
-		public virtual async Task CopyToAsync(
+		public virtual async Task CopyObjectToBucket(
 		   string blobId, IBucket targetStorage, string newId, CancellationToken cancellationToken = default) {
-			using (Stream src = await OpenReadAsync(blobId, cancellationToken).ConfigureAwait(false)) {
+			using (Stream src = await OpenRead(blobId, cancellationToken).ConfigureAwait(false)) {
 				if (src == null)
 					return;
 
-				await targetStorage.WriteAsync(newId ?? blobId, src, false, cancellationToken).ConfigureAwait(false);
+				await targetStorage.SetObject(newId ?? blobId, src, false, cancellationToken).ConfigureAwait(false);
 			}
 		}
 
@@ -381,21 +381,21 @@ namespace FluentStorage.Storage {
 		/// Calculates an MD5 hash of a blob. Comparing to <see cref="StorageObject.MD5"/> field, it always returns
 		/// a hash, even if the underlying storage doesn't support it natively.
 		/// </summary>
-		public virtual async Task<string> GetMD5HashAsync(StorageObject blob, CancellationToken cancellationToken = default) {
+		public virtual async Task<string> GetObjectMD5(StorageObject blob, CancellationToken cancellationToken = default) {
 			if (blob == null)
 				throw new ArgumentNullException(nameof(blob));
 
 			if (blob.MD5 != null)
 				return blob.MD5;
 
-			blob = await GetBlobAsync(blob.FullPath, cancellationToken).ConfigureAwait(false);
+			blob = await GetObjectInfo(blob.FullPath, cancellationToken).ConfigureAwait(false);
 
 			if (blob.MD5 != null)
 				return blob.MD5;
 
 			//hash definitely not supported, calculate it manually
 
-			using (Stream s = await OpenReadAsync(blob.FullPath, cancellationToken).ConfigureAwait(false)) {
+			using (Stream s = await OpenRead(blob.FullPath, cancellationToken).ConfigureAwait(false)) {
 				if (s == null)
 					return null;
 
@@ -408,7 +408,7 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Rename a blob (folder, file etc.).
 		/// </summary>
-		public virtual async Task RenameAsync(string oldPath, string newPath, CancellationToken cancellationToken = default) {
+		public virtual async Task RenameObject(string oldPath, string newPath, CancellationToken cancellationToken = default) {
 			if (oldPath is null)
 				throw new ArgumentNullException(nameof(oldPath));
 			if (newPath is null)
@@ -416,22 +416,22 @@ namespace FluentStorage.Storage {
 
 			//try to use extended client here
 			if (this is IBucket) {
-				await this.RenameAsync(oldPath, newPath, cancellationToken).ConfigureAwait(false);
+				await this.RenameObject(oldPath, newPath, cancellationToken).ConfigureAwait(false);
 			}
 			else {
 				//this needs to be done recursively
-				foreach (StorageObject item in await ListDirectoryAsync(oldPath, recurse: true).ConfigureAwait(false)) {
+				foreach (StorageObject item in await ListDirectory(oldPath, recurse: true).ConfigureAwait(false)) {
 					if (item.IsFile) {
 						string renamedPath = item.FullPath.Replace(oldPath, newPath);
 
-						await CopyToAsync(item, this, renamedPath, cancellationToken).ConfigureAwait(false);
-						await DeleteAsync(item, cancellationToken).ConfigureAwait(false);
+						await CopyObjectToBucket(item, this, renamedPath, cancellationToken).ConfigureAwait(false);
+						await DeleteObject(item, cancellationToken).ConfigureAwait(false);
 					}
 				}
 
 				//rename self
-				await CopyToAsync(oldPath, this, newPath, cancellationToken).ConfigureAwait(false);
-				await DeleteAsync(oldPath, cancellationToken).ConfigureAwait(false);
+				await CopyObjectToBucket(oldPath, this, newPath, cancellationToken).ConfigureAwait(false);
+				await DeleteObject(oldPath, cancellationToken).ConfigureAwait(false);
 			}
 
 
@@ -445,21 +445,21 @@ namespace FluentStorage.Storage {
 		/// <param name="folderPath">Path to the folder</param>
 		/// <param name="dummyFileName">If storage doesn't support hierary, you can override the dummy file name created in that empty folder.</param>
 		/// <returns></returns>
-		public virtual async Task CreateFolderAsync(
+		public virtual async Task CreateDirectory(
 		   string folderPath, string dummyFileName = null, string dummyFileContent = null, CancellationToken cancellationToken = default) {
 			if (this is IBucket fileSystem) {
-				await fileSystem.CreateFolderAsync(folderPath, null, null, cancellationToken).ConfigureAwait(false);
+				await fileSystem.CreateDirectory(folderPath, null, null, cancellationToken).ConfigureAwait(false);
 			}
 			else {
 				string fullPath = StoragePath.Combine(folderPath, dummyFileName ?? ".empty");
 
 				// Check if the file already exists before we try to create it to prevent 
 				// AccessDenied exceptions if two processes are creating the folder at the same time.
-				if (await ExistsAsync(fullPath)) {
+				if (await ObjectExists(fullPath)) {
 					return;
 				}
 
-				await WriteTextAsync(
+				await SetText(
 				   fullPath,
 				   dummyFileContent ?? "created as a workaround by FluentStorage when creating an empty parent folder",
 				   null,

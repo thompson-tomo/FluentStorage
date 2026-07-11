@@ -87,12 +87,12 @@ namespace FluentStorage.Azure.Queues.Messenger {
 		}
 
 
-		public async Task CreateChannelsAsync(IEnumerable<string> channelNames, CancellationToken cancellationToken = default) {
+		public async Task CreateChannels(IEnumerable<string> channelNames, CancellationToken cancellationToken = default) {
 			await Task.WhenAll(channelNames.Select(cn => GetQueueAsync(cn, true))).ConfigureAwait(false);
 		}
 
 
-		public async Task<long> GetMessageCountAsync(string channelName, CancellationToken cancellationToken = default) {
+		public async Task<long> GetMessageCount(string channelName, CancellationToken cancellationToken = default) {
 			if (channelName is null)
 				throw new ArgumentNullException(nameof(channelName));
 
@@ -111,7 +111,7 @@ namespace FluentStorage.Azure.Queues.Messenger {
 			return queue.ApproximateMessageCount ?? 0;
 		}
 
-		public async Task<List<string>> ListChannelsAsync(CancellationToken cancellationToken = default) {
+		public async Task<List<string>> ListChannels(CancellationToken cancellationToken = default) {
 			var queueNames = new List<string>();
 
 			QueueContinuationToken token = null;
@@ -129,7 +129,7 @@ namespace FluentStorage.Azure.Queues.Messenger {
 			return queueNames;
 		}
 
-		public async Task DeleteChannelsAsync(IEnumerable<string> channelNames, CancellationToken cancellationToken = default) {
+		public async Task DeleteChannels(IEnumerable<string> channelNames, CancellationToken cancellationToken = default) {
 			if (channelNames is null)
 				throw new ArgumentNullException(nameof(channelNames));
 
@@ -139,7 +139,7 @@ namespace FluentStorage.Azure.Queues.Messenger {
 			}
 		}
 
-		public async Task SendAsync(string channelName, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) {
+		public async Task SendMessages(string channelName, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) {
 			CloudQueue queue = await GetQueueAsync(channelName).ConfigureAwait(false);
 
 			await Task.WhenAll(messages.Select(async m => {
@@ -149,7 +149,7 @@ namespace FluentStorage.Azure.Queues.Messenger {
 			})).ConfigureAwait(false);
 		}
 
-		public async Task<List<QueueMessage>> PeekAsync(string channelName, int count = 100, CancellationToken cancellationToken = default) {
+		public async Task<List<QueueMessage>> PeekMessages(string channelName, int count = 100, CancellationToken cancellationToken = default) {
 			if (channelName is null)
 				throw new ArgumentNullException(nameof(channelName));
 
@@ -165,7 +165,7 @@ namespace FluentStorage.Azure.Queues.Messenger {
 
 		}
 
-		public async Task<List<QueueMessage>> ReceiveAsync(
+		public async Task<List<QueueMessage>> ReceiveMessages(
 		   string channelName, int count = 100, TimeSpan? visibility = null, CancellationToken cancellationToken = default) {
 			if (channelName is null)
 				throw new ArgumentNullException(nameof(channelName));
@@ -190,8 +190,8 @@ namespace FluentStorage.Azure.Queues.Messenger {
 
 		}
 
-		public Task DeleteAsync(string channelName, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) => throw new NotImplementedException();
-		public Task StartMessageProcessorAsync(string channelName, IQueueProcessor messageProcessor) => throw new NotImplementedException();
+		public Task DeleteMessages(string channelName, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+		public Task StartMessageProcessor(string channelName, IQueueProcessor messageProcessor) => throw new NotImplementedException();
 
 
 

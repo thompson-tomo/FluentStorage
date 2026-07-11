@@ -2,6 +2,9 @@
 using FluentStorage.Storage;
 
 namespace FluentStorage.AWS.Factory {
+	/// <summary>
+	/// MinIO storage factory to create instances of `IBucket` using this provider.
+	/// </summary>
 	public static class MinIOStorage {
 
 		/// <summary>

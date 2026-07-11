@@ -224,8 +224,8 @@ namespace FluentStorage.Storage {
 		/// <param name="fullPaths"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		public virtual Task DeleteAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			return ExecuteAsync(fullPaths, (storage, paths) => storage.DeleteAsync(paths, cancellationToken));
+		public virtual Task DeleteObject(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+			return ExecuteAsync(fullPaths, (storage, paths) => storage.DeleteObject(paths, cancellationToken));
 		}
 
 
@@ -233,19 +233,19 @@ namespace FluentStorage.Storage {
 
 		}
 
-		public virtual Task<List<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public virtual Task<List<bool>> ObjectExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			return ExecuteAsync(
 			   fullPaths,
-			   (storage, fps) => storage.ExistsAsync(fps, cancellationToken));
+			   (storage, fps) => storage.ObjectExists(fps, cancellationToken));
 		}
 
-		public virtual Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public virtual Task<List<StorageObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			return ExecuteAsync(
 			   fullPaths,
-			   (storage, fps) => storage.GetBlobsAsync(fps, cancellationToken));
+			   (storage, fps) => storage.GetObjectsInfo(fps, cancellationToken));
 		}
 
-		public async virtual Task<List<StorageObject>> ListAsync(StorageListOptions options = null, CancellationToken cancellationToken = default) {
+		public async virtual Task<List<StorageObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			if (options == null)
 				options = new StorageListOptions();
 
@@ -291,7 +291,7 @@ namespace FluentStorage.Storage {
 				StorageListOptions mountOptions = options.Clone();
 				mountOptions.FolderPath = StoragePath.Normalize(relPath);
 
-				List<StorageObject> mountResults = await storage.ListAsync(mountOptions, cancellationToken).ConfigureAwait(false);
+				List<StorageObject> mountResults = await storage.ListObjects(mountOptions, cancellationToken).ConfigureAwait(false);
 				foreach (StorageObject blob in mountResults) {
 					blob.PrependPath(mountPoint.FullPath);
 				}
@@ -310,16 +310,16 @@ namespace FluentStorage.Storage {
 			return result;
 		}
 
-		public virtual async Task<Stream> OpenReadAsync(string fullPath, CancellationToken cancellationToken = default) {
+		public virtual async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
 			if (!TryExplodeToMountPoint(fullPath, out IBucket storage, out string relPath))
 				return null;
 
-			return await storage.OpenReadAsync(relPath, cancellationToken).ConfigureAwait(false);
+			return await storage.OpenRead(relPath, cancellationToken).ConfigureAwait(false);
 		}
 
 
-		public virtual Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
-			return ExecuteAsync(blobs, (s, rb) => s.SetBlobsAsync(rb, cancellationToken));
+		public virtual Task SetObjectsInfo(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
+			return ExecuteAsync(blobs, (s, rb) => s.SetObjectsInfo(rb, cancellationToken));
 		}
 
 		private bool TryExplodeToMountPoint(string fullPath, out IBucket storage, out string relPath) {
@@ -340,22 +340,22 @@ namespace FluentStorage.Storage {
 			return true;
 		}
 
-		public virtual async Task WriteAsync(string fullPath, Stream dataStream, bool append = false, CancellationToken cancellationToken = default) {
+		public virtual async Task SetObject(string fullPath, Stream dataStream, bool append = false, CancellationToken cancellationToken = default) {
 			if (!TryExplodeToMountPoint(fullPath, out IBucket storage, out string relPath))
 				return;
 
 
-			await storage.WriteAsync(relPath, dataStream, append, cancellationToken).ConfigureAwait(false);
+			await storage.SetObject(relPath, dataStream, append, cancellationToken).ConfigureAwait(false);
 		}
-		public async Task WriteAsync(string fullPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken) {
+		public async Task SetObject(string fullPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken) {
 			if (!TryExplodeToMountPoint(fullPath, out IBucket storage, out string relPath))
 				return;
 
 
-			await storage.WriteAsync(relPath, dataStream, contentType, append, cancellationToken).ConfigureAwait(false);
+			await storage.SetObject(relPath, dataStream, contentType, append, cancellationToken).ConfigureAwait(false);
 		}
 
-		public async Task RenameAsync(string oldPath, string newPath, CancellationToken cancellationToken) {
+		public async Task RenameObject(string oldPath, string newPath, CancellationToken cancellationToken) {
 			throw new NotImplementedException();
 		}
 

@@ -1,11 +1,11 @@
 ﻿using Amazon;
 using FluentStorage.AWS.Messaging;
 using FluentStorage.Queue;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace FluentStorage.AWS.Factory {
+	/// <summary>
+	/// Amazon Web Services SQS factory to create instances of `IQueue` using this provider.
+	/// </summary>
 	public static class AwsSqsStorage {
 
 		/// <summary>

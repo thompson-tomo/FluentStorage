@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 
 namespace FluentStorage.Storage {
 	/// <summary>
-	/// Interface to manage a single bucket across various cloud providers.
+	/// Interface to manage a single bucket across various cloud providers (AWS/Azure=/GCP/etc)
+	/// The same interface is used to manage file system providers (Disk/FTP/FTPS).
 	/// </summary>
 	public interface IBucket : IDisposable {
 
@@ -18,13 +19,16 @@ namespace FluentStorage.Storage {
 		// Listing / Discovery
 		// ---------------------------------------------------------------------
 
+		/// <summary>
+		/// Returns true if the given object storage is backed by a file system (Disk/FTP/FTPS).
+		/// </summary>
 		bool HasFileSystem();
 
 		/// <summary>Returns the list of objects in this bucket.</summary>
 		/// <param name="options">Listing options.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>The matching objects.</returns>
-		Task<List<StorageObject>> ListAsync(StorageListOptions options = null, CancellationToken cancellationToken = default);
+		Task<List<StorageObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Returns the list of objects in a specific directory of this bucket.
@@ -38,7 +42,7 @@ namespace FluentStorage.Storage {
 		/// <param name="maxResults"><see cref="StorageListOptions.MaxResults"/></param>
 		/// <param name="includeAttributes"><see cref="StorageListOptions.IncludeAttributes"/></param>
 		/// <returns>List of blob IDs</returns>
-		Task<List<StorageObject>> ListDirectoryAsync(string folderPath = null, Func<StorageObject, bool> browseFilter = null,
+		Task<List<StorageObject>> ListDirectory(string folderPath = null, Func<StorageObject, bool> browseFilter = null,
 		   string filePrefix = null, bool recurse = false,
 		   StorageRecursion recursionMode = StorageRecursion.Remote,
 		   int numberOfRecursionThreads = StorageListOptions.MAX_THREADS,
@@ -49,7 +53,7 @@ namespace FluentStorage.Storage {
 		/// <param name="options">Listing options.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>The matching files.</returns>
-		Task<List<StorageObject>> ListFilesAsync(StorageListOptions options, CancellationToken cancellationToken = default);
+		Task<List<StorageObject>> ListFiles(StorageListOptions options, CancellationToken cancellationToken = default);
 
 
 		// ---------------------------------------------------------------------
@@ -60,41 +64,41 @@ namespace FluentStorage.Storage {
 		/// <param name="fullPath">Full path of the object.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns><see langword="true"/> if the object exists; otherwise <see langword="false"/>.</returns>
-		Task<bool> ExistsAsync(string fullPath, CancellationToken cancellationToken = default);
+		Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken = default);
 
 		/// <summary>Checks if objects exist in the storage.</summary>
 		/// <param name="fullPaths">Full paths of the objects.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>A collection indicating whether each object exists.</returns>
-		Task<List<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default);
+		Task<List<bool>> ObjectExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default);
 
 		/// <summary>Gets metadata for a single object.</summary>
 		/// <param name="fullPath">Full path of the object.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>The object metadata.</returns>
-		Task<StorageObject> GetBlobAsync(string fullPath, CancellationToken cancellationToken = default);
+		Task<StorageObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken = default);
 
 		/// <summary>Gets object information which is useful for retrieving object metadata.</summary>
 		/// <param name="fullPaths">Full paths of the objects.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>The object metadata.</returns>
-		Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default);
+		Task<List<StorageObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default);
 
 		/// <summary>Updates metadata for a single object.</summary>
-		/// <param name="blob">Object metadata.</param>
+		/// <param name="metadata">Object metadata.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task SetBlobAsync(StorageObject blob, CancellationToken cancellationToken = default);
+		Task SetObjectInfo(StorageObject metadata, CancellationToken cancellationToken = default);
 
 		/// <summary>Sets object information which is useful for setting object attributes (user metadata etc.).</summary>
-		/// <param name="blobs">Object metadata.</param>
+		/// <param name="metadata">Object metadata.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default);
+		Task SetObjectsInfo(IEnumerable<StorageObject> metadata, CancellationToken cancellationToken = default);
 
 		/// <summary>Returns the MD5 hash of an object.</summary>
-		/// <param name="blob">Object.</param>
+		/// <param name="metadata">Object.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>The MD5 hash.</returns>
-		Task<string> GetMD5HashAsync(StorageObject blob, CancellationToken cancellationToken = default);
+		Task<string> GetObjectMD5(StorageObject metadata, CancellationToken cancellationToken = default);
 
 
 		// ---------------------------------------------------------------------
@@ -105,26 +109,26 @@ namespace FluentStorage.Storage {
 		/// <param name="fullPath">Full path of the object.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>An open readable stream.</returns>
-		Task<Stream> OpenReadAsync(string fullPath, CancellationToken cancellationToken = default);
+		Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default);
 
 		/// <summary>Copies an object into an existing stream.</summary>
 		/// <param name="fullPath">Full path of the object.</param>
 		/// <param name="targetStream">Destination stream.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task ReadToStreamAsync(string fullPath, Stream targetStream, CancellationToken cancellationToken = default);
+		Task GetObject(string fullPath, Stream targetStream, CancellationToken cancellationToken = default);
 
 		/// <summary>Reads an object into a byte array.</summary>
 		/// <param name="fullPath">Full path of the object.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>The object contents.</returns>
-		Task<byte[]> ReadBytesAsync(string fullPath, CancellationToken cancellationToken = default);
+		Task<byte[]> GetBytes(string fullPath, CancellationToken cancellationToken = default);
 
 		/// <summary>Reads an object as text.</summary>
 		/// <param name="fullPath">Full path of the object.</param>
 		/// <param name="textEncoding">Text encoding. Defaults to UTF-8.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>The object contents.</returns>
-		Task<string> ReadTextAsync(string fullPath, Encoding textEncoding = null, CancellationToken cancellationToken = default);
+		Task<string> GetText(string fullPath, Encoding textEncoding = null, CancellationToken cancellationToken = default);
 
 		/// <summary>Reads and deserializes a JSON object.</summary>
 		/// <param name="fullPath">Full path of the object.</param>
@@ -133,13 +137,13 @@ namespace FluentStorage.Storage {
 		/// <param name="encoding">Text encoding. Defaults to UTF-8.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>The deserialized object.</returns>
-		Task<T> ReadJsonAsync<T>(string fullPath, bool ignoreInvalidJson = false, JsonSerializerOptions options = null, Encoding encoding = null, CancellationToken cancellationToken = default);
+		Task<T> GetJson<T>(string fullPath, bool ignoreInvalidJson = false, JsonSerializerOptions options = null, Encoding encoding = null, CancellationToken cancellationToken = default);
 
 		/// <summary>Downloads an object to a local file.</summary>
 		/// <param name="fullPath">Full path of the object.</param>
 		/// <param name="filePath">Destination file path.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task ReadToFileAsync(string fullPath, string filePath, CancellationToken cancellationToken = default);
+		Task DownloadObject(string fullPath, string filePath, CancellationToken cancellationToken = default);
 
 
 		// ---------------------------------------------------------------------
@@ -151,7 +155,7 @@ namespace FluentStorage.Storage {
 		/// <param name="dataStream">Source stream.</param>
 		/// <param name="append">Whether to append to an existing object.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task WriteAsync(string fullPath, Stream dataStream, bool append = false, CancellationToken cancellationToken = default);
+		Task SetObject(string fullPath, Stream dataStream, bool append = false, CancellationToken cancellationToken = default);
 
 		/// <summary>Uploads data to an object from a stream. Existing objects are overwritten.</summary>
 		/// <param name="fullPath">Full path of the object.</param>
@@ -159,21 +163,21 @@ namespace FluentStorage.Storage {
 		/// <param name="contentType">MIME content type.</param>
 		/// <param name="append">Whether to append to an existing object.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task WriteAsync(string fullPath, Stream dataStream, string contentType, bool append = false, CancellationToken cancellationToken = default);
+		Task SetObject(string fullPath, Stream dataStream, string contentType, bool append = false, CancellationToken cancellationToken = default);
 
 		/// <summary>Writes a byte array to an object.</summary>
 		/// <param name="fullPath">Full path of the object.</param>
 		/// <param name="data">Data to write.</param>
 		/// <param name="append">Whether to append to an existing object.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task WriteAsync(string fullPath, byte[] data, bool append = false, CancellationToken cancellationToken = default);
+		Task SetBytes(string fullPath, byte[] data, bool append = false, CancellationToken cancellationToken = default);
 
 		/// <summary>Writes text to an object.</summary>
 		/// <param name="fullPath">Full path of the object.</param>
 		/// <param name="text">Text to write.</param>
 		/// <param name="textEncoding">Text encoding. Defaults to UTF-8.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task WriteTextAsync(string fullPath, string text, Encoding textEncoding = null, CancellationToken cancellationToken = default);
+		Task SetText(string fullPath, string text, Encoding textEncoding = null, CancellationToken cancellationToken = default);
 
 		/// <summary>Writes an object as JSON.</summary>
 		/// <param name="fullPath">Full path of the object.</param>
@@ -181,13 +185,13 @@ namespace FluentStorage.Storage {
 		/// <param name="options">JSON serializer options.</param>
 		/// <param name="encoding">Text encoding. Defaults to UTF-8.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task WriteJsonAsync<T>(string fullPath, T instance, JsonSerializerOptions options = null, Encoding encoding = null, CancellationToken cancellationToken = default);
+		Task SetJson<T>(string fullPath, T instance, JsonSerializerOptions options = null, Encoding encoding = null, CancellationToken cancellationToken = default);
 
 		/// <summary>Uploads a local file to an object.</summary>
 		/// <param name="fullPath">Full path of the object.</param>
 		/// <param name="filePath">Source file path.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task WriteFileAsync(string fullPath, string filePath, CancellationToken cancellationToken = default);
+		Task UploadObject(string fullPath, string filePath, CancellationToken cancellationToken = default);
 
 
 		// ---------------------------------------------------------------------
@@ -199,28 +203,28 @@ namespace FluentStorage.Storage {
 		/// <param name="targetStorage">Destination bucket.</param>
 		/// <param name="newId">Destination object identifier.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task CopyToAsync(string blobId, IBucket targetStorage, string newId, CancellationToken cancellationToken = default);
+		Task CopyObjectToBucket(string blobId, IBucket targetStorage, string newId, CancellationToken cancellationToken = default);
 
 		/// <summary>Renames an object (file or folder).</summary>
 		/// <param name="oldPath">Current path.</param>
 		/// <param name="newPath">New path.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task RenameAsync(string oldPath, string newPath, CancellationToken cancellationToken = default);
+		Task RenameObject(string oldPath, string newPath, CancellationToken cancellationToken = default);
 
 		/// <summary>Deletes a single object or folder.</summary>
 		/// <param name="fullPath">Full path of the object or folder.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task DeleteAsync(string fullPath, CancellationToken cancellationToken = default);
+		Task DeleteObject(string fullPath, CancellationToken cancellationToken = default);
 
 		/// <summary>Deletes an object by its full path.</summary>
 		/// <param name="fullPaths">Full paths of the objects or folders.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task DeleteAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default);
+		Task DeleteObject(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default);
 
 		/// <summary>Deletes a collection of objects.</summary>
 		/// <param name="blobs">Objects to delete.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task DeleteAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default);
+		Task DeleteObjects(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default);
 
 
 		// ---------------------------------------------------------------------
@@ -229,7 +233,7 @@ namespace FluentStorage.Storage {
 
 		/// <summary>Creates a new folder.</summary>
 		/// <param name="folderPath">Path to the new folder.</param>
-		Task CreateFolderAsync(string folderPath, string dummyFileName = null, string dummyFileContent = null, CancellationToken cancellationToken = default);
+		Task CreateDirectory(string folderPath, string dummyFileName = null, string dummyFileContent = null, CancellationToken cancellationToken = default);
 
 	}
 }

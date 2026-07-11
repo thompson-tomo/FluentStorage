@@ -11,11 +11,11 @@ using FluentStorage.Azure.Blobs.Utils;
 
 namespace FluentStorage {
 	/// <summary>
-	/// Azuree Blob Factory that is accessible using `FluentStorage.StorageFactory.Blobs` by way of extension methods.
+	/// Azuree Blob Factory to create instances of `IBucket` using this provider.
 	/// </summary>
 	public static class AzureBlobStorage {
 		/// <summary>
-		/// Register Azure module.
+		/// Enable Azure Blob connection string support.
 		/// </summary>
 		public static void Use() {
 			FluentStorage.StorageFactory.Use(new Module());

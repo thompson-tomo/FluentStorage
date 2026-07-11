@@ -11,12 +11,12 @@ using Amazon.S3.Transfer;
 
 namespace FluentStorage {
 	/// <summary>
-	/// Amazon Web Services S3 and S3-compatible factory that is accessible using `FluentStorage.StorageFactory.Blobs` by way of extension methods.
+	/// Amazon Web Services S3 factory to create instances of `IBucket` using this provider.
 	/// </summary>
 	public static class AwsS3Storage {
 
 		/// <summary>
-		/// Register Azure module.
+		/// Enable AWS S3 connection string support.
 		/// </summary>
 		public static void Use() {
 			StorageFactory.Use(new AwsStorageModule());

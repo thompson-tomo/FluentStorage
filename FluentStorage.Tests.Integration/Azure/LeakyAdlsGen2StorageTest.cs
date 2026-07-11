@@ -31,7 +31,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 				  _settings.AzureGen2StorageKey);
 
 			//trigger any operation
-			await authInstance.ListAsync();
+			await authInstance.ListObjects();
 		}
 
 		[Fact]
@@ -45,7 +45,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 			   _settings.ClientSecret);
 
 			//trigger any operation
-			await authInstance.ListAsync();
+			await authInstance.ListObjects();
 		}
 
 		[Fact]
@@ -76,9 +76,9 @@ namespace FluentStorage.Tests.Integration.Azure {
 		public async Task FS_GetProperties() {
 			string fsName = "propfs";
 
-			await _storage.WriteTextAsync(fsName + "/fff", "test");
+			await _storage.SetText(fsName + "/fff", "test");
 
-			StorageObject fsBlob = await _storage.GetBlobAsync(fsName);
+			StorageObject fsBlob = await _storage.GetObjectInfo(fsName);
 
 
 		}
@@ -89,7 +89,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 			string userId = _settings.OperatorObjectId;
 
 			//write something
-			await _storage.WriteTextAsync(path, "perm?");
+			await _storage.SetText(path, "perm?");
 
 			//check that user has no permissions
 			AccessControl access = await _storage.GetAccessControlAsync(path);
@@ -113,7 +113,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 			string userId = _settings.OperatorObjectId;
 
 			//write something
-			await _storage.WriteTextAsync(path, "perm?");
+			await _storage.SetText(path, "perm?");
 
 			//check that user has no permissions
 			AccessControl access = await _storage.GetAccessControlAsync(path, true);
@@ -135,7 +135,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 			string userId = _settings.OperatorObjectId;
 
 			//write something
-			await _storage.WriteTextAsync(filePath, "perm?");
+			await _storage.SetText(filePath, "perm?");
 
 			//check that user has no permissions
 			AccessControl access = await _storage.GetAccessControlAsync(directoryPath);
@@ -160,7 +160,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 			string userId = _settings.OperatorObjectId;
 
 			//write something
-			await _storage.WriteTextAsync(filePath, "perm?");
+			await _storage.SetText(filePath, "perm?");
 
 			//check that user has no permissions
 			AccessControl access = await _storage.GetAccessControlAsync(directoryPath);
@@ -237,10 +237,10 @@ namespace FluentStorage.Tests.Integration.Azure {
 		public async Task InitializeAsync() {
 			//drop all blobs in test storage
 			List<StorageObject> topLevel =
-			   (await _storage.ListDirectoryAsync(recurse: false, folderPath: Filesystem)).ToList();
+			   (await _storage.ListDirectory(recurse: false, folderPath: Filesystem)).ToList();
 
 			try {
-				await _storage.DeleteAsync(topLevel.Select(f => f.FullPath));
+				await _storage.DeleteObject(topLevel.Select(f => f.FullPath));
 			}
 			catch {
 				//suppress exception to resume test attempt

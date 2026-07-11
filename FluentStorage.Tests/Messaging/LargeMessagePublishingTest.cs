@@ -23,7 +23,7 @@ namespace FluentStorage.Tests.Messaging {
 
 			//send small message
 			await _publisher.SendAsync("test", smallMessage);
-			int blobCount = (await _blobStorage.ListFilesAsync(new StorageListOptions { Recurse = true })).Count;
+			int blobCount = (await _blobStorage.ListFiles(new StorageListOptions { Recurse = true })).Count;
 
 			//validate that small message was never uploaded
 			Assert.Equal(0, blobCount);
@@ -38,7 +38,7 @@ namespace FluentStorage.Tests.Messaging {
 
 			//send large message
 			await _publisher.SendAsync("test", largeMessage);
-			int blobCount = (await _blobStorage.ListFilesAsync(new StorageListOptions { Recurse = true })).Count;
+			int blobCount = (await _blobStorage.ListFiles(new StorageListOptions { Recurse = true })).Count;
 
 			//validate that small message was uploaded once
 			Assert.Equal(1, blobCount);

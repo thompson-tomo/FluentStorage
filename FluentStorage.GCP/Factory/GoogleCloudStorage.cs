@@ -7,14 +7,13 @@ using FluentStorage.GCP.Storage;
 
 namespace FluentStorage {
 	/// <summary>
-	/// Google Cloud Storage factory that is accessible using `FluentStorage.StorageFactory.Blobs` by way of extension methods.
+	/// Google Cloud Storage factory to create instances of `IBucket` using this provider.
 	/// </summary>
 	public static class GoogleCloudStorage {
+
 		/// <summary>
-		/// Initialises Google Cloud Storage module required for connection strings to work
+		/// Enable Google Cloud Storage connection string support.
 		/// </summary>
-		/// <param name="factory"></param>
-		/// <returns></returns>
 		public static void Use() {
 			FluentStorage.StorageFactory.Use(new Module());
 		}

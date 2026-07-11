@@ -52,7 +52,7 @@ namespace FluentStorage.Tests.Messaging {
 			IQueueProcessor messageProcessor = Mock.Of<IQueueProcessor>();
 
 			// Act
-			Func<Task> startingMessageProcessorWhenChannelNameIsNull = async () => await _sut.StartMessageProcessorAsync(null, messageProcessor)
+			Func<Task> startingMessageProcessorWhenChannelNameIsNull = async () => await _sut.StartMessageProcessor(null, messageProcessor)
 																							 .ConfigureAwait(false);
 
 			// Assert
@@ -67,7 +67,7 @@ namespace FluentStorage.Tests.Messaging {
 			string channelName = Guid.NewGuid().ToString();
 
 			// Act
-			Func<Task> startingMessageProcessorWhenChannelNameIsNull = async () => await _sut.StartMessageProcessorAsync(channelName, null)
+			Func<Task> startingMessageProcessorWhenChannelNameIsNull = async () => await _sut.StartMessageProcessor(channelName, null)
 																							 .ConfigureAwait(false);
 
 			// Assert
@@ -82,7 +82,7 @@ namespace FluentStorage.Tests.Messaging {
 			string channelName = Guid.NewGuid().ToString();
 
 			// Act
-			Func<Task> startingMessageProcessorWhenChannelDoesNotExist = async () => await _sut.StartMessageProcessorAsync(channelName, Mock.Of<IQueueProcessor>())
+			Func<Task> startingMessageProcessorWhenChannelDoesNotExist = async () => await _sut.StartMessageProcessor(channelName, Mock.Of<IQueueProcessor>())
 																							  .ConfigureAwait(false);
 
 			// Assert
@@ -100,7 +100,7 @@ namespace FluentStorage.Tests.Messaging {
 			Mock<IQueueProcessor> messageProcessorMock = new();
 
 			// Act
-			await _sut.StartMessageProcessorAsync(channelName, messageProcessorMock.Object).ConfigureAwait(false);
+			await _sut.StartMessageProcessor(channelName, messageProcessorMock.Object).ConfigureAwait(false);
 			await _sut.SendAsync(channelName, message).ConfigureAwait(false);
 
 			// Assert
@@ -126,9 +126,9 @@ namespace FluentStorage.Tests.Messaging {
 			Mock<IQueueProcessor> thirdProcessorMock = mockRepository.Create<IQueueProcessor>();
 
 			// Act
-			await _sut.StartMessageProcessorAsync(channelName, firstProcessorMock.Object).ConfigureAwait(false);
-			await _sut.StartMessageProcessorAsync(channelName, secondProcessorMock.Object).ConfigureAwait(false);
-			await _sut.StartMessageProcessorAsync(channelName, thirdProcessorMock.Object).ConfigureAwait(false);
+			await _sut.StartMessageProcessor(channelName, firstProcessorMock.Object).ConfigureAwait(false);
+			await _sut.StartMessageProcessor(channelName, secondProcessorMock.Object).ConfigureAwait(false);
+			await _sut.StartMessageProcessor(channelName, thirdProcessorMock.Object).ConfigureAwait(false);
 
 			await _sut.SendAsync(channelName, message).ConfigureAwait(false);
 

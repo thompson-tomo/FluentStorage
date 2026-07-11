@@ -22,7 +22,7 @@ namespace FluentStorage.Tests.Blobs {
 
 		[Fact]
 		public async Task Return_files_and_mounts_one_mount() {
-			List<StorageObject> all = await _vs.ListAsync();
+			List<StorageObject> all = await _vs.ListObjects();
 
 			Assert.Equal(1, all.Count);   // "mnt" folder
 			Assert.Equal(new StorageObject("/mnt", StorageObjectType.Folder), all.First());
@@ -30,9 +30,9 @@ namespace FluentStorage.Tests.Blobs {
 
 		[Fact]
 		public async Task Return_files_and_mounts_one_mount_and_one_file() {
-			await _ms0.WriteTextAsync("1.txt", "test");
+			await _ms0.SetText("1.txt", "test");
 
-			List<StorageObject> all = await _vs.ListAsync();
+			List<StorageObject> all = await _vs.ListObjects();
 
 			Assert.Equal(2, all.Count);   // "mnt" folder
 			Assert.Equal(new StorageObject("/mnt", StorageObjectType.Folder), all.First());
@@ -41,10 +41,10 @@ namespace FluentStorage.Tests.Blobs {
 
 		[Fact]
 		public async Task Mass_exists_calls_both_mounts() {
-			await _ms1.WriteTextAsync("ms1.txt", "dfadf");
-			await _ms2.WriteTextAsync("ms2.txt", "dfafsdf");
+			await _ms1.SetText("ms1.txt", "dfadf");
+			await _ms2.SetText("ms2.txt", "dfafsdf");
 
-			await _vs.ExistsAsync(new[] { "/mnt/ms1/ms1.txt", "/mnt/ms2/ms2.txt" });
+			await _vs.ObjectExists(new[] { "/mnt/ms1/ms1.txt", "/mnt/ms2/ms2.txt" });
 		}
 	}
 }

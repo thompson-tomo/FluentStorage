@@ -51,16 +51,16 @@ namespace FluentStorage.Azure.Blobs.DataLake {
 		}
 
 
-		protected override Task DeleteAsync(string fullPath, CancellationToken cancellationToken) {
+		protected override Task DeleteObject(string fullPath, CancellationToken cancellationToken) {
 			return _extended.DeleteAsync(fullPath, cancellationToken);
 		}
 
-		public override Task<List<StorageObject>> ListAsync(
+		public override Task<List<StorageObject>> ListObjects(
 		   StorageListOptions options, CancellationToken cancellationToken) {
 			return _extended.ListAsync(options, cancellationToken);
 		}
 
-		protected override Task<StorageObject> GetBlobAsync(string fullPath, CancellationToken cancellationToken) {
+		protected override Task<StorageObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken) {
 			return _extended.GetBlobAsync(fullPath, cancellationToken);
 		}
 

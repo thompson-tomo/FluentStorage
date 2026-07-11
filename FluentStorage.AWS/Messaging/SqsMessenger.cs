@@ -46,17 +46,17 @@ namespace FluentStorage.AWS.Messaging {
 		}
 
 
-		public async Task CreateChannelsAsync(IEnumerable<string> channelNames, CancellationToken cancellationToken = default) {
+		public async Task CreateChannels(IEnumerable<string> channelNames, CancellationToken cancellationToken = default) {
 			await Task.WhenAll(channelNames.Select(cn => _client.CreateQueueAsync(cn, cancellationToken))).ConfigureAwait(false);
 		}
 
-		public async Task<List<string>> ListChannelsAsync(CancellationToken cancellationToken = default) {
+		public async Task<List<string>> ListChannels(CancellationToken cancellationToken = default) {
 			ListQueuesResponse queues = await _client.ListQueuesAsync(new ListQueuesRequest { }).ConfigureAwait(false);
 
 			return queues.QueueUrls.Select(u => u.Substring(u.LastIndexOf("/") + 1)).ToList();
 		}
 
-		public async Task DeleteChannelsAsync(IEnumerable<string> channelNames, CancellationToken cancellationToken = default) {
+		public async Task DeleteChannels(IEnumerable<string> channelNames, CancellationToken cancellationToken = default) {
 			if (channelNames is null)
 				throw new ArgumentNullException(nameof(channelNames));
 
@@ -65,7 +65,7 @@ namespace FluentStorage.AWS.Messaging {
 			}
 		}
 
-		public async Task<long> GetMessageCountAsync(string channelName, CancellationToken cancellationToken = default) {
+		public async Task<long> GetMessageCount(string channelName, CancellationToken cancellationToken = default) {
 			if (channelName is null)
 				throw new ArgumentNullException(nameof(channelName));
 
@@ -80,7 +80,7 @@ namespace FluentStorage.AWS.Messaging {
 			}
 		}
 
-		public async Task SendAsync(string channelName, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) {
+		public async Task SendMessages(string channelName, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) {
 			if (channelName is null)
 				throw new ArgumentNullException(nameof(channelName));
 			if (messages is null)
@@ -104,11 +104,11 @@ namespace FluentStorage.AWS.Messaging {
 			}
 		}
 
-		public Task<List<QueueMessage>> ReceiveAsync(string channelName, int count = 100, TimeSpan? visibility = null, CancellationToken cancellationToken = default) {
+		public Task<List<QueueMessage>> ReceiveMessages(string channelName, int count = 100, TimeSpan? visibility = null, CancellationToken cancellationToken = default) {
 			return ReceiveInternalAsync(channelName, count, visibility ?? TimeSpan.FromMinutes(1), cancellationToken);
 		}
 
-		public Task<List<QueueMessage>> PeekAsync(string channelName, int count = 100, CancellationToken cancellationToken = default) {
+		public Task<List<QueueMessage>> PeekMessages(string channelName, int count = 100, CancellationToken cancellationToken = default) {
 			return ReceiveInternalAsync(channelName, count, TimeSpan.FromSeconds(1), cancellationToken);
 		}
 
@@ -132,8 +132,8 @@ namespace FluentStorage.AWS.Messaging {
 
 		}
 
-		public Task DeleteAsync(string channelName, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) => throw new NotImplementedException();
-		public Task StartMessageProcessorAsync(string channelName, IQueueProcessor messageProcessor) => throw new NotImplementedException();
+		public Task DeleteMessages(string channelName, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+		public Task StartMessageProcessor(string channelName, IQueueProcessor messageProcessor) => throw new NotImplementedException();
 
 	}
 }

@@ -10,11 +10,11 @@ using FluentStorage.Azure.Files.Storage;
 
 namespace FluentStorage {
 	/// <summary>
-	/// Azure Files/DataLake Factory that is accessible using `FluentStorage.StorageFactory.Blobs` by way of extension methods.
+	/// Azure Files/Data Lake Factory to create instances of `IBucket` using this provider.
 	/// </summary>
 	public static class AzureFilesStorage {
 		/// <summary>
-		/// Register Azure module.
+		/// Enable Azure Files connection string support.
 		/// </summary>
 		public static void Use() {
 			FluentStorage.StorageFactory.Use(new Module());

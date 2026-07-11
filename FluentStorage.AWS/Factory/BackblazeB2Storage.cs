@@ -2,6 +2,9 @@
 using FluentStorage.Storage;
 
 namespace FluentStorage.AWS.Factory {
+	/// <summary>
+	/// Backblaze B2 factory to create instances of `IBucket` using this provider.
+	/// </summary>
 	public static class BackblazeB2Storage {
 
 		/// <summary>

@@ -60,12 +60,12 @@ namespace FluentStorage.Tests.Integration.Messaging {
 
 		[Fact]
 		public async Task SendMessage_NullMessages_ArgumentException() {
-			await Assert.ThrowsAsync<ArgumentNullException>(() => _msg.SendAsync(_qn, null));
+			await Assert.ThrowsAsync<ArgumentNullException>(() => _msg.SendMessages(_qn, null));
 		}
 
 		[Fact]
 		public async Task Channels_list_doesnt_crash() {
-			await _msg.ListChannelsAsync();
+			await _msg.ListChannels();
 		}
 
 		[Fact]
@@ -84,7 +84,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 			const int maxRetries = 10;
 
 			for (int i = 0; i < maxRetries; i++) {
-				List<string> channels = await _msg.ListChannelsAsync();
+				List<string> channels = await _msg.ListChannels();
 
 				if (channels.Contains(channelName))
 					return;
@@ -108,7 +108,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 
 			await _msg.DeleteChannelAsync(channelName);
 
-			List<string> channels = await _msg.ListChannelsAsync();
+			List<string> channels = await _msg.ListChannels();
 
 			Assert.DoesNotContain(channelName, channels);
 
@@ -116,7 +116,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 
 		[Fact]
 		public async Task Channels_delete_null_list_argument_exception() {
-			await Assert.ThrowsAsync<ArgumentNullException>(() => _msg.DeleteChannelsAsync(null));
+			await Assert.ThrowsAsync<ArgumentNullException>(() => _msg.DeleteChannels(null));
 		}
 
 		[Fact]
@@ -124,7 +124,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 			long count1;
 
 			try {
-				count1 = await _msg.GetMessageCountAsync(_qn + _receiveChannelSuffix);
+				count1 = await _msg.GetMessageCount(_qn + _receiveChannelSuffix);
 			}
 			catch (NotSupportedException) {
 				return;
@@ -132,20 +132,20 @@ namespace FluentStorage.Tests.Integration.Messaging {
 
 			await _msg.SendAsync(_qn, QueueMessage.FromText("bla bla"));
 
-			long count2 = await _msg.GetMessageCountAsync(_qn + _receiveChannelSuffix);
+			long count2 = await _msg.GetMessageCount(_qn + _receiveChannelSuffix);
 
 			Assert.NotEqual(count1, count2);
 		}
 
 		[Fact]
 		public async Task MessageCount_Null_ThrowsArgumentNull() {
-			await Assert.ThrowsAsync<ArgumentNullException>(() => _msg.GetMessageCountAsync(null));
+			await Assert.ThrowsAsync<ArgumentNullException>(() => _msg.GetMessageCount(null));
 		}
 
 		[Fact]
 		public async Task MessageCount_NonExistentQueue_Return0() {
 			try {
-				Assert.Equal(0, await _msg.GetMessageCountAsync(NewChannelName() + _receiveChannelSuffix));
+				Assert.Equal(0, await _msg.GetMessageCount(NewChannelName() + _receiveChannelSuffix));
 			}
 			catch (NotSupportedException) {
 
@@ -157,7 +157,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 			string tag = await SendAsync();
 
 			try {
-				List<QueueMessage> messages = await _msg.ReceiveAsync(_qn);
+				List<QueueMessage> messages = await _msg.ReceiveMessages(_qn);
 
 				Assert.Contains(messages, m => m.Properties.TryGetValue("tag", out string itag) && itag == tag);
 			}
@@ -168,7 +168,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 
 		[Fact]
 		public async Task Peek_NullChannel_ThrowsArgumentNull() {
-			await Assert.ThrowsAsync<ArgumentNullException>(() => _msg.PeekAsync(null));
+			await Assert.ThrowsAsync<ArgumentNullException>(() => _msg.PeekMessages(null));
 		}
 
 		[Fact]
@@ -176,7 +176,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 			try {
 				await SendAsync();
 
-				List<QueueMessage> messages = await _msg.PeekAsync(_qn);
+				List<QueueMessage> messages = await _msg.PeekMessages(_qn);
 
 				Assert.NotEmpty(messages);
 			}
@@ -187,7 +187,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 
 		[Fact]
 		public async Task Receive_NullChannel_ArgumentNullException() {
-			await Assert.ThrowsAsync<ArgumentNullException>(() => _msg.ReceiveAsync(null));
+			await Assert.ThrowsAsync<ArgumentNullException>(() => _msg.ReceiveMessages(null));
 		}
 
 		private async Task<string> SendAsync() {

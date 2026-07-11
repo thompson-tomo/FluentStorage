@@ -91,7 +91,7 @@ namespace FluentStorage.Azure.Files.Storage {
 			}
 		}
 
-		public override async Task WriteAsync(
+		public override async Task SetObject(
 		   string fullPath,
 		   Stream dataStream,
 		   bool append = false,
@@ -126,7 +126,7 @@ namespace FluentStorage.Azure.Files.Storage {
 			}
 		}
 
-		public override async Task<Stream> OpenReadAsync(string fullPath, CancellationToken cancellationToken = default) {
+		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
 			ShareFileClient file = await GetFileReferenceAsync(fullPath, false, cancellationToken).ConfigureAwait(false);
 			if (file == null) {
 				return null;
@@ -144,7 +144,7 @@ namespace FluentStorage.Azure.Files.Storage {
 			}
 		}
 
-		public override async Task<StorageObject> GetBlobAsync(string fullPath, CancellationToken cancellationToken) {
+		public override async Task<StorageObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken) {
 			ShareFileClient file = await GetFileReferenceAsync(fullPath, false, cancellationToken).ConfigureAwait(false);
 			if (file == null) {
 				return null;
@@ -194,7 +194,7 @@ namespace FluentStorage.Azure.Files.Storage {
 			}
 		}
 
-		public override async Task<bool> ExistsAsync(string fullPath, CancellationToken cancellationToken) {
+		public override async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken) {
 			ShareFileClient file = await GetFileReferenceAsync(fullPath, false, cancellationToken).ConfigureAwait(false);
 
 			if (file == null) {
@@ -204,7 +204,7 @@ namespace FluentStorage.Azure.Files.Storage {
 			return await file.ExistsAsync(cancellationToken).ConfigureAwait(false);
 		}
 
-		public override async Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
+		public override async Task SetObjectsInfo(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPaths(blobs);
 
 			await Task.WhenAll(blobs.Select(b => SetBlobAsync(b, cancellationToken))).ConfigureAwait(false);

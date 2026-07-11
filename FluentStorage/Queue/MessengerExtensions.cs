@@ -15,7 +15,7 @@ namespace FluentStorage.Queue {
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
 		public static Task CreateChannelAsync(this IQueue messenger, string channelName, CancellationToken cancellationToken = default) {
-			return messenger.CreateChannelsAsync(new[] { channelName }, cancellationToken);
+			return messenger.CreateChannels(new[] { channelName }, cancellationToken);
 		}
 
 		/// <summary>
@@ -28,7 +28,7 @@ namespace FluentStorage.Queue {
 			if (message == null)
 				throw new ArgumentNullException(nameof(message));
 
-			return messenger.SendAsync(channelName, new[] { message }, cancellationToken);
+			return messenger.SendMessages(channelName, new[] { message }, cancellationToken);
 		}
 
 		/// <summary>
@@ -39,7 +39,7 @@ namespace FluentStorage.Queue {
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
 		public static Task DeleteChannelAsync(this IQueue messenger, string channelName, CancellationToken cancellationToken = default) {
-			return messenger.DeleteChannelsAsync(new[] { channelName }, cancellationToken);
+			return messenger.DeleteChannels(new[] { channelName }, cancellationToken);
 		}
 	}
 }

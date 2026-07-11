@@ -19,28 +19,28 @@ namespace FluentStorage.Storage.Sinks {
 		}
 
 		public Task DeleteAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			return _parent.DeleteAsync(fullPaths, cancellationToken);
+			return _parent.DeleteObject(fullPaths, cancellationToken);
 		}
 
 		public void Dispose() => _parent.Dispose();
 
 		public Task<List<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			return _parent.ExistsAsync(fullPaths, cancellationToken);
+			return _parent.ObjectExists(fullPaths, cancellationToken);
 		}
 
 		public Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			return _parent.GetBlobsAsync(fullPaths, cancellationToken);
+			return _parent.GetObjectsInfo(fullPaths, cancellationToken);
 		}
 
 		public Task<List<StorageObject>> ListAsync(StorageListOptions options = null, CancellationToken cancellationToken = default) {
-			return _parent.ListAsync(options, cancellationToken);
+			return _parent.ListObjects(options, cancellationToken);
 		}
 
-		public Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) => _parent.SetBlobsAsync(blobs, cancellationToken);
+		public Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) => _parent.SetObjectsInfo(blobs, cancellationToken);
 
 		public async Task<Stream> OpenReadAsync(string fullPath, CancellationToken cancellationToken = default) {
 			//chain streams
-			Stream readStream = await _parent.OpenReadAsync(fullPath, cancellationToken).ConfigureAwait(false);
+			Stream readStream = await _parent.OpenRead(fullPath, cancellationToken).ConfigureAwait(false);
 
 			if (readStream == null)
 				return null;
@@ -58,7 +58,7 @@ namespace FluentStorage.Storage.Sinks {
 				return;
 
 			using (var source = new SinkedStream(dataSourceStream, fullPath, _sinks)) {
-				await _parent.WriteAsync(fullPath, source, append, cancellationToken).ConfigureAwait(false);
+				await _parent.SetObject(fullPath, source, append, cancellationToken).ConfigureAwait(false);
 			}
 		}
 		public async Task WriteAsync(string fullPath, Stream dataSourceStream, string contentType, bool append, CancellationToken cancellationToken) {
@@ -66,7 +66,7 @@ namespace FluentStorage.Storage.Sinks {
 				return;
 
 			using (var source = new SinkedStream(dataSourceStream, fullPath, _sinks)) {
-				await _parent.WriteAsync(fullPath, source, contentType, append, cancellationToken).ConfigureAwait(false);
+				await _parent.SetObject(fullPath, source, contentType, append, cancellationToken).ConfigureAwait(false);
 			}
 		}
 

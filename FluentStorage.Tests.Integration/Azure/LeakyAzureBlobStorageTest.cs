@@ -40,7 +40,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 
 			//check we can connect and list containers
 			IBucket sasInstance = AzureBlobStorage.FromSas(sas);
-			List<StorageObject> containers = await sasInstance.ListDirectoryAsync(StoragePath.RootFolderPath);
+			List<StorageObject> containers = await sasInstance.ListDirectory(StoragePath.RootFolderPath);
 			Assert.True(containers.Count > 0);
 		}
 
@@ -64,7 +64,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 		[Fact]
 		public async Task ContainerPublicAccess() {
 			//make sure container exists
-			await _native.WriteTextAsync("test/one", "test");
+			await _native.SetText("test/one", "test");
 			await _native.SetContainerPublicAccessAsync("test", ContainerPublicAccessType.Off);
 
 			ContainerPublicAccessType pa = await _native.GetContainerPublicAccessAsync("test");
@@ -80,7 +80,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 		public async Task Sas_BlobPublicAccess() {
 			string path = StoragePath.Combine("test", Guid.NewGuid().ToString() + ".txt");
 
-			await _native.WriteTextAsync(path, "read me!");
+			await _native.SetText(path, "read me!");
 
 			var policy = new BlobSasPolicy(DateTime.UtcNow, TimeSpan.FromHours(12)) {
 				Permissions = BlobSasPermission.Read | BlobSasPermission.Write
@@ -162,7 +162,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 
 		[Fact]
 		public async Task Top_level_folders_are_containers() {
-			List<StorageObject> containers = await _native.ListAsync();
+			List<StorageObject> containers = await _native.ListObjects();
 
 			foreach (StorageObject container in containers) {
 				Assert.Equal(StorageObjectType.Folder, container.Type);
@@ -174,13 +174,13 @@ namespace FluentStorage.Tests.Integration.Azure {
 		[Fact]
 		public async Task Delete_container() {
 			string containerName = Guid.NewGuid().ToString();
-			await _native.WriteTextAsync($"{containerName}/test.txt", "test");
+			await _native.SetText($"{containerName}/test.txt", "test");
 
-			List<StorageObject> containers = await _native.ListAsync();
+			List<StorageObject> containers = await _native.ListObjects();
 			Assert.Contains(containers, c => c.Name == containerName);
 
-			await _native.DeleteAsync(containerName);
-			containers = await _native.ListAsync();
+			await _native.DeleteObject(containerName);
+			containers = await _native.ListObjects();
 			Assert.DoesNotContain(containers, c => c.Name == containerName);
 		}
 
@@ -205,7 +205,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 			}
 
 			// Assert
-			var actualContents = await _native.ReadTextAsync($"{containerName}/test.txt");
+			var actualContents = await _native.GetText($"{containerName}/test.txt");
 			Assert.Equal(expectedContents, actualContents);
 		}
 

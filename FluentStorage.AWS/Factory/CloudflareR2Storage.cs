@@ -2,6 +2,9 @@
 using FluentStorage.Storage;
 
 namespace FluentStorage.AWS.Factory {
+	/// <summary>
+	/// Cloudflare R2 factory to create instances of `IBucket` using this provider.
+	/// </summary>
 	public static class CloudflareR2Storage {
 
 		/// <summary>

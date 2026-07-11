@@ -6,58 +6,39 @@ using System.Threading.Tasks;
 
 namespace FluentStorage.Queue {
 	/// <summary>
-	/// Interface to manage a single queue messenger across various cloud providers.
+	/// Interface to manage a single queue across various cloud providers.
 	/// </summary>
 	public interface IQueue : IDisposable {
 
 		/// <summary>
 		/// Create one or more channels
 		/// </summary>
-		/// <param name="channelNames"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		Task CreateChannelsAsync(IEnumerable<string> channelNames, CancellationToken cancellationToken = default);
+		Task CreateChannels(IEnumerable<string> channelNames, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// List available channels
 		/// </summary>
-		/// <returns></returns>
-		Task<List<string>> ListChannelsAsync(CancellationToken cancellationToken = default);
+		Task<List<string>> ListChannels(CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Physically deletes channels
 		/// </summary>
-		/// <param name="channelNames"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		Task DeleteChannelsAsync(IEnumerable<string> channelNames, CancellationToken cancellationToken = default);
+		Task DeleteChannels(IEnumerable<string> channelNames, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Gets message count in a channel.
 		/// </summary>
-		/// <param name="channelName"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		Task<long> GetMessageCountAsync(string channelName, CancellationToken cancellationToken = default);
+		Task<long> GetMessageCount(string channelName, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Send messages to a channel
 		/// </summary>
-		/// <param name="channelName"></param>
-		/// <param name="messages"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		Task SendAsync(string channelName, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default);
+		Task SendMessages(string channelName, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Receive messages from a channel
 		/// </summary>
-		/// <param name="channelName"></param>
-		/// <param name="count"></param>
-		/// <param name="visibility"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		Task<List<QueueMessage>> ReceiveAsync(
+		Task<List<QueueMessage>> ReceiveMessages(
 		   string channelName,
 		   int count = 100,
 		   TimeSpan? visibility = null,
@@ -66,11 +47,7 @@ namespace FluentStorage.Queue {
 		/// <summary>
 		/// Peek messages in a channel
 		/// </summary>
-		/// <param name="channelName"></param>
-		/// <param name="count"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		Task<List<QueueMessage>> PeekAsync(
+		Task<List<QueueMessage>> PeekMessages(
 		   string channelName,
 		   int count = 100,
 		   CancellationToken cancellationToken = default);
@@ -78,11 +55,7 @@ namespace FluentStorage.Queue {
 		/// <summary>
 		/// Deletes messages from the channel
 		/// </summary>
-		/// <param name="channelName"></param>
-		/// <param name="messages"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		Task DeleteAsync(
+		Task DeleteMessages(
 		   string channelName,
 		   IEnumerable<QueueMessage> messages,
 		   CancellationToken cancellationToken = default);
@@ -92,7 +65,6 @@ namespace FluentStorage.Queue {
 		/// </summary>
 		/// <param name="channelName">Name of the channel</param>
 		/// <param name="messageProcessor">Message processor implementation</param>
-		/// <returns></returns>
-		Task StartMessageProcessorAsync(string channelName, IQueueProcessor messageProcessor);
+		Task StartMessageProcessor(string channelName, IQueueProcessor messageProcessor);
 	}
 }

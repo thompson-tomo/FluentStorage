@@ -243,7 +243,7 @@ namespace FluentStorage.AWS.Storage {
 		/// <summary>
 		/// Lists all buckets, optionaly filtering by prefix. Prefix filtering happens on client side.
 		/// </summary>
-		public async Task<List<StorageObject>> ListAsync(StorageListOptions options = null, CancellationToken cancellationToken = default) {
+		public async Task<List<StorageObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			if (options == null)
 				options = new StorageListOptions();
 
@@ -276,9 +276,9 @@ namespace FluentStorage.AWS.Storage {
 		/// before uploading, potentially consuming a large amount of memory.
 		/// 
 		/// </summary>
-		public async Task WriteAsync(string fullPath, Stream dataStream, bool append = false,
+		public async Task SetObject(string fullPath, Stream dataStream, bool append = false,
 		   CancellationToken cancellationToken = default) {
-			await WriteAsync(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
+			await SetObject(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>
@@ -293,7 +293,7 @@ namespace FluentStorage.AWS.Storage {
 		/// before uploading, potentially consuming a large amount of memory.
 		/// 
 		/// </summary>
-		public async Task WriteAsync(string fullPath, Stream dataStream, string contentType,
+		public async Task SetObject(string fullPath, Stream dataStream, string contentType,
 			bool append = false, CancellationToken cancellationToken = default) {
 
 			if (append)
@@ -345,7 +345,7 @@ namespace FluentStorage.AWS.Storage {
 		/// which also disposes the underlying HTTP response.
 		/// Returns <c>null</c> if the blob does not exist.
 		/// </summary>
-		public async Task<Stream> OpenReadAsync(string fullPath, CancellationToken cancellationToken = default) {
+		public async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 
 			fullPath = StoragePath.Normalize(fullPath, true);
@@ -362,7 +362,7 @@ namespace FluentStorage.AWS.Storage {
 		/// Each path is processed independently, including deletion of any virtual directory
 		/// placeholders beneath the blob's path.
 		/// </summary>
-		public async Task DeleteAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public async Task DeleteObject(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			AmazonS3Client client = await GetClientAsync().ConfigureAwait(false);
 
 			await Task.WhenAll(fullPaths.Select(fullPath => DeleteAsync(fullPath, client, cancellationToken))).ConfigureAwait(false);
@@ -390,7 +390,7 @@ namespace FluentStorage.AWS.Storage {
 		///
 		/// The existence checks are performed in parallel.
 		/// </summary>
-		public async Task<List<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public async Task<List<bool>> ObjectExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			AmazonS3Client client = await GetClientAsync().ConfigureAwait(false);
 
 			return (await Task.WhenAll(fullPaths.Select(fullPath => ExistsAsync(client, fullPath, cancellationToken))).ConfigureAwait(false)).ToList();
@@ -421,7 +421,7 @@ namespace FluentStorage.AWS.Storage {
 		///
 		/// Blobs that do not exist are returned as <c>null</c>.
 		/// </summary>
-		public async Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public async Task<List<StorageObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			return (await Task.WhenAll(fullPaths.Select(GetBlobAsync)).ConfigureAwait(false)).ToList();
 		}
 
@@ -454,7 +454,7 @@ namespace FluentStorage.AWS.Storage {
 		/// onto itself with replacement metadata. Blob contents are not re-uploaded.
 		/// Blobs with no metadata are skipped.
 		/// </summary>
-		public async Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
+		public async Task SetObjectsInfo(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
 			if (blobs == null)
 				return;
 

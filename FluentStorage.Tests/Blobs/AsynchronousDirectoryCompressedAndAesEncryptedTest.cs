@@ -41,7 +41,7 @@ namespace FluentStorage.Tests.Blobs.Sink
 			File.Copy(sourceFile, destinationFile, true);
 
 			using (Stream stream = new MemoryStream()) {
-				await _storage.ReadToStreamAsync(sourceFile, stream);
+				await _storage.GetObject(sourceFile, stream);
 				stream.Position = 0;
 				var actual = stream.ToByteArray();
 				Assert.Equal(expected, actual);

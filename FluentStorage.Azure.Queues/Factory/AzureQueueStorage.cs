@@ -7,7 +7,7 @@ using FluentStorage.Azure.Queues.Messenger;
 namespace FluentStorage {
 	public static class AzureQueueStorage {
 		/// <summary>
-		/// Register Azure module.
+		/// Enable Azure Queue connection string support.
 		/// </summary>
 		public static void Use() {
 			StorageFactory.Use(new Module());

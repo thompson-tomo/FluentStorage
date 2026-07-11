@@ -19,8 +19,8 @@ namespace FluentStorage.Tests.Blobs.Sink {
 		[InlineData("123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123")]
 		public async Task Roundtrip(string sample) {
 			var randomFilename = Path.GetRandomFileName();
-			await _storage.WriteTextAsync(randomFilename, sample);
-			Assert.Equal(sample, await _storage.ReadTextAsync(randomFilename));
+			await _storage.SetText(randomFilename, sample);
+			Assert.Equal(sample, await _storage.GetText(randomFilename));
 		}
 
 		[Theory]
@@ -32,10 +32,10 @@ namespace FluentStorage.Tests.Blobs.Sink {
 
 			using (Stream source = sample.ToMemoryStream()) {
 				source.Position = 0;
-				await _storage.WriteAsync(randomFilename, source);
+				await _storage.SetObject(randomFilename, source);
 
 				using (Stream stream = new MemoryStream()) {
-					await _storage.ReadToStreamAsync(randomFilename, stream);
+					await _storage.GetObject(randomFilename, stream);
 					stream.Position = 0;
 					var actual = FromStream(stream);
 					Assert.Equal(sample, actual);
@@ -52,10 +52,10 @@ namespace FluentStorage.Tests.Blobs.Sink {
 				source.Position = 0;
 				var expected = source.ToByteArray();
 				source.Position = 0;
-				await _storage.WriteAsync(randomFilename, source);
+				await _storage.SetObject(randomFilename, source);
 
 				using (Stream stream = new MemoryStream()) {
-					await _storage.ReadToStreamAsync(randomFilename, stream);
+					await _storage.GetObject(randomFilename, stream);
 					stream.Position = 0;
 					var actual = stream.ToByteArray();
 					Assert.Equal(expected, actual);

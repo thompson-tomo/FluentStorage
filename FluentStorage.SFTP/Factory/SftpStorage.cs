@@ -5,7 +5,7 @@ using FluentStorage.SFTP;
 
 namespace FluentStorage {
 	/// <summary>
-	/// SSH.NET SFTP factory that is accessible using `FluentStorage.StorageFactory.Blobs` by way of extension methods.
+	/// SSH.NET SFTP factory to create instances of `IBucket` using this provider.
 	/// </summary>
 	public static class SftpStorage {
 		private class Module : IExternalModule {
@@ -13,7 +13,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		/// Register Sftp module.
+		/// Enable SFTP connection string support.
 		/// </summary>
 		public static void Use() {
 		   FluentStorage.StorageFactory.Use(new Module());

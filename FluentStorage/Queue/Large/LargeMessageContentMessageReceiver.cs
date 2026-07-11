@@ -33,7 +33,7 @@ namespace FluentStorage.Queue.Large {
 
 			message.Properties.Remove(QueueMessage.LargeMessageContentHeaderName);
 
-			await _offloadStorage.DeleteAsync(fileId).ConfigureAwait(false);
+			await _offloadStorage.DeleteObject(fileId).ConfigureAwait(false);
 		}
 
 		public void Dispose() {
@@ -55,7 +55,7 @@ namespace FluentStorage.Queue.Large {
 			foreach (QueueMessage message in messages) {
 				if (!message.Properties.TryGetValue(QueueMessage.LargeMessageContentHeaderName, out string fileId)) continue;
 
-				message.Content = await _offloadStorage.ReadBytesAsync(fileId, cancellationToken).ConfigureAwait(false);
+				message.Content = await _offloadStorage.GetBytes(fileId, cancellationToken).ConfigureAwait(false);
 			}
 
 			//now that messages are augmented pass them to parent

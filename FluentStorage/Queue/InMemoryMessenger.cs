@@ -14,7 +14,7 @@ namespace FluentStorage.Queue {
 		   new ConcurrentDictionary<string, ConcurrentQueue<QueueMessage>>();
 
 
-		public Task CreateChannelsAsync(IEnumerable<string> channelNames, CancellationToken cancellationToken = default) {
+		public Task CreateChannels(IEnumerable<string> channelNames, CancellationToken cancellationToken = default) {
 			foreach (string channelName in channelNames) {
 				_queues[channelName] = new ConcurrentQueue<QueueMessage>();
 			}
@@ -22,7 +22,7 @@ namespace FluentStorage.Queue {
 			return Task.CompletedTask;
 		}
 
-		public Task<long> GetMessageCountAsync(string channelName, CancellationToken cancellationToken = default) {
+		public Task<long> GetMessageCount(string channelName, CancellationToken cancellationToken = default) {
 			if (channelName is null)
 				throw new ArgumentNullException(nameof(channelName));
 
@@ -30,11 +30,11 @@ namespace FluentStorage.Queue {
 			return Task.FromResult((long)queue.Count);
 		}
 
-		public Task<List<string>> ListChannelsAsync(CancellationToken cancellationToken = default) {
+		public Task<List<string>> ListChannels(CancellationToken cancellationToken = default) {
 			return Task.FromResult<List<string>>(_queues.Select(q => q.Key).ToList());
 		}
 
-		public Task DeleteChannelsAsync(IEnumerable<string> channelNames, CancellationToken cancellationToken = default) {
+		public Task DeleteChannels(IEnumerable<string> channelNames, CancellationToken cancellationToken = default) {
 			if (channelNames is null)
 				throw new ArgumentNullException(nameof(channelNames));
 
@@ -45,14 +45,14 @@ namespace FluentStorage.Queue {
 			return Task.CompletedTask;
 		}
 
-		public Task<List<QueueMessage>> PeekAsync(string channelName, int count = 100, CancellationToken cancellationToken = default) {
+		public Task<List<QueueMessage>> PeekMessages(string channelName, int count = 100, CancellationToken cancellationToken = default) {
 			if (channelName is null)
 				throw new ArgumentNullException(nameof(channelName));
 
 			return Task.FromResult<List<QueueMessage>>(GetMessages(channelName, count, true, null));
 		}
 
-		public Task<List<QueueMessage>> ReceiveAsync(
+		public Task<List<QueueMessage>> ReceiveMessages(
 		   string channelName, int count = 100, TimeSpan? visibility = null, CancellationToken cancellationToken = default) {
 			if (channelName is null)
 				throw new ArgumentNullException(nameof(channelName));
@@ -91,7 +91,7 @@ namespace FluentStorage.Queue {
 
 		}
 
-		public Task SendAsync(string channelName, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) {
+		public Task SendMessages(string channelName, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) {
 			if (channelName is null)
 				throw new ArgumentNullException(nameof(channelName));
 
@@ -124,7 +124,7 @@ namespace FluentStorage.Queue {
 			return messenger;
 		}
 
-		public Task DeleteAsync(string channelName, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) => throw new NotImplementedException();
-		public Task StartMessageProcessorAsync(string channelName, IQueueProcessor messageProcessor) => throw new NotImplementedException();
+		public Task DeleteMessages(string channelName, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+		public Task StartMessageProcessor(string channelName, IQueueProcessor messageProcessor) => throw new NotImplementedException();
 	}
 }

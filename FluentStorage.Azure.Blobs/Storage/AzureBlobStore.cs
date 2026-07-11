@@ -41,7 +41,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		}
 
 
-		public virtual async Task<List<StorageObject>> ListAsync(StorageListOptions options = null, CancellationToken cancellationToken = default) {
+		public virtual async Task<List<StorageObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			if (options == null)
 				options = new StorageListOptions();
 
@@ -75,23 +75,23 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		}
 
 
-		public async Task DeleteAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public async Task DeleteObject(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPaths(fullPaths);
 
-			await Task.WhenAll(fullPaths.Select(fullPath => DeleteAsync(fullPath, cancellationToken))).ConfigureAwait(false);
+			await Task.WhenAll(fullPaths.Select(fullPath => DeleteObject(fullPath, cancellationToken))).ConfigureAwait(false);
 		}
 
 		public void Dispose() { }
 
-		public async Task<List<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public async Task<List<bool>> ObjectExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			return (await Task.WhenAll(fullPaths.Select(p => ExistsAsync(p, cancellationToken))).ConfigureAwait(false)).ToList();
 		}
 
-		public async Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			return (await Task.WhenAll(fullPaths.Select(p => GetBlobAsync(p, cancellationToken))).ConfigureAwait(false)).ToList();
+		public async Task<List<StorageObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+			return (await Task.WhenAll(fullPaths.Select(p => GetObjectInfo(p, cancellationToken))).ConfigureAwait(false)).ToList();
 		}
 
-		public async Task<Stream> OpenReadAsync(string fullPath, CancellationToken cancellationToken = default) {
+		public async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 
 			(BlobContainerClient container, string path) = await GetPartsAsync(fullPath, false).ConfigureAwait(false);
@@ -117,15 +117,15 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		/// <summary>
 		/// Uploads a blob to Azure Blob storage, by automatically computing the Content-Type.
 		/// </summary>
-		public async Task WriteAsync(string fullPath, Stream dataStream,
+		public async Task SetObject(string fullPath, Stream dataStream,
 			bool append = false, CancellationToken cancellationToken = default) {
-			await WriteAsync(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
+			await SetObject(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>
 		/// Uploads a blob to Azure Blob storage, with the given Content-Type.
 		/// </summary>
-		public async Task WriteAsync(string fullPath, Stream dataStream,
+		public async Task SetObject(string fullPath, Stream dataStream,
 			string contentType = null,
 			bool append = false, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPath(fullPath);
@@ -157,7 +157,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 				//happens when trying to write to a non-file object i.e. folder
 			}
 		}
-		public async Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
+		public async Task SetObjectsInfo(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPaths(blobs);
 
 			await Task.WhenAll(blobs.Select(b => SetBlobAsync(b, cancellationToken))).ConfigureAwait(false);
@@ -189,7 +189,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			else {
 				//create a new blob if it doesn't exist
 				if (!await ExistsAsync(fullPath).ConfigureAwait(false)) {
-					await WriteAsync(fullPath, new MemoryStream(), false, cancellationToken).ConfigureAwait(false);
+					await SetObject(fullPath, new MemoryStream(), false, cancellationToken).ConfigureAwait(false);
 				}
 
 				BlockBlobClient client = container.GetBlockBlobClient(path);
@@ -360,7 +360,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			}
 		}
 
-		protected virtual async Task<StorageObject> GetBlobAsync(string fullPath, CancellationToken cancellationToken) {
+		protected virtual async Task<StorageObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken) {
 			(BlobContainerClient container, string path) = await GetPartsAsync(fullPath, false).ConfigureAwait(false);
 
 			if (container == null)
@@ -428,7 +428,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			}
 		}
 
-		protected virtual async Task DeleteAsync(string fullPath, CancellationToken cancellationToken) {
+		protected virtual async Task DeleteObject(string fullPath, CancellationToken cancellationToken) {
 			(BlobContainerClient container, string path) = await GetPartsAsync(fullPath, false).ConfigureAwait(false);
 
 			if (StoragePath.IsRootPath(path)) {

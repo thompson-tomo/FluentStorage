@@ -8,11 +8,11 @@ using FluentStorage.FTP.Storage;
 
 namespace FluentStorage {
 	/// <summary>
-	/// FluentFTP factory that is accessible using `FluentStorage.StorageFactory.Blobs` by way of extension methods.
+	/// FluentFTP factory to create instances of `IBucket` using this provider.
 	/// </summary>
 	public static class FtpStorage {
 		/// <summary>
-		/// Register Azure module.
+		/// Enable FTP connection string support.
 		/// </summary>
 		public static void Use() {
 			FluentStorage.StorageFactory.Use(new Module());

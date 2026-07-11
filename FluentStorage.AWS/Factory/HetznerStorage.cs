@@ -2,6 +2,9 @@
 using FluentStorage.Storage;
 
 namespace FluentStorage.AWS.Factory {
+	/// <summary>
+	/// Hetzner Object Storage factory to create instances of `IBucket` using this provider.
+	/// </summary>
 	public static class HetznerStorage {
 
 		/// <summary>

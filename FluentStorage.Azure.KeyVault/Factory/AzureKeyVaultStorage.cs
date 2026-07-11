@@ -8,6 +8,9 @@ using System.Net;
 
 namespace FluentStorage {
 	public static class AzureKeyVaultStorage {
+		/// <summary>
+		/// Enable Azure KeyVault connection string support.
+		/// </summary>
 		public static void Use() {
 			FluentStorage.StorageFactory.Use(new ExternalModule());
 		}

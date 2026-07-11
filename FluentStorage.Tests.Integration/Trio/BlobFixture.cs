@@ -41,10 +41,10 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 			//drop all blobs in test storage
 
-			List<StorageObject> topLevel = (await Storage.ListDirectoryAsync(folderPath: BlobPrefix, recurse: false)).ToList();
+			List<StorageObject> topLevel = (await Storage.ListDirectory(folderPath: BlobPrefix, recurse: false)).ToList();
 
 			try {
-				await Storage.DeleteAsync(topLevel.Select(f => f.FullPath));
+				await Storage.DeleteObject(topLevel.Select(f => f.FullPath));
 			}
 			catch {
 				//absolutely doesn't matter if it fails, this is only a perf improvement on tests

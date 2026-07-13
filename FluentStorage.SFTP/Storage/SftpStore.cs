@@ -403,7 +403,7 @@ namespace FluentStorage.SFTP {
 			await SetObject(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
 		/// <summary>
-		/// Uploads data to a blob from stream.
+		/// Uploads data to a file.
 		/// </summary>
 		/// <param name="fullPath">Remote file path</param>
 		/// <param name="dataStream">Stream to upload from</param>

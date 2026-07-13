@@ -116,6 +116,14 @@ namespace FluentStorage.Storage {
 		/// <returns>An open readable stream.</returns>
 		Task<Stream> OpenRead(string objectPath, CancellationToken cancellationToken = default);
 
+		/// <summary>
+		/// Opens a stream for writing to the blob. If the blob exists, it will be overwritten.
+		/// </summary>
+		/// <param name="objectPath">Full path of the object.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		/// <returns></returns>
+		Task<Stream> OpenWrite(string objectPath, CancellationToken cancellationToken = default);
+
 		/// <summary>Copies an object into an existing stream.</summary>
 		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="targetStream">Destination stream.</param>

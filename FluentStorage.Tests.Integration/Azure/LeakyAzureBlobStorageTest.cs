@@ -35,7 +35,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 			   AccountSasPermission.List |
 			   AccountSasPermission.Read |
 			   AccountSasPermission.Write;
-			string sas = await _native.GetStorageSasAsync(policy);
+			string sas = await _native.GetStorageSas(policy);
 			Assert.NotNull(sas);
 
 			//check we can connect and list containers
@@ -65,14 +65,14 @@ namespace FluentStorage.Tests.Integration.Azure {
 		public async Task ContainerPublicAccess() {
 			//make sure container exists
 			await _native.SetText("test/one", "test");
-			await _native.SetContainerPublicAccessAsync("test", ContainerPublicAccessType.Off);
+			await _native.SetContainerPublicAccess("test", ContainerPublicAccessType.Off);
 
-			ContainerPublicAccessType pa = await _native.GetContainerPublicAccessAsync("test");
+			ContainerPublicAccessType pa = await _native.GetContainerPublicAccess("test");
 			Assert.Equal(ContainerPublicAccessType.Off, pa);   //it's off by default
 
 			//set to public
-			await _native.SetContainerPublicAccessAsync("test", ContainerPublicAccessType.Container);
-			pa = await _native.GetContainerPublicAccessAsync("test");
+			await _native.SetContainerPublicAccess("test", ContainerPublicAccessType.Container);
+			pa = await _native.GetContainerPublicAccess("test");
 			Assert.Equal(ContainerPublicAccessType.Container, pa);
 		}
 
@@ -86,7 +86,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 				Permissions = BlobSasPermission.Read | BlobSasPermission.Write
 			};
 
-			string publicUrl = await _native.GetBlobSasAsync(path);
+			string publicUrl = await _native.GetBlobSas(path);
 
 			Assert.NotNull(publicUrl);
 
@@ -98,9 +98,9 @@ namespace FluentStorage.Tests.Integration.Azure {
 		public async Task Lease_CanAcquireAndRelease() {
 			string id = $"test/{nameof(Lease_CanAcquireAndRelease)}.lck";
 
-			await _native.BreakLeaseAsync(id, true);
+			await _native.BreakLease(id, true);
 
-			using (AzureStorageLease lease = await _native.AcquireLeaseAsync(id, TimeSpan.FromSeconds(20))) {
+			using (AzureStorageLease lease = await _native.AcquireLease(id, TimeSpan.FromSeconds(20))) {
 
 			}
 		}
@@ -109,21 +109,21 @@ namespace FluentStorage.Tests.Integration.Azure {
 		public async Task Lease_Break() {
 			string id = $"test/{nameof(Lease_Break)}.lck";
 
-			await _native.BreakLeaseAsync(id, true);
+			await _native.BreakLease(id, true);
 
-			await _native.AcquireLeaseAsync(id, TimeSpan.FromSeconds(20));
+			await _native.AcquireLease(id, TimeSpan.FromSeconds(20));
 
-			await _native.BreakLeaseAsync(id);
+			await _native.BreakLease(id);
 		}
 
 		[Fact]
 		public async Task Lease_FailsOnAcquiredLeasedBlob() {
 			string id = $"test/{nameof(Lease_FailsOnAcquiredLeasedBlob)}.lck";
 
-			await _native.BreakLeaseAsync(id, true);
+			await _native.BreakLease(id, true);
 
-			using (AzureStorageLease lease1 = await _native.AcquireLeaseAsync(id, TimeSpan.FromSeconds(20))) {
-				await Assert.ThrowsAsync<StorageException>(() => _native.AcquireLeaseAsync(id, TimeSpan.FromSeconds(20)));
+			using (AzureStorageLease lease1 = await _native.AcquireLease(id, TimeSpan.FromSeconds(20))) {
+				await Assert.ThrowsAsync<StorageException>(() => _native.AcquireLease(id, TimeSpan.FromSeconds(20)));
 			}
 		}
 
@@ -131,10 +131,10 @@ namespace FluentStorage.Tests.Integration.Azure {
 		public async Task Lease_WaitsToReleaseAcquiredLease() {
 			string id = $"test/{nameof(Lease_WaitsToReleaseAcquiredLease)}.lck";
 
-			await _native.BreakLeaseAsync(id, true);
+			await _native.BreakLease(id, true);
 
-			using (AzureStorageLease lease1 = await _native.AcquireLeaseAsync(id, TimeSpan.FromSeconds(20))) {
-				await _native.AcquireLeaseAsync(id, TimeSpan.FromSeconds(20), null, true);
+			using (AzureStorageLease lease1 = await _native.AcquireLease(id, TimeSpan.FromSeconds(20))) {
+				await _native.AcquireLease(id, TimeSpan.FromSeconds(20), null, true);
 			}
 		}
 
@@ -142,9 +142,9 @@ namespace FluentStorage.Tests.Integration.Azure {
 		public async Task Lease_Container_CanAcquireAndRelease() {
 			string id = "test";
 
-			await _native.BreakLeaseAsync(id, true);
+			await _native.BreakLease(id, true);
 
-			using (AzureStorageLease lease = await _native.AcquireLeaseAsync(id, TimeSpan.FromSeconds(15))) {
+			using (AzureStorageLease lease = await _native.AcquireLease(id, TimeSpan.FromSeconds(15))) {
 
 			}
 		}
@@ -153,11 +153,11 @@ namespace FluentStorage.Tests.Integration.Azure {
 		public async Task Lease_Container_Break() {
 			string id = "test";
 
-			await _native.BreakLeaseAsync(id, true);
+			await _native.BreakLease(id, true);
 
-			await _native.AcquireLeaseAsync(id, TimeSpan.FromSeconds(15));
+			await _native.AcquireLease(id, TimeSpan.FromSeconds(15));
 
-			await _native.BreakLeaseAsync(id);
+			await _native.BreakLease(id);
 		}
 
 		[Fact]
@@ -194,7 +194,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 
 			var buffer = new byte[256];
 			// Act
-			using (var targetStream = await _native.OpenWriteAsync($"{containerName}/test.txt"))
+			using (var targetStream = await _native.OpenWrite($"{containerName}/test.txt"))
 			{
 				int bytesRead = 0;
 				do

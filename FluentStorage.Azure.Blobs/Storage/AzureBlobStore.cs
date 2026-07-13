@@ -170,7 +170,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 
 
 
-		public async Task<AzureStorageLease> AcquireLeaseAsync(
+		public async Task<AzureStorageLease> AcquireLease(
 		   string fullPath,
 		   TimeSpan? maxLeaseTime = null,
 		   string proposedLeaseId = null,
@@ -222,7 +222,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			return new AzureStorageLease(leaseClient);
 		}
 
-		public async Task BreakLeaseAsync(string fullPath, bool ignoreErrors = false, CancellationToken cancellationToken = default) {
+		public async Task BreakLease(string fullPath, bool ignoreErrors = false, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 
 			(BlobContainerClient container, string path) = await GetPartsAsync(fullPath, true).ConfigureAwait(false);
@@ -250,7 +250,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			}
 		}
 
-		public async Task<ContainerPublicAccessType> GetContainerPublicAccessAsync(string containerName, CancellationToken cancellationToken = default) {
+		public async Task<ContainerPublicAccessType> GetContainerPublicAccess(string containerName, CancellationToken cancellationToken = default) {
 			(BlobContainerClient container, _) = await GetPartsAsync(containerName, true).ConfigureAwait(false);
 
 			Response<BlobContainerAccessPolicy> policy =
@@ -259,7 +259,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			return (ContainerPublicAccessType)(int)policy.Value.BlobPublicAccess;
 		}
 
-		public async Task SetContainerPublicAccessAsync(string containerName, ContainerPublicAccessType containerPublicAccessType, CancellationToken cancellationToken = default) {
+		public async Task SetContainerPublicAccess(string containerName, ContainerPublicAccessType containerPublicAccessType, CancellationToken cancellationToken = default) {
 			(BlobContainerClient container, _) = await GetPartsAsync(containerName, true).ConfigureAwait(false);
 
 			await container.SetAccessPolicyAsync(
@@ -267,7 +267,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			   cancellationToken: cancellationToken).ConfigureAwait(false);
 		}
 
-		public Task<string> GetStorageSasAsync(
+		public Task<string> GetStorageSas(
 		   AccountSasPolicy accountPolicy, bool includeUrl = true, CancellationToken cancellationToken = default) {
 			if (accountPolicy is null)
 				throw new ArgumentNullException(nameof(accountPolicy));
@@ -287,7 +287,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			return Task.FromResult(sas);
 		}
 
-		public Task<string> GetContainerSasAsync(
+		public Task<string> GetContainerSas(
 		   string containerName,
 		   ContainerSasPolicy containerSasPolicy,
 		   bool includeUrl = true,
@@ -305,7 +305,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			return Task.FromResult(sas);
 		}
 
-		public async Task<string> GetBlobSasAsync(
+		public async Task<string> GetBlobSas(
 		   string fullPath,
 		   BlobSasPolicy blobSasPolicy = null,
 		   bool includeUrl = true,
@@ -327,7 +327,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			return sas;
 		}
 
-		public async Task<Stream> OpenWriteAsync(string fullPath, CancellationToken cancellationToken = default) {
+		public async Task<Stream> OpenWrite(string fullPath, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 
 

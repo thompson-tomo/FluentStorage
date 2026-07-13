@@ -20,6 +20,11 @@ namespace FluentStorage.Storage {
 		// ---------------------------------------------------------------------
 
 		/// <summary>
+		/// Returns the base client object used to communicate with the cloud/server.
+		/// </summary>
+		Task<object> GetClient();
+
+		/// <summary>
 		/// Returns true if the given object storage is backed by a file system (Disk/FTP/FTPS).
 		/// </summary>
 		bool HasFileSystem();

@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace FluentStorage.FTP.Storage {
 	/// <summary>
-	/// Manages a single connected FTP server using FluentFTP.
+	/// Manages a single connected FTP server using FluentFTP. Exclusively async.
 	/// </summary>
 	public class FtpStore : StoreBase {
 		private readonly AsyncFtpClient _client;
@@ -37,7 +37,13 @@ namespace FluentStorage.FTP.Storage {
 		public override bool HasFileSystem() {
 			return true;
 		}
-		private async Task<AsyncFtpClient> GetClient() {
+		/// <summary>
+		/// Returns the AsyncFtpClient instance for this store.
+		/// </summary>
+		public override async Task<object> GetClient() {
+			return await Client();
+		}
+		private async Task<AsyncFtpClient> Client() {
 			if (!_client.IsConnected) {
 				await _client.Connect().ConfigureAwait(false);
 
@@ -49,7 +55,7 @@ namespace FluentStorage.FTP.Storage {
 		}
 
 		public async Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
-			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
 
 			if (options == null)
 				options = new StorageListOptions();
@@ -105,7 +111,7 @@ namespace FluentStorage.FTP.Storage {
 		}
 
 		public override async Task DeleteObjects(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
 
 			foreach (string path in fullPaths) {
 				await DeleteObject(path, cancellationToken);
@@ -113,7 +119,7 @@ namespace FluentStorage.FTP.Storage {
 		}
 
 		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken = default) {
-			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
 
 			if (await client.FileExists(fullPath, cancellationToken)) {
 				await client.DeleteFile(fullPath, cancellationToken).ConfigureAwait(false);
@@ -124,7 +130,7 @@ namespace FluentStorage.FTP.Storage {
 		}
 
 		public override async Task<List<bool>> ObjectsExists(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
-			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
 
 			List<bool> results = new List<bool>();
 			foreach (string path in ids) {
@@ -136,13 +142,13 @@ namespace FluentStorage.FTP.Storage {
 		}
 
 		public override async Task<bool> ObjectExists(string path, CancellationToken cancellationToken = default) {
-			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
 
 			return await client.FileExists(path).ConfigureAwait(false);
 		}
 
 		public override async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
-			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
 
 			List<StoreObject> results = new List<StoreObject>();
 			foreach (string path in ids) {
@@ -167,7 +173,7 @@ namespace FluentStorage.FTP.Storage {
 		}
 
 		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
-			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
 
 			try {
 				return await client.OpenRead(fullPath, FtpDataType.Binary, 0, true).ConfigureAwait(false);
@@ -182,7 +188,7 @@ namespace FluentStorage.FTP.Storage {
 		}
 		public override async Task SetObject(string fullPath, Stream dataStream, string contentType, bool append = false, CancellationToken cancellationToken = default) {
 
-			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
 
 			await retryPolicy.ExecuteAsync(async () => {
 				string directory = Path.GetDirectoryName(fullPath);
@@ -216,7 +222,7 @@ namespace FluentStorage.FTP.Storage {
 		/// </summary>
 		public override async Task<Dictionary<string, object>> GetServer(CancellationToken cancellationToken = default) {
 
-			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
 
 			return new Dictionary<string, object> {
 				["ServerOS"] = client.ServerOS,
@@ -232,7 +238,7 @@ namespace FluentStorage.FTP.Storage {
 		/// <param name="folderPath">Path to the new folder.</param>
 		public override async Task CreateDirectory(string folderPath, bool force, CancellationToken cancellationToken = default) {
 
-			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
 
 			await client.CreateDirectory(folderPath, force, cancellationToken).ConfigureAwait(false);
 		}
@@ -244,7 +250,7 @@ namespace FluentStorage.FTP.Storage {
 		/// <param name="recursive">Whether to delete all child files and folders.</param>
 		public override async Task DeleteDirectory(string folderPath, bool recursive, CancellationToken cancellationToken = default) {
 
-			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
 
 			await client.DeleteDirectory(folderPath, recursive ? FtpListOption.Recursive : FtpListOption.Auto, cancellationToken).ConfigureAwait(false);
 		}
@@ -256,7 +262,7 @@ namespace FluentStorage.FTP.Storage {
 		/// <returns>
 		public override async Task<bool> DirectoryExists(string folderPath, CancellationToken cancellationToken = default) {
 
-			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
 			return await client.DirectoryExists(folderPath, cancellationToken).ConfigureAwait(false);
 		}
 
@@ -267,7 +273,7 @@ namespace FluentStorage.FTP.Storage {
 		/// <param name="destinationFolderPath">Destination directory path.</param>
 		public override async Task MoveDirectory(string sourceFolderPath, string destinationFolderPath, CancellationToken cancellationToken = default) {
 
-			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
 			await client.MoveDirectory(sourceFolderPath, destinationFolderPath, FtpRemoteExists.Overwrite, cancellationToken).ConfigureAwait(false);
 		}
 
@@ -280,7 +286,7 @@ namespace FluentStorage.FTP.Storage {
 		/// </returns>
 		public override async Task<int> GetFilePermissions(string filePath, CancellationToken cancellationToken = default) {
 
-			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
 
 			FtpListItem item = await client.GetFilePermissions(filePath, cancellationToken).ConfigureAwait(false);
 			return item?.Chmod ?? 0;
@@ -293,7 +299,7 @@ namespace FluentStorage.FTP.Storage {
 		/// <param name="permissions">Permissions as a numeric CHMOD value (for example, 644 or 755).</param>
 		public override async Task SetFilePermissions(string filePath, int permissions, CancellationToken cancellationToken = default) {
 
-			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
 			await client.Chmod(filePath, permissions, cancellationToken).ConfigureAwait(false);
 		}
 

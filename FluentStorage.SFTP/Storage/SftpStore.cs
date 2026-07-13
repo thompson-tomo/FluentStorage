@@ -13,7 +13,7 @@ using FluentStorage.Enums;
 
 namespace FluentStorage.SFTP {
 	/// <summary>
-	/// Manages a single connected SFTP server using SSH.NET.
+	/// Manages a single connected SFTP server using SSH.NET. Exclusively synchronous.
 	/// </summary>
 	public class SftpStore : StoreBase {
 		/// <summary>
@@ -166,7 +166,7 @@ namespace FluentStorage.SFTP {
 				return;
 			}
 
-			SftpClient client = GetClient();
+			SftpClient client = Client();
 
 			fullPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
 
@@ -201,7 +201,7 @@ namespace FluentStorage.SFTP {
 				return false;
 			}
 
-			SftpClient client = GetClient();
+			SftpClient client = Client();
 
 			fullPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
 
@@ -221,7 +221,7 @@ namespace FluentStorage.SFTP {
 		public override async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 
-			SftpClient client = GetClient();
+			SftpClient client = Client();
 
 			var results = new List<StoreObject>();
 			var fullPathsWithRoot = fullPaths.Select(fullPath => StoragePath.Combine(RootDirectory, fullPath));
@@ -280,7 +280,7 @@ namespace FluentStorage.SFTP {
 			options.MaxResults ??= int.MaxValue;
 			options.BrowseFilter ??= _ => true;
 
-			SftpClient client = GetClient();
+			SftpClient client = Client();
 
 			var folder = StoragePath.Combine(RootDirectory, StoragePath.Normalize(options.FolderPath));
 
@@ -364,7 +364,7 @@ namespace FluentStorage.SFTP {
 
 			fullPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
 
-			SftpClient client = GetClient();
+			SftpClient client = Client();
 
 			MemoryStream stream = new MemoryStream();
 
@@ -392,7 +392,7 @@ namespace FluentStorage.SFTP {
 			oldPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(oldPath));
 			newPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(newPath));
 
-			SftpClient client = GetClient();
+			SftpClient client = Client();
 
 			client.RenameFile(oldPath, newPath);
 
@@ -415,7 +415,7 @@ namespace FluentStorage.SFTP {
 		public override async Task SetObject(string fullPath, Stream dataStream, string contentType, bool append = false, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 
-			SftpClient client = GetClient();
+			SftpClient client = Client();
 			var fullPathWithRoot = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
 			var fileMode = append ? FileMode.Append : FileMode.OpenOrCreate;
 
@@ -457,10 +457,13 @@ namespace FluentStorage.SFTP {
 		}
 
 		/// <summary>
-		/// Gets the <see cref="T:Renci.SshNet.SftpClient" /> instance.
+		/// Returns the SftpClient instance for this store.
 		/// </summary>
-		/// <returns>The <see cref="T:Renci.SshNet.SftpClient" /> instance.</returns>
-		protected SftpClient GetClient() {
+		public override async Task<object> GetClient() {
+			return Client();
+		}
+
+		private SftpClient Client() {
 			ThrowIfDisposed();
 
 			if (!_client.IsConnected) {
@@ -535,7 +538,7 @@ namespace FluentStorage.SFTP {
 		/// </summary>
 		public override async Task<Dictionary<string, object>> GetServer(CancellationToken cancellationToken = default) {
 
-			SftpClient client = GetClient();
+			SftpClient client = Client();
 
 			return new Dictionary<string, object> {
 
@@ -567,7 +570,7 @@ namespace FluentStorage.SFTP {
 		/// <param name="folderPath">Path to the new folder.</param>
 		public override async Task CreateDirectory(string folderPath, bool force, CancellationToken cancellationToken = default) {
 
-			SftpClient client = GetClient();
+			SftpClient client = Client();
 
 			folderPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(folderPath));
 
@@ -581,7 +584,7 @@ namespace FluentStorage.SFTP {
 		/// <param name="recursive">Whether to delete all child files and folders.</param>
 		public override async Task DeleteDirectory(string folderPath, bool recursive, CancellationToken cancellationToken = default) {
 
-			SftpClient client = GetClient();
+			SftpClient client = Client();
 
 			folderPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(folderPath));
 
@@ -622,7 +625,7 @@ namespace FluentStorage.SFTP {
 		/// </returns>
 		public override async Task<bool> DirectoryExists(string folderPath, CancellationToken cancellationToken = default) {
 
-			SftpClient client = GetClient();
+			SftpClient client = Client();
 
 			folderPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(folderPath));
 
@@ -636,7 +639,7 @@ namespace FluentStorage.SFTP {
 		/// <param name="destinationFolderPath">Destination directory path.</param>
 		public override async Task MoveDirectory(string sourceFolderPath, string destinationFolderPath, CancellationToken cancellationToken = default) {
 
-			SftpClient client = GetClient();
+			SftpClient client = Client();
 
 			sourceFolderPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(sourceFolderPath));
 			destinationFolderPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(destinationFolderPath));
@@ -653,7 +656,7 @@ namespace FluentStorage.SFTP {
 		/// </returns>
 		public override async Task<int> GetFilePermissions(string filePath, CancellationToken cancellationToken = default) {
 
-			SftpClient client = GetClient();
+			SftpClient client = Client();
 
 			filePath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(filePath));
 
@@ -675,7 +678,7 @@ namespace FluentStorage.SFTP {
 		/// <param name="permissions">Permissions as a numeric CHMOD value (for example, 644 or 755).</param>
 		public override async Task SetFilePermissions(string filePath, int permissions, CancellationToken cancellationToken = default) {
 
-			SftpClient client = GetClient();
+			SftpClient client = Client();
 
 			filePath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(filePath));
 

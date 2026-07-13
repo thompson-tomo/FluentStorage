@@ -29,6 +29,13 @@ namespace FluentStorage.GCP.Storage {
 			_bucketName = bucketName;
 		}
 
+		/// <summary>
+		/// Returns the StorageClient instance for this store.
+		/// </summary>
+		public override async Task<object> GetClient() {
+			return _client;
+		}
+
 		protected override async Task<List<StoreObject>> ListPath(
 		   string path, StorageListOptions options, CancellationToken cancellationToken) {
 

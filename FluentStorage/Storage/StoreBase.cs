@@ -26,6 +26,9 @@ namespace FluentStorage.Storage {
 		public virtual bool HasFileSystem() {
 			return false;
 		}
+		public virtual async Task<object> GetClient() {
+			return null;
+		}
 
 		public virtual Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();

@@ -41,6 +41,13 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		}
 
 
+		/// <summary>
+		/// Returns the BlobServiceClient instance for this store.
+		/// </summary>
+		public override async Task<object> GetClient() {
+			return _client;
+		}
+
 		public virtual async Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			if (options == null)
 				options = new StorageListOptions();

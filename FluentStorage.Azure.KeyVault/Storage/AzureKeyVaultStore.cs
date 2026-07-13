@@ -26,6 +26,12 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 		}
 
 
+		/// <summary>
+		/// Returns the SecretClient instance for this store.
+		/// </summary>
+		public override async Task<object> GetClient() {
+			return _client;
+		}
 		public async Task<List<StoreObject>> ListObjects(StorageListOptions options, CancellationToken cancellationToken) {
 			if (options == null) options = new StorageListOptions();
 

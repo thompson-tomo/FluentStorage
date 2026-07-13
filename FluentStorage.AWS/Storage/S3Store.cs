@@ -223,18 +223,25 @@ namespace FluentStorage.AWS.Storage {
 		}
 
 		/// <summary>
-		/// Create a client and ensure the S3 bucket exists
+		/// Returns the AmazonS3Client instance for this store.
 		/// </summary>
-		private async Task<AmazonS3Client> GetClientAsync() {
+		public override async Task<object> GetClient() {
+			return await Client();
+		}
+
+		/// <summary>
+		/// Create a client and checks if the S3 bucket exists.
+		/// </summary>
+		private async Task<AmazonS3Client> Client() {
+
 			if (!_initialised) {
 				var bucketExists = await AmazonS3Util.DoesS3BucketExistV2Async(_client, _bucketName);
 				if (!bucketExists) {
-					var request = new PutBucketRequest { BucketName = _bucketName };
-
-					await _client.PutBucketAsync(request).ConfigureAwait(false);
+					throw new StorageException($"Bucket '{_bucketName}' does not exist!");
 				}
-
-				_initialised = true;
+				else {
+					_initialised = true;
+				}
 			}
 
 			return _client;
@@ -249,7 +256,7 @@ namespace FluentStorage.AWS.Storage {
 
 			GenericValidation.CheckBlobPrefix(options.FilePrefix);
 
-			AmazonS3Client client = await GetClientAsync().ConfigureAwait(false);
+			AmazonS3Client client = await Client().ConfigureAwait(false);
 
 			List<StoreObject> blobs;
 			using (var browser = new S3DirectoryBrowser(client, _bucketName)) {
@@ -372,7 +379,7 @@ namespace FluentStorage.AWS.Storage {
 		/// beneath its path.
 		/// </summary>
 		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken = default) {
-			AmazonS3Client client = await GetClientAsync().ConfigureAwait(false);
+			AmazonS3Client client = await Client().ConfigureAwait(false);
 
 			GenericValidation.CheckBlobFullPath(fullPath);
 
@@ -401,7 +408,7 @@ namespace FluentStorage.AWS.Storage {
 			GenericValidation.CheckBlobFullPath(fullPath);
 
 			try {
-				AmazonS3Client client = await GetClientAsync().ConfigureAwait(false);
+				AmazonS3Client client = await Client().ConfigureAwait(false);
 				fullPath = StoragePath.Normalize(fullPath, true);
 				await client.GetObjectMetadataAsync(_bucketName, fullPath, cancellationToken).ConfigureAwait(false);
 				return true;
@@ -431,7 +438,7 @@ namespace FluentStorage.AWS.Storage {
 			GenericValidation.CheckBlobFullPath(fullPath);
 			fullPath = StoragePath.Normalize(fullPath, true);
 
-			AmazonS3Client client = await GetClientAsync().ConfigureAwait(false);
+			AmazonS3Client client = await Client().ConfigureAwait(false);
 
 			try {
 				GetObjectMetadataResponse meta = await client.GetObjectMetadataAsync(_bucketName, fullPath).ConfigureAwait(false);
@@ -455,7 +462,7 @@ namespace FluentStorage.AWS.Storage {
 			if (blobs == null)
 				return;
 
-			AmazonS3Client client = await GetClientAsync().ConfigureAwait(false);
+			AmazonS3Client client = await Client().ConfigureAwait(false);
 
 			foreach (StoreObject blob in blobs.Where(b => b != null)) {
 				if (blob.Metadata != null) {
@@ -476,7 +483,7 @@ namespace FluentStorage.AWS.Storage {
 		/// </summary>
 		private async Task<GetObjectResponse> GetObjectAsync(string key) {
 			var request = new GetObjectRequest { BucketName = _bucketName, Key = key };
-			AmazonS3Client client = await GetClientAsync().ConfigureAwait(false);
+			AmazonS3Client client = await Client().ConfigureAwait(false);
 
 			try {
 				GetObjectResponse response = await client.GetObjectAsync(request).ConfigureAwait(false);
@@ -533,7 +540,7 @@ namespace FluentStorage.AWS.Storage {
 		/// in the signature and must be supplied by the client when making the request.
 		/// </summary>
 		public async Task<string> GetPresignedUrlAsync(string fullPath, string mimeType, int expiresInSeconds, HttpVerb verb, Protocol protocol) {
-			IAmazonS3 client = await GetClientAsync().ConfigureAwait(false);
+			IAmazonS3 client = await Client().ConfigureAwait(false);
 
 			var request = new GetPreSignedUrlRequest() {
 				BucketName = _bucketName,
@@ -557,7 +564,7 @@ namespace FluentStorage.AWS.Storage {
 		/// otherwise an <see cref="ArgumentException"/> is thrown.
 		/// </summary>
 		public async Task SetAcl(string fullPath, string acl) {
-			IAmazonS3 client = await GetClientAsync().ConfigureAwait(false);
+			IAmazonS3 client = await Client().ConfigureAwait(false);
 			var s3CannedAcl = S3CannedACL.FindValue(acl);
 			if (s3CannedAcl is null) {
 				throw new ArgumentException($"don't know '{acl}' acl", acl);

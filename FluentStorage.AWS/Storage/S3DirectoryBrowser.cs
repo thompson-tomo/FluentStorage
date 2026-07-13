@@ -21,8 +21,8 @@ namespace FluentStorage.AWS.Storage {
 			_bucketName = bucketName;
 		}
 
-		public async Task<List<StorageObject>> ListAsync(StorageListOptions options, CancellationToken cancellationToken) {
-			var container = new List<StorageObject>();
+		public async Task<List<StoreObject>> ListAsync(StorageListOptions options, CancellationToken cancellationToken) {
+			var container = new List<StoreObject>();
 
 			_limiter = new AsyncLimiter(options.NumberOfRecursionThreads ?? StorageListOptions.MAX_THREADS);
 
@@ -35,7 +35,7 @@ namespace FluentStorage.AWS.Storage {
 				  : container;
 		}
 
-		private async Task ListFolderAsync(List<StorageObject> container, string path, StorageListOptions options, CancellationToken cancellationToken) {
+		private async Task ListFolderAsync(List<StoreObject> container, string path, StorageListOptions options, CancellationToken cancellationToken) {
 			var request = new ListObjectsV2Request() {
 				MaxKeys = options.PageSize ?? StorageListOptions.PAGE_SIZE,
 				BucketName = _bucketName,
@@ -48,7 +48,7 @@ namespace FluentStorage.AWS.Storage {
 				request.Prefix += options.FilePrefix;
 			}
 
-			var folderContainer = new List<StorageObject>();
+			var folderContainer = new List<StoreObject>();
 
 			while (options.MaxResults == null || (container.Count < options.MaxResults)) {
 				ListObjectsV2Response response;
@@ -71,7 +71,7 @@ namespace FluentStorage.AWS.Storage {
 			container.AddRange(folderContainer);
 
 			if (options.Recurse && options.RecursionMode == StorageRecursion.Local) {
-				List<StorageObject> folders = folderContainer.Where(b => b.Type == StorageObjectType.Folder).ToList();
+				List<StoreObject> folders = folderContainer.Where(b => b.Type == StorageObjectType.Folder).ToList();
 
 				await Task.WhenAll(folders.Select(f => ListFolderAsync(container, f.FullPath, options, cancellationToken))).ConfigureAwait(false);
 			}

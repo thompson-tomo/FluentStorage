@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 
 namespace FluentStorage.Storage {
 	/// <summary>
-	/// Interface to manage a single bucket across various cloud providers (AWS/Azure=/GCP/etc)
-	/// The same interface is used to manage file system providers (Disk/FTP/FTPS).
+	/// Interface to manage a single bucket across various cloud providers (AWS/Azure/GCP/etc)
+	/// The same interface is used to manage a single file system provider (Disk/FTP/FTPS).
 	/// </summary>
-	public interface IBucket : IDisposable {
+	public interface IStore : IDisposable {
 
 
 		// ---------------------------------------------------------------------
@@ -28,7 +28,7 @@ namespace FluentStorage.Storage {
 		/// <param name="options">Listing options.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>The matching objects.</returns>
-		Task<List<StorageObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default);
+		Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Returns the list of objects in a specific directory of this bucket.
@@ -42,7 +42,7 @@ namespace FluentStorage.Storage {
 		/// <param name="maxResults"><see cref="StorageListOptions.MaxResults"/></param>
 		/// <param name="includeAttributes"><see cref="StorageListOptions.IncludeAttributes"/></param>
 		/// <returns>List of blob IDs</returns>
-		Task<List<StorageObject>> ListDirectory(string folderPath = null, Func<StorageObject, bool> browseFilter = null,
+		Task<List<StoreObject>> ListDirectory(string folderPath = null, Func<StoreObject, bool> browseFilter = null,
 		   string filePrefix = null, bool recurse = false,
 		   StorageRecursion recursionMode = StorageRecursion.Remote,
 		   int numberOfRecursionThreads = StorageListOptions.MAX_THREADS,
@@ -53,7 +53,7 @@ namespace FluentStorage.Storage {
 		/// <param name="options">Listing options.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>The matching files.</returns>
-		Task<List<StorageObject>> ListFiles(StorageListOptions options, CancellationToken cancellationToken = default);
+		Task<List<StoreObject>> ListFiles(StorageListOptions options, CancellationToken cancellationToken = default);
 
 
 		// ---------------------------------------------------------------------
@@ -70,35 +70,35 @@ namespace FluentStorage.Storage {
 		/// <param name="fullPaths">Full paths of the objects.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>A collection indicating whether each object exists.</returns>
-		Task<List<bool>> ObjectExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default);
+		Task<List<bool>> ObjectsExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default);
 
 		/// <summary>Gets metadata for a single object.</summary>
 		/// <param name="fullPath">Full path of the object.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>The object metadata.</returns>
-		Task<StorageObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken = default);
+		Task<StoreObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken = default);
 
 		/// <summary>Gets object information which is useful for retrieving object metadata.</summary>
 		/// <param name="fullPaths">Full paths of the objects.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>The object metadata.</returns>
-		Task<List<StorageObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default);
+		Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default);
 
 		/// <summary>Updates metadata for a single object.</summary>
 		/// <param name="metadata">Object metadata.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task SetObjectInfo(StorageObject metadata, CancellationToken cancellationToken = default);
+		Task SetObjectInfo(StoreObject metadata, CancellationToken cancellationToken = default);
 
 		/// <summary>Sets object information which is useful for setting object attributes (user metadata etc.).</summary>
 		/// <param name="metadata">Object metadata.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task SetObjectsInfo(IEnumerable<StorageObject> metadata, CancellationToken cancellationToken = default);
+		Task SetObjectsInfo(IEnumerable<StoreObject> metadata, CancellationToken cancellationToken = default);
 
 		/// <summary>Returns the MD5 hash of an object.</summary>
 		/// <param name="metadata">Object.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>The MD5 hash.</returns>
-		Task<string> GetObjectMD5(StorageObject metadata, CancellationToken cancellationToken = default);
+		Task<string> GetObjectMD5(StoreObject metadata, CancellationToken cancellationToken = default);
 
 
 		// ---------------------------------------------------------------------
@@ -203,7 +203,7 @@ namespace FluentStorage.Storage {
 		/// <param name="targetStorage">Destination bucket.</param>
 		/// <param name="newId">Destination object identifier.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task CopyObjectToBucket(string blobId, IBucket targetStorage, string newId, CancellationToken cancellationToken = default);
+		Task CopyObjectToBucket(string blobId, IStore targetStorage, string newId, CancellationToken cancellationToken = default);
 
 		/// <summary>Renames an object (file or folder).</summary>
 		/// <param name="oldPath">Current path.</param>
@@ -219,12 +219,12 @@ namespace FluentStorage.Storage {
 		/// <summary>Deletes an object by its full path.</summary>
 		/// <param name="fullPaths">Full paths of the objects or folders.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task DeleteObject(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default);
+		Task DeleteObjects(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default);
 
 		/// <summary>Deletes a collection of objects.</summary>
 		/// <param name="blobs">Objects to delete.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task DeleteObjects(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default);
+		Task DeleteObjects(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default);
 
 
 		// ---------------------------------------------------------------------
@@ -233,7 +233,41 @@ namespace FluentStorage.Storage {
 
 		/// <summary>Creates a new folder.</summary>
 		/// <param name="folderPath">Path to the new folder.</param>
-		Task CreateDirectory(string folderPath, string dummyFileName = null, string dummyFileContent = null, CancellationToken cancellationToken = default);
+		Task CreateDirectory(string folderPath, CancellationToken cancellationToken = default);
 
+		/// <summary>
+		/// Gets information about the connected FTP/SFTP server.
+		/// </summary>
+		Task<object> GetServer(CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Gets the capabilities supported by the connected FTP/SFTP server.
+		/// </summary>
+		Task<List<object>> GetCapabilities(CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Returns true if the specified directory or virtual directory exists.
+		/// </summary>
+		Task<bool> DirectoryExists(string folderPath,CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Moves a directory or virtual directory.
+		/// </summary>
+		Task MoveDirectory(string sourceFolderPath,string destinationFolderPath,CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Renames a directory or virtual directory.
+		/// </summary>
+		Task RenameDirectory(string folderPath,string newFolderName,CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Gets the CHMOD permissions of a file.
+		/// </summary>
+		Task<int> GetFilePermissions(string filePath,CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Sets the CHMOD permissions of a file.
+		/// </summary>
+		Task SetFilePermissions(string filePath,int permissions,CancellationToken cancellationToken = default);
 	}
 }

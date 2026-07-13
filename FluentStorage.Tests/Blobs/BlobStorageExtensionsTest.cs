@@ -5,7 +5,7 @@ using Xunit;
 
 namespace FluentStorage.Tests.Blobs {
 	public class BlobStorageExtensionsTest {
-		private readonly IBucket _storage = StorageFactory.InMemory();
+		private readonly IStore _storage = StorageFactory.InMemory();
 
 		[Fact]
 		public async Task Write_read_object() {

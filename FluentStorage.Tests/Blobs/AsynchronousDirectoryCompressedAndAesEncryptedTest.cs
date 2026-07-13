@@ -15,7 +15,7 @@ namespace FluentStorage.Tests.Blobs.Sink
 	{
 		public AsynchronousDirectoryCompressedAndAesEncryptedTest() : base(
 		   StorageFactory
-			  .DirectoryFiles(PathHelper.GetLocalPath("Temp"))
+			  .Disk(PathHelper.GetLocalPath("Temp"))
 			  .WithSinks(
 				 new GZipSink(),
 				 new AesSymmetricEncryptionSink("6qg/7EgPmrK9ZY70pnECtZ40g3dDe74czSvWJ+3dj0A=", "Ucu4aEHU6zTrgZVO+rJMyA==")

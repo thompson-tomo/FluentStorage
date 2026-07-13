@@ -19,7 +19,7 @@ namespace FluentStorage.GCP.Storage {
 	/// <summary>
 	/// Manages a single Google Cloud Storage bucket.
 	/// </summary>
-	public class GoogleCloudStore : BucketBase {
+	public class GoogleCloudStore : StoreBase {
 		
 		private readonly StorageClient _client;
 		private readonly string _bucketName;
@@ -29,7 +29,7 @@ namespace FluentStorage.GCP.Storage {
 			_bucketName = bucketName;
 		}
 
-		protected override async Task<List<StorageObject>> ListPathAsync(
+		protected override async Task<List<StoreObject>> ListPath(
 		   string path, StorageListOptions options, CancellationToken cancellationToken) {
 
 			ObjectsResource.ListRequest request = _client.Service.Objects.List(_bucketName);
@@ -37,7 +37,7 @@ namespace FluentStorage.GCP.Storage {
 			request.Delimiter = "/";
 			request.MaxResults = options.PageSize ?? StorageListOptions.PAGE_SIZE;
 			
-			var page = new List<StorageObject>();
+			var page = new List<StoreObject>();
 			do {
 				GObjects serviceObjects = await request.ExecuteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
@@ -47,7 +47,7 @@ namespace FluentStorage.GCP.Storage {
 
 				if (serviceObjects.Prefixes != null) {
 					//the only info we have about prefixes is it's name
-					page.AddRange(serviceObjects.Prefixes.Select(p => new StorageObject(p, StorageObjectType.Folder)));
+					page.AddRange(serviceObjects.Prefixes.Select(p => new StoreObject(p, StorageObjectType.Folder)));
 				}
 
 
@@ -58,13 +58,13 @@ namespace FluentStorage.GCP.Storage {
 			return page;
 		}
 
-		public override async Task SetObjectsInfo(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
+		public override async Task SetObjectsInfo(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPaths(blobs);
 
-			await Task.WhenAll(blobs.Select(b => SetBlobAsync(b, cancellationToken))).ConfigureAwait(false);
+			await Task.WhenAll(blobs.Select(b => SetObjectInfo(b, cancellationToken))).ConfigureAwait(false);
 		}
 
-		private async Task SetBlobAsync(StorageObject blob, CancellationToken cancellationToken = default) {
+		public override async Task SetObjectInfo(StoreObject blob, CancellationToken cancellationToken = default) {
 			GObject item = await _client.GetObjectAsync(_bucketName, NormalisePath(blob.FullPath), cancellationToken: cancellationToken).ConfigureAwait(false);
 
 			if (item.Metadata == null) {
@@ -83,7 +83,7 @@ namespace FluentStorage.GCP.Storage {
 			await _client.UpdateObjectAsync(item, cancellationToken: cancellationToken).ConfigureAwait(false);
 		}
 
-		public override async Task<StorageObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken) {
+		public override async Task<StoreObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken) {
 			fullPath = NormalisePath(fullPath);
 
 			try {
@@ -100,7 +100,7 @@ namespace FluentStorage.GCP.Storage {
 			}
 		}
 
-		protected override async Task DeleteSingleAsync(string fullPath, CancellationToken cancellationToken) {
+		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken) {
 			try {
 				await _client.DeleteObjectAsync(_bucketName, NormalisePath(fullPath), cancellationToken: cancellationToken).ConfigureAwait(false);
 			}
@@ -108,9 +108,9 @@ namespace FluentStorage.GCP.Storage {
 				//when not found, just ignore
 
 				//try delete everything recursively
-				List<StorageObject?> childObjects = await ListPathAsync(fullPath, new StorageListOptions { Recurse = true }, cancellationToken).ConfigureAwait(false);
+				List<StoreObject?> childObjects = await ListPath(fullPath, new StorageListOptions { Recurse = true }, cancellationToken).ConfigureAwait(false);
 
-				foreach (StorageObject? blob in childObjects) {
+				foreach (StoreObject? blob in childObjects) {
 					if (blob == null) {
 						continue;
 					}

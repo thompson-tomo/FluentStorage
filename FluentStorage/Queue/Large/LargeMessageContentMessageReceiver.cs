@@ -7,9 +7,9 @@ using FluentStorage.Storage;
 namespace FluentStorage.Queue.Large {
 	class LargeMessageContentMessageReceiver : IQueueReceiver {
 		private readonly IQueueReceiver _parentReceiver;
-		private readonly IBucket _offloadStorage;
+		private readonly IStore _offloadStorage;
 
-		public LargeMessageContentMessageReceiver(IQueueReceiver parentReceiver, IBucket offloadStorage) {
+		public LargeMessageContentMessageReceiver(IQueueReceiver parentReceiver, IStore offloadStorage) {
 			_parentReceiver = parentReceiver;
 			_offloadStorage = offloadStorage;
 		}

@@ -6,7 +6,7 @@ using FluentStorage.FTP.Storage;
 
 namespace FluentStorage.FTP {
 	class ConnectionFactory : IConnectionFactory {
-		public IBucket CreateBlobStorage(ConnectionString connectionString) {
+		public IStore CreateStore(ConnectionString connectionString) {
 			if (connectionString.Prefix == "ftp") {
 				connectionString.GetRequired("host", true, out string host);
 				connectionString.GetRequired("user", true, out string user);
@@ -18,6 +18,6 @@ namespace FluentStorage.FTP {
 			return null;
 		}
 
-		public IQueue CreateMessenger(ConnectionString connectionString) => null;
+		public IQueue CreateQueue(ConnectionString connectionString) => null;
 	}
 }

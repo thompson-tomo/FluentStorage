@@ -6,7 +6,7 @@ using Xunit;
 
 namespace FluentStorage.Tests.Messaging {
 	public class LargeMessagePublishingTest {
-		private readonly IBucket _blobStorage;
+		private readonly IStore _blobStorage;
 		private readonly IQueue _publisher;
 
 		public LargeMessagePublishingTest() {

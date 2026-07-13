@@ -33,7 +33,7 @@ namespace FluentStorage.Storage {
 		/// Note that filtering will be happening on the client side, therefore this is the least efficient filter and should
 		/// only be used when you're concerned about RAM usage.
 		/// </summary>
-		public Func<StorageObject, bool> BrowseFilter { get; set; }
+		public Func<StoreObject, bool> BrowseFilter { get; set; }
 
 		/// <summary>
 		/// Prefix to filter file name by. Folders are not affected by this filter. If you list files recursively
@@ -86,16 +86,16 @@ namespace FluentStorage.Storage {
 		public bool IncludeAttributes { get; set; } = false;
 
 		/// <summary>
-		/// Helper method that returns true if a <see cref="StorageObject"/> matches these list options.
+		/// Helper method that returns true if a <see cref="StoreObject"/> matches these list options.
 		/// </summary>
-		public bool IsMatch(StorageObject blob) {
+		public bool IsMatch(StoreObject blob) {
 			return _prefix == null || blob.Type != StorageObjectType.File || blob.Name.StartsWith(_prefix);
 		}
 
 		/// <summary>
 		/// Only for internal use
 		/// </summary>
-		public bool Add(ICollection<StorageObject> dest, ICollection<StorageObject> src) {
+		public bool Add(ICollection<StoreObject> dest, ICollection<StoreObject> src) {
 			if (MaxResults == null || (dest.Count + src.Count < MaxResults.Value)) {
 				dest.AddRange(src);
 				return false;

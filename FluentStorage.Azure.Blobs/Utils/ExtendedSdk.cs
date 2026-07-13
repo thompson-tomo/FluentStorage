@@ -66,7 +66,7 @@ namespace FluentStorage.Azure.Blobs.Utils {
 			return response.Filesystems;
 		}
 
-		public async Task<List<StorageObject>> ListFilesystemsAsBlobsAsync(CancellationToken cancellationToken) {
+		public async Task<List<StoreObject>> ListFilesystemsAsBlobsAsync(CancellationToken cancellationToken) {
 			List<Filesystem> fss = await ListFilesystemsAsync(cancellationToken).ConfigureAwait(false);
 
 			return fss.Select(AzConvert.ToBlob).ToList();
@@ -146,7 +146,7 @@ namespace FluentStorage.Azure.Blobs.Utils {
 
 		}
 
-		public async Task<StorageObject> GetBlobAsync(string fullPath, CancellationToken cancellationToken) {
+		public async Task<StoreObject> GetBlobAsync(string fullPath, CancellationToken cancellationToken) {
 			DecomposePath(fullPath, out string fs, out string rp, false);
 
 			if (StoragePath.IsRootPath(rp)) {
@@ -178,12 +178,12 @@ namespace FluentStorage.Azure.Blobs.Utils {
 		}
 
 
-		public async Task<List<StorageObject>> ListAsync(
+		public async Task<List<StoreObject>> ListAsync(
 		   StorageListOptions options, CancellationToken cancellationToken) {
 			if (options == null)
 				options = new StorageListOptions();
 
-			List<StorageObject> result = await InternalListAsync(options, cancellationToken).ConfigureAwait(false);
+			List<StoreObject> result = await InternalListAsync(options, cancellationToken).ConfigureAwait(false);
 
 			if (options.IncludeAttributes) {
 				result = (await Task.WhenAll(result.Select(b => GetWithMetadata(b, cancellationToken))).ConfigureAwait(false)).ToList();
@@ -192,7 +192,7 @@ namespace FluentStorage.Azure.Blobs.Utils {
 			return result;
 		}
 
-		private Task<StorageObject> GetWithMetadata(StorageObject b, CancellationToken cancellationToken) {
+		private Task<StoreObject> GetWithMetadata(StoreObject b, CancellationToken cancellationToken) {
 			if (b.IsFile) {
 				return GetBlobAsync(b, cancellationToken);
 			}
@@ -200,29 +200,29 @@ namespace FluentStorage.Azure.Blobs.Utils {
 			return Task.FromResult(b);
 		}
 
-		public async Task<List<StorageObject>> InternalListAsync(StorageListOptions options, CancellationToken cancellationToken) {
+		public async Task<List<StoreObject>> InternalListAsync(StorageListOptions options, CancellationToken cancellationToken) {
 			if (StoragePath.IsRootPath(options.FolderPath)) {
 				//only filesystems are in the root path
-				var result = new List<StorageObject>(await ListFilesystemsAsBlobsAsync(cancellationToken).ConfigureAwait(false));
+				var result = new List<StoreObject>(await ListFilesystemsAsBlobsAsync(cancellationToken).ConfigureAwait(false));
 
 				if (options.Recurse) {
-					foreach (StorageObject folder in result.Where(b => b.IsFolder).ToList()) {
+					foreach (StoreObject folder in result.Where(b => b.IsFolder).ToList()) {
 						int? maxResults = options.MaxResults == null
 						   ? null
 						   : options.MaxResults.Value - result.Count;
 
-						result.AddRange(await ListPathAsync(folder, maxResults, options, cancellationToken).ConfigureAwait(false));
+						result.AddRange(await ListPath(folder, maxResults, options, cancellationToken).ConfigureAwait(false));
 					}
 				}
 
 				return result;
 			}
 			else {
-				return await ListPathAsync(options.FolderPath, options.MaxResults, options, cancellationToken).ConfigureAwait(false);
+				return await ListPath(options.FolderPath, options.MaxResults, options, cancellationToken).ConfigureAwait(false);
 			}
 		}
 
-		private async Task<List<StorageObject>> ListPathAsync(string path, int? maxResults, StorageListOptions options, CancellationToken cancellationToken) {
+		private async Task<List<StoreObject>> ListPath(string path, int? maxResults, StorageListOptions options, CancellationToken cancellationToken) {
 			//get filesystem name and folder path
 			string[] parts = StoragePath.Split(path);
 
@@ -248,10 +248,10 @@ namespace FluentStorage.Azure.Blobs.Utils {
 			}
 			catch (RequestFailedException ex) when (ex.ErrorCode == "PathNotFound" || ex.ErrorCode == "FilesystemNotFound") {
 				// trying to list a path which doesn't exist, just return an empty result
-				return new List<StorageObject>();
+				return new List<StoreObject>();
 			}
 
-			IEnumerable<StorageObject> result = list.Select(p => AzConvert.ToBlob(fs, p));
+			IEnumerable<StoreObject> result = list.Select(p => AzConvert.ToBlob(fs, p));
 
 			if (options.FilePrefix != null)
 				result = result.Where(b => b.IsFolder || b.Name.StartsWith(options.FilePrefix));

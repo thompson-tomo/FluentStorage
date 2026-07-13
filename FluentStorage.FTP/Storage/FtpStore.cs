@@ -18,7 +18,7 @@ namespace FluentStorage.FTP.Storage {
 	/// <summary>
 	/// Manages a single connected FTP server using FluentFTP.
 	/// </summary>
-	public class FtpStore : BucketBase {
+	public class FtpStore : StoreBase {
 		private readonly AsyncFtpClient _client;
 		private readonly bool _dispose;
 		private static readonly AsyncRetryPolicy retryPolicy = Policy.Handle<FtpException>().RetryAsync(3);
@@ -48,7 +48,7 @@ namespace FluentStorage.FTP.Storage {
 			return _client;
 		}
 
-		public async Task<List<StorageObject>> ListAsync(StorageListOptions options = null, CancellationToken cancellationToken = default) {
+		public async Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			AsyncFtpClient client = await GetClientAsync().ConfigureAwait(false);
 
 			if (options == null)
@@ -63,13 +63,13 @@ namespace FluentStorage.FTP.Storage {
 
 			FtpListItem[] items = await client.GetListing(options.FolderPath, ftpListOption, cancellationToken).ConfigureAwait(false);
 
-			List<StorageObject> results = new List<StorageObject>();
+			List<StoreObject> results = new List<StoreObject>();
 			foreach (FtpListItem item in items) {
 				if (options.FilePrefix != null && !item.Name.StartsWith(options.FilePrefix)) {
 					continue;
 				}
 
-				StorageObject blob = ToBlobId(item);
+				StoreObject blob = ToBlobId(item);
 				if (blob == null)
 					continue;
 
@@ -88,11 +88,11 @@ namespace FluentStorage.FTP.Storage {
 			return results;
 		}
 
-		private StorageObject ToBlobId(FtpListItem ff) {
+		private StoreObject ToBlobId(FtpListItem ff) {
 			if (ff.Type != FtpObjectType.Directory && ff.Type != FtpObjectType.File)
 				return null;
 
-			StorageObject id = new StorageObject(ff.FullName,
+			StoreObject id = new StoreObject(ff.FullName,
 			   ff.Type == FtpObjectType.File
 			   ? StorageObjectType.File
 			   : StorageObjectType.Folder);
@@ -104,22 +104,26 @@ namespace FluentStorage.FTP.Storage {
 			return id;
 		}
 
-		public async Task DeleteAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public override async Task DeleteObjects(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			AsyncFtpClient client = await GetClientAsync().ConfigureAwait(false);
 
 			foreach (string path in fullPaths) {
-				try {
-					await client.DeleteFile(path).ConfigureAwait(false);
-				}
-				catch (FtpCommandException ex) when (ex.CompletionCode == "550") {
-					await client.DeleteDirectory(path, cancellationToken).ConfigureAwait(false);
-					//550 stands for "file not found" or "permission denied".
-					//"not found" is fine to ignore, however I'm not happy about ignoring the second error.
-				}
+				await DeleteObject(path, cancellationToken);
 			}
 		}
 
-		public async Task<List<bool>> ExistsAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
+		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken = default) {
+			AsyncFtpClient client = await GetClientAsync().ConfigureAwait(false);
+
+			if (await client.FileExists(fullPath, cancellationToken)) {
+				await client.DeleteFile(fullPath, cancellationToken).ConfigureAwait(false);
+			}
+			else if (await client.DirectoryExists(fullPath, cancellationToken)) {
+				await client.DeleteDirectory(fullPath, FtpListOption.Recursive, cancellationToken).ConfigureAwait(false);
+			}
+		}
+
+		public override async Task<List<bool>> ObjectsExists(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
 			AsyncFtpClient client = await GetClientAsync().ConfigureAwait(false);
 
 			List<bool> results = new List<bool>();
@@ -131,10 +135,16 @@ namespace FluentStorage.FTP.Storage {
 			return results;
 		}
 
-		public async Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
+		public override async Task<bool> ObjectExists(string path, CancellationToken cancellationToken = default) {
 			AsyncFtpClient client = await GetClientAsync().ConfigureAwait(false);
 
-			List<StorageObject> results = new List<StorageObject>();
+			return await client.FileExists(path).ConfigureAwait(false);
+		}
+
+		public async Task<List<StoreObject>> GetBlobsAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
+			AsyncFtpClient client = await GetClientAsync().ConfigureAwait(false);
+
+			List<StoreObject> results = new List<StoreObject>();
 			foreach (string path in ids) {
 				string cpath = StoragePath.Normalize(path);
 				string parentPath = StoragePath.GetParent(cpath);
@@ -147,7 +157,7 @@ namespace FluentStorage.FTP.Storage {
 					continue;
 				}
 
-				StorageObject r = new StorageObject(path) {
+				StoreObject r = new StoreObject(path) {
 					Size = foundItem.Size,
 					DateModified = foundItem.Modified
 				};
@@ -156,11 +166,11 @@ namespace FluentStorage.FTP.Storage {
 			return results;
 		}
 
-		public Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
+		public Task SetBlobsAsync(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		public async Task<Stream> OpenReadAsync(string fullPath, CancellationToken cancellationToken = default) {
+		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
 			AsyncFtpClient client = await GetClientAsync().ConfigureAwait(false);
 
 			try {
@@ -171,11 +181,10 @@ namespace FluentStorage.FTP.Storage {
 			}
 		}
 
-		public async Task WriteAsync(string fullPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken) {
-			await WriteAsync(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
+		public override async Task SetObject(string fullPath, Stream dataStream, bool append, CancellationToken cancellationToken) {
+			await SetObject(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
-		public async Task WriteAsync(string fullPath, Stream dataStream,
-		   bool append = false, CancellationToken cancellationToken = default) {
+		public override async Task SetObject(string fullPath, Stream dataStream, string contentType, bool append = false, CancellationToken cancellationToken = default) {
 
 			AsyncFtpClient client = await GetClientAsync().ConfigureAwait(false);
 
@@ -198,19 +207,13 @@ namespace FluentStorage.FTP.Storage {
 			}).ConfigureAwait(false);
 		}
 
-		public void Dispose() {
+		public override void Dispose() {
 			if (_dispose && !_client.IsDisposed) {
 				_client.Dispose();
 			}
+			GC.SuppressFinalize(this);
 		}
 
-		public async Task CreateFolderAsync(string folderPath, CancellationToken cancellationToken) {
-			//throw new NotImplementedException();
-		}
-
-		public async Task RenameAsync(string oldPath, string newPath, CancellationToken cancellationToken) {
-			//throw new NotImplementedException();
-		}
 
 	}
 }

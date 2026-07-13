@@ -6,9 +6,9 @@ using Xunit;
 
 namespace FluentStorage.Tests.Blobs.Sink {
 	public abstract class SinksTest {
-		private readonly IBucket _storage;
+		private readonly IStore _storage;
 
-		protected SinksTest(IBucket storage) {
+		protected SinksTest(IStore storage) {
 			_storage = storage;
 		}
 

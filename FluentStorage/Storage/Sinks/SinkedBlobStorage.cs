@@ -6,39 +6,46 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace FluentStorage.Storage.Sinks {
-	class SinkedBlobStorage : BucketBase {
-		private readonly IBucket _parent;
+	class SinkedBlobStorage : StoreBase {
+		private readonly IStore _parent;
 		private readonly ITransformSink[] _sinks;
 
-		public SinkedBlobStorage(IBucket blobStorage, params ITransformSink[] sinks) {
+		public SinkedBlobStorage(IStore blobStorage, params ITransformSink[] sinks) {
 			if (sinks is null)
 				throw new ArgumentNullException(nameof(sinks));
 
 			_parent = blobStorage ?? throw new ArgumentNullException(nameof(blobStorage));
 			_sinks = sinks;
 		}
+		public override void Dispose() => _parent.Dispose();
 
-		public Task DeleteAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+
+		public override Task DeleteObjects(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+			return _parent.DeleteObjects(fullPaths, cancellationToken);
+		}
+		public override Task DeleteObject(string fullPaths, CancellationToken cancellationToken = default) {
 			return _parent.DeleteObject(fullPaths, cancellationToken);
 		}
 
-		public void Dispose() => _parent.Dispose();
-
-		public Task<List<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			return _parent.ObjectExists(fullPaths, cancellationToken);
+		public override Task<List<bool>> ObjectsExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+			return _parent.ObjectsExists(fullPaths, cancellationToken);
+		}
+		public override Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken = default) {
+			return _parent.ObjectExists(fullPath, cancellationToken);
 		}
 
-		public Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public Task<List<StoreObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			return _parent.GetObjectsInfo(fullPaths, cancellationToken);
 		}
 
-		public Task<List<StorageObject>> ListAsync(StorageListOptions options = null, CancellationToken cancellationToken = default) {
+		public Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			return _parent.ListObjects(options, cancellationToken);
 		}
 
-		public Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) => _parent.SetObjectsInfo(blobs, cancellationToken);
+		public Task SetBlobsAsync(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) => _parent.SetObjectsInfo(blobs, cancellationToken);
 
-		public async Task<Stream> OpenReadAsync(string fullPath, CancellationToken cancellationToken = default) {
+		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
+
 			//chain streams
 			Stream readStream = await _parent.OpenRead(fullPath, cancellationToken).ConfigureAwait(false);
 
@@ -52,7 +59,7 @@ namespace FluentStorage.Storage.Sinks {
 			return readStream;
 		}
 
-		public async Task WriteAsync(string fullPath, Stream dataSourceStream,bool append = false,
+		public override async Task SetObject(string fullPath, Stream dataSourceStream,bool append = false,
 		   CancellationToken cancellationToken = default) {
 			if (dataSourceStream == null)
 				return;
@@ -61,7 +68,7 @@ namespace FluentStorage.Storage.Sinks {
 				await _parent.SetObject(fullPath, source, append, cancellationToken).ConfigureAwait(false);
 			}
 		}
-		public async Task WriteAsync(string fullPath, Stream dataSourceStream, string contentType, bool append, CancellationToken cancellationToken) {
+		public override async Task SetObject(string fullPath, Stream dataSourceStream, string contentType, bool append, CancellationToken cancellationToken) {
 			if (dataSourceStream == null)
 				return;
 

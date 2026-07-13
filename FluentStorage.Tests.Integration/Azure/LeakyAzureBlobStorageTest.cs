@@ -22,7 +22,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 		public LeakyAzureBlobStorageTest() {
 			ITestSettings settings = Settings.Instance;
 
-			IBucket storage = AzureBlobStorage.FromSharedKey(
+			IStore storage = AzureBlobStorage.FromSharedKey(
 			   settings.AzureStorageName, settings.AzureStorageKey);
 			_native = (IAzureBlobStorage)storage;
 		}
@@ -39,8 +39,8 @@ namespace FluentStorage.Tests.Integration.Azure {
 			Assert.NotNull(sas);
 
 			//check we can connect and list containers
-			IBucket sasInstance = AzureBlobStorage.FromSas(sas);
-			List<StorageObject> containers = await sasInstance.ListDirectory(StoragePath.RootFolderPath);
+			IStore sasInstance = AzureBlobStorage.FromSas(sas);
+			List<StoreObject> containers = await sasInstance.ListDirectory(StoragePath.RootFolderPath);
 			Assert.True(containers.Count > 0);
 		}
 
@@ -162,9 +162,9 @@ namespace FluentStorage.Tests.Integration.Azure {
 
 		[Fact]
 		public async Task Top_level_folders_are_containers() {
-			List<StorageObject> containers = await _native.ListObjects();
+			List<StoreObject> containers = await _native.ListObjects();
 
-			foreach (StorageObject container in containers) {
+			foreach (StoreObject container in containers) {
 				Assert.Equal(StorageObjectType.Folder, container.Type);
 				Assert.True(container.Properties?.ContainsKey("IsContainer"), "isContainer property not present at all");
 				Assert.Equal(true, container.Properties["IsContainer"]);
@@ -176,7 +176,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 			string containerName = Guid.NewGuid().ToString();
 			await _native.SetText($"{containerName}/test.txt", "test");
 
-			List<StorageObject> containers = await _native.ListObjects();
+			List<StoreObject> containers = await _native.ListObjects();
 			Assert.Contains(containers, c => c.Name == containerName);
 
 			await _native.DeleteObject(containerName);

@@ -38,7 +38,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 		public async Task Authenticate_with_service_principal() {
 			//needs to have "Storage Blob Data Owner"
 
-			IBucket authInstance = AzureDataLakeStorage.FromAzureAd(
+			IStore authInstance = AzureDataLakeStorage.FromAzureAd(
 			   _settings.AzureGen2StorageName,
 			   _settings.TenantId,
 			   _settings.ClientId,
@@ -78,7 +78,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 
 			await _storage.SetText(fsName + "/fff", "test");
 
-			StorageObject fsBlob = await _storage.GetObjectInfo(fsName);
+			StoreObject fsBlob = await _storage.GetObjectInfo(fsName);
 
 
 		}
@@ -236,11 +236,11 @@ namespace FluentStorage.Tests.Integration.Azure {
 
 		public async Task InitializeAsync() {
 			//drop all blobs in test storage
-			List<StorageObject> topLevel =
+			List<StoreObject> topLevel =
 			   (await _storage.ListDirectory(recurse: false, folderPath: Filesystem)).ToList();
 
 			try {
-				await _storage.DeleteObject(topLevel.Select(f => f.FullPath));
+				await _storage.DeleteObjects(topLevel.Select(f => f.FullPath));
 			}
 			catch {
 				//suppress exception to resume test attempt

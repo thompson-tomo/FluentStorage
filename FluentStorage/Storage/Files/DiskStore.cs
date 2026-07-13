@@ -9,9 +9,9 @@ using FluentStorage.Enums;
 
 namespace FluentStorage.Storage.Files {
 	/// <summary>
-	/// Blob storage implementation which uses local file system directory
+	/// Access a local file system directory as a FluentStorage store.
 	/// </summary>
-	internal class DiskStore : BucketBase {
+	internal class DiskStore : StoreBase {
 		private readonly System.IO.Abstractions.IFileSystem _fileSystem;
 		private readonly string _directoryFullName;
 		private const string AttributesFileExtension = ".attr";
@@ -40,15 +40,15 @@ namespace FluentStorage.Storage.Files {
 		/// <summary>
 		/// Returns the list of blob names in this storage, optionally filtered by prefix
 		/// </summary>
-		public Task<List<StorageObject>> ListAsync(StorageListOptions options, CancellationToken cancellationToken) {
+		public Task<List<StoreObject>> ListObjects(StorageListOptions options, CancellationToken cancellationToken) {
 			if (options == null) options = new StorageListOptions();
 
 			GenericValidation.CheckBlobPrefix(options.FilePrefix);
 
-			if (!_fileSystem.Directory.Exists(_directoryFullName)) return Task.FromResult<List<StorageObject>>(new List<StorageObject>());
+			if (!_fileSystem.Directory.Exists(_directoryFullName)) return Task.FromResult<List<StoreObject>>(new List<StoreObject>());
 
 			string fullPath = GetFolder(options?.FolderPath, false);
-			if (fullPath == null) return Task.FromResult<List<StorageObject>>(new List<StorageObject>());
+			if (fullPath == null) return Task.FromResult<List<StoreObject>>(new List<StoreObject>());
 
 			string[] fileIds = _fileSystem.Directory.GetFiles(
 			   fullPath,
@@ -64,7 +64,7 @@ namespace FluentStorage.Storage.Files {
 					 : options.FilePrefix + "*",
 				  options.Recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
 
-			var result = new List<StorageObject>();
+			var result = new List<StoreObject>();
 			result.AddRange(directoryIds.Select(id => ToBlobItem(id, StorageObjectType.Folder, options.IncludeAttributes)));
 			result.AddRange(
 			   fileIds.Where(fid => !fid.EndsWith(AttributesFileExtension)).Select(id => ToBlobItem(id, StorageObjectType.File, options.IncludeAttributes)));
@@ -72,7 +72,7 @@ namespace FluentStorage.Storage.Files {
 			   .Where(i => options.BrowseFilter == null || options.BrowseFilter(i))
 			   .Take(options.MaxResults == null ? int.MaxValue : options.MaxResults.Value)
 			   .ToList();
-			return Task.FromResult<List<StorageObject>>(result);
+			return Task.FromResult<List<StoreObject>>(result);
 		}
 
 		private static string FormatFlags(FileAttributes fa) {
@@ -80,7 +80,7 @@ namespace FluentStorage.Storage.Files {
 			   fa.ToString().Split(',').Select(v => v.Trim().Substring(0, 1).ToUpper()).OrderBy(l => l));
 		}
 
-		private StorageObject ToBlobItem(string fullPath, StorageObjectType kind, bool includeMeta) {
+		private StoreObject ToBlobItem(string fullPath, StorageObjectType kind, bool includeMeta) {
 
 			string relPath = fullPath.Substring(_directoryFullName.Length);
 			relPath = relPath.Replace(_fileSystem.Path.DirectorySeparatorChar, StoragePath.PathSeparator);
@@ -90,7 +90,7 @@ namespace FluentStorage.Storage.Files {
 			if (kind == StorageObjectType.File) {
 				var fi = new FileInfo(fullPath);
 
-				var blob = new StorageObject(relPath, kind);
+				var blob = new StoreObject(relPath, kind);
 				blob.Size = fi.Length;
 				// Converting the local time to a DateTimeOffset will save the offset of UTC.
 				blob.DateModified = fi.LastWriteTime;
@@ -110,7 +110,7 @@ namespace FluentStorage.Storage.Files {
 			else {
 				var di = _fileSystem.DirectoryInfo.New(fullPath);
 
-				var blob = new StorageObject(relPath, StorageObjectType.Folder);
+				var blob = new StoreObject(relPath, StorageObjectType.Folder);
 				blob.DateModified = di.LastWriteTime;
 				blob.DateCreated = di.CreationTime;
 				blob.TryAddProperties(
@@ -191,10 +191,8 @@ namespace FluentStorage.Storage.Files {
 		private static string EncodePathPart(string path) {
 			return path;
 		}
-		public void Dispose() {
-		}
 
-		public async Task WriteAsync(string fullPath, Stream dataStream, bool append, CancellationToken cancellationToken) {
+		public override async Task SetObject(string fullPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken) {
 			if (dataStream is null)
 				throw new ArgumentNullException(nameof(dataStream));
 			GenericValidation.CheckBlobFullPath(fullPath);
@@ -204,47 +202,57 @@ namespace FluentStorage.Storage.Files {
 			using Stream stream = CreateStream(fullPath, !append);
 			await dataStream.CopyToAsync(stream);
 		}
-		public async Task WriteAsync(string fullPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken) {
-			await WriteAsync(fullPath, dataStream, append, cancellationToken).ConfigureAwait(false);
+		public override async Task SetObject(string fullPath, Stream dataStream, bool append, CancellationToken cancellationToken) {
+			await SetObject(fullPath, dataStream, append, cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>
 		/// Opens file and returns the open stream
 		/// </summary>
-		public Task<Stream> OpenReadAsync(string fullPath, CancellationToken cancellationToken) {
+		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 
 			fullPath = StoragePath.Normalize(fullPath);
 			Stream result = OpenStream(fullPath);
 
-			return Task.FromResult(result);
+			return result;
 		}
 
 		/// <summary>
-		/// Deletes files if they exist
+		/// Deletes multiple objects by its full path.
 		/// </summary>
-		public Task DeleteAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken) {
-			if (fullPaths == null) return Task.CompletedTask;
+		public override async Task DeleteObjects(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+			if (fullPaths == null) return;
 
 			foreach (string fullPath in fullPaths) {
-				GenericValidation.CheckBlobFullPath(fullPath);
-
-				string path = GetFilePath(StoragePath.Normalize(fullPath));
-				if (_fileSystem.File.Exists(path)) {
-					_fileSystem.File.Delete(path);
-				}
-				else if (_fileSystem.Directory.Exists(path)) {
-					_fileSystem.Directory.Delete(path, true);
-				}
+				await DeleteObject(fullPath);
 			}
+		}
 
-			return Task.CompletedTask;
+		/// <summary>
+		/// Deletes an object by its full path.
+		/// </summary>
+		/// <param name="fullPath">The full path.</param>
+		/// <param name="client">The sftp client to use.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <returns></returns>
+		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken = default) {
+			if (fullPath == null) return;
+
+			string path = GetFilePath(StoragePath.Normalize(fullPath));
+
+			if (_fileSystem.File.Exists(path)) {
+				_fileSystem.File.Delete(path);
+			}
+			else if (_fileSystem.Directory.Exists(path)) {
+				_fileSystem.Directory.Delete(path, true);
+			}
 		}
 
 		/// <summary>
 		/// Checks if files exist on disk
 		/// </summary>
-		public Task<List<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken) {
+		public override async Task<List<bool>> ObjectsExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken) {
 			var result = new List<bool>();
 
 			if (fullPaths != null) {
@@ -256,14 +264,27 @@ namespace FluentStorage.Storage.Files {
 				}
 			}
 
-			return Task.FromResult((List<bool>)result);
+			return result;
+		}
+
+		/// <summary>
+		/// Checks if a file exists on disk
+		/// </summary>
+		public override async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken) {
+			var result = new List<bool>();
+
+			if (fullPath != null) {
+				GenericValidation.CheckBlobFullPath(fullPath);
+				return _fileSystem.File.Exists(GetFilePath(StoragePath.Normalize(fullPath), false));
+			}
+			return false;
 		}
 
 		/// <summary>
 		/// See interface
 		/// </summary>
-		public Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
-			var result = new List<StorageObject>();
+		public Task<List<StoreObject>> GetBlobsAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
+			var result = new List<StoreObject>();
 
 			foreach (string blobId in ids) {
 				GenericValidation.CheckBlobFullPath(blobId);
@@ -278,13 +299,13 @@ namespace FluentStorage.Storage.Files {
 				result.Add(ToBlobItem(filePath, StorageObjectType.File, true));
 			}
 
-			return Task.FromResult<List<StorageObject>>(result);
+			return Task.FromResult<List<StoreObject>>(result);
 		}
 
-		public Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
+		public Task SetBlobsAsync(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPaths(blobs);
 
-			foreach (StorageObject blob in blobs.Where(b => b != null)) {
+			foreach (StoreObject blob in blobs.Where(b => b != null)) {
 				string blobPath = GetFilePath(blob.FullPath);
 
 				if (!_fileSystem.File.Exists(blobPath))
@@ -300,7 +321,7 @@ namespace FluentStorage.Storage.Files {
 			return Task.CompletedTask;
 		}
 
-		private void EnrichWithMetadata(StorageObject blob) {
+		private void EnrichWithMetadata(StoreObject blob) {
 			string path = GetFilePath(StoragePath.Normalize(blob.FullPath));
 
 			if (!_fileSystem.File.Exists(path)) return;

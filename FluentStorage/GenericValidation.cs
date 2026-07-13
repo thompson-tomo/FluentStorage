@@ -50,7 +50,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Checks blob full path for generic rules
 		/// </summary>
-		public static void CheckBlobFullPaths(IEnumerable<StorageObject> blobs) {
+		public static void CheckBlobFullPaths(IEnumerable<StoreObject> blobs) {
 			if (blobs == null)
 				return;
 

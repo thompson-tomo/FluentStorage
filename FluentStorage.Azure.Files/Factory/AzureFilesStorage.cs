@@ -23,7 +23,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Files from an existing <see cref="ShareServiceClient"/>.
 		/// </summary>
-		public static IBucket FromClient(
+		public static IStore FromClient(
 		   ShareServiceClient shareServiceClient) {
 			if (shareServiceClient is null) {
 				throw new ArgumentNullException(nameof(shareServiceClient));
@@ -39,7 +39,7 @@ namespace FluentStorage {
 		/// <param name="accountName">Storage Account name</param>
 		/// <param name="key">Storage Account key</param>
 		/// <returns>Generic blob storage interface</returns>
-		public static IBucket FromCredentials(
+		public static IStore FromCredentials(
 		   string accountName,
 		   string key) {
 			return FromSharedKey(accountName, key);
@@ -48,7 +48,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Files with Shared Key
 		/// </summary>
-		public static IBucket FromSharedKey(
+		public static IStore FromSharedKey(
 		   string accountName,
 		   string key,
 		   Uri serviceUri) {
@@ -58,7 +58,7 @@ namespace FluentStorage {
 		/// <summary>
 		///Creates Azure Files with Shared Key
 		/// </summary>
-		public static IBucket FromSharedKey(
+		public static IStore FromSharedKey(
 		   string accountName,
 		   string key) {
 			return FromSharedKey(accountName, key, null, default);
@@ -67,7 +67,7 @@ namespace FluentStorage {
 		/// <summary>
 		///Creates Azure Files with Shared Key
 		/// </summary>
-		public static IBucket FromSharedKey(
+		public static IStore FromSharedKey(
 		   string accountName,
 		   string key,
 		   AzureCloudEnvironment cloudEnvironment) {
@@ -77,7 +77,7 @@ namespace FluentStorage {
 		/// <summary>
 		///Creates Azure Files with Shared Key
 		/// </summary>
-		public static IBucket FromSharedKey(
+		public static IStore FromSharedKey(
 		   string accountName,
 		   string key,
 		   Uri serviceUri,
@@ -98,7 +98,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Create Azure Files with Azure AD 
 		/// </summary>
-		public static IBucket FromAzureAd(
+		public static IStore FromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
@@ -110,7 +110,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Create Azure Files with Azure AD and Active Directory Authority endpoint.
 		/// </summary>
-		public static IBucket FromAzureAd(
+		public static IStore FromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
@@ -121,7 +121,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Create Azure Files with Azure AD and Active Directory Authority endpoint.
 		/// </summary>
-		public static IBucket FromAzureAd(
+		public static IStore FromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
@@ -133,7 +133,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Create Azure Files with Azure AD and Active Directory Authority endpoint.
 		/// </summary>
-		public static IBucket FromAzureAd(
+		public static IStore FromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
@@ -168,7 +168,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Create Azure Files with Token Credentials
 		/// </summary>
-		public static IBucket FromTokenCredential(
+		public static IStore FromTokenCredential(
 		   string accountName,
 		   TokenCredential tokenCredential) {
 			return FromTokenCredential(accountName, tokenCredential, default);
@@ -177,7 +177,7 @@ namespace FluentStorage {
 		/// <summary>
 		///Create Azure Files with Token Credentials
 		/// </summary>
-		public static IBucket FromTokenCredential(
+		public static IStore FromTokenCredential(
 		   string accountName,
 		   TokenCredential tokenCredential,
 		   AzureCloudEnvironment azureCloudEnvironment) {
@@ -196,7 +196,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Files with Managed Identity (Managed Service Identity)
 		/// </summary>
-		public static IBucket FromMsi(
+		public static IStore FromMsi(
 		   string accountName,
 		   AzureCloudEnvironment azureCloudEnvironment) {
 			return FromMsi(accountName, null, azureCloudEnvironment);
@@ -205,14 +205,14 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Files with Managed Identity (Managed Service Identity)
 		/// </summary>
-		public static IBucket FromMsi(string accountName) {
+		public static IStore FromMsi(string accountName) {
 			return FromMsi(accountName, null, default);
 		}
 
 		/// <summary>
 		/// Creates Azure Files with Managed Identity (Managed Service Identity)
 		/// </summary>
-		public static IBucket FromMsi(
+		public static IStore FromMsi(
 		   string accountName,
 		   string clientId) {
 			return FromMsi(accountName, clientId, default);
@@ -221,7 +221,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Files with Managed Identity (Managed Service Identity)
 		/// </summary>
-		public static IBucket FromMsi(
+		public static IStore FromMsi(
 		   string accountName,
 		   string clientId,
 		   AzureCloudEnvironment azureCloudEnvironment) {

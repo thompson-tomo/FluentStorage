@@ -10,15 +10,15 @@ using FluentStorage.Utils.IO;
 using FluentStorage.Enums;
 
 namespace FluentStorage.Storage {
-	class InMemoryBlobStorage : BucketBase {
+	class InMemoryBlobStorage : StoreBase {
 		struct Tag {
-			public StorageObject blob;
+			public StoreObject blob;
 			public byte[] data;
 		}
 
 		private readonly Dictionary<string, Tag> _pathToTag = new Dictionary<string, Tag>();
 
-		public Task<List<StorageObject>> ListAsync(StorageListOptions options, CancellationToken cancellationToken) {
+		public Task<List<StoreObject>> ListObjects(StorageListOptions options, CancellationToken cancellationToken) {
 			if (options == null) options = new StorageListOptions();
 
 			IEnumerable<KeyValuePair<string, Tag>> query = _pathToTag;
@@ -46,16 +46,16 @@ namespace FluentStorage.Storage {
 				query = query.Take(options.MaxResults.Value);
 			}
 
-			List<StorageObject> matches = query.Select(p => p.Value.blob).ToList();
+			List<StoreObject> matches = query.Select(p => p.Value.blob).ToList();
 
 			return Task.FromResult(matches);
 		}
 
-		public async Task WriteAsync(string fullPath, Stream sourceStream, string contentType, bool append, CancellationToken cancellationToken) {
-			await WriteAsync(fullPath, sourceStream, null, append, cancellationToken).ConfigureAwait(false);
+		public override async Task SetObject(string fullPath, Stream sourceStream, bool append, CancellationToken cancellationToken) {
+			await SetObject(fullPath, sourceStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
 
-		public Task WriteAsync(string fullPath, Stream sourceStream, bool append, CancellationToken cancellationToken) {
+		public override async Task SetObject(string fullPath, Stream sourceStream, string contentType, bool append, CancellationToken cancellationToken) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 			fullPath = StoragePath.Normalize(fullPath);
 
@@ -63,7 +63,7 @@ namespace FluentStorage.Storage {
 				throw new ArgumentNullException(nameof(sourceStream));
 
 			if (append) {
-				if (!Exists(fullPath)) {
+				if (!await ObjectExists(fullPath, cancellationToken)) {
 					Write(fullPath, sourceStream);
 				}
 				else {
@@ -76,67 +76,68 @@ namespace FluentStorage.Storage {
 				Write(fullPath, sourceStream);
 			}
 
-			return Task.FromResult(true);
 		}
 
-		public Task<Stream> WriteAsync(string fullPath, bool append, CancellationToken cancellationToken) {
+		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 			fullPath = StoragePath.Normalize(fullPath);
 
-			var result = new FixedStream(new MemoryStream(), null, async fx => {
-				MemoryStream ms = (MemoryStream)fx.Parent;
-				ms.Position = 0;
-				await WriteAsync(fullPath, ms, append, cancellationToken).ConfigureAwait(false);
-			});
+			if (!_pathToTag.TryGetValue(fullPath, out Tag tag) || tag.data == null) return null;
 
-			return Task.FromResult<Stream>(result);
+			return new NonCloseableStream(new MemoryStream(tag.data));
 		}
 
-		public Task<Stream> OpenReadAsync(string fullPath, CancellationToken cancellationToken) {
-			GenericValidation.CheckBlobFullPath(fullPath);
-			fullPath = StoragePath.Normalize(fullPath);
+		/// <summary>
+		/// Deletes multiple objects by its full path.
+		/// </summary>
+		public override async Task DeleteObjects(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+			if (fullPaths == null) return;
 
-			if (!_pathToTag.TryGetValue(fullPath, out Tag tag) || tag.data == null) return Task.FromResult<Stream>(null);
-
-			return Task.FromResult<Stream>(new NonCloseableStream(new MemoryStream(tag.data)));
-		}
-
-		public Task DeleteAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken) {
-			GenericValidation.CheckBlobFullPaths(fullPaths);
-
-			foreach (string path in fullPaths) {
-				//try to delete as entry
-				StorageObject pb = path;
-				if (_pathToTag.ContainsKey(pb)) {
-					_pathToTag.Remove(pb);
-				}
-
-
-				string prefix = StoragePath.Normalize(path) + StoragePath.PathSeparatorString;
-
-				List<StorageObject> candidates = _pathToTag.Where(p => p.Value.blob.FullPath.StartsWith(prefix)).Select(p => p.Value.blob).ToList();
-
-				foreach (StorageObject candidate in candidates) {
-					_pathToTag.Remove(candidate);
-				}
+			foreach (string fullPath in fullPaths) {
+				await DeleteObject(fullPath);
 			}
-			return Task.FromResult(true);
 		}
 
-		public Task<List<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken) {
+		/// <summary>
+		/// Deletes an object by its full path.
+		/// </summary>
+		/// <param name="fullPath">The full path.</param>
+		/// <param name="client">The sftp client to use.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		/// <returns></returns>
+		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken = default) {
+			if (fullPath == null) return;
+
+			// delete "file"
+			StoreObject pb = fullPath;
+			if (_pathToTag.ContainsKey(pb)) {
+				_pathToTag.Remove(pb);
+			}
+
+			string prefix = StoragePath.Normalize(fullPath) + StoragePath.PathSeparatorString;
+
+			// delete all "files "under this "folder"
+			List<StoreObject> candidates = _pathToTag.Where(p => p.Value.blob.FullPath.StartsWith(prefix)).Select(p => p.Value.blob).ToList();
+			foreach (StoreObject candidate in candidates) {
+				_pathToTag.Remove(candidate);
+			}
+
+		}
+
+		public override async Task<List<bool>> ObjectsExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken) {
 			var result = new List<bool>();
 
 			foreach (string fullPath in fullPaths) {
 				result.Add(_pathToTag.ContainsKey(StoragePath.Normalize(fullPath)));
 			}
 
-			return Task.FromResult<List<bool>>(result);
+			return result;
 		}
 
-		public Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken) {
+		public Task<List<StoreObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken) {
 			GenericValidation.CheckBlobFullPaths(fullPaths);
 
-			var result = new List<StorageObject>();
+			var result = new List<StoreObject>();
 
 			foreach (string fullPath in fullPaths) {
 				if (!_pathToTag.TryGetValue(StoragePath.Normalize(fullPath), out Tag tag)) {
@@ -147,14 +148,14 @@ namespace FluentStorage.Storage {
 				}
 			}
 
-			return Task.FromResult<List<StorageObject>>(result);
+			return Task.FromResult<List<StoreObject>>(result);
 		}
 
-		public Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
+		public Task SetBlobsAsync(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
 			if (blobs == null)
 				return Task.FromResult(true);
 
-			foreach (StorageObject blob in blobs) {
+			foreach (StoreObject blob in blobs) {
 				if (_pathToTag.TryGetValue(blob, out Tag tag)) {
 					tag.blob.Metadata.Clear();
 					tag.blob.Metadata.AddRange(blob.Metadata);
@@ -175,7 +176,7 @@ namespace FluentStorage.Storage {
 			if (!_pathToTag.TryGetValue(fullPath, out Tag tag)) {
 				tag = new Tag {
 					data = data,
-					blob = new StorageObject(fullPath) {
+					blob = new StoreObject(fullPath) {
 						Size = data.Length,
 						DateModified = DateTime.UtcNow,
 						MD5 = data.MD5().ToHexString()
@@ -193,24 +194,21 @@ namespace FluentStorage.Storage {
 			AddVirtualFolderHierarchy(tag.blob);
 		}
 
-		private void AddVirtualFolderHierarchy(StorageObject fileBlob) {
+		private void AddVirtualFolderHierarchy(StoreObject fileBlob) {
 			string path = fileBlob.FolderPath;
 
 			while (!StoragePath.IsRootPath(path)) {
-				var vf = new StorageObject(path, StorageObjectType.Folder);
+				var vf = new StoreObject(path, StorageObjectType.Folder);
 				_pathToTag[path] = new Tag { blob = vf };
 
 				path = StoragePath.GetParent(path);
 			}
 		}
 
-		private bool Exists(string fullPath) {
+		public override async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 
 			return _pathToTag.ContainsKey(fullPath);
-		}
-
-		public void Dispose() {
 		}
 
 		public async Task RenameAsync(string oldPath, string newPath, CancellationToken cancellationToken) {

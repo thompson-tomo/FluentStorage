@@ -6,7 +6,7 @@ namespace FluentStorage.GCP {
 	class Module : IExternalModule, IConnectionFactory {
 		public IConnectionFactory ConnectionFactory => new Module();
 
-		public IBucket CreateBlobStorage(ConnectionString connectionString) {
+		public IStore CreateStore(ConnectionString connectionString) {
 			if (connectionString.Prefix == "google.storage") {
 				connectionString.GetRequired("bucket", true, out string bucketName);
 				string base64EncodedJson = connectionString.Get("cred");
@@ -22,6 +22,6 @@ namespace FluentStorage.GCP {
 			return null;
 		}
 
-		public IQueue CreateMessenger(ConnectionString connectionString) => null;
+		public IQueue CreateQueue(ConnectionString connectionString) => null;
 	}
 }

@@ -6,7 +6,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 	class Module : IExternalModule, IConnectionFactory {
 		public IConnectionFactory ConnectionFactory => this;
 
-		public IBucket CreateBlobStorage(ConnectionString connectionString) {
+		public IStore CreateStore(ConnectionString connectionString) {
 			if (connectionString.Prefix == ConnectionStringPrefix.AzureBlobStorage) {
 				if (connectionString.Parameters.ContainsKey(ConnectionStringParam.IsLocalEmulator)) {
 					return AzureBlobStorage.FromLocalEmulator();
@@ -56,6 +56,6 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			return null;
 		}
 
-		public IQueue CreateMessenger(ConnectionString connectionString) => null;
+		public IQueue CreateQueue(ConnectionString connectionString) => null;
 	}
 }

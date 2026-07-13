@@ -6,7 +6,7 @@ namespace FluentStorage.Azure.Files.Storage {
 	class Module : IExternalModule, IConnectionFactory {
 		public IConnectionFactory ConnectionFactory => this;
 
-		public IBucket CreateBlobStorage(ConnectionString connectionString) {
+		public IStore CreateStore(ConnectionString connectionString) {
 			if (connectionString.Prefix == ConnectionStringPrefix.AzureFilesStorage) {
 				connectionString.GetRequired(ConnectionStringParam.AccountName, true, out string accountName);
 
@@ -31,6 +31,6 @@ namespace FluentStorage.Azure.Files.Storage {
 			return null;
 		}
 
-		public IQueue CreateMessenger(ConnectionString connectionString) => null;
+		public IQueue CreateQueue(ConnectionString connectionString) => null;
 	}
 }

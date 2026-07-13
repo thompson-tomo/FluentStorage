@@ -19,7 +19,7 @@ namespace FluentStorage.SFTP {
 		/// </summary>
 		/// <param name="connectionString">The connection string to parse.</param>
 		/// <returns></returns>
-		public IBucket CreateBlobStorage(ConnectionString connectionString) {
+		public IStore CreateStore(ConnectionString connectionString) {
 			if (connectionString.Prefix == "sftp") {
 				connectionString.GetRequired("host", true, out string host);
 				connectionString.GetRequired("user", true, out string user);
@@ -39,6 +39,6 @@ namespace FluentStorage.SFTP {
 		/// </summary>
 		/// <param name="connectionString">The connection string to parse.</param>
 		/// <returns></returns>
-		public IQueue CreateMessenger(ConnectionString connectionString) => null;
+		public IQueue CreateQueue(ConnectionString connectionString) => null;
 	}
 }

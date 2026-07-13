@@ -16,7 +16,7 @@ namespace FluentStorage.Azure.Files.Storage {
 	/// <summary>
 	/// Manages a single Azure Files container.
 	/// </summary>
-	public class AzureFilesStore : BucketBase {
+	public class AzureFilesStore : StoreBase {
 		private readonly ShareServiceClient _client;
 		private readonly ConcurrentDictionary<string, ShareClient> _shareNameToShareClient =
 		   new ConcurrentDictionary<string, ShareClient>();
@@ -49,10 +49,10 @@ namespace FluentStorage.Azure.Files.Storage {
 			return new AzureFilesStore(client, accountName);
 		}
 
-		protected override async Task<List<StorageObject>> ListPathAsync(
+		protected override async Task<List<StoreObject>> ListPath(
 		   string path, StorageListOptions options, CancellationToken cancellationToken) {
 			if (StoragePath.IsRootPath(path)) {
-				var shares = new List<StorageObject>();
+				var shares = new List<StoreObject>();
 
 				await foreach (ShareItem share in _client.GetSharesAsync(ShareTraits.Metadata, cancellationToken: cancellationToken).ConfigureAwait(false)) {
 					shares.Add(AzConvert.ToBlob(share));
@@ -61,7 +61,7 @@ namespace FluentStorage.Azure.Files.Storage {
 				return shares;
 			}
 			else {
-				var chunk = new List<StorageObject>();
+				var chunk = new List<StoreObject>();
 
 				ShareDirectoryClient dir = await GetDirectoryReferenceAsync(path, false, cancellationToken).ConfigureAwait(false);
 				if (dir == null) {
@@ -144,7 +144,7 @@ namespace FluentStorage.Azure.Files.Storage {
 			}
 		}
 
-		public override async Task<StorageObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken) {
+		public override async Task<StoreObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken) {
 			ShareFileClient file = await GetFileReferenceAsync(fullPath, false, cancellationToken).ConfigureAwait(false);
 			if (file == null) {
 				return null;
@@ -163,7 +163,7 @@ namespace FluentStorage.Azure.Files.Storage {
 			}
 		}
 
-		protected override async Task DeleteSingleAsync(string fullPath, CancellationToken cancellationToken) {
+		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken) {
 			ShareFileClient file = await GetFileReferenceAsync(fullPath, false, cancellationToken).ConfigureAwait(false);
 			if (file == null) {
 				return;
@@ -204,13 +204,13 @@ namespace FluentStorage.Azure.Files.Storage {
 			return await file.ExistsAsync(cancellationToken).ConfigureAwait(false);
 		}
 
-		public override async Task SetObjectsInfo(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
+		public override async Task SetObjectsInfo(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPaths(blobs);
 
-			await Task.WhenAll(blobs.Select(b => SetBlobAsync(b, cancellationToken))).ConfigureAwait(false);
+			await Task.WhenAll(blobs.Select(b => SetObjectInfo(b, cancellationToken))).ConfigureAwait(false);
 		}
 
-		private async Task SetBlobAsync(StorageObject blob, CancellationToken cancellationToken) {
+		public override async Task SetObjectInfo(StoreObject blob, CancellationToken cancellationToken) {
 			if (blob.IsFolder) {
 				ShareDirectoryClient dir = await GetDirectoryReferenceAsync(blob.FullPath, false, cancellationToken).ConfigureAwait(false);
 				if (dir != null) {

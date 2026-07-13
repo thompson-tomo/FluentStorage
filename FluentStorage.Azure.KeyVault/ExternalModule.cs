@@ -7,7 +7,7 @@ namespace FluentStorage.Azure.KeyVault {
 	class ExternalModule : IExternalModule, IConnectionFactory {
 		public IConnectionFactory ConnectionFactory => this;
 
-		public IBucket CreateBlobStorage(ConnectionString connectionString) {
+		public IStore CreateStore(ConnectionString connectionString) {
 			if (connectionString.Prefix == ConnectionStringPrefix.AzureKeyVault) {
 				connectionString.GetRequired(ConnectionStringParam.VaultUri, true, out string uri);
 
@@ -26,6 +26,6 @@ namespace FluentStorage.Azure.KeyVault {
 			return null;
 		}
 
-		public IQueue CreateMessenger(ConnectionString connectionString) => null;
+		public IQueue CreateQueue(ConnectionString connectionString) => null;
 	}
 }

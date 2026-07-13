@@ -11,7 +11,7 @@ using Xunit.Abstractions;
 namespace FluentStorage.Tests.Integration.Ftp {
 	public class FtpTest : IClassFixture<FtpFixture>, IAsyncLifetime {
 
-		private IBucket _storage;
+		private IStore _storage;
 		private FtpFixture Fixture { get; }
 
 		private static readonly Faker Faker = new();

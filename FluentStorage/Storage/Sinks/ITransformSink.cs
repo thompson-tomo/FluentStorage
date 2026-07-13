@@ -2,7 +2,7 @@
 
 namespace FluentStorage.Storage.Sinks {
 	/// <summary>
-	/// Data transformation sink that can transform both read and write streams on <see cref="IBucket"/>
+	/// Data transformation sink that can transform both read and write streams on <see cref="IStore"/>
 	/// </summary>
 	public interface ITransformSink {
 		/// <summary>

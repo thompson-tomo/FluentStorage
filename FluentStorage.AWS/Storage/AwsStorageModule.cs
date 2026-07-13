@@ -7,7 +7,7 @@ namespace FluentStorage.AWS.Storage {
 	class AwsStorageModule : IExternalModule, IConnectionFactory {
 		public IConnectionFactory ConnectionFactory => this;
 
-		public IBucket CreateBlobStorage(ConnectionString connectionString) {
+		public IStore CreateStore(ConnectionString connectionString) {
 
 			// handle service specific prefixes
 			if (ConnectionStringPrefix.IsS3Compatible(connectionString.Prefix)) {
@@ -93,6 +93,6 @@ namespace FluentStorage.AWS.Storage {
 			return null;
 		}
 
-		public IQueue CreateMessenger(ConnectionString connectionString) => null;
+		public IQueue CreateQueue(ConnectionString connectionString) => null;
 	}
 }

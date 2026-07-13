@@ -23,8 +23,8 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			_maxTasks = maxTasks;
 		}
 
-		public async Task<List<StorageObject>> ListFolderAsync(StorageListOptions options, CancellationToken cancellationToken) {
-			var result = new List<StorageObject>();
+		public async Task<List<StoreObject>> ListFolderAsync(StorageListOptions options, CancellationToken cancellationToken) {
+			var result = new List<StoreObject>();
 			_asyncLimiter = new AsyncLimiter(options.NumberOfRecursionThreads ?? _maxTasks);
 			
 			await foreach (BlobHierarchyItem item in
@@ -33,7 +33,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 				  prefix: FormatFolderPrefix(options.FolderPath),
 				  traits: options.IncludeAttributes ? BlobTraits.Metadata : BlobTraits.None).ConfigureAwait(false)) {
 
-				StorageObject blob = AzConvert.ToBlob(_prependContainerName ? _client.Name : null, item);
+				StoreObject blob = AzConvert.ToBlob(_prependContainerName ? _client.Name : null, item);
 
 				if (options.IsMatch(blob) && (options.BrowseFilter == null || options.BrowseFilter(blob))) {
 					result.Add(blob);
@@ -49,16 +49,16 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			return result;
 		}
 
-		private static void AssumeImplicitPrefixes(string absoluteRoot, List<StorageObject> blobs) {
+		private static void AssumeImplicitPrefixes(string absoluteRoot, List<StoreObject> blobs) {
 			absoluteRoot = StoragePath.Normalize(absoluteRoot);
 
-			List<StorageObject> implicitFolders = blobs
+			List<StoreObject> implicitFolders = blobs
 			   .Select(b => b.FullPath)
 			   .Select(p => p.Substring(absoluteRoot.Length))
 			   .Select(p => StoragePath.GetParent(p))
 			   .Where(p => !StoragePath.IsRootPath(p))
 			   .Distinct()
-			   .Select(p => new StorageObject(p, StorageObjectType.Folder))
+			   .Select(p => new StoreObject(p, StorageObjectType.Folder))
 			   .ToList();
 
 			blobs.AddRange(implicitFolders);

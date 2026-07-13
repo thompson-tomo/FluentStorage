@@ -19,9 +19,9 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			BlobPrefix = blobPrefix;
 		}
 
-		protected abstract IBucket CreateStorage(ITestSettings settings);
+		protected abstract IStore CreateStorage(ITestSettings settings);
 
-		public IBucket Storage { get; private set; }
+		public IStore Storage { get; private set; }
 		public string BlobPrefix { get; }
 
 		public string TestDir {
@@ -41,10 +41,10 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 			//drop all blobs in test storage
 
-			List<StorageObject> topLevel = (await Storage.ListDirectory(folderPath: BlobPrefix, recurse: false)).ToList();
+			List<StoreObject> topLevel = (await Storage.ListDirectory(folderPath: BlobPrefix, recurse: false)).ToList();
 
 			try {
-				await Storage.DeleteObject(topLevel.Select(f => f.FullPath));
+				await Storage.DeleteObjects(topLevel.Select(f => f.FullPath));
 			}
 			catch {
 				//absolutely doesn't matter if it fails, this is only a perf improvement on tests

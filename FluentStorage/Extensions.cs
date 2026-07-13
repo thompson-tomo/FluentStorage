@@ -22,7 +22,7 @@ namespace FluentStorage {
 		/// <param name="minSizeLarge">Threshold size</param>
 		/// <param name="blobPathGenerator">Optional generator for blob path used to save large message content.</param>
 		/// <returns></returns>
-		public static IQueue HandleLargeContent(this IQueue messenger, IBucket offloadStorage, int minSizeLarge,
+		public static IQueue HandleLargeContent(this IQueue messenger, IStore offloadStorage, int minSizeLarge,
 		   Func<QueueMessage, string> blobPathGenerator = null) {
 			return new LargeMessageMessenger(messenger, offloadStorage, minSizeLarge, blobPathGenerator, false);
 		}
@@ -34,7 +34,7 @@ namespace FluentStorage {
 		/// <param name="blobStorage"></param>
 		/// <param name="sinks"></param>
 		/// <returns></returns>
-		public static IBucket WithSinks(this IBucket blobStorage,
+		public static IStore WithSinks(this IStore blobStorage,
 		   params ITransformSink[] sinks) {
 			return new SinkedBlobStorage(blobStorage, sinks);
 		}
@@ -45,8 +45,8 @@ namespace FluentStorage {
 		/// <param name="blobStorage"></param>
 		/// <param name="compressionLevel"></param>
 		/// <returns></returns>
-		public static IBucket WithGzipCompression(
-		   this IBucket blobStorage, CompressionLevel compressionLevel = CompressionLevel.Optimal) {
+		public static IStore WithGzipCompression(
+		   this IStore blobStorage, CompressionLevel compressionLevel = CompressionLevel.Optimal) {
 			return blobStorage.WithSinks(new GZipSink(compressionLevel));
 		}
 
@@ -59,8 +59,8 @@ namespace FluentStorage {
 		/// <param name="encryptionKey"></param>
 		/// <returns></returns>
 		[Obsolete("Please use WithAesSymmetricEncryption as Rijndael is obsolete in .Net 6 and above")]
-		public static IBucket WithSymmetricEncryption(
-		   this IBucket blobStorage,
+		public static IStore WithSymmetricEncryption(
+		   this IStore blobStorage,
 		   string encryptionKey) {
 			return blobStorage.WithSinks(new SymmetricEncryptionSink(encryptionKey));
 		}
@@ -73,8 +73,8 @@ namespace FluentStorage {
 		/// <param name="encryptionSecret"></param>
 		/// <returns></returns>
 		[Obsolete("Please use WithAesSymmetricEncryption as Rijndael is obsolete in .Net 6 and above")]
-		public static IBucket WithSymmetricEncryption(
-		   this IBucket blobStorage,
+		public static IStore WithSymmetricEncryption(
+		   this IStore blobStorage,
 		   string encryptionKey,
 		   string encryptionSecret) {
 			return blobStorage.WithSinks(new SymmetricEncryptionSink(encryptionKey, encryptionSecret));
@@ -86,8 +86,8 @@ namespace FluentStorage {
 		/// <param name="blobStorage"></param>
 		/// <param name="encryptionKey"></param>
 		/// <returns></returns>
-		public static IBucket WithAesSymmetricEncryption(
-		   this IBucket blobStorage,
+		public static IStore WithAesSymmetricEncryption(
+		   this IStore blobStorage,
 		   string encryptionKey) {
 			return blobStorage.WithSinks(new AesSymmetricEncryptionSink(encryptionKey));
 		}
@@ -99,8 +99,8 @@ namespace FluentStorage {
 		/// <param name="encryptionKey"></param>
 		/// <param name="encryptionSecret"></param>
 		/// <returns></returns>
-		public static IBucket WithAesSymmetricEncryption(
-		   this IBucket blobStorage,
+		public static IStore WithAesSymmetricEncryption(
+		   this IStore blobStorage,
 		   string encryptionKey,
 		   string encryptionSecret) {
 			return blobStorage.WithSinks(new AesSymmetricEncryptionSink(encryptionKey, encryptionSecret));

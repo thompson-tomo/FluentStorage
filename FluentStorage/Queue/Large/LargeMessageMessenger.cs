@@ -8,14 +8,14 @@ using FluentStorage.Storage;
 namespace FluentStorage.Queue.Large {
 	class LargeMessageMessenger : IQueue {
 		private readonly IQueue _parentPublisher;
-		private readonly IBucket _offloadStorage;
+		private readonly IStore _offloadStorage;
 		private readonly long _minSizeLarge;
 		private readonly bool _keepPublisherOpen;
 		private readonly Func<QueueMessage, string> _blobPathGenerator;
 
 		public LargeMessageMessenger(
 		   IQueue parentPublisher,
-		   IBucket offloadStorage,
+		   IStore offloadStorage,
 		   long minSizeLarge,
 		   Func<QueueMessage, string> blobPathGenerator = null,
 		   bool keepPublisherOpen = false) {

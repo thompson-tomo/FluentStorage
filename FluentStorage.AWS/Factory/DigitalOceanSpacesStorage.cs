@@ -16,7 +16,7 @@ namespace FluentStorage.AWS.Factory {
 		/// <param name="digitalOceanRegion">DigitalOcean Region endpoint (like "nyc3")</param>
 		/// <param name="sessionToken">Optional. Only required when using session credentials.</param>
 		/// <returns>A reference to the created storage</returns>
-		public static IBucket FromCredentials(
+		public static IStore FromCredentials(
 		   string accessKeyId,
 		   string secretAccessKey,
 		   string bucketName,

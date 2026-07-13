@@ -11,11 +11,11 @@ namespace FluentStorage.ConnectionStrings {
 		/// Creates a blob storage instance from connection string if possible. When this factory does not support this connection
 		/// string it returns null.
 		/// </summary>
-		IBucket CreateBlobStorage(ConnectionString connectionString);
+		IStore CreateStore(ConnectionString connectionString);
 
 		/// <summary>
 		/// Creates a message publisher
 		/// </summary>
-		IQueue CreateMessenger(ConnectionString connectionString);
+		IQueue CreateQueue(ConnectionString connectionString);
 	}
 }

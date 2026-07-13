@@ -30,7 +30,7 @@ namespace FluentStorage {
 		/// <param name="bucketName">Bucket name</param>
 		/// <param name="region">Required regional endpoint.</param>
 		/// <returns>A reference to the created storage</returns>
-		public static IBucket FromRole(
+		public static IStore FromRole(
 		   string bucketName,
 		   string region) {
 			return new S3Store(bucketName, region);
@@ -47,7 +47,7 @@ namespace FluentStorage {
 		/// <param name="region">Region endpoint</param>
 		/// <param name="serviceUrl">S3-compatible service location</param>
 		/// <returns>A reference to the created storage</returns>
-		public static IBucket FromCredentials(
+		public static IStore FromCredentials(
 		   string accessKeyId,
 		   string secretAccessKey,
 		   string sessionToken,
@@ -68,7 +68,7 @@ namespace FluentStorage {
 		/// <param name="clientConfig">S3 client configuration</param>
 		/// <param name="transferUtilityConfig">S3 transfer utility configuration</param>
 		/// <returns>A reference to the created storage</returns>
-		public static IBucket FromThirdPartyCredentials(
+		public static IStore FromThirdPartyCredentials(
 		   string accessKeyId,
 		   string secretAccessKey,
 		   string sessionToken,
@@ -88,7 +88,7 @@ namespace FluentStorage {
 		/// <param name="bucketName">Bucket name</param>
 		/// <param name="region"></param>
 		/// <returns>A reference to the created storage</returns>
-		public static IBucket FromConfigFile(
+		public static IStore FromConfigFile(
 		   string awsCliProfileName,
 		   string bucketName,
 		   string region) {
@@ -103,7 +103,7 @@ namespace FluentStorage {
 		/// <param name="bucketName">Bucket name</param>
 		/// <param name="region"></param>
 		/// <returns>A reference to the created storage</returns>
-		public static IBucket FromSSO(
+		public static IStore FromSSO(
 		   AWSCredentials credentials,
 		   string bucketName,
 		   string region) {

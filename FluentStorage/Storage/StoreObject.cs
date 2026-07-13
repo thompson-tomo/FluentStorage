@@ -10,7 +10,7 @@ namespace FluentStorage.Storage {
 	/// <summary>
 	/// Manages a single object inside a bucket or file system.
 	/// </summary>
-	public sealed class StorageObject : IEquatable<StorageObject>, ICloneable {
+	public sealed class StoreObject : IEquatable<StoreObject>, ICloneable {
 
 		/// <summary>
 		/// Gets the type of the storage object (file/folder)
@@ -147,7 +147,7 @@ namespace FluentStorage.Storage {
 		/// </summary>
 		/// <param name="fullPath"></param>
 		/// <param name="objType"></param>
-		public StorageObject(string fullPath, StorageObjectType objType = StorageObjectType.File) {
+		public StoreObject(string fullPath, StorageObjectType objType = StorageObjectType.File) {
 			SetFullPath(fullPath);
 
 			Type = objType;
@@ -159,7 +159,7 @@ namespace FluentStorage.Storage {
 		/// <param name="folderPath">Folder path to the blob</param>
 		/// <param name="name">Name of the blob withing a specific folder.</param>
 		/// <param name="objType">Blob kind (file or folder)</param>
-		public StorageObject(string folderPath, string name, StorageObjectType objType) {
+		public StoreObject(string folderPath, string name, StorageObjectType objType) {
 			Name = name ?? throw new ArgumentNullException(nameof(name));
 			Name = StoragePath.NormalizePart(Name);
 			FolderPath = StoragePath.Normalize(folderPath);
@@ -184,7 +184,7 @@ namespace FluentStorage.Storage {
 		/// Equality check
 		/// </summary>
 		/// <param name="other"></param>
-		public bool Equals(StorageObject other) {
+		public bool Equals(StoreObject other) {
 			if (ReferenceEquals(other, null))
 				return false;
 
@@ -202,10 +202,10 @@ namespace FluentStorage.Storage {
 				return false;
 			if (ReferenceEquals(other, this))
 				return true;
-			if (other.GetType() != typeof(StorageObject))
+			if (other.GetType() != typeof(StoreObject))
 				return false;
 
-			return Equals((StorageObject)other);
+			return Equals((StoreObject)other);
 		}
 
 		/// <summary>
@@ -218,15 +218,15 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Constructs a file blob by full ID
 		/// </summary>
-		public static implicit operator StorageObject(string fullPath) {
-			return new StorageObject(fullPath, StorageObjectType.File);
+		public static implicit operator StoreObject(string fullPath) {
+			return new StoreObject(fullPath, StorageObjectType.File);
 		}
 
 		/// <summary>
 		/// Converts blob to string by using full path
 		/// </summary>
 		/// <param name="blob"></param>
-		public static implicit operator string(StorageObject blob) {
+		public static implicit operator string(StoreObject blob) {
 			return blob.FullPath;
 		}
 
@@ -313,7 +313,7 @@ namespace FluentStorage.Storage {
 		/// </summary>
 		/// <returns></returns>
 		public object Clone() {
-			var clone = (StorageObject)MemberwiseClone();
+			var clone = (StoreObject)MemberwiseClone();
 			clone.Metadata = new Dictionary<string, string>(Metadata, StringComparer.OrdinalIgnoreCase);
 			clone.Properties = new Dictionary<string, object>(Properties, StringComparer.OrdinalIgnoreCase);
 			return clone;

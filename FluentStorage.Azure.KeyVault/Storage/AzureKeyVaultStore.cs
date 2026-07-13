@@ -14,7 +14,7 @@ using FluentStorage.Utils.Extensions;
 using FluentStorage.Enums;
 
 namespace FluentStorage.Azure.KeyVault.Storage {
-	public class AzureKeyVaultStore : BucketBase {
+	public class AzureKeyVaultStore : StoreBase {
 		private readonly SecretClient _client;
 		private readonly string _vaultUri;
 		private static readonly Regex secretNameRegex = new Regex("^[0-9a-zA-Z-]+$");
@@ -26,17 +26,17 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 		}
 
 
-		public async Task<List<StorageObject>> ListAsync(StorageListOptions options, CancellationToken cancellationToken) {
+		public async Task<List<StoreObject>> ListObjects(StorageListOptions options, CancellationToken cancellationToken) {
 			if (options == null) options = new StorageListOptions();
 
 			GenericValidation.CheckBlobPrefix(options.FilePrefix);
 
-			if (!StoragePath.IsRootPath(options.FolderPath)) return new List<StorageObject>();
+			if (!StoragePath.IsRootPath(options.FolderPath)) return new List<StoreObject>();
 
-			var secrets = new List<StorageObject>();
+			var secrets = new List<StoreObject>();
 
 			await foreach (SecretProperties secretProperties in _client.GetPropertiesOfSecretsAsync(cancellationToken).ConfigureAwait(false)) {
-				StorageObject blob = ToBlob(secretProperties);
+				StoreObject blob = ToBlob(secretProperties);
 				if (!options.IsMatch(blob))
 					continue;
 
@@ -52,8 +52,8 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 			return secrets;
 		}
 
-		private static StorageObject ToBlob(SecretProperties secretProperties) {
-			var blob = new StorageObject(secretProperties.Name, StorageObjectType.File);
+		private static StoreObject ToBlob(SecretProperties secretProperties) {
+			var blob = new StoreObject(secretProperties.Name, StorageObjectType.File);
 			blob.DateModified = secretProperties.UpdatedOn;
 
 			blob.TryAddProperties(
@@ -75,7 +75,7 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 			return blob;
 		}
 
-		public async Task WriteAsync(string fullPath, Stream dataStream, bool append, CancellationToken cancellationToken) {
+		public override async Task SetObject(string fullPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 			fullPath = NormaliseSecretName(fullPath);
 			if (append) throw new ArgumentException("appending to secrets is not supported", nameof(append));
@@ -84,11 +84,11 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 			string value = Encoding.UTF8.GetString(data);
 			await _client.SetSecretAsync(fullPath, value, cancellationToken).ConfigureAwait(false);
 		}
-		public async Task WriteAsync(string fullPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken) {
-			await WriteAsync(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
+		public override async Task SetObject(string fullPath, Stream dataStream, bool append, CancellationToken cancellationToken) {
+			await SetObject(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
 
-		public async Task<Stream> OpenReadAsync(string fullPath, CancellationToken cancellationToken) {
+		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 			fullPath = NormaliseSecretName(fullPath);
 
@@ -104,13 +104,13 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 			}
 		}
 
-		public async Task DeleteAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public override async Task DeleteObjects(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPaths(fullPaths);
 
-			await Task.WhenAll(fullPaths.Select(fullPath => DeleteAsync(fullPath, cancellationToken))).ConfigureAwait(false);
+			await Task.WhenAll(fullPaths.Select(fullPath => DeleteObject(fullPath, cancellationToken))).ConfigureAwait(false);
 		}
 
-		private async Task DeleteAsync(string fullPath, CancellationToken cancellationToken) {
+		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken) {
 			fullPath = NormaliseSecretName(fullPath);
 
 			try {
@@ -121,13 +121,13 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 			}
 		}
 
-		public async Task<List<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public override async Task<List<bool>> ObjectsExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPaths(fullPaths);
 
-			return (await Task.WhenAll(fullPaths.Select(fullPath => ExistsAsync(fullPath))).ConfigureAwait(false)).ToList();
+			return (await Task.WhenAll(fullPaths.Select(fullPath => ObjectExists(fullPath))).ConfigureAwait(false)).ToList();
 		}
 
-		private async Task<bool> ExistsAsync(string fullPath) {
+		public override async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 
 			fullPath = NormaliseSecretName(fullPath);
@@ -142,17 +142,17 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 			return true;
 		}
 
-		public async Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public async Task<List<StoreObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPaths(fullPaths);
 
 			return (await Task.WhenAll(fullPaths.Select(fullPath => GetBlobAsync(fullPath))).ConfigureAwait(false)).ToList();
 		}
 
-		public Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
+		public Task SetBlobsAsync(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		private async Task<StorageObject> GetBlobAsync(string fullPath) {
+		private async Task<StoreObject> GetBlobAsync(string fullPath) {
 			fullPath = NormaliseSecretName(fullPath);
 
 			try {
@@ -174,9 +174,6 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 			}
 
 			return fullPath;
-		}
-
-		public void Dispose() {
 		}
 
 	}

@@ -7,9 +7,9 @@ namespace FluentStorage.Azure.Queues {
 	class Module : IExternalModule, IConnectionFactory {
 		public IConnectionFactory ConnectionFactory => this;
 
-		public IBucket CreateBlobStorage(ConnectionString connectionString) => null;
+		public IStore CreateStore(ConnectionString connectionString) => null;
 
-		public IQueue CreateMessenger(ConnectionString connectionString) {
+		public IQueue CreateQueue(ConnectionString connectionString) {
 			if (connectionString.Prefix == ConnectionStringPrefix.AzureQueueStorage) {
 				connectionString.GetRequired(ConnectionStringParam.AccountName, true, out string accountName);
 				connectionString.GetRequired(ConnectionStringParam.KeyOrPassword, true, out string key);

@@ -14,7 +14,7 @@ using FluentStorage.Enums;
 namespace FluentStorage.Tests.Integration.Blobs {
 	[Trait("Category", "Blobs")]
 	public abstract class BlobTest : IAsyncLifetime {
-		private readonly IBucket _storage;
+		private readonly IStore _storage;
 		private readonly string _blobPrefix;
 		private readonly BlobFixture _fixture;
 
@@ -55,7 +55,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 			await _storage.SetText(targetId, "test");
 
-			List<StorageObject> rootContent = await _storage.ListObjects();
+			List<StoreObject> rootContent = await _storage.ListObjects();
 
 			Assert.NotEmpty(rootContent);
 		}
@@ -74,7 +74,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			await _storage.SetText(id2, RandomGenerator.RandomString);
 			await _storage.SetText(id3, RandomGenerator.RandomString);
 
-			List<StorageObject> items = (await _storage.ListObjects(new StorageListOptions { FolderPath = _blobPrefix, FilePrefix = prefix }));
+			List<StoreObject> items = (await _storage.ListObjects(new StorageListOptions { FolderPath = _blobPrefix, FilePrefix = prefix }));
 			Assert.Equal(2 + countBefore, items.Count); //2 files + containing folder
 		}
 
@@ -84,11 +84,11 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 			await _storage.SetText(id, RandomGenerator.RandomString);
 
-			List<StorageObject> items = (await _storage.ListObjects(new StorageListOptions { FolderPath = _blobPrefix, Recurse = false })).ToList();
+			List<StoreObject> items = (await _storage.ListObjects(new StorageListOptions { FolderPath = _blobPrefix, Recurse = false })).ToList();
 
 			Assert.True(items.Count > 0);
 
-			StorageObject tid = items.FirstOrDefault(i => i.FullPath == id);
+			StoreObject tid = items.FirstOrDefault(i => i.FullPath == id);
 			Assert.NotNull(tid);
 		}
 
@@ -104,7 +104,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 				await _storage.SetText(id2, RandomGenerator.RandomString);
 				await _storage.SetText(id3, RandomGenerator.RandomString);
 
-				List<StorageObject> items = await _storage.ListDirectory(recurse: true, folderPath: folderPath);
+				List<StoreObject> items = await _storage.ListDirectory(recurse: true, folderPath: folderPath);
 				Assert.Equal(4, items.Count); //1.txt + sub (folder) + 2.txt + 3.txt
 
 			}
@@ -115,7 +115,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 		[Fact]
 		public async Task List_InNonExistingFolder_EmptyCollection() {
-			IEnumerable<StorageObject> objects = await _storage.ListObjects(new StorageListOptions { FolderPath = RandomBlobPath() });
+			IEnumerable<StoreObject> objects = await _storage.ListObjects(new StorageListOptions { FolderPath = RandomBlobPath() });
 
 			Assert.NotNull(objects);
 			Assert.True(objects.Count() == 0);
@@ -123,7 +123,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 		[Fact]
 		public async Task List_FilesInNonExistingFolder_EmptyCollection() {
-			IEnumerable<StorageObject> objects = await _storage.ListFiles(new StorageListOptions { FolderPath = RandomBlobPath() });
+			IEnumerable<StoreObject> objects = await _storage.ListFiles(new StorageListOptions { FolderPath = RandomBlobPath() });
 
 			Assert.NotNull(objects);
 			Assert.True(objects.Count() == 0);
@@ -157,7 +157,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			await _storage.SetText(id2, RandomGenerator.RandomString);
 
 			//dump compare
-			List<StorageObject> files = await _storage.ListFiles(new StorageListOptions {
+			List<StoreObject> files = await _storage.ListFiles(new StorageListOptions {
 				FolderPath = _blobPrefix,
 				Recurse = true
 			});
@@ -187,7 +187,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			}
 
 			//act
-			List<StorageObject> blobs = await _storage.ListDirectory(folderPath: _blobPrefix);
+			List<StoreObject> blobs = await _storage.ListDirectory(folderPath: _blobPrefix);
 
 			//assert
 			Assert.True(blobs.Count >= count, $"expected over {count}, but received only {blobs.Count}");
@@ -201,12 +201,12 @@ namespace FluentStorage.Tests.Integration.Blobs {
 				await _storage.SetText(sub + "one.txt", "test");
 				await _storage.SetText(sub + "sub/two.txt", "test");
 
-				List<StorageObject> subItems = await _storage.ListDirectory(recurse: false, folderPath: sub);
+				List<StoreObject> subItems = await _storage.ListDirectory(recurse: false, folderPath: sub);
 				Assert.Equal(2, subItems.Count);
 
 
-				Assert.Contains(new StorageObject(sub + "one.txt"), subItems);
-				Assert.Contains(new StorageObject(sub + "sub", StorageObjectType.Folder), subItems);
+				Assert.Contains(new StoreObject(sub + "one.txt"), subItems);
+				Assert.Contains(new StoreObject(sub + "sub", StorageObjectType.Folder), subItems);
 			}
 			catch (NotSupportedException) {
 				//hierarchy not supported
@@ -220,7 +220,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 			await _storage.SetText(id, content);
 
-			StorageObject meta = await _storage.GetObjectInfo(id);
+			StoreObject meta = await _storage.GetObjectInfo(id);
 
 			long size = Encoding.UTF8.GetBytes(content).Length;
 			string md5 = content.MD5();
@@ -237,7 +237,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 		public async Task GetBlob_doesnt_exist_returns_null() {
 			string id = RandomBlobPath();
 
-			StorageObject meta = (await _storage.GetObjectsInfo(new[] { id })).First();
+			StoreObject meta = (await _storage.GetObjectsInfo(new[] { id })).First();
 
 			Assert.Null(meta);
 		}
@@ -257,7 +257,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			string root = StoragePath.Split(id)[0];
 
 			try {
-				StorageObject rb = await _storage.GetObjectInfo(root);
+				StoreObject rb = await _storage.GetObjectInfo(root);
 			}
 			catch (NotSupportedException) {
 
@@ -301,7 +301,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 		[Fact]
 		public async Task Open_copy_to_memory_stream_succeeds() {
 			string id = await GetRandomStreamIdAsync();
-			IBucket ms = StorageFactory.InMemory();
+			IStore ms = StorageFactory.InMemory();
 
 			//if this doesn't crash it means the returned stream is compatible with usual .net streaming
 			await _storage.CopyObjectToBucket(id, ms, id);
@@ -385,7 +385,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			}
 
 			//assert
-			List<StorageObject> files = await _storage.ListDirectory(prefix, recurse: true);
+			List<StoreObject> files = await _storage.ListDirectory(prefix, recurse: true);
 			Assert.True(files.Count == 0);
 		}
 
@@ -397,7 +397,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			try {
 				await _storage.SetText(file, "test");
 				await _storage.RenameObject(file, StoragePath.Combine(prefix, "2"));
-				List<StorageObject> list = await _storage.ListDirectory(prefix);
+				List<StoreObject> list = await _storage.ListDirectory(prefix);
 
 				Assert.Single(list);
 				Assert.True(list.First().Name == "2");
@@ -437,7 +437,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 			await _storage.RenameObject(StoragePath.Combine(prefix, "old"), StoragePath.Combine(prefix, "new"));
 
-			List<StorageObject> list = await _storage.ListDirectory(prefix);
+			List<StoreObject> list = await _storage.ListDirectory(prefix);
 		}
 
 		[Fact]
@@ -458,12 +458,12 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 		[Fact]
 		public async Task UserMetadata_write_readsback() {
-			var blob = new StorageObject(RandomBlobPath());
+			var blob = new StoreObject(RandomBlobPath());
 			blob.Metadata["user"] = "ivan";
 			blob.Metadata["fun"] = "no";
 
 			await _storage.SetText(blob, "test");
-			StorageObject blob2 = await _storage.GetObjectInfo(blob);
+			StoreObject blob2 = await _storage.GetObjectInfo(blob);
 
 			try {
 				await _storage.SetObjectInfo(blob);
@@ -485,7 +485,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 		[Fact]
 		public async Task UserMetadata_OverwriteWithLess_RemovesOld() {
 			//setup
-			var blob = new StorageObject(RandomBlobPath());
+			var blob = new StoreObject(RandomBlobPath());
 			blob.Metadata["user"] = "ivan";
 			blob.Metadata["fun"] = "no";
 			await _storage.SetText(blob, "test");
@@ -501,7 +501,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			await _storage.SetObjectInfo(blob);
 
 			//test
-			StorageObject blob2 = await _storage.GetObjectInfo(blob);
+			StoreObject blob2 = await _storage.GetObjectInfo(blob);
 			Assert.NotNull(blob2.Metadata);
 			Assert.Single(blob2.Metadata);
 			Assert.Equal("ivan2", blob2.Metadata["user"]);
@@ -509,7 +509,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 		[Fact]
 		public async Task UserMetadata_openwrite_readsback() {
-			var blob = new StorageObject(RandomBlobPath());
+			var blob = new StoreObject(RandomBlobPath());
 			blob.Metadata["user"] = "ivan";
 			blob.Metadata["fun"] = "no";
 
@@ -523,7 +523,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			}
 
 			//test
-			StorageObject blob2 = await _storage.GetObjectInfo(blob);
+			StoreObject blob2 = await _storage.GetObjectInfo(blob);
 			Assert.NotNull(blob2.Metadata);
 			Assert.Equal("ivan", blob2.Metadata["user"]);
 			Assert.Equal("no", blob2.Metadata["fun"]);
@@ -532,7 +532,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 		[Fact]
 		public async Task UserMetadata_List_AlsoReturnsMetadata() {
-			var blob = new StorageObject(RandomBlobPath());
+			var blob = new StoreObject(RandomBlobPath());
 			blob.Metadata["user"] = "ivan";
 			blob.Metadata["fun"] = "no";
 			await _storage.SetText(blob, "test2");
@@ -544,10 +544,10 @@ namespace FluentStorage.Tests.Integration.Blobs {
 				return;
 			}
 
-			List<StorageObject> all = await _storage.ListDirectory(folderPath: blob.FolderPath, includeAttributes: true);
+			List<StoreObject> all = await _storage.ListDirectory(folderPath: blob.FolderPath, includeAttributes: true);
 
 			//test
-			StorageObject blob2 = all.First(b => b.FullPath == blob.FullPath);
+			StoreObject blob2 = all.First(b => b.FullPath == blob.FullPath);
 			Assert.NotNull(blob2.Metadata);
 			Assert.Equal("ivan", blob2.Metadata["user"]);
 			Assert.Equal("no", blob2.Metadata["fun"]);
@@ -556,7 +556,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 		[Fact]
 		public async Task GetMd5HashAsync() {
-			var blob = new StorageObject(RandomBlobPath());
+			var blob = new StoreObject(RandomBlobPath());
 			string content = RandomGenerator.RandomString;
 			string hash = content.MD5();
 
@@ -573,7 +573,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			try {
 				await _storage.CreateDirectory(folderPath);
 
-				List<StorageObject> files = await _storage.ListDirectory(folderPath);
+				List<StoreObject> files = await _storage.ListDirectory(folderPath);
 				Assert.True(files.Any());  //check dummy file exists
 			}
 			catch (NotSupportedException) {

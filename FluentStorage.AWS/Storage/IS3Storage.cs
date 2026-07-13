@@ -6,7 +6,7 @@ namespace FluentStorage.AWS.Storage {
 	/// <summary>
 	/// Provides access to native operations
 	/// </summary>
-	public interface IS3Storage : IBucket {
+	public interface IS3Storage : IStore {
 		/// <summary>
 		/// Returns reference to the native AWS S3 blob client.
 		/// </summary>

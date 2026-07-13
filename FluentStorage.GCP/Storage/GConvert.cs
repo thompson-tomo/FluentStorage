@@ -13,8 +13,8 @@ using Google.Apis.Storage.v1.Data;
 
 namespace FluentStorage.GCP.Storage {
 	static class GConvert {
-		public static StorageObject ToBlob(Object go) {
-			var blob = new StorageObject(go.Name) {
+		public static StoreObject ToBlob(Object go) {
+			var blob = new StoreObject(go.Name) {
 				DateModified = go.Updated,
 				MD5 = go.Md5Hash.Base64DecodeAsBytes().ToHexString(),
 				Size = (long?)go.Size,
@@ -50,9 +50,9 @@ namespace FluentStorage.GCP.Storage {
 			return blob;
 		}
 
-		public static IEnumerable<StorageObject> ToBlobs(IEnumerable<Object> objects, StorageListOptions options) {
+		public static IEnumerable<StoreObject> ToBlobs(IEnumerable<Object> objects, StorageListOptions options) {
 			foreach (Object obj in objects) {
-				StorageObject item = ToBlob(obj);
+				StoreObject item = ToBlob(obj);
 
 				if (options.FilePrefix != null && !item.Name.StartsWith(options.FilePrefix))
 					continue;
@@ -66,12 +66,12 @@ namespace FluentStorage.GCP.Storage {
 			yield break;
 		}
 
-		public static async Task<List<StorageObject>> ToBlobsAsync(PagedAsyncEnumerable<Objects, Object> objects, StorageListOptions options) {
-			var result = new List<StorageObject>();
+		public static async Task<List<StoreObject>> ToBlobsAsync(PagedAsyncEnumerable<Objects, Object> objects, StorageListOptions options) {
+			var result = new List<StoreObject>();
 
 			await foreach (Object obj in objects) {
 
-				StorageObject blob = ToBlob(obj);
+				StoreObject blob = ToBlob(obj);
 
 				if (options.FilePrefix != null && !blob.Name.StartsWith(options.FilePrefix))
 					continue;

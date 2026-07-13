@@ -67,21 +67,21 @@ namespace FluentStorage.Tests.Integration.Util {
 
 			string validBase64Key = Convert.ToBase64String(new byte[32]);
 
-			IBucket filesSharedKey = AzureFilesStorage.FromSharedKey(Account, validBase64Key, serviceUri: null, cloudEnvironment: environment);
+			IStore filesSharedKey = AzureFilesStorage.FromSharedKey(Account, validBase64Key, serviceUri: null, cloudEnvironment: environment);
 			var client = GetShareServiceClient(filesSharedKey);
 			Assert.Equal(expectedHost, client.Uri.Host);
 
 			var tokenCred = new ClientSecretCredential("test-tenant", "test-application", "test-secret", new TokenCredentialOptions { AuthorityHost = authorityHost });
 
-			IBucket filesToken = AzureFilesStorage.FromTokenCredential(Account, tokenCred, environment);
+			IStore filesToken = AzureFilesStorage.FromTokenCredential(Account, tokenCred, environment);
 			var client2 = GetShareServiceClient(filesToken);
 			Assert.Equal(expectedHost, client2.Uri.Host);
 
-			IBucket filesMsi = AzureFilesStorage.FromMsi(Account, clientId: null, azureCloudEnvironment: environment);
+			IStore filesMsi = AzureFilesStorage.FromMsi(Account, clientId: null, azureCloudEnvironment: environment);
 			var client3 = GetShareServiceClient(filesMsi);
 			Assert.Equal(expectedHost, client3.Uri.Host);
 
-			IBucket filesAzureAd = AzureFilesStorage.FromAzureAd(
+			IStore filesAzureAd = AzureFilesStorage.FromAzureAd(
 				Account,
 				tenantId: "test-tenant",
 				applicationId: "test-application",
@@ -98,7 +98,7 @@ namespace FluentStorage.Tests.Integration.Util {
 		public void Files_connection_string_authentication_modes_construct_storage(string connectionString) {
 			AzureFilesStorage.Use();
 
-			IBucket storage = StorageFactory.FromConnectionString(connectionString);
+			IStore storage = StorageFactory.FromConnectionString(connectionString);
 
 			Assert.NotNull(storage);
 			var client = GetShareServiceClient(storage);

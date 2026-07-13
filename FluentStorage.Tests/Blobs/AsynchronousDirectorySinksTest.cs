@@ -13,7 +13,7 @@ namespace FluentStorage.Tests.Blobs.Sink
 	public class AsynchronousDirectoryAesSymmetricEncryptionTest : AsynchronousSinksTest {
 		public AsynchronousDirectoryAesSymmetricEncryptionTest() : base(
 		   StorageFactory
-		   .DirectoryFiles(PathHelper.GetLocalPath("Temp"))
+		   .Disk(PathHelper.GetLocalPath("Temp"))
 		   .WithAesSymmetricEncryption("6qg/7EgPmrK9ZY70pnECtZ40g3dDe74czSvWJ+3dj0A=", "Ucu4aEHU6zTrgZVO+rJMyA=="))
 		{
 		}

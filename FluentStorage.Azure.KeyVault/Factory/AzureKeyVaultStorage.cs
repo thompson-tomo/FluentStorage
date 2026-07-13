@@ -23,7 +23,7 @@ namespace FluentStorage {
 		/// <param name="azureAadClientId">The azure aad client identifier.</param>
 		/// <param name="azureAadClientSecret">The azure aad client secret.</param>
 		/// <returns></returns>
-		public static IBucket FromCredentials(
+		public static IStore FromCredentials(
 		   Uri vaultUri,
 		   string tenantId,
 		   string applicationId,
@@ -45,7 +45,7 @@ namespace FluentStorage {
 		/// <param name="factory"></param>
 		/// <param name="vaultUri"></param>
 		/// <returns></returns>
-		public static IBucket FromMsi(Uri vaultUri) {
+		public static IStore FromMsi(Uri vaultUri) {
 			return new AzureKeyVaultStore(vaultUri, new ManagedIdentityCredential());
 		}
 

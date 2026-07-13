@@ -19,12 +19,12 @@ namespace FluentStorage.ConnectionStrings {
 			Factories.Add(factory);
 		}
 
-		public static IBucket CreateBlobStorage(string connectionString) {
-			return Create(connectionString, (factory, cs) => factory.CreateBlobStorage(cs));
+		public static IStore CreateBlobStorage(string connectionString) {
+			return Create(connectionString, (factory, cs) => factory.CreateStore(cs));
 		}
 
 		public static IQueue CreateMessager(string connectionString) {
-			return Create(connectionString, (factory, cs) => factory.CreateMessenger(cs));
+			return Create(connectionString, (factory, cs) => factory.CreateQueue(cs));
 		}
 
 

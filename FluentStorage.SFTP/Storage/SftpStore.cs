@@ -15,7 +15,7 @@ namespace FluentStorage.SFTP {
 	/// <summary>
 	/// Manages a single connected SFTP server using SSH.NET.
 	/// </summary>
-	public class SftpStore : BucketBase {
+	public class SftpStore : StoreBase {
 		/// <summary>
 		/// The retry policy
 		/// </summary>
@@ -148,32 +148,29 @@ namespace FluentStorage.SFTP {
 		/// <param name="fullPaths">The collection of full paths to delete. If this paths points to a folder, the folder is deleted recursively.</param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		public async Task DeleteAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public override async Task DeleteObjects(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 
-			SftpClient client = GetClient();
-
-			await Task.WhenAll(fullPaths.Select(fullPath => DeleteAsync(fullPath, client, cancellationToken))).ConfigureAwait(false);
+			await Task.WhenAll(fullPaths.Select(fullPath => DeleteObject(fullPath, cancellationToken))).ConfigureAwait(false);
 		}
 
 		/// <summary>
-		/// Deletes an object by it's full path.
+		/// Deletes an object by its full path.
 		/// </summary>
 		/// <param name="fullPath">The full path.</param>
 		/// <param name="client">The sftp client to use.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <returns></returns>
-		private Task DeleteAsync(string fullPath, SftpClient client, CancellationToken cancellationToken = default) {
+		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken = default) {
 			if (cancellationToken.IsCancellationRequested) {
-				return Task.FromCanceled(cancellationToken);
+				return;
 			}
+
+			SftpClient client = GetClient();
 
 			fullPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
 
-			// Todo: Support recursive deleting of folders with files.
 			client.Delete(fullPath);
-
-			return Task.CompletedTask;
 		}
 
 		/// <summary>
@@ -184,33 +181,33 @@ namespace FluentStorage.SFTP {
 		/// <returns>
 		/// List of results of true and false indicating existence
 		/// </returns>
-		public async Task<List<bool>> ExistsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public override async Task<List<bool>> ObjectsExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 
-			SftpClient client = GetClient();
-
-			return (await Task.WhenAll(fullPaths.Select(fullPath => ExistsAsync(fullPath, client, cancellationToken))).ConfigureAwait(false)).ToList();
+			return (await Task.WhenAll(fullPaths.Select(fullPath => ObjectExists(fullPath, cancellationToken))).ConfigureAwait(false)).ToList();
 		}
 
 		/// <summary>
 		/// Determine whether the blobs exists in the storage
 		/// </summary>
 		/// <param name="fullPath">List of paths to blobs</param>
-		/// <param name="client">The sftp client to use.</param>
 		/// <param name="cancellationToken"></param>
 		/// <returns>
 		/// List of results of true and false indicating existence
 		/// </returns>
-		private Task<bool> ExistsAsync(string fullPath, SftpClient client, CancellationToken cancellationToken = default) {
+		public override async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken = default) {
+			
 			if (cancellationToken.IsCancellationRequested) {
-				return Task.FromCanceled<bool>(cancellationToken);
+				return false;
 			}
+
+			SftpClient client = GetClient();
 
 			fullPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
 
 			bool fullPathExists = client.Exists(fullPath);
 
-			return Task.FromResult(fullPathExists);
+			return fullPathExists;
 		}
 
 		/// <summary>
@@ -221,12 +218,12 @@ namespace FluentStorage.SFTP {
 		/// <returns>
 		/// List of blob IDs
 		/// </returns>
-		public async Task<List<StorageObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public async Task<List<StoreObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 
 			SftpClient client = GetClient();
 
-			var results = new List<StorageObject>();
+			var results = new List<StoreObject>();
 			var fullPathsWithRoot = fullPaths.Select(fullPath => StoragePath.Combine(RootDirectory, fullPath));
 			foreach (IGrouping<string, string> fullPathGrouping in fullPathsWithRoot.GroupBy(StoragePath.GetParent)) {
 				string fullPath = fullPathGrouping.SingleOrDefault();
@@ -236,7 +233,7 @@ namespace FluentStorage.SFTP {
 				}
 
 				try {
-					List<StorageObject> blobCollection = new List<StorageObject>();
+					List<StoreObject> blobCollection = new List<StoreObject>();
 
 					await foreach (SftpFile sftpFile in client.ListDirectoryAsync(fullPathGrouping.Key, cancellationToken)) {
 						if ((sftpFile.IsDirectory || sftpFile.IsRegularFile) && sftpFile.FullName == fullPath) {
@@ -276,7 +273,7 @@ namespace FluentStorage.SFTP {
 		/// <returns>
 		/// List of blob IDs
 		/// </returns>
-		public async Task<List<StorageObject>> ListAsync(StorageListOptions options = null, CancellationToken cancellationToken = default) {
+		public async Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 
 			options ??= new StorageListOptions();
@@ -307,9 +304,9 @@ namespace FluentStorage.SFTP {
 		/// <param name="options"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns>List of blob IDs</returns>
-		async Task<List<StorageObject>> ListDirectoryAsync(SftpClient client, string folderToList, StorageListOptions options, CancellationToken cancellationToken) {
+		async Task<List<StoreObject>> ListDirectoryAsync(SftpClient client, string folderToList, StorageListOptions options, CancellationToken cancellationToken) {
 
-			List<StorageObject> blobCollection = new List<StorageObject>();
+			List<StoreObject> blobCollection = new List<StoreObject>();
 
 			// Note: options.FolderPath is not used here, we use the folderToList which is passed in.
 			List<SftpFile> directoryContents = new List<SftpFile>();
@@ -362,7 +359,7 @@ namespace FluentStorage.SFTP {
 		/// Stream in an open state, or null if blob doesn't exist by this ID. It is your responsibility to close and dispose this
 		/// stream after use.
 		/// </returns>
-		public async Task<Stream> OpenReadAsync(string fullPath, CancellationToken cancellationToken = default) {
+		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 
 			fullPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
@@ -409,13 +406,13 @@ namespace FluentStorage.SFTP {
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
 		/// <exception cref="System.NotSupportedException"></exception>
-		public Task SetBlobsAsync(IEnumerable<StorageObject> blobs, CancellationToken cancellationToken = default) {
+		public Task SetBlobsAsync(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 			throw new NotSupportedException();
 		}
 
-		public async Task WriteAsync(string fullPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken) {
-			await WriteAsync(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
+		public override async Task SetObject(string fullPath, Stream dataStream, bool append, CancellationToken cancellationToken) {
+			await SetObject(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
 		/// <summary>
 		/// Uploads data to a blob from stream.
@@ -427,7 +424,7 @@ namespace FluentStorage.SFTP {
 		/// <returns>
 		/// Writeable stream
 		/// </returns>
-		public async Task WriteAsync(string fullPath, Stream dataStream, bool append = false, CancellationToken cancellationToken = default) {
+		public override async Task SetObject(string fullPath, Stream dataStream, string contentType, bool append = false, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 
 			SftpClient client = GetClient();
@@ -490,13 +487,13 @@ namespace FluentStorage.SFTP {
 		/// </summary>
 		/// <param name="file">The file.</param>
 		/// <returns></returns>
-		private static StorageObject ConvertSftpFileToBlob(SftpFile file) {
+		private static StoreObject ConvertSftpFileToBlob(SftpFile file) {
 			if (file.IsDirectory || file.IsRegularFile || file.OwnerCanRead) {
 				StorageObjectType itemKind = file.IsDirectory
 				   ? StorageObjectType.Folder
 				   : StorageObjectType.File;
 
-				return new StorageObject(file.FullName, itemKind) {
+				return new StoreObject(file.FullName, itemKind) {
 					Size = file.Length,
 					DateModified = file.LastWriteTime
 				};
@@ -508,7 +505,7 @@ namespace FluentStorage.SFTP {
 		/// <summary>
 		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
-		public void Dispose() {
+		public override void Dispose() {
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}

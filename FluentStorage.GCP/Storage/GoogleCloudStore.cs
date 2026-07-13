@@ -14,6 +14,7 @@ using System.Net;
 using System.Linq;
 using Google.Apis.Storage.v1;
 using FluentStorage.Enums;
+using FluentStorage.Streaming;
 
 namespace FluentStorage.GCP.Storage {
 	/// <summary>
@@ -177,6 +178,30 @@ namespace FluentStorage.GCP.Storage {
 			}
 			ms.Position = 0;
 			return ms;
+		}
+
+		/// <summary>
+		/// Opens an object for writing and returns its content stream.
+		/// Object will be written when the stream is disposed.
+		/// </summary>
+		public override async Task<Stream> OpenWrite(string fullPath, bool overwrite, CancellationToken cancellationToken = default) {
+			GenericValidation.CheckBlobFullPath(fullPath);
+
+			// exit if file exists and overwriting is disabled
+			if (!overwrite && await ObjectExists(fullPath, cancellationToken)) return null;
+
+			fullPath = NormalisePath(fullPath);
+
+			MemoryStream stream = new();
+
+			return new FixedStream(stream, null, async s => {
+
+				// write object on stream dispose
+				s.Position = 0;
+
+				await _client.UploadObjectAsync(_bucketName,fullPath,
+					null,s, null, cancellationToken).ConfigureAwait(false);
+			});
 		}
 
 		/// <summary>

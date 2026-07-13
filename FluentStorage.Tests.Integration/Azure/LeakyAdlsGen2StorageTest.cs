@@ -237,7 +237,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 		public async Task InitializeAsync() {
 			//drop all blobs in test storage
 			List<StoreObject> topLevel =
-			   (await _storage.ListDirectory(recurse: false, folderPath: Filesystem)).ToList();
+			   (await _storage.ListDirectory(Filesystem, false)).ToList();
 
 			try {
 				await _storage.DeleteObjects(topLevel.Select(f => f.FullPath));

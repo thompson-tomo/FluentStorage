@@ -124,18 +124,29 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			}
 		}
 
+
 		/// <summary>
 		/// Opens an object for writing and returns its content stream.
-		/// Object will be written when the stream is disposed.
+		/// Object will be written when the stream is disposed or flushed.
 		/// </summary>
-		public override async Task<Stream> OpenWrite(string fullPath, CancellationToken cancellationToken = default) {
+		public override async Task<Stream> OpenWrite(string fullPath, bool overwrite, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPath(fullPath);
+
+			// exit if file exists and overwriting is disabled
+			if (!overwrite && await ObjectExists(fullPath, cancellationToken)) return null;
 
 			(BlobContainerClient container, string path) = await GetPartsAsync(fullPath, true).ConfigureAwait(false);
 
 			BlockBlobClient client = container.GetBlockBlobClient(path);
 
-			return await client.OpenWriteAsync(overwrite: true, cancellationToken: cancellationToken).ConfigureAwait(false);
+			try {
+				return await client.OpenWriteAsync(overwrite, null, cancellationToken).ConfigureAwait(false);
+			}
+			catch (RequestFailedException ex) when (ex.ErrorCode == "OperationNotAllowedInCurrentState") {
+				//happens when trying to write to a non-file object i.e. folder
+			}
+
+			return null;
 		}
 
 		/// <summary>
@@ -395,24 +406,6 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			BlobSasBuilder sas = AzConvert.OptionsToSas(options, container.Name, path);
 
 			return client.GenerateSasUri(sas).ToString();
-		}
-
-		public async Task<Stream> OpenWrite(string fullPath, CancellationToken cancellationToken = default) {
-			GenericValidation.CheckBlobFullPath(fullPath);
-
-
-			(BlobContainerClient container, string path) = await GetPartsAsync(fullPath, true).ConfigureAwait(false);
-
-			BlockBlobClient client = container.GetBlockBlobClient(path);
-
-			try {
-				return await client.OpenWriteAsync(true, null, cancellationToken).ConfigureAwait(false);
-			}
-			catch (RequestFailedException ex) when (ex.ErrorCode == "OperationNotAllowedInCurrentState") {
-				//happens when trying to write to a non-file object i.e. folder
-			}
-
-			return null;
 		}
 
 

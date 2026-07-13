@@ -194,7 +194,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 
 			var buffer = new byte[256];
 			// Act
-			using (var targetStream = await _native.OpenWrite($"{containerName}/test.txt"))
+			using (var targetStream = await _native.OpenWrite($"{containerName}/test.txt", true))
 			{
 				int bytesRead = 0;
 				do

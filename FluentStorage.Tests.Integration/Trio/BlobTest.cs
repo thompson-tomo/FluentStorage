@@ -104,7 +104,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 				await _storage.SetText(id2, RandomGenerator.RandomString);
 				await _storage.SetText(id3, RandomGenerator.RandomString);
 
-				List<StoreObject> items = await _storage.ListDirectory(recurse: true, folderPath: folderPath);
+				List<StoreObject> items = await _storage.ListDirectory(folderPath, true);
 				Assert.Equal(4, items.Count); //1.txt + sub (folder) + 2.txt + 3.txt
 
 			}
@@ -201,7 +201,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 				await _storage.SetText(sub + "one.txt", "test");
 				await _storage.SetText(sub + "sub/two.txt", "test");
 
-				List<StoreObject> subItems = await _storage.ListDirectory(recurse: false, folderPath: sub);
+				List<StoreObject> subItems = await _storage.ListDirectory(sub, false);
 				Assert.Equal(2, subItems.Count);
 
 
@@ -385,7 +385,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			}
 
 			//assert
-			List<StoreObject> files = await _storage.ListDirectory(prefix, recurse: true);
+			List<StoreObject> files = await _storage.ListDirectory(prefix, true);
 			Assert.True(files.Count == 0);
 		}
 

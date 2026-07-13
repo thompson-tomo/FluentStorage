@@ -156,12 +156,20 @@ namespace FluentStorage.Azure.Files.Storage {
 
 		/// <summary>
 		/// Opens an object for writing and returns its content stream.
-		/// Object will be written when the stream is disposed.
+		/// Object will be written when the stream is disposed or flushed.
 		/// </summary>
-		public override async Task<Stream> OpenWrite(string fullPath, CancellationToken cancellationToken = default) {
-			ShareFileClient file = await GetFileReferenceAsync(fullPath, true, cancellationToken).ConfigureAwait(false);
+		public override async Task<Stream> OpenWrite(string fullPath, bool overwrite, CancellationToken cancellationToken = default) {
 
-			return await file.OpenWriteAsync(true, 0, null, cancellationToken).ConfigureAwait(false);
+			// exit if file exists and overwriting is disabled
+			if (!overwrite && await ObjectExists(fullPath, cancellationToken)) return null;
+
+			ShareFileClient file = await GetFileReferenceAsync(fullPath, true, cancellationToken).ConfigureAwait(false);
+			try {
+				return await file.OpenWriteAsync(overwrite, 0, null, cancellationToken).ConfigureAwait(false);
+			}
+			catch (RequestFailedException ex) when (ex.ErrorCode == "ShareNotFound") {
+				return null;
+			}
 		}
 
 		public override async Task<StoreObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken) {

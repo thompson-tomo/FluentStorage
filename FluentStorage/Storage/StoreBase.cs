@@ -34,7 +34,7 @@ namespace FluentStorage.Storage {
 		public virtual Task<Stream> OpenRead(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
-		public virtual Task<Stream> OpenWrite(string objectPath, CancellationToken cancellationToken = default) {
+		public virtual Task<Stream> OpenWrite(string objectPath, bool overwrite, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 

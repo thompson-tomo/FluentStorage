@@ -118,13 +118,18 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 		/// Opens an object for writing and returns its content stream.
 		/// Object will be written when the stream is disposed.
 		/// </summary>
-		public override async Task<Stream> OpenWrite(string fullPath, CancellationToken cancellationToken) {
+		public override async Task<Stream> OpenWrite(string fullPath, bool overwrite, CancellationToken cancellationToken) {
 			GenericValidation.CheckBlobFullPath(fullPath);
-			fullPath = NormaliseSecretName(fullPath);
 
+			// exit if file exists and overwriting is disabled
+			if (!overwrite && await ObjectExists(fullPath, cancellationToken)) return null;
+
+			fullPath = NormaliseSecretName(fullPath);
 			MemoryStream stream = new();
 
 			return new FixedStream(stream, 0, async s => {
+
+				// write object on stream dispose
 				s.Position = 0;
 
 				using StreamReader reader = new(s, Encoding.UTF8, true, 8192, true);

@@ -130,12 +130,12 @@ namespace FluentStorage.Storage {
 		/// Opens a stream for writing to the object.
 		/// The object will be written to the cloud when the stream is disposed.
 		/// It is your responsibility to dispose this stream.
-		/// If the object exists, it will be overwritten.
+		/// Returns null if the file exists and overwriting is disabled.
 		/// </summary>
 		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns></returns>
-		Task<Stream> OpenWrite(string objectPath, CancellationToken cancellationToken = default);
+		Task<Stream> OpenWrite(string objectPath, bool overwrite, CancellationToken cancellationToken = default);
 
 		/// <summary>Copies an object into an existing stream.</summary>
 		/// <param name="objectPath">Full path of the object.</param>

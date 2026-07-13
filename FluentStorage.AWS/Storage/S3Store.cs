@@ -355,14 +355,19 @@ namespace FluentStorage.AWS.Storage {
 		/// Opens an object for writing and returns its content stream.
 		/// Object will be written when the stream is disposed.
 		/// </summary>
-		public override async Task<Stream> OpenWrite(string fullPath, CancellationToken cancellationToken = default) {
+		public override async Task<Stream> OpenWrite(string fullPath, bool overwrite, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPath(fullPath);
+
+			// exit if file exists and overwriting is disabled
+			if (!overwrite && await ObjectExists(fullPath, cancellationToken)) return null;
 
 			fullPath = StoragePath.Normalize(fullPath, true);
 
 			MemoryStream stream = new();
 
 			return new FixedStream(stream, null, async s => {
+
+				// write object on stream dispose
 				s.Position = 0;
 
 				PutObjectRequest request = new() {

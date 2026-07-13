@@ -261,7 +261,7 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Downloads blob to a stream
 		/// </summary>
-		/// <param name="fullPath">Blob ID, required</param>
+		/// <param name="fullPath">Object path</param>
 		/// <param name="targetStream">Target stream to copy to, required</param>
 		/// <exception cref="System.ArgumentNullException">Thrown when any parameter is null</exception>
 		/// <exception cref="System.ArgumentException">Thrown when ID is too long. Long IDs are the ones longer than 50 characters.</exception>
@@ -284,14 +284,19 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Downloads a blob to the local filesystem.
 		/// </summary>
-		/// <param name="fullPath">Blob ID to download</param>
+		/// <param name="fullPath">Object path to download</param>
 		/// <param name="filePath">Full path to the local file to be downloaded to. If the file exists it will be recreated wtih blob data.</param>
-		public virtual async Task DownloadObject(
-		   string fullPath, string filePath, CancellationToken cancellationToken = default) {
+		public virtual async Task DownloadObject(string fullPath, string filePath, bool overwrite, CancellationToken cancellationToken = default) {
+
+			// exit if object exists and overwriting is  disabled
+			if (!overwrite && File.Exists(fullPath)) return;
+
+			// open local filestream
 			Stream src = await OpenRead(fullPath, cancellationToken).ConfigureAwait(false);
 			if (src == null) return;
-
 			using (src) {
+
+				// download the cloud object
 				using (Stream dest = File.Create(filePath)) {
 					await src.CopyToAsync(dest, BufferSize, cancellationToken).ConfigureAwait(false);
 					await dest.FlushAsync().ConfigureAwait(false);
@@ -302,10 +307,15 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Uploads local file to the blob storage
 		/// </summary>
-		/// <param name="fullPath">Blob ID to create or overwrite</param>
+		/// <param name="fullPath">Object path to create or overwrite</param>
 		/// <param name="filePath">Path to local file</param>
 		public virtual async Task UploadObject(
-		   string fullPath, string filePath, CancellationToken cancellationToken = default) {
+		   string fullPath, string filePath, bool overwrite, CancellationToken cancellationToken = default) {
+
+			// exit if object exists and overwriting is  disabled
+			if (!overwrite && await ObjectExists(fullPath, cancellationToken)) return;
+
+			// open file and upload it
 			using (Stream src = File.OpenRead(filePath)) {
 				await SetObject(fullPath, src, null, false, cancellationToken).ConfigureAwait(false);
 			}
@@ -364,7 +374,7 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Copies blob to another storage
 		/// </summary>
-		/// <param name="blobId">Blob ID to copy</param>
+		/// <param name="blobId">Object path to copy</param>
 		/// <param name="targetStorage">Target storage</param>
 		/// <param name="newId">Optional, when specified uses this id in the target  If null uses the original ID.</param>
 		public virtual async Task CopyObjectTo(

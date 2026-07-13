@@ -148,7 +148,7 @@ namespace FluentStorage.Storage {
 		/// <param name="fullPath">Full path of the object.</param>
 		/// <param name="filePath">Destination file path.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task DownloadObject(string fullPath, string filePath, CancellationToken cancellationToken = default);
+		Task DownloadObject(string fullPath, string filePath, bool overwrite, CancellationToken cancellationToken = default);
 
 
 		// ---------------------------------------------------------------------
@@ -196,7 +196,7 @@ namespace FluentStorage.Storage {
 		/// <param name="fullPath">Full path of the object.</param>
 		/// <param name="filePath">Source file path.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task UploadObject(string fullPath, string filePath, CancellationToken cancellationToken = default);
+		Task UploadObject(string fullPath, string filePath, bool overwrite, CancellationToken cancellationToken = default);
 
 
 		// ---------------------------------------------------------------------

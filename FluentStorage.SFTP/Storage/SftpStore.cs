@@ -685,7 +685,87 @@ namespace FluentStorage.SFTP {
 			client.ChangePermissions(filePath, (short)permissions);
 		}
 
+		/// <summary>
+		/// Downloads a file from the SFTP server.
+		/// </summary>
+		/// <param name="fullPath">Full path of the remote object.</param>
+		/// <param name="filePath">Destination path of the local file.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		public override async Task DownloadObject(string fullPath, string filePath, bool overwrite, CancellationToken cancellationToken = default) {
 
+			// skip if overwriting disabled and local file exists
+			if (!overwrite && File.Exists(fullPath)) return;
+
+			SftpClient client = Client();
+
+			fullPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
+
+			client.DownloadFile(fullPath, File.Create(filePath));
+		}
+
+		/// <summary>
+		/// Uploads a local file to the SFTP server.
+		/// </summary>
+		/// <param name="fullPath">Full path of the remote object.</param>
+		/// <param name="filePath">Source path of the local file.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		public override async Task UploadObject(string fullPath, string filePath, bool overwrite, CancellationToken cancellationToken = default) {
+
+			// exit if local file doesnt exist
+			if (!File.Exists(fullPath)) return;
+
+			SftpClient client = Client();
+
+			fullPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
+
+			using FileStream stream = File.OpenRead(filePath);
+
+			client.UploadFile(stream, fullPath, overwrite);
+		}
+
+		/// <summary>
+		/// Downloads a file from the SFTP server into a byte array.
+		/// </summary>
+		/// <param name="fullPath">Full path of the remote object.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		/// <returns>The contents of the object.</returns>
+		public override async Task<byte[]> GetBytes(string fullPath, CancellationToken cancellationToken = default) {
+
+			SftpClient client = Client();
+
+			fullPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
+
+			using MemoryStream stream = new();
+
+			client.DownloadFile(fullPath, stream);
+
+			return stream.ToArray();
+		}
+
+		/// <summary>
+		/// Uploads a file byte array to the SFTP server.
+		/// </summary>
+		/// <param name="fullPath">Full path of the remote object.</param>
+		/// <param name="data">Data to write.</param>
+		/// <param name="append">
+		/// <c>true</c> to append to the existing object; otherwise, overwrites the object.
+		/// </param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		public override async Task SetBytes(string fullPath, byte[] data, bool append = false, CancellationToken cancellationToken = default) {
+
+			// exit if invalid data
+			if (data == null || data.Length == 0) return;
+
+			SftpClient client = Client();
+
+			fullPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
+
+			using Stream stream = append
+				? client.Open(fullPath, FileMode.Append, FileAccess.Write)
+				: client.Open(fullPath, FileMode.Create, FileAccess.Write);
+
+			await stream.WriteAsync(data, 0, data.Length, cancellationToken);
+		}
 
 	}
 }

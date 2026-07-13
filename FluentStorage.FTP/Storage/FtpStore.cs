@@ -303,5 +303,68 @@ namespace FluentStorage.FTP.Storage {
 			await client.Chmod(filePath, permissions, cancellationToken).ConfigureAwait(false);
 		}
 
+		/// <summary>
+		/// Downloads a file from the FTP server.
+		/// </summary>
+		/// <param name="fullPath">Full path of the remote object.</param>
+		/// <param name="filePath">Destination path of the local file.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		public override async Task DownloadObject(string fullPath, string filePath, bool overwrite, CancellationToken cancellationToken = default) {
+
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
+
+			await client.DownloadFile(filePath, fullPath,
+				overwrite ? FtpLocalExists.Overwrite : FtpLocalExists.Skip, FtpVerify.None, null, cancellationToken).ConfigureAwait(false);
+		}
+
+		/// <summary>
+		/// Uploads a local file to the FTP server.
+		/// </summary>
+		/// <param name="fullPath">Full path of the remote object.</param>
+		/// <param name="filePath">Source path of the local file.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		public override async Task UploadObject(string fullPath, string filePath, bool overwrite, CancellationToken cancellationToken = default) {
+
+			// exit if local file doesnt exist
+			if (!File.Exists(fullPath)) return;
+
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
+
+			await client.UploadFile(filePath, fullPath,
+				overwrite ? FtpRemoteExists.Overwrite : FtpRemoteExists.Skip, false, FtpVerify.None, null, cancellationToken).ConfigureAwait(false);
+		}
+
+		/// <summary>
+		/// Downloads a file from the FTP server into a byte array.
+		/// </summary>
+		/// <param name="fullPath">Full path of the remote object.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		/// <returns>The contents of the object.</returns>
+		public override async Task<byte[]> GetBytes(string fullPath, CancellationToken cancellationToken = default) {
+
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
+
+			return await client.DownloadBytes(fullPath, 0).ConfigureAwait(false);
+		}
+
+		/// <summary>
+		/// Uploads a file byte array to the FTP server.
+		/// </summary>
+		/// <param name="fullPath">Full path of the remote object.</param>
+		/// <param name="data">Data to write.</param>
+		/// <param name="append">
+		/// <c>true</c> to append to the existing object; otherwise, overwrites the object.
+		/// </param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		public override async Task SetBytes(string fullPath, byte[] data, bool append = false, CancellationToken cancellationToken = default) {
+
+			// exit if invalid data
+			if (data == null || data.Length == 0) return;
+
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
+
+			await client.UploadBytes(data, fullPath, FtpRemoteExists.Overwrite, false, null, cancellationToken).ConfigureAwait(false);
+		}
+
 	}
 }

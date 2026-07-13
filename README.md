@@ -157,6 +157,7 @@ Check the [Wiki](https://github.com/robinrodricks/FluentStorage/wiki).
 
 In 2026, we added:
 
+* **Version 8** with massive improvements to the [API and behaviour](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide)
 * **Cloudflare R2** provider
 * **Backblaze B2** provider
 * **Hetzner** provider

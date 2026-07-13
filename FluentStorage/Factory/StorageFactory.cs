@@ -26,7 +26,7 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		/// Creates a IStore instance from a connection string
+		/// Creates a IStore instance from a connection string.
 		/// </summary>
 		public static IStore FromConnectionString(string connectionString) {
 			return ConnectionStringFactory.CreateBlobStorage(connectionString);

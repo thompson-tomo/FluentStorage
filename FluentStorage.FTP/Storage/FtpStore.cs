@@ -186,6 +186,9 @@ namespace FluentStorage.FTP.Storage {
 			return results;
 		}
 
+		/// <summary>
+		/// Opens a file for reading and returns its content stream.
+		/// </summary>
 		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
 			AsyncFtpClient client = await Client().ConfigureAwait(false);
 

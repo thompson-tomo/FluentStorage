@@ -196,7 +196,7 @@ namespace FluentStorage.SFTP {
 		/// List of results of true and false indicating existence
 		/// </returns>
 		public override async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken = default) {
-			
+
 			if (cancellationToken.IsCancellationRequested) {
 				return false;
 			}
@@ -326,7 +326,7 @@ namespace FluentStorage.SFTP {
 				.Where(options.BrowseFilter).ToList();
 
 			blobCollection.AddRange(tempBlobCollection);
-			
+
 			if (options.Recurse == true) {
 				IEnumerable<string> subFoldersToList = tempBlobCollection
 					.Where(x => x.IsFolder == true)

@@ -159,6 +159,9 @@ namespace FluentStorage.GCP.Storage {
 			await _client.UploadObjectAsync(_bucketName, fullPath, null, dataStream, cancellationToken: cancellationToken).ConfigureAwait(false);
 		}
 
+		/// <summary>
+		/// Opens an object for reading and returns its content stream.
+		/// </summary>
 		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 			fullPath = NormalisePath(fullPath);

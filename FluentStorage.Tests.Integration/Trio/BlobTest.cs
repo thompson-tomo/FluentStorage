@@ -396,7 +396,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 			try {
 				await _storage.SetText(file, "test");
-				await _storage.RenameObject(file, StoragePath.Combine(prefix, "2"));
+				await _storage.MoveObject(file, StoragePath.Combine(prefix, "2"), true);
 				List<StoreObject> list = await _storage.ListDirectory(prefix);
 
 				Assert.Single(list);
@@ -409,12 +409,12 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 		[Fact]
 		public async Task Rename_OldPathNull_ThowsArgumentNull() {
-			await Assert.ThrowsAsync<ArgumentNullException>(() => _storage.RenameObject(null, "test/1"));
+			await Assert.ThrowsAsync<ArgumentNullException>(() => _storage.MoveObject(null, "test/1", true));
 		}
 
 		[Fact]
 		public async Task Rename_NewPathNull_ThowsArgumentNull() {
-			await Assert.ThrowsAsync<ArgumentNullException>(() => _storage.RenameObject("test/1", null));
+			await Assert.ThrowsAsync<ArgumentNullException>(() => _storage.MoveObject("test/1", null, true));
 		}
 
 
@@ -435,7 +435,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			await _storage.SetText(file11, string.Empty);
 			await _storage.SetText(file111, string.Empty);
 
-			await _storage.RenameObject(StoragePath.Combine(prefix, "old"), StoragePath.Combine(prefix, "new"));
+			await _storage.MoveObject(StoragePath.Combine(prefix, "old"), StoragePath.Combine(prefix, "new"), true);
 
 			List<StoreObject> list = await _storage.ListDirectory(prefix);
 		}

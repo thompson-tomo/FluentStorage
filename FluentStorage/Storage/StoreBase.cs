@@ -30,7 +30,7 @@ namespace FluentStorage.Storage {
 			return null;
 		}
 
-		public virtual Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
+		public virtual Task<Stream> OpenRead(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
@@ -73,8 +73,8 @@ namespace FluentStorage.Storage {
 		}
 
 
-		public virtual async Task SetObject(string fullPath, Stream sourceStream, string contentType, bool append, CancellationToken cancellationToken) {
-			await SetObject(fullPath, sourceStream, null, append, cancellationToken).ConfigureAwait(false);
+		public virtual async Task SetObject(string objectPath, Stream sourceStream, string contentType, bool append, CancellationToken cancellationToken) {
+			await SetObject(objectPath, sourceStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
 
 
@@ -131,16 +131,16 @@ namespace FluentStorage.Storage {
 
 
 		/// <summary>
-		/// Reads blob content and converts to text in UTF-8 encoding
+		/// Dowloads an object from the bucket, decodes it using the given encoding and returns the string.
 		/// </summary>
-		/// <param name="fullPath">Blob id</param>
+		/// <param name="objectPath">Object path</param>
 		/// <param name="textEncoding">Optional text encoding. When not specified, <see cref="UTF8Encoding"/> is used.</param>
 		/// <returns></returns>
 		public virtual async Task<string> GetText(
-		   string fullPath,
+		   string objectPath,
 		   Encoding textEncoding = null,
 		   CancellationToken cancellationToken = default) {
-			Stream src = await OpenRead(fullPath, cancellationToken).ConfigureAwait(false);
+			Stream src = await OpenRead(objectPath, cancellationToken).ConfigureAwait(false);
 			if (src == null) return null;
 
 			var ms = new MemoryStream();
@@ -152,18 +152,18 @@ namespace FluentStorage.Storage {
 		}
 
 		/// <summary>
-		/// Converts text to blob content and writes to storage
+		/// Converts the string to binary using the given encoding and uploads to the bucket.
 		/// </summary>
-		/// <param name="fullPath">Blob to write</param>
+		/// <param name="objectPath">Object to write</param>
 		/// <param name="text">Text to write, treated in UTF-8 encoding</param>
 		/// <param name="textEncoding">Optional text encoding. When not specified, <see cref="UTF8Encoding"/> is used.</param>
 		/// <returns></returns>
 		public virtual async Task SetText(
-		   string fullPath, string text,
+		   string objectPath, string text,
 		   Encoding textEncoding = null,
 		   CancellationToken cancellationToken = default) {
 			using (Stream s = text.ToMemoryStream(textEncoding ?? Encoding.UTF8)) {
-				await SetObject(fullPath, s, null, false, cancellationToken).ConfigureAwait(false);
+				await SetObject(objectPath, s, null, false, cancellationToken).ConfigureAwait(false);
 			}
 		}
 
@@ -172,14 +172,14 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Checks if blobs exists in the storage
 		/// </summary>
-		public virtual async Task<List<bool>> ObjectsExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			return (await (Task.WhenAll(fullPaths.Select(fp => ObjectExists(fp, cancellationToken))).ConfigureAwait(false))).ToList();
+		public virtual async Task<List<bool>> ObjectsExists(IEnumerable<string> objectPaths, CancellationToken cancellationToken = default) {
+			return (await (Task.WhenAll(objectPaths.Select(fp => ObjectExists(fp, cancellationToken))).ConfigureAwait(false))).ToList();
 		}
 
 		/// <summary>
 		/// Checks if blobs exists in the storage
 		/// </summary>
-		public virtual async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken = default) {
+		public virtual async Task<bool> ObjectExists(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
@@ -187,12 +187,12 @@ namespace FluentStorage.Storage {
 		/// Deletes a single blob or a folder recursively.
 		/// </summary>
 		/// <returns></returns>
-		public virtual async Task DeleteObject(string fullPath, CancellationToken cancellationToken = default) {
+		public virtual async Task DeleteObject(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		public virtual Task DeleteObjects(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			return Task.WhenAll(fullPaths.Select(fp => DeleteObject(fp, cancellationToken)));
+		public virtual Task DeleteObjects(IEnumerable<string> objectPaths, CancellationToken cancellationToken = default) {
+			return Task.WhenAll(objectPaths.Select(fp => DeleteObject(fp, cancellationToken)));
 		}
 
 		/// <summary>
@@ -208,12 +208,12 @@ namespace FluentStorage.Storage {
 		/// Gets basic blob metadata
 		/// </summary>
 		/// <returns>Blob metadata or null if blob doesn't exist</returns>
-		public virtual async Task<StoreObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken = default) {
+		public virtual async Task<StoreObject> GetObjectInfo(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		public virtual async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			return (await (Task.WhenAll(fullPaths.Select(fp => GetObjectInfo(fp, cancellationToken))).ConfigureAwait(false))).ToList();
+		public virtual async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> objectPaths, CancellationToken cancellationToken = default) {
+			return (await (Task.WhenAll(objectPaths.Select(fp => GetObjectInfo(fp, cancellationToken))).ConfigureAwait(false))).ToList();
 		}
 
 		public virtual Task SetObjectsInfo(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
@@ -224,28 +224,28 @@ namespace FluentStorage.Storage {
 			throw new NotImplementedException();
 		}
 
-		public virtual async Task SetObject(string fullPath, Stream dataStream, bool append, CancellationToken cancellationToken) {
+		public virtual async Task SetObject(string objectPath, Stream dataStream, bool append, CancellationToken cancellationToken) {
 			throw new NotImplementedException();
 		}
 
 		/// <summary>
 		/// Writes byte array to the target.
 		/// </summary>
-		public virtual async Task SetBytes(string fullPath, byte[] data, bool append = false, CancellationToken cancellationToken = default) {
+		public virtual async Task SetBytes(string objectPath, byte[] data, bool append = false, CancellationToken cancellationToken = default) {
 			if (data == null) {
 				throw new ArgumentNullException(nameof(data));
 			}
 
 			using (var source = new MemoryStream(data)) {
-				await SetObject(fullPath, source, null, append, cancellationToken).ConfigureAwait(false);
+				await SetObject(objectPath, source, null, append, cancellationToken).ConfigureAwait(false);
 			}
 		}
 
 		/// <summary>
-		/// Reads blob content as byte array
+		/// Reads object data as byte array
 		/// </summary>
-		public virtual async Task<byte[]> GetBytes(string fullPath, CancellationToken cancellationToken = default) {
-			Stream src = await OpenRead(fullPath, cancellationToken).ConfigureAwait(false);
+		public virtual async Task<byte[]> GetBytes(string objectPath, CancellationToken cancellationToken = default) {
+			Stream src = await OpenRead(objectPath, cancellationToken).ConfigureAwait(false);
 			if (src == null) return null;
 
 			var ms = new MemoryStream();
@@ -261,17 +261,17 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Downloads blob to a stream
 		/// </summary>
-		/// <param name="fullPath">Object path</param>
+		/// <param name="objectPath">Object path</param>
 		/// <param name="targetStream">Target stream to copy to, required</param>
 		/// <exception cref="System.ArgumentNullException">Thrown when any parameter is null</exception>
 		/// <exception cref="System.ArgumentException">Thrown when ID is too long. Long IDs are the ones longer than 50 characters.</exception>
 		/// <exception cref="StorageException">Thrown when blob does not exist, error code set to <see cref="StorageErrorCode.NotFound"/></exception>
 		public virtual async Task GetObject(
-		   string fullPath, Stream targetStream, CancellationToken cancellationToken = default) {
+		   string objectPath, Stream targetStream, CancellationToken cancellationToken = default) {
 			if (targetStream == null)
 				throw new ArgumentNullException(nameof(targetStream));
 
-			Stream src = await OpenRead(fullPath, cancellationToken).ConfigureAwait(false);
+			Stream src = await OpenRead(objectPath, cancellationToken).ConfigureAwait(false);
 			if (src == null) return;
 
 			using (src) {
@@ -282,17 +282,17 @@ namespace FluentStorage.Storage {
 
 
 		/// <summary>
-		/// Downloads a blob to the local filesystem.
+		/// Downloads an object from the bucket to the local filesystem.
 		/// </summary>
-		/// <param name="fullPath">Object path to download</param>
+		/// <param name="objectPath">Object path to download</param>
 		/// <param name="filePath">Full path to the local file to be downloaded to. If the file exists it will be recreated wtih blob data.</param>
-		public virtual async Task DownloadObject(string fullPath, string filePath, bool overwrite, CancellationToken cancellationToken = default) {
+		public virtual async Task DownloadObject(string objectPath, string filePath, bool overwrite, CancellationToken cancellationToken = default) {
 
 			// exit if object exists and overwriting is  disabled
-			if (!overwrite && File.Exists(fullPath)) return;
+			if (!overwrite && File.Exists(objectPath)) return;
 
 			// open local filestream
-			Stream src = await OpenRead(fullPath, cancellationToken).ConfigureAwait(false);
+			Stream src = await OpenRead(objectPath, cancellationToken).ConfigureAwait(false);
 			if (src == null) return;
 			using (src) {
 
@@ -305,19 +305,19 @@ namespace FluentStorage.Storage {
 		}
 
 		/// <summary>
-		/// Uploads local file to the blob storage
+		/// Uploads a local file to the bucket.
 		/// </summary>
-		/// <param name="fullPath">Object path to create or overwrite</param>
+		/// <param name="objectPath">Object path to create or overwrite</param>
 		/// <param name="filePath">Path to local file</param>
 		public virtual async Task UploadObject(
-		   string fullPath, string filePath, bool overwrite, CancellationToken cancellationToken = default) {
+		   string objectPath, string filePath, bool overwrite, CancellationToken cancellationToken = default) {
 
 			// exit if object exists and overwriting is  disabled
-			if (!overwrite && await ObjectExists(fullPath, cancellationToken)) return;
+			if (!overwrite && await ObjectExists(objectPath, cancellationToken)) return;
 
 			// open file and upload it
 			using (Stream src = File.OpenRead(filePath)) {
-				await SetObject(fullPath, src, null, false, cancellationToken).ConfigureAwait(false);
+				await SetObject(objectPath, src, null, false, cancellationToken).ConfigureAwait(false);
 			}
 		}
 
@@ -327,34 +327,34 @@ namespace FluentStorage.Storage {
 		/// Writes an object to blob storage using <see cref="JsonSerializer"/>
 		/// </summary>
 		/// <typeparam name="T">Objec type</typeparam>
-		/// <param name="fullPath">Full path to blob</param>
+		/// <param name="objectPath">Full path to blob</param>
 		/// <param name="instance">Object instance to write</param>
 		/// <param name="options">Optional serialiser options</param>
 		/// <param name="encoding">Text encoding used to write to the blob storage, defaults to <see cref="UTF8Encoding"/></param>
 		/// <returns></returns>
 		public virtual async Task SetJson<T>(
-		   string fullPath, T instance,
+		   string objectPath, T instance,
 		   JsonSerializerOptions options = null,
 		   Encoding encoding = null,
 		   CancellationToken cancellationToken = default) {
 			string jsonText = JsonSerializer.Serialize(instance, options);
-			await SetText(fullPath, jsonText, encoding, cancellationToken).ConfigureAwait(false);
+			await SetText(objectPath, jsonText, encoding, cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>
 		/// Reads an object from blob storage using <see cref="JsonSerializer"/>
 		/// </summary>
-		/// <param name="fullPath">Full path to blob</param>
+		/// <param name="objectPath">Full path to blob</param>
 		/// <param name="ignoreInvalidJson">When true, json that cannot be deserialised is ignored and method simply returns default value</param>
 		/// <param name="options">Optional serialiser options</param>
 		/// <param name="encoding">Text encoding used to write to the blob storage, defaults to <see cref="UTF8Encoding"/></param>
 		/// <returns></returns>
-		public virtual async Task<T> GetJson<T>(string fullPath,
+		public virtual async Task<T> GetJson<T>(string objectPath,
 		   bool ignoreInvalidJson = false,
 		   JsonSerializerOptions options = null,
 		   Encoding encoding = null,
 		   CancellationToken cancellationToken = default) {
-			string jsonText = await GetText(fullPath, encoding, cancellationToken).ConfigureAwait(false);
+			string jsonText = await GetText(objectPath, encoding, cancellationToken).ConfigureAwait(false);
 			if (string.IsNullOrEmpty(jsonText))
 				return default;
 
@@ -416,35 +416,10 @@ namespace FluentStorage.Storage {
 		}
 
 		/// <summary>
-		/// Rename a blob (folder, file etc.).
+		/// Rename an object or file.
 		/// </summary>
-		public virtual async Task RenameObject(string oldPath, string newPath, CancellationToken cancellationToken = default) {
-			if (oldPath is null)
-				throw new ArgumentNullException(nameof(oldPath));
-			if (newPath is null)
-				throw new ArgumentNullException(nameof(newPath));
-
-			//try to use extended client here
-			if (this is IStore) {
-				await this.RenameObject(oldPath, newPath, cancellationToken).ConfigureAwait(false);
-			}
-			else {
-				//this needs to be done recursively
-				foreach (StoreObject item in await ListDirectory(oldPath, recurse: true).ConfigureAwait(false)) {
-					if (item.IsFile) {
-						string renamedPath = item.FullPath.Replace(oldPath, newPath);
-
-						await CopyObjectTo(item, this, renamedPath, cancellationToken).ConfigureAwait(false);
-						await DeleteObject(item, cancellationToken).ConfigureAwait(false);
-					}
-				}
-
-				//rename self
-				await CopyObjectTo(oldPath, this, newPath, cancellationToken).ConfigureAwait(false);
-				await DeleteObject(oldPath, cancellationToken).ConfigureAwait(false);
-			}
-
-
+		public virtual async Task<bool> MoveObject(string oldPath, string newPath, bool overwrite, CancellationToken cancellationToken = default) {
+			throw new NotImplementedException();
 		}
 
 
@@ -504,6 +479,32 @@ namespace FluentStorage.Storage {
 		/// Sets the CHMOD permissions of a file.
 		/// </summary>
 		public virtual async Task SetFilePermissions(string filePath, int permissions, CancellationToken cancellationToken = default) {
+			throw new NotImplementedException();
+		}
+
+
+		/// <summary>
+		/// Get a pre-signed URL to upload an object to this bucket.
+		/// </summary>
+		public virtual async Task<string> GetUploadUrl(string objectPath, string mimeType, bool https, int expiresInSeconds = 86000) {
+			return await GetPresignedUrl(objectPath, mimeType, false, https, expiresInSeconds).ConfigureAwait(false);
+		}
+
+		/// <summary>
+		/// Get a pre-signed URL to download an object from this bucket.
+		/// </summary>
+		public virtual async Task<string> GetDownloadUrl(string objectPath, string mimeType, bool https, int expiresInSeconds = 86000) {
+			return await GetPresignedUrl(objectPath, mimeType, true, https, expiresInSeconds).ConfigureAwait(false);
+		}
+
+		/// <summary>
+		/// Generates a pre-signed URL for the specified object.
+		///
+		/// The URL grants temporary access to the object using the supplied HTTP verb and
+		/// expires after the specified duration. When a MIME type is provided, it is included
+		/// in the signature and must be supplied by the client when making the request.
+		/// </summary>
+		public virtual async Task<string> GetPresignedUrl(string objectPath, string mimeType, bool forDownload, bool https, int expiresInSeconds = 86000) {
 			throw new NotImplementedException();
 		}
 

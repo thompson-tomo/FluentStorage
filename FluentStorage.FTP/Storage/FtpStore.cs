@@ -306,7 +306,7 @@ namespace FluentStorage.FTP.Storage {
 		/// <summary>
 		/// Downloads a file from the FTP server.
 		/// </summary>
-		/// <param name="fullPath">Full path of the remote object.</param>
+		/// <param name="fullPath">Remote file path.</param>
 		/// <param name="filePath">Destination path of the local file.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		public override async Task DownloadObject(string fullPath, string filePath, bool overwrite, CancellationToken cancellationToken = default) {
@@ -320,8 +320,8 @@ namespace FluentStorage.FTP.Storage {
 		/// <summary>
 		/// Uploads a local file to the FTP server.
 		/// </summary>
-		/// <param name="fullPath">Full path of the remote object.</param>
-		/// <param name="filePath">Source path of the local file.</param>
+		/// <param name="fullPath">Remote file path.</param>
+		/// <param name="filePath">Local file path.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		public override async Task UploadObject(string fullPath, string filePath, bool overwrite, CancellationToken cancellationToken = default) {
 
@@ -337,7 +337,7 @@ namespace FluentStorage.FTP.Storage {
 		/// <summary>
 		/// Downloads a file from the FTP server into a byte array.
 		/// </summary>
-		/// <param name="fullPath">Full path of the remote object.</param>
+		/// <param name="fullPath">Remote file path.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>The contents of the object.</returns>
 		public override async Task<byte[]> GetBytes(string fullPath, CancellationToken cancellationToken = default) {
@@ -350,7 +350,7 @@ namespace FluentStorage.FTP.Storage {
 		/// <summary>
 		/// Uploads a file byte array to the FTP server.
 		/// </summary>
-		/// <param name="fullPath">Full path of the remote object.</param>
+		/// <param name="fullPath">Remote file path.</param>
 		/// <param name="data">Data to write.</param>
 		/// <param name="append">
 		/// <c>true</c> to append to the existing object; otherwise, overwrites the object.
@@ -364,6 +364,20 @@ namespace FluentStorage.FTP.Storage {
 			AsyncFtpClient client = await Client().ConfigureAwait(false);
 
 			await client.UploadBytes(data, fullPath, FtpRemoteExists.Overwrite, false, null, cancellationToken).ConfigureAwait(false);
+		}
+
+		/// <summary>
+		/// Rename a file on the FTP server.
+		/// </summary>
+		/// <param name="oldPath">Current remote path.</param>
+		/// <param name="newPath">New remote path.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		public override async Task<bool> MoveObject(string oldPath, string newPath, bool overwrite, CancellationToken cancellationToken = default) {
+
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
+
+			return await client.MoveFile(oldPath, newPath,
+				overwrite ? FtpRemoteExists.Overwrite: FtpRemoteExists.Skip, cancellationToken).ConfigureAwait(false);
 		}
 
 	}

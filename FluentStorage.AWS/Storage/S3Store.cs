@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using Amazon.S3;
 using Amazon.Runtime;
 using Amazon.S3.Model;
@@ -10,20 +11,12 @@ using Amazon.S3.Transfer;
 using System.Threading.Tasks;
 using System.Threading;
 using FluentStorage.Streaming;
-using FluentStorage.Utils.Extensions;
 using Amazon.S3.Util;
 using MimeMapping;
 using FluentStorage.AWS.Utils;
 using FluentStorage.Enums;
 using FluentStorage.Exceptions;
-
-
-
-
-#if !NET6_0_OR_GREATER
-
-#endif
-using System.Net;
+using FluentStorage.Utils.Extensions;
 
 namespace FluentStorage.AWS.Storage {
 	/// <summary>
@@ -38,11 +31,6 @@ namespace FluentStorage.AWS.Storage {
 		private bool _usePutObject = false;
 		private bool _disablePayloadSigning = false;
 
-
-		/// <summary>
-		/// Returns reference to the native AWS S3 blob client.
-		/// </summary>
-		public IAmazonS3 NativeBlobClient => _client;
 
 		/// <summary>
 		/// Return bucket name.
@@ -350,7 +338,7 @@ namespace FluentStorage.AWS.Storage {
 		///
 		/// The returned stream wraps the AWS response stream and must be disposed by the caller,
 		/// which also disposes the underlying HTTP response.
-		/// Returns <c>null</c> if the blob does not exist.
+		/// Returns null if the blob does not exist.
 		/// </summary>
 		public async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPath(fullPath);
@@ -364,10 +352,10 @@ namespace FluentStorage.AWS.Storage {
 		}
 
 		/// <summary>
-		/// Deletes multiple blobs in parallel.
+		/// Deletes multiple objects in parallel.
 		///
 		/// Each path is processed independently, including deletion of any virtual directory
-		/// placeholders beneath the blob's path.
+		/// placeholders beneath the object's path.
 		/// </summary>
 		public override async Task DeleteObjects(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			
@@ -421,20 +409,20 @@ namespace FluentStorage.AWS.Storage {
 		}
 
 		/// <summary>
-		/// Retrieves metadata for multiple blobs in parallel.
+		/// Retrieves metadata for multiple objects in parallel.
 		///
-		/// Blobs that do not exist are returned as <c>null</c>.
+		/// Blobs that do not exist are returned as null.
 		/// </summary>
 		public override async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			return (await Task.WhenAll(fullPaths.Select(GetBlobAsync)).ConfigureAwait(false)).ToList();
+			return (await Task.WhenAll(fullPaths.Select(fullPath => GetObjectInfo(fullPath, cancellationToken))).ConfigureAwait(false)).ToList();
 		}
 
 		/// <summary>
-		/// Retrieves a blob's metadata without downloading its contents.
+		/// Retrieves a object's metadata without downloading its contents.
 		///
-		/// Returns <c>null</c> if the blob does not exist.
+		/// Returns null if the blob does not exist.
 		/// </summary>
-		private async Task<StoreObject> GetBlobAsync(string fullPath) {
+		public override async Task<StoreObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 			fullPath = StoragePath.Normalize(fullPath, true);
 
@@ -478,7 +466,7 @@ namespace FluentStorage.AWS.Storage {
 		/// <summary>
 		/// Retrieves an object from S3.
 		///
-		/// Returns <c>null</c> if the object does not exist; otherwise returns the full
+		/// Returns null if the object does not exist; otherwise returns the full
 		/// S3 response containing the content stream and object metadata.
 		/// </summary>
 		private async Task<GetObjectResponse> GetObjectAsync(string key) {
@@ -512,42 +500,21 @@ namespace FluentStorage.AWS.Storage {
 		}
 
 		/// <summary>
-		/// Get pre-signed URL for upload object to Blob Storage.
-		/// </summary>
-		public async Task<string> GetUploadUrlAsync(string fullPath, string mimeType, int expiresInSeconds = 86000) {
-			return await GetPresignedUrlAsync(fullPath, mimeType, expiresInSeconds, HttpVerb.PUT).ConfigureAwait(false);
-		}
-
-		/// <summary>
-		/// Get pre-signed URL for download object from Blob Storage.
-		/// </summary>
-		public async Task<string> GetDownloadUrlAsync(string fullPath, string mimeType, int expiresInSeconds = 86000) {
-			return await GetPresignedUrlAsync(fullPath, mimeType, expiresInSeconds, HttpVerb.GET).ConfigureAwait(false);
-		}
-
-		/// <summary>
-		/// Generates a pre-signed URL for the specified blob.
-		/// </summary>
-		public async Task<string> GetPresignedUrlAsync(string fullPath, string mimeType, int expiresInSeconds, HttpVerb verb) {
-			return await GetPresignedUrlAsync(fullPath, mimeType, expiresInSeconds, verb, default).ConfigureAwait(false);
-		}
-
-		/// <summary>
-		/// Generates a pre-signed URL for the specified blob.
+		/// Generates a pre-signed URL for the specified object.
 		///
 		/// The URL grants temporary access to the object using the supplied HTTP verb and
 		/// expires after the specified duration. When a MIME type is provided, it is included
 		/// in the signature and must be supplied by the client when making the request.
 		/// </summary>
-		public async Task<string> GetPresignedUrlAsync(string fullPath, string mimeType, int expiresInSeconds, HttpVerb verb, Protocol protocol) {
+		public override async Task<string> GetPresignedUrl(string fullPath, string mimeType, bool forDownload, bool https, int expiresInSeconds = 86000) {
 			IAmazonS3 client = await Client().ConfigureAwait(false);
 
 			var request = new GetPreSignedUrlRequest() {
 				BucketName = _bucketName,
 				Expires = DateTime.UtcNow.AddSeconds(expiresInSeconds),
 				Key = StoragePath.Normalize(fullPath, true),
-				Protocol = protocol,
-				Verb = verb,
+				Protocol = https ? Protocol.HTTPS : Protocol.HTTP,
+				Verb = forDownload ? HttpVerb.GET : HttpVerb.PUT,
 			};
 
 			// #122 : If `ContentType` is not set, the generated SDK request signature does not include a `Content-Type` header.
@@ -567,7 +534,7 @@ namespace FluentStorage.AWS.Storage {
 			IAmazonS3 client = await Client().ConfigureAwait(false);
 			var s3CannedAcl = S3CannedACL.FindValue(acl);
 			if (s3CannedAcl is null) {
-				throw new ArgumentException($"don't know '{acl}' acl", acl);
+				throw new ArgumentException($"Unknown ACL value '{acl}'", acl);
 			}
 
 			await client.PutObjectAclAsync(new PutObjectAclRequest {

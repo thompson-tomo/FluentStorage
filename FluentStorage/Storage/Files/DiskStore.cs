@@ -340,8 +340,5 @@ namespace FluentStorage.Storage.Files {
 			}
 		}
 
-		public async Task RenameAsync(string oldPath, string newPath, CancellationToken cancellationToken) {
-			throw new NotImplementedException();
-		}
 	}
 }

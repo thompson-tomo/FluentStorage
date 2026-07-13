@@ -280,7 +280,7 @@ namespace FluentStorage.Storage {
 		}
 
 		/// <summary>
-		/// Prepends path to this blob's path without modifying blob's properties
+		/// Prepends path to this object's path without modifying object's properties
 		/// </summary>
 		/// <param name="path"></param>
 		public void PrependPath(string path) {

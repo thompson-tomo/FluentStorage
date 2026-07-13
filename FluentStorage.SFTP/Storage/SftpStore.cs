@@ -353,7 +353,7 @@ namespace FluentStorage.SFTP {
 		/// <summary>
 		/// Opens the blob stream to read.
 		/// </summary>
-		/// <param name="fullPath">Blob's full path</param>
+		/// <param name="fullPath">Remote file path</param>
 		/// <param name="cancellationToken"></param>
 		/// <returns>
 		/// Stream in an open state, or null if blob doesn't exist by this ID. It is your responsibility to close and dispose this
@@ -380,13 +380,11 @@ namespace FluentStorage.SFTP {
 		}
 
 		/// <summary>
-		/// Rename a blob (folder or file)
+		/// Rename a file on the SFTP server.
 		/// </summary>
-		/// <param name="oldPath"></param>
-		/// <param name="newPath"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		public Task RenameAsync(string oldPath, string newPath, CancellationToken cancellationToken = default) {
+		/// <param name="oldPath">Existing Remote file path</param>
+		/// <param name="newPath">New Remote file path</param>
+		public override async Task<bool> MoveObject(string oldPath, string newPath, bool overwrite, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 
 			oldPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(oldPath));
@@ -394,9 +392,11 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
+			if (!overwrite && await ObjectExists(newPath)) return false;
+
 			client.RenameFile(oldPath, newPath);
 
-			return Task.CompletedTask;
+			return true;
 		}
 
 		public override async Task SetObject(string fullPath, Stream dataStream, bool append, CancellationToken cancellationToken) {
@@ -405,7 +405,7 @@ namespace FluentStorage.SFTP {
 		/// <summary>
 		/// Uploads data to a blob from stream.
 		/// </summary>
-		/// <param name="fullPath">Blob metadata</param>
+		/// <param name="fullPath">Remote file path</param>
 		/// <param name="dataStream">Stream to upload from</param>
 		/// <param name="append">When true, appends to the file instead of writing a new one.</param>
 		/// <param name="cancellationToken"></param>
@@ -688,7 +688,7 @@ namespace FluentStorage.SFTP {
 		/// <summary>
 		/// Downloads a file from the SFTP server.
 		/// </summary>
-		/// <param name="fullPath">Full path of the remote object.</param>
+		/// <param name="fullPath">Remote file path.</param>
 		/// <param name="filePath">Destination path of the local file.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		public override async Task DownloadObject(string fullPath, string filePath, bool overwrite, CancellationToken cancellationToken = default) {
@@ -706,8 +706,8 @@ namespace FluentStorage.SFTP {
 		/// <summary>
 		/// Uploads a local file to the SFTP server.
 		/// </summary>
-		/// <param name="fullPath">Full path of the remote object.</param>
-		/// <param name="filePath">Source path of the local file.</param>
+		/// <param name="fullPath">Remote file path.</param>
+		/// <param name="filePath">Local file path.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		public override async Task UploadObject(string fullPath, string filePath, bool overwrite, CancellationToken cancellationToken = default) {
 
@@ -726,7 +726,7 @@ namespace FluentStorage.SFTP {
 		/// <summary>
 		/// Downloads a file from the SFTP server into a byte array.
 		/// </summary>
-		/// <param name="fullPath">Full path of the remote object.</param>
+		/// <param name="fullPath">Remote file path.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>The contents of the object.</returns>
 		public override async Task<byte[]> GetBytes(string fullPath, CancellationToken cancellationToken = default) {
@@ -745,7 +745,7 @@ namespace FluentStorage.SFTP {
 		/// <summary>
 		/// Uploads a file byte array to the SFTP server.
 		/// </summary>
-		/// <param name="fullPath">Full path of the remote object.</param>
+		/// <param name="fullPath">Remote file path.</param>
 		/// <param name="data">Data to write.</param>
 		/// <param name="append">
 		/// <c>true</c> to append to the existing object; otherwise, overwrites the object.

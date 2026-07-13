@@ -211,8 +211,5 @@ namespace FluentStorage.Storage {
 			return _pathToTag.ContainsKey(fullPath);
 		}
 
-		public async Task RenameAsync(string oldPath, string newPath, CancellationToken cancellationToken) {
-			throw new NotImplementedException();
-		}
 	}
 }

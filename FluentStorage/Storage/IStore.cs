@@ -66,28 +66,28 @@ namespace FluentStorage.Storage {
 		// ---------------------------------------------------------------------
 
 		/// <summary>Checks whether an object exists.</summary>
-		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns><see langword="true"/> if the object exists; otherwise <see langword="false"/>.</returns>
-		Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken = default);
+		Task<bool> ObjectExists(string objectPath, CancellationToken cancellationToken = default);
 
 		/// <summary>Checks if objects exist in the storage.</summary>
-		/// <param name="fullPaths">Full paths of the objects.</param>
+		/// <param name="objectPaths">Full paths of the objects.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>A collection indicating whether each object exists.</returns>
-		Task<List<bool>> ObjectsExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default);
+		Task<List<bool>> ObjectsExists(IEnumerable<string> objectPaths, CancellationToken cancellationToken = default);
 
 		/// <summary>Gets metadata for a single object.</summary>
-		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>The object metadata.</returns>
-		Task<StoreObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken = default);
+		Task<StoreObject> GetObjectInfo(string objectPath, CancellationToken cancellationToken = default);
 
 		/// <summary>Gets object information which is useful for retrieving object metadata.</summary>
-		/// <param name="fullPaths">Full paths of the objects.</param>
+		/// <param name="objectPaths">Full paths of the objects.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>The object metadata.</returns>
-		Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default);
+		Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> objectPaths, CancellationToken cancellationToken = default);
 
 		/// <summary>Updates metadata for a single object.</summary>
 		/// <param name="metadata">Object metadata.</param>
@@ -111,44 +111,44 @@ namespace FluentStorage.Storage {
 		// ---------------------------------------------------------------------
 
 		/// <summary>Opens the object stream for reading.</summary>
-		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>An open readable stream.</returns>
-		Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default);
+		Task<Stream> OpenRead(string objectPath, CancellationToken cancellationToken = default);
 
 		/// <summary>Copies an object into an existing stream.</summary>
-		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="targetStream">Destination stream.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task GetObject(string fullPath, Stream targetStream, CancellationToken cancellationToken = default);
+		Task GetObject(string objectPath, Stream targetStream, CancellationToken cancellationToken = default);
 
 		/// <summary>Reads an object into a byte array.</summary>
-		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>The object contents.</returns>
-		Task<byte[]> GetBytes(string fullPath, CancellationToken cancellationToken = default);
+		Task<byte[]> GetBytes(string objectPath, CancellationToken cancellationToken = default);
 
 		/// <summary>Reads an object as text.</summary>
-		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="textEncoding">Text encoding. Defaults to UTF-8.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>The object contents.</returns>
-		Task<string> GetText(string fullPath, Encoding textEncoding = null, CancellationToken cancellationToken = default);
+		Task<string> GetText(string objectPath, Encoding textEncoding = null, CancellationToken cancellationToken = default);
 
 		/// <summary>Reads and deserializes a JSON object.</summary>
-		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="ignoreInvalidJson">Whether invalid JSON should return the default value instead of throwing.</param>
 		/// <param name="options">JSON serializer options.</param>
 		/// <param name="encoding">Text encoding. Defaults to UTF-8.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>The deserialized object.</returns>
-		Task<T> GetJson<T>(string fullPath, bool ignoreInvalidJson = false, JsonSerializerOptions options = null, Encoding encoding = null, CancellationToken cancellationToken = default);
+		Task<T> GetJson<T>(string objectPath, bool ignoreInvalidJson = false, JsonSerializerOptions options = null, Encoding encoding = null, CancellationToken cancellationToken = default);
 
 		/// <summary>Downloads an object to a local file.</summary>
-		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="filePath">Destination file path.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task DownloadObject(string fullPath, string filePath, bool overwrite, CancellationToken cancellationToken = default);
+		Task DownloadObject(string objectPath, string filePath, bool overwrite, CancellationToken cancellationToken = default);
 
 
 		// ---------------------------------------------------------------------
@@ -156,47 +156,47 @@ namespace FluentStorage.Storage {
 		// ---------------------------------------------------------------------
 
 		/// <summary>Uploads data to an object from a stream. Existing objects are overwritten.</summary>
-		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="dataStream">Source stream.</param>
 		/// <param name="append">Whether to append to an existing object.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task SetObject(string fullPath, Stream dataStream, bool append = false, CancellationToken cancellationToken = default);
+		Task SetObject(string objectPath, Stream dataStream, bool append = false, CancellationToken cancellationToken = default);
 
 		/// <summary>Uploads data to an object from a stream. Existing objects are overwritten.</summary>
-		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="dataStream">Source stream.</param>
 		/// <param name="contentType">MIME content type.</param>
 		/// <param name="append">Whether to append to an existing object.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task SetObject(string fullPath, Stream dataStream, string contentType, bool append = false, CancellationToken cancellationToken = default);
+		Task SetObject(string objectPath, Stream dataStream, string contentType, bool append = false, CancellationToken cancellationToken = default);
 
 		/// <summary>Writes a byte array to an object.</summary>
-		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="data">Data to write.</param>
 		/// <param name="append">Whether to append to an existing object.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task SetBytes(string fullPath, byte[] data, bool append = false, CancellationToken cancellationToken = default);
+		Task SetBytes(string objectPath, byte[] data, bool append = false, CancellationToken cancellationToken = default);
 
 		/// <summary>Writes text to an object.</summary>
-		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="text">Text to write.</param>
 		/// <param name="textEncoding">Text encoding. Defaults to UTF-8.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task SetText(string fullPath, string text, Encoding textEncoding = null, CancellationToken cancellationToken = default);
+		Task SetText(string objectPath, string text, Encoding textEncoding = null, CancellationToken cancellationToken = default);
 
 		/// <summary>Writes an object as JSON.</summary>
-		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="instance">Object to serialize.</param>
 		/// <param name="options">JSON serializer options.</param>
 		/// <param name="encoding">Text encoding. Defaults to UTF-8.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task SetJson<T>(string fullPath, T instance, JsonSerializerOptions options = null, Encoding encoding = null, CancellationToken cancellationToken = default);
+		Task SetJson<T>(string objectPath, T instance, JsonSerializerOptions options = null, Encoding encoding = null, CancellationToken cancellationToken = default);
 
 		/// <summary>Uploads a local file to an object.</summary>
-		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="filePath">Source file path.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task UploadObject(string fullPath, string filePath, bool overwrite, CancellationToken cancellationToken = default);
+		Task UploadObject(string objectPath, string filePath, bool overwrite, CancellationToken cancellationToken = default);
 
 
 		// ---------------------------------------------------------------------
@@ -214,22 +214,46 @@ namespace FluentStorage.Storage {
 		/// <param name="oldPath">Current path.</param>
 		/// <param name="newPath">New path.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task RenameObject(string oldPath, string newPath, CancellationToken cancellationToken = default);
+		Task<bool> MoveObject(string oldPath, string newPath, bool overwrite, CancellationToken cancellationToken = default);
 
 		/// <summary>Deletes a single object or folder.</summary>
-		/// <param name="fullPath">Full path of the object or folder.</param>
+		/// <param name="objectPath">Full path of the object or folder.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task DeleteObject(string fullPath, CancellationToken cancellationToken = default);
+		Task DeleteObject(string objectPath, CancellationToken cancellationToken = default);
 
 		/// <summary>Deletes an object by its full path.</summary>
-		/// <param name="fullPaths">Full paths of the objects or folders.</param>
+		/// <param name="objectPaths">Full paths of the objects or folders.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task DeleteObjects(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default);
+		Task DeleteObjects(IEnumerable<string> objectPaths, CancellationToken cancellationToken = default);
 
 		/// <summary>Deletes a collection of objects.</summary>
 		/// <param name="blobs">Objects to delete.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		Task DeleteObjects(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default);
+
+
+		// ---------------------------------------------------------------------
+		// Presigned URL
+		// ---------------------------------------------------------------------
+
+		/// <summary>
+		/// Get a pre-signed URL to upload an object to this bucket.
+		/// </summary>
+		Task<string> GetUploadUrl(string objectPath, string mimeType, bool https, int expiresInSeconds = 86000);
+
+		/// <summary>
+		/// Get a pre-signed URL to download an object from this bucket.
+		/// </summary>
+		Task<string> GetDownloadUrl(string objectPath, string mimeType, bool https, int expiresInSeconds = 86000);
+
+		/// <summary>
+		/// Generates a pre-signed URL for the specified object.
+		///
+		/// The URL grants temporary access to the object using the supplied HTTP verb and
+		/// expires after the specified duration. When a MIME type is provided, it is included
+		/// in the signature and must be supplied by the client when making the request.
+		/// </summary>
+		Task<string> GetPresignedUrl(string objectPath, string mimeType, bool forDownload, bool https, int expiresInSeconds = 86000);
 
 
 		// ---------------------------------------------------------------------

@@ -77,9 +77,5 @@ namespace FluentStorage.Storage.Sinks {
 			}
 		}
 
-		public async Task RenameAsync(string oldPath, string newPath, CancellationToken cancellationToken) {
-			throw new NotImplementedException();
-		}
-
 	}
 }

@@ -238,7 +238,7 @@ namespace FluentStorage.AWS.Storage {
 		}
 
 		/// <summary>
-		/// Lists all buckets, optionaly filtering by prefix. Prefix filtering happens on client side.
+		/// Lists all objects in this bucket.
 		/// </summary>
 		public async Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			if (options == null)
@@ -255,8 +255,6 @@ namespace FluentStorage.AWS.Storage {
 
 			if (options.IncludeAttributes) {
 
-				// added null check here to avoid intermittent exceptions when querying for metadata
-
 				foreach (IEnumerable<StoreObject> page in blobs.Where(b => b != null && !b.IsFolder).Chunk(ListChunkSize)) {
 					await AwsConverter.AppendMetadataAsync(client, _bucketName, page, cancellationToken).ConfigureAwait(false);
 				}
@@ -266,7 +264,7 @@ namespace FluentStorage.AWS.Storage {
 		}
 
 		/// <summary>
-		/// Uploads a blob to S3 or S3-compatible storage, by automatically computing the Content-Type.
+		/// Uploads an object to S3 or S3-compatible storage, by automatically computing the Content-Type.
 		///
 		/// If the supplied stream is not seekable or its length cannot be determined,
 		/// the AWS SDK may buffer the entire stream into a `MemoryStream`
@@ -279,7 +277,7 @@ namespace FluentStorage.AWS.Storage {
 		}
 
 		/// <summary>
-		/// Uploads a blob to S3 or S3-compatible storage, with the given Content-Type.
+		/// Uploads an object to S3 or S3-compatible storage, with the given Content-Type.
 		///
 		/// Uses `TransferUtility` API for AWS S3, MinIO, Wasabi, DigitalOcean Spaces.
 		/// Uses `PutObjectAsync` API for Cloudflare R2.
@@ -336,13 +334,13 @@ namespace FluentStorage.AWS.Storage {
 		}
 
 		/// <summary>
-		/// Opens a blob for reading and returns its content stream.
+		/// Opens an object for reading and returns its content stream.
 		///
 		/// The returned stream wraps the AWS response stream and must be disposed by the caller,
 		/// which also disposes the underlying HTTP response.
 		/// Returns null if the blob does not exist.
 		/// </summary>
-		public async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
+		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 
 			fullPath = StoragePath.Normalize(fullPath, true);
@@ -351,6 +349,30 @@ namespace FluentStorage.AWS.Storage {
 				return null;
 
 			return new FixedStream(response.ResponseStream, length: response.ContentLength, (Action<FixedStream>)null);
+		}
+
+		/// <summary>
+		/// Opens an object for writing and returns its content stream.
+		/// Object will be written when the stream is disposed.
+		/// </summary>
+		public override async Task<Stream> OpenWrite(string fullPath, CancellationToken cancellationToken = default) {
+			GenericValidation.CheckBlobFullPath(fullPath);
+
+			fullPath = StoragePath.Normalize(fullPath, true);
+
+			MemoryStream stream = new();
+
+			return new FixedStream(stream, null, async s => {
+				s.Position = 0;
+
+				PutObjectRequest request = new() {
+					BucketName = _bucketName,
+					Key = fullPath,
+					InputStream = s
+				};
+
+				await _client.PutObjectAsync(request, cancellationToken).ConfigureAwait(false);
+			});
 		}
 
 		/// <summary>
@@ -365,7 +387,7 @@ namespace FluentStorage.AWS.Storage {
 		}
 
 		/// <summary>
-		/// Deletes a blob and recursively removes any virtual directory placeholder objects
+		/// Deletes an object and recursively removes any virtual directory placeholder objects
 		/// beneath its path.
 		/// </summary>
 		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken = default) {
@@ -392,7 +414,7 @@ namespace FluentStorage.AWS.Storage {
 		}
 
 		/// <summary>
-		/// Determines whether a blob exists by requesting its metadata.
+		/// Determines whether an object exists by requesting its metadata.
 		/// </summary>
 		public override async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken) {
 			GenericValidation.CheckBlobFullPath(fullPath);

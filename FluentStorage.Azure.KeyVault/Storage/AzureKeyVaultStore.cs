@@ -12,6 +12,7 @@ using Azure.Core;
 using Azure;
 using FluentStorage.Utils.Extensions;
 using FluentStorage.Enums;
+using FluentStorage.Streaming;
 
 namespace FluentStorage.Azure.KeyVault.Storage {
 	public class AzureKeyVaultStore : StoreBase {
@@ -94,6 +95,9 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 			await SetObject(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
 
+		/// <summary>
+		/// Opens an object for reading and returns its content stream.
+		/// </summary>
 		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 			fullPath = NormaliseSecretName(fullPath);
@@ -108,6 +112,26 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 			catch (RequestFailedException ex) when (ex.Status == 404) {
 				return null;
 			}
+		}
+
+		/// <summary>
+		/// Opens an object for writing and returns its content stream.
+		/// Object will be written when the stream is disposed.
+		/// </summary>
+		public override async Task<Stream> OpenWrite(string fullPath, CancellationToken cancellationToken) {
+			GenericValidation.CheckBlobFullPath(fullPath);
+			fullPath = NormaliseSecretName(fullPath);
+
+			MemoryStream stream = new();
+
+			return new FixedStream(stream, 0, async s => {
+				s.Position = 0;
+
+				using StreamReader reader = new(s, Encoding.UTF8, true, 8192, true);
+				string value = await reader.ReadToEndAsync().ConfigureAwait(false);
+
+				await _client.SetSecretAsync(fullPath, value, cancellationToken).ConfigureAwait(false);
+			});
 		}
 
 		public override async Task DeleteObjects(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {

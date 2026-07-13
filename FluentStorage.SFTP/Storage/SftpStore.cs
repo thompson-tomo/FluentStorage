@@ -351,14 +351,9 @@ namespace FluentStorage.SFTP {
 		}
 
 		/// <summary>
-		/// Opens the blob stream to read.
+		/// Opens a file for reading and returns its content stream.
+		/// It is your responsibility to close and dispose this stream after use.
 		/// </summary>
-		/// <param name="fullPath">Remote file path</param>
-		/// <param name="cancellationToken"></param>
-		/// <returns>
-		/// Stream in an open state, or null if blob doesn't exist by this ID. It is your responsibility to close and dispose this
-		/// stream after use.
-		/// </returns>
 		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 

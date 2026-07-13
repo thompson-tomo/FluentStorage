@@ -8,8 +8,8 @@ namespace FluentStorage.ConnectionStrings {
 	/// </summary>
 	public interface IConnectionFactory {
 		/// <summary>
-		/// Creates a blob storage instance from connection string if possible. When this factory does not support this connection
-		/// string it returns null.
+		/// Creates a IStore instance from a connection string if possible.
+		/// If this factory does not support this connection string it returns null.
 		/// </summary>
 		IStore CreateStore(ConnectionString connectionString);
 

@@ -123,7 +123,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 
 		[Fact]
 		public async Task List_FilesInNonExistingFolder_EmptyCollection() {
-			IEnumerable<StoreObject> objects = await _storage.ListFiles(new StorageListOptions { FolderPath = RandomBlobPath() });
+			IEnumerable<StoreObject> objects = await (_storage as StoreBase).ListFileObjects(new StorageListOptions { FolderPath = RandomBlobPath() });
 
 			Assert.NotNull(objects);
 			Assert.True(objects.Count() == 0);
@@ -142,7 +142,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			await _storage.SetText(id1, RandomGenerator.RandomString);
 			await _storage.SetText(id2, RandomGenerator.RandomString);
 
-			int countAll = (await _storage.ListFiles(new StorageListOptions { FolderPath = _blobPrefix, FilePrefix = prefix })).Count;
+			int countAll = (await (_storage as StoreBase).ListFileObjects(new StorageListOptions { FolderPath = _blobPrefix, FilePrefix = prefix })).Count;
 			int countOne = (await _storage.ListObjects(new StorageListOptions { FolderPath = _blobPrefix, FilePrefix = prefix, MaxResults = 1 })).Count;
 
 			Assert.Equal(2, countAll);
@@ -157,14 +157,14 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			await _storage.SetText(id2, RandomGenerator.RandomString);
 
 			//dump compare
-			List<StoreObject> files = await _storage.ListFiles(new StorageListOptions {
+			List<StoreObject> files = await (_storage as StoreBase).ListFileObjects(new StorageListOptions {
 				FolderPath = _blobPrefix,
 				Recurse = true
 			});
 			Assert.Contains(files, f => f.FullPath == id1 && f.Type == StorageObjectType.File);
 
 			//server-side filtering
-			files = await _storage.ListFiles(new StorageListOptions {
+			files = await (_storage as StoreBase).ListFileObjects(new StorageListOptions {
 				FolderPath = _blobPrefix,
 				Recurse = true,
 				BrowseFilter = id => (id.Type != StorageObjectType.File || id.FullPath == id1)

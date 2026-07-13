@@ -54,6 +54,10 @@ namespace FluentStorage.FTP.Storage {
 			return _client;
 		}
 
+		/// <summary>
+		/// List all the files within the given directory (`options.FolderPath`)
+		/// and optionally include size and date modified (`options.IncludeAttributes`).
+		/// </summary>
 		public async Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			AsyncFtpClient client = await Client().ConfigureAwait(false);
 
@@ -62,9 +66,11 @@ namespace FluentStorage.FTP.Storage {
 
 			FtpListOption ftpListOption = FtpListOption.Auto;
 
-			if (options.Recurse)
-			{
+			if (options.Recurse) {
 				ftpListOption |= FtpListOption.Recursive;
+			}
+			if (options.IncludeAttributes) {
+				ftpListOption |= FtpListOption.SizeModify;
 			}
 
 			FtpListItem[] items = await client.GetListing(options.FolderPath, ftpListOption, cancellationToken).ConfigureAwait(false);
@@ -75,7 +81,7 @@ namespace FluentStorage.FTP.Storage {
 					continue;
 				}
 
-				StoreObject blob = ToBlobId(item);
+				StoreObject blob = ListItemToStoreObject(item);
 				if (blob == null)
 					continue;
 
@@ -94,7 +100,7 @@ namespace FluentStorage.FTP.Storage {
 			return results;
 		}
 
-		private StoreObject ToBlobId(FtpListItem ff) {
+		private StoreObject ListItemToStoreObject(FtpListItem ff) {
 			if (ff.Type != FtpObjectType.Directory && ff.Type != FtpObjectType.File)
 				return null;
 
@@ -105,6 +111,14 @@ namespace FluentStorage.FTP.Storage {
 
 			if (ff.RawPermissions != null) {
 				id.Properties["RawPermissions"] = ff.RawPermissions;
+			}
+			if (ff.Chmod != 0) {
+				id.Properties["Chmod"] = ff.Chmod;
+			}
+			if (ff.Size != 0) {
+				id.Properties["Size"] = ff.Size;
+				id.Properties["Modified"] = ff.Modified;
+				id.Properties["RawModified"] = ff.RawModified;
 			}
 
 			return id;
@@ -377,7 +391,7 @@ namespace FluentStorage.FTP.Storage {
 			AsyncFtpClient client = await Client().ConfigureAwait(false);
 
 			return await client.MoveFile(oldPath, newPath,
-				overwrite ? FtpRemoteExists.Overwrite: FtpRemoteExists.Skip, cancellationToken).ConfigureAwait(false);
+				overwrite ? FtpRemoteExists.Overwrite : FtpRemoteExists.Skip, cancellationToken).ConfigureAwait(false);
 		}
 
 	}

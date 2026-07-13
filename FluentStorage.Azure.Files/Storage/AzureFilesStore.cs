@@ -133,6 +133,9 @@ namespace FluentStorage.Azure.Files.Storage {
 			}
 		}
 
+		/// <summary>
+		/// Opens an object for reading and returns its content stream.
+		/// </summary>
 		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
 			ShareFileClient file = await GetFileReferenceAsync(fullPath, false, cancellationToken).ConfigureAwait(false);
 			if (file == null) {
@@ -149,6 +152,16 @@ namespace FluentStorage.Azure.Files.Storage {
 			catch (RequestFailedException ex) when (ex.ErrorCode == "ResourceNotFound") {
 				return null;
 			}
+		}
+
+		/// <summary>
+		/// Opens an object for writing and returns its content stream.
+		/// Object will be written when the stream is disposed.
+		/// </summary>
+		public override async Task<Stream> OpenWrite(string fullPath, CancellationToken cancellationToken = default) {
+			ShareFileClient file = await GetFileReferenceAsync(fullPath, true, cancellationToken).ConfigureAwait(false);
+
+			return await file.OpenWriteAsync(true, 0, null, cancellationToken).ConfigureAwait(false);
 		}
 
 		public override async Task<StoreObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken) {

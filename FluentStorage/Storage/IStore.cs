@@ -17,7 +17,7 @@ namespace FluentStorage.Storage {
 
 
 		// ---------------------------------------------------------------------
-		// Listing / Discovery
+		// System
 		// ---------------------------------------------------------------------
 
 		/// <summary>
@@ -30,11 +30,23 @@ namespace FluentStorage.Storage {
 		/// </summary>
 		bool HasFileSystem();
 
+		// ---------------------------------------------------------------------
+		// Listing
+		// ---------------------------------------------------------------------
+
 		/// <summary>Returns the list of objects in this bucket.</summary>
 		/// <param name="options">Listing options.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>The matching objects.</returns>
 		Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Returns the list of objects in a specific directory of this bucket.
+		/// </summary>
+		/// <param name="folderPath">Remote folder path or virtual folder path to list</param>
+		/// <param name="recurse">Recurse into sub folders?</param>
+		/// <returns>List of remote object paths</returns>
+		Task<List<StoreObject>> ListDirectory(string folderPath, bool recurse, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Returns the list of objects in a specific directory of this bucket.
@@ -47,19 +59,13 @@ namespace FluentStorage.Storage {
 		/// <param name="numberOfRecursionThreads"><see cref="StorageListOptions.NumberOfRecursionThreads"/></param>
 		/// <param name="maxResults"><see cref="StorageListOptions.MaxResults"/></param>
 		/// <param name="includeAttributes"><see cref="StorageListOptions.IncludeAttributes"/></param>
-		/// <returns>List of blob IDs</returns>
+		/// <returns>List of remote object paths</returns>
 		Task<List<StoreObject>> ListDirectory(string folderPath = null, Func<StoreObject, bool> browseFilter = null,
 		   string filePrefix = null, bool recurse = false,
 		   StorageRecursion recursionMode = StorageRecursion.Remote,
 		   int numberOfRecursionThreads = StorageListOptions.MAX_THREADS,
 		   int? maxResults = null, bool includeAttributes = false,
 		   CancellationToken cancellationToken = default);
-
-		/// <summary>Returns the list of files, excluding folders.</summary>
-		/// <param name="options">Listing options.</param>
-		/// <param name="cancellationToken">Cancellation token.</param>
-		/// <returns>The matching files.</returns>
-		Task<List<StoreObject>> ListFiles(StorageListOptions options, CancellationToken cancellationToken = default);
 
 
 		// ---------------------------------------------------------------------
@@ -111,14 +117,20 @@ namespace FluentStorage.Storage {
 		// Read
 		// ---------------------------------------------------------------------
 
-		/// <summary>Opens the object stream for reading.</summary>
+		/// <summary>
+		/// Opens the object stream for reading.
+		/// It is your responsibility to close and dispose this stream after use.
+		/// </summary>
 		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns>An open readable stream.</returns>
 		Task<Stream> OpenRead(string objectPath, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Opens a stream for writing to the blob. If the blob exists, it will be overwritten.
+		/// Opens a stream for writing to the object.
+		/// The object will be written to the cloud when the stream is disposed.
+		/// It is your responsibility to dispose this stream.
+		/// If the object exists, it will be overwritten.
 		/// </summary>
 		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
@@ -262,7 +274,7 @@ namespace FluentStorage.Storage {
 		Task<string> GetDownloadUrl(string objectPath, bool https, int expiresInSeconds = 86000);
 
 		/// <summary>
-		/// Generates a pre-signed URL or SAS for the specified object.
+		/// Generates a pre-signed URL or SAS for the specified object. S3-friendly API which is supported on all cloud providers.
 		/// The URL grants temporary access to the object and expries after the specified duration. MIME type is auto computed.
 		/// </summary>
 		/// <param name="objectPath">Full path of the object</param>
@@ -272,7 +284,7 @@ namespace FluentStorage.Storage {
 		Task<string> GetPresignedUrl(string objectPath, bool forDownload, bool https, int expiresInSeconds = 86000);
 
 		/// <summary>
-		/// Generates a SAS for the specified object. Azure-friendly API with complete SAS options.
+		/// Generates a pre-signed URL or SAS for the specified object. Azure-friendly API which is supported on all cloud providers.
 		/// The URL grants temporary access to the object and expries after the specified duration.
 		/// </summary>
 		/// <param name="objectPath">Full path of the object</param>

@@ -51,6 +51,16 @@ namespace FluentStorage.Storage {
 			return result;
 		}
 
+		/// <summary>
+		/// Returns the list of available files, excluding folders.
+		/// </summary>
+		public virtual async Task<List<StoreObject>> ListFileObjects(StorageListOptions options,
+		   CancellationToken cancellationToken = default) {
+			List<StoreObject> all = await ListObjects(options, cancellationToken).ConfigureAwait(false);
+
+			return all.Where(i => i != null && i.IsFile).ToList();
+		}
+
 		protected virtual async Task<List<StoreObject>> ListPath(
 		   string path, StorageListOptions options, CancellationToken cancellationToken) {
 			throw new NotSupportedException();
@@ -82,17 +92,19 @@ namespace FluentStorage.Storage {
 		}
 
 
-
 		/// <summary>
-		/// Returns the list of available files, excluding folders.
+		/// Returns the list of objects in a specific directory of this bucket.
 		/// </summary>
-		/// <returns>List of blob IDs</returns>
-		public virtual async Task<List<StoreObject>> ListFiles(StorageListOptions options,
-		   CancellationToken cancellationToken = default) {
-			List<StoreObject> all = await ListObjects(options, cancellationToken).ConfigureAwait(false);
-
-			return all.Where(i => i != null && i.IsFile).ToList();
+		/// <param name="folderPath">Remote folder path or virtual folder path to list</param>
+		/// <param name="recurse">Recurse into sub folders?</param>
+		/// <returns>List of remote object paths</returns>
+		public virtual async Task<List<StoreObject>> ListDirectory(string folderPath, bool recurse, CancellationToken cancellationToken = default) {
+			var options = new StorageListOptions();
+			options.FolderPath = folderPath;
+			options.Recurse = recurse;
+			return await ListObjects(options, cancellationToken).ConfigureAwait(false);
 		}
+
 
 		/// <summary>
 		/// Returns the list of available blobs
@@ -105,7 +117,6 @@ namespace FluentStorage.Storage {
 		/// <param name="numberOfRecursionThreads"><see cref="StorageListOptions.NumberOfRecursionThreads"/></param>
 		/// <param name="maxResults"><see cref="StorageListOptions.MaxResults"/></param>
 		/// <param name="includeAttributes"><see cref="StorageListOptions.IncludeAttributes"/></param>
-		/// <returns>List of blob IDs</returns>
 		public virtual async Task<List<StoreObject>> ListDirectory(string folderPath = null,
 		   Func<StoreObject, bool> browseFilter = null,
 		   string filePrefix = null,
@@ -392,7 +403,7 @@ namespace FluentStorage.Storage {
 		}
 
 		/// <summary>
-		/// Calculates an MD5 hash of a blob. Comparing to <see cref="StoreObject.MD5"/> field, it always returns
+		/// Calculates an MD5 hash of an object. Comparing to <see cref="StoreObject.MD5"/> field, it always returns
 		/// a hash, even if the underlying storage doesn't support it natively.
 		/// </summary>
 		public virtual async Task<string> GetObjectMD5(StoreObject blob, CancellationToken cancellationToken = default) {

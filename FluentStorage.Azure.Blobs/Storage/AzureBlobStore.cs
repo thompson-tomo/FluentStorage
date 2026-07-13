@@ -98,7 +98,10 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			return (await Task.WhenAll(fullPaths.Select(p => GetObjectInfo(p, cancellationToken))).ConfigureAwait(false)).ToList();
 		}
 
-		public async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
+		/// <summary>
+		/// Opens an object for reading and returns its content stream.
+		/// </summary>
+		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPath(fullPath);
 
 			(BlobContainerClient container, string path) = await GetPartsAsync(fullPath, false).ConfigureAwait(false);
@@ -119,6 +122,20 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			catch (RequestFailedException ex) when (ex.ErrorCode == "BlobNotFound") {
 				return null;
 			}
+		}
+
+		/// <summary>
+		/// Opens an object for writing and returns its content stream.
+		/// Object will be written when the stream is disposed.
+		/// </summary>
+		public override async Task<Stream> OpenWrite(string fullPath, CancellationToken cancellationToken = default) {
+			GenericValidation.CheckBlobFullPath(fullPath);
+
+			(BlobContainerClient container, string path) = await GetPartsAsync(fullPath, true).ConfigureAwait(false);
+
+			BlockBlobClient client = container.GetBlockBlobClient(path);
+
+			return await client.OpenWriteAsync(overwrite: true, cancellationToken: cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>

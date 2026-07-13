@@ -11,6 +11,9 @@ using FluentStorage.Storage;
 using FluentStorage.Utils.Performance;
 
 namespace FluentStorage.AWS.Storage {
+	/// <summary>
+	/// Asnc recursive S3 directory lister with support for running a capped amount of async tasks.
+	/// </summary>
 	class S3DirectoryBrowser : IDisposable {
 		private readonly AmazonS3Client _client;
 		private readonly string _bucketName;

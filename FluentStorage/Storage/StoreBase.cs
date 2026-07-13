@@ -367,7 +367,7 @@ namespace FluentStorage.Storage {
 		/// <param name="blobId">Blob ID to copy</param>
 		/// <param name="targetStorage">Target storage</param>
 		/// <param name="newId">Optional, when specified uses this id in the target  If null uses the original ID.</param>
-		public virtual async Task CopyObjectToBucket(
+		public virtual async Task CopyObjectTo(
 		   string blobId, IStore targetStorage, string newId, CancellationToken cancellationToken = default) {
 			using (Stream src = await OpenRead(blobId, cancellationToken).ConfigureAwait(false)) {
 				if (src == null)
@@ -424,13 +424,13 @@ namespace FluentStorage.Storage {
 					if (item.IsFile) {
 						string renamedPath = item.FullPath.Replace(oldPath, newPath);
 
-						await CopyObjectToBucket(item, this, renamedPath, cancellationToken).ConfigureAwait(false);
+						await CopyObjectTo(item, this, renamedPath, cancellationToken).ConfigureAwait(false);
 						await DeleteObject(item, cancellationToken).ConfigureAwait(false);
 					}
 				}
 
 				//rename self
-				await CopyObjectToBucket(oldPath, this, newPath, cancellationToken).ConfigureAwait(false);
+				await CopyObjectTo(oldPath, this, newPath, cancellationToken).ConfigureAwait(false);
 				await DeleteObject(oldPath, cancellationToken).ConfigureAwait(false);
 			}
 

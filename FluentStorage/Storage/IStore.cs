@@ -208,7 +208,7 @@ namespace FluentStorage.Storage {
 		/// <param name="targetStorage">Destination bucket.</param>
 		/// <param name="newId">Destination object identifier.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task CopyObjectToBucket(string blobId, IStore targetStorage, string newId, CancellationToken cancellationToken = default);
+		Task CopyObjectTo(string blobId, IStore targetStorage, string newId, CancellationToken cancellationToken = default);
 
 		/// <summary>Renames an object (file or folder).</summary>
 		/// <param name="oldPath">Current path.</param>

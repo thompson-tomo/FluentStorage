@@ -304,7 +304,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			IStore ms = StorageFactory.InMemory();
 
 			//if this doesn't crash it means the returned stream is compatible with usual .net streaming
-			await _storage.CopyObjectToBucket(id, ms, id);
+			await _storage.CopyObjectTo(id, ms, id);
 		}
 
 		[Fact]

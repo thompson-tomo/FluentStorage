@@ -1,15 +1,17 @@
-﻿using System;
+﻿using Azure;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using Azure.Storage.Sas;
+using FluentStorage.Azure.Blobs.DataLake.Model;
+using FluentStorage.Enums;
+using FluentStorage.Model;
+using FluentStorage.Storage;
+using FluentStorage.Utils.Extensions;
+using MimeMapping;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Azure;
-using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
-
-using FluentStorage.Storage;
-using FluentStorage.Utils.Extensions;
-using FluentStorage.Azure.Blobs.DataLake.Model;
-using FluentStorage.Enums;
 
 namespace FluentStorage.Azure.Blobs.Utils {
 	static class AzConvert {
@@ -239,5 +241,68 @@ namespace FluentStorage.Azure.Blobs.Utils {
 
 			return blob;
 		}
+
+		public static BlobSasBuilder OptionsToSas(StorageUrlOptions options,string containerName,string objectPath) {
+
+			if (options == null)
+				throw new ArgumentNullException(nameof(options));
+
+			if (string.IsNullOrWhiteSpace(containerName))
+				throw new ArgumentNullException(nameof(containerName));
+
+			if (string.IsNullOrWhiteSpace(objectPath))
+				throw new ArgumentNullException(nameof(objectPath));
+
+			DateTimeOffset startsOn = options.StartsOn ?? DateTimeOffset.UtcNow;
+
+			BlobSasBuilder sas = new() {
+				BlobContainerName = containerName,
+				BlobName = objectPath,
+				Resource = "b",
+				StartsOn = startsOn,
+				ExpiresOn = startsOn + options.ExpiresIn,
+				Protocol = options.Protocol == StorageUrlProtocol.HttpAndHttps
+					? SasProtocol.HttpsAndHttp
+					: SasProtocol.Https
+			};
+
+			sas.SetPermissions((BlobSasPermissions)options.Permissions);
+
+			if (!string.IsNullOrWhiteSpace(options.ContentType))
+				sas.ContentType = options.ContentType;
+
+			else if (options.Permissions.HasFlag(StorageUrlPermissions.Read))
+				sas.ContentType = MimeUtility.GetMimeMapping(objectPath);
+
+			if (!string.IsNullOrWhiteSpace(options.ContentDisposition))
+				sas.ContentDisposition = options.ContentDisposition;
+
+			if (!string.IsNullOrWhiteSpace(options.CacheControl))
+				sas.CacheControl = options.CacheControl;
+
+			if (!string.IsNullOrWhiteSpace(options.ContentEncoding))
+				sas.ContentEncoding = options.ContentEncoding;
+
+			if (!string.IsNullOrWhiteSpace(options.ContentLanguage))
+				sas.ContentLanguage = options.ContentLanguage;
+
+			if (!string.IsNullOrWhiteSpace(options.StoredAccessPolicy))
+				sas.Identifier = options.StoredAccessPolicy;
+
+			if (!string.IsNullOrWhiteSpace(options.EncryptionScope))
+				sas.EncryptionScope = options.EncryptionScope;
+
+			if (!string.IsNullOrWhiteSpace(options.CorrelationId))
+				sas.CorrelationId = options.CorrelationId;
+
+			if (!string.IsNullOrWhiteSpace(options.SignedVersion))
+				sas.Version = options.SignedVersion;
+
+			if (!string.IsNullOrWhiteSpace(options.IpRange))
+				sas.IPRange = SasIPRange.Parse(options.IpRange);
+
+			return sas;
+		}
+
 	}
 }

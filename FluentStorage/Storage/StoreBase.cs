@@ -1,4 +1,5 @@
 ﻿using FluentStorage.Enums;
+using FluentStorage.Model;
 using FluentStorage.Utils.Extensions;
 using System;
 using System.Collections.Generic;
@@ -501,15 +502,21 @@ namespace FluentStorage.Storage {
 		}
 
 		/// <summary>
-		/// Generates a pre-signed URL for the specified object.
-		///
-		/// The URL grants temporary access to the object using the supplied HTTP verb and
-		/// expires after the specified duration. When a MIME type is provided, it is included
-		/// in the signature and must be supplied by the client when making the request.
+		/// Generates a pre-signed URL for or SAS the specified object.
+		/// The URL grants temporary access to the object and expries after the specified duration. MIME type is auto computed.
 		/// </summary>
 		public virtual async Task<string> GetPresignedUrl(string objectPath, bool forDownload, bool https, int expiresInSeconds = 86000) {
 			throw new NotImplementedException();
 		}
+
+		/// <summary>
+		/// Generates a SAS for the specified object. Azure-friendly API with complete SAS options.
+		/// The URL grants temporary access to the object and expries after the specified duration.
+		/// </summary>
+		public virtual async Task<string> GetObjectSas(string objectPath, StorageUrlOptions options) {
+			throw new NotImplementedException();
+		}
+
 
 	}
 }

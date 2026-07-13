@@ -1,21 +1,23 @@
-﻿using System;
+﻿using Azure;
+using Azure.Storage;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs.Specialized;
+using Azure.Storage.Sas;
+using FluentStorage.Azure.Blobs.Policy;
+using FluentStorage.Azure.Blobs.Utils;
+using FluentStorage.Enums;
+using FluentStorage.Exceptions;
+using FluentStorage.Model;
+using FluentStorage.Storage;
+using MimeMapping;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
-using Azure.Storage;
-using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
-using Azure.Storage.Blobs.Specialized;
-using MimeMapping;
-using FluentStorage.Storage;
-using FluentStorage.Azure.Blobs.Utils;
-using FluentStorage.Azure.Blobs.Policy;
-using FluentStorage.Enums;
-using FluentStorage.Exceptions;
 
 namespace FluentStorage.Azure.Blobs.Storage {
 	/// <summary>
@@ -267,6 +269,9 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			   cancellationToken: cancellationToken).ConfigureAwait(false);
 		}
 
+		/// <summary>
+		/// Generate a Shared Access Signature for the storage account.
+		/// </summary>
 		public Task<string> GetStorageSas(
 		   AccountSasPolicy accountPolicy, bool includeUrl = true, CancellationToken cancellationToken = default) {
 			if (accountPolicy is null)
@@ -287,6 +292,9 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			return Task.FromResult(sas);
 		}
 
+		/// <summary>
+		/// Generate a Shared Access Signature for the blob container.
+		/// </summary>
 		public Task<string> GetContainerSas(
 		   string containerName,
 		   ContainerSasPolicy containerSasPolicy,
@@ -305,6 +313,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			return Task.FromResult(sas);
 		}
 
+		[Obsolete("Please use GetObjectSas or GetPresignedUrl instead.")]
 		public async Task<string> GetBlobSas(
 		   string fullPath,
 		   BlobSasPolicy blobSasPolicy = null,
@@ -325,6 +334,50 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			}
 
 			return sas;
+		}
+
+		/// <summary>
+		/// Generates a Shared Access Signature for a blob.
+		/// </summary>
+		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="forDownload"><c>true</c> to generate a download URL; <c>false</c> to generate an upload URL.</param>
+		/// <param name="https"><c>true</c> to require HTTPS; otherwise HTTP and HTTPS are permitted.</param>
+		/// <param name="expiresInSeconds">Number of seconds until the URL expires.</param>
+		/// <returns>The generated presigned URL.</returns>
+		public override Task<string> GetPresignedUrl(string fullPath, bool forDownload, bool https, int expiresInSeconds = 86000) {
+
+			return GetObjectSas(fullPath, new StorageUrlOptions {
+				Permissions = forDownload
+					? StorageUrlPermissions.Read
+					: StorageUrlPermissions.Create | StorageUrlPermissions.Write,
+				RequireHttps = https,
+				ExpiresIn = TimeSpan.FromSeconds(expiresInSeconds)
+			});
+		}
+
+		/// <summary>
+		/// Generates a Shared Access Signature for a blob.
+		/// </summary>
+		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="options">Options controlling permissions, expiration, protocol, and other Shared Access Signature settings.</param>
+		/// <returns>The generated presigned URL.</returns>
+		public override async Task<string> GetObjectSas(string fullPath, StorageUrlOptions options) {
+
+			if (options == null)
+				throw new ArgumentNullException(nameof(options));
+
+			GenericValidation.CheckBlobFullPath(fullPath);
+
+			(BlobContainerClient container, string path) = await GetPartsAsync(fullPath, true).ConfigureAwait(false);
+
+			BlockBlobClient client = container.GetBlockBlobClient(path);
+
+			if (!client.CanGenerateSasUri)
+				throw new NotSupportedException("Cannot create Shared Access Signature. The storage client must be authenticated using Shared Key.");
+
+			BlobSasBuilder sas = AzConvert.OptionsToSas(options, container.Name, path);
+
+			return client.GenerateSasUri(sas).ToString();
 		}
 
 		public async Task<Stream> OpenWrite(string fullPath, CancellationToken cancellationToken = default) {

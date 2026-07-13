@@ -1,4 +1,5 @@
 ﻿using FluentStorage.Enums;
+using FluentStorage.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -246,23 +247,37 @@ namespace FluentStorage.Storage {
 
 		/// <summary>
 		/// Get a pre-signed URL to upload an object to this bucket.
+		/// <param name="objectPath">Full path of the object</param>
 		/// </summary>
+		/// <param name="https">true for to require HTTPS, false to permit HTTP and HTTPS</param>
+		/// <param name="expiresInSeconds">Number of seconds until the URL expires.</param>
 		Task<string> GetUploadUrl(string objectPath, bool https, int expiresInSeconds = 86000);
 
 		/// <summary>
 		/// Get a pre-signed URL to download an object from this bucket.
 		/// </summary>
+		/// <param name="objectPath">Full path of the object</param>
+		/// <param name="https">true for to require HTTPS, false to permit HTTP and HTTPS</param>
+		/// <param name="expiresInSeconds">Number of seconds until the URL expires.</param>
 		Task<string> GetDownloadUrl(string objectPath, bool https, int expiresInSeconds = 86000);
 
 		/// <summary>
-		/// Generates a pre-signed URL for the specified object.
-		///
-		/// The URL grants temporary access to the object using the supplied HTTP verb and
-		/// expires after the specified duration. When a MIME type is provided, it is included
-		/// in the signature and must be supplied by the client when making the request.
+		/// Generates a pre-signed URL or SAS for the specified object.
+		/// The URL grants temporary access to the object and expries after the specified duration. MIME type is auto computed.
 		/// </summary>
+		/// <param name="objectPath">Full path of the object</param>
+		/// <param name="forDownload">true to generate a download URL, false to generate an upload URL.</param>
+		/// <param name="https">true for to require HTTPS, false to permit HTTP and HTTPS</param>
+		/// <param name="expiresInSeconds">Number of seconds until the URL expires.</param>
 		Task<string> GetPresignedUrl(string objectPath, bool forDownload, bool https, int expiresInSeconds = 86000);
 
+		/// <summary>
+		/// Generates a SAS for the specified object. Azure-friendly API with complete SAS options.
+		/// The URL grants temporary access to the object and expries after the specified duration.
+		/// </summary>
+		/// <param name="objectPath">Full path of the object</param>
+		/// <param name="options">Options controlling permissions, expiration, protocol, and other Shared Access Signature settings.</param>
+		Task<string> GetObjectSas(string objectPath, StorageUrlOptions options);
 
 		// ---------------------------------------------------------------------
 		// File Systems Only

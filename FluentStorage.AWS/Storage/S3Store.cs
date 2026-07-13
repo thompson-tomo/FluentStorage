@@ -6,6 +6,7 @@ using Amazon.S3.Util;
 using FluentStorage.AWS.Utils;
 using FluentStorage.Enums;
 using FluentStorage.Exceptions;
+using FluentStorage.Model;
 using FluentStorage.Storage;
 using FluentStorage.Streaming;
 using FluentStorage.Utils.Extensions;
@@ -502,10 +503,7 @@ namespace FluentStorage.AWS.Storage {
 
 		/// <summary>
 		/// Generates a pre-signed URL for the specified object.
-		///
-		/// The URL grants temporary access to the object using the supplied HTTP verb and
-		/// expires after the specified duration. When a MIME type is provided, it is included
-		/// in the signature and must be supplied by the client when making the request.
+		/// The URL grants temporary access to the object and expries after the specified duration. MIME type is auto computed.
 		/// </summary>
 		public override async Task<string> GetPresignedUrl(string fullPath, bool forDownload, bool https, int expiresInSeconds = 86000) {
 			IAmazonS3 client = await Client().ConfigureAwait(false);
@@ -522,6 +520,24 @@ namespace FluentStorage.AWS.Storage {
 			request.ContentType = MimeUtility.GetMimeMapping(fullPath);
 
 			return await client.GetPreSignedURLAsync(request);
+		}
+
+		/// <summary>
+		/// Generates a pre-signed URL for the specified object.
+		/// The URL grants temporary access to the object and expries after the specified duration. MIME type is auto computed.
+		/// </summary>
+		public override async Task<string> GetObjectSas(string objectPath, StorageUrlOptions options) {
+
+			if (options == null)
+				throw new ArgumentNullException(nameof(options));
+
+			// S3 implementation currently supports only the common options.
+			return await GetPresignedUrl(
+				objectPath,
+				options.Permissions.HasFlag(StorageUrlPermissions.Read),
+				options.RequireHttps,
+				(int)options.ExpiresIn.TotalSeconds)
+			.ConfigureAwait(false);
 		}
 
 		/// <summary>

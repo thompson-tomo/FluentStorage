@@ -60,7 +60,7 @@ namespace FluentStorage.Azure.Blobs {
 
 
 		/// <summary>
-		/// Gets Shared Access Signature for the path.
+		/// Gets Shared Access Signature for the account.
 		/// </summary>
 		/// <param name="accountPolicy"></param>
 		/// <param name="includeUrl"></param>
@@ -89,6 +89,7 @@ namespace FluentStorage.Azure.Blobs {
 		/// <param name="includeUrl"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
+		[Obsolete("Please use GetObjectSas or GetPresignedUrl instead.")]
 		Task<string> GetBlobSas(
 		   string fullPath,
 		   BlobSasPolicy blobSasPolicy = null,

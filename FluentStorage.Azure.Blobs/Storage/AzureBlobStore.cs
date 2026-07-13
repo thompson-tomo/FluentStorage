@@ -530,5 +530,34 @@ namespace FluentStorage.Azure.Blobs.Storage {
 
 			return (container, relativePath);
 		}
+
+		/// <summary>
+		/// Moves an object on the bucket. Returns true if it completed and false if it was skipped or the object did not exist.
+		/// </summary>
+		/// <param name="oldPath">Current object path.</param>
+		/// <param name="newPath">New object path.</param>
+		/// <param name="overwrite">Whether to overwrite the destination object if it already exists.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		public override async Task<bool> MoveObject(string oldPath, string newPath, bool overwrite, CancellationToken cancellationToken = default) {
+
+			if (!await ObjectExists(oldPath, cancellationToken).ConfigureAwait(false))
+				return false;
+
+			if (!overwrite && await ObjectExists(newPath, cancellationToken).ConfigureAwait(false))
+				return false;
+
+			(BlobContainerClient sourceContainer, string sourcePath) = await GetPartsAsync(oldPath, false).ConfigureAwait(false);
+			BlockBlobClient source = sourceContainer.GetBlockBlobClient(sourcePath);
+
+			(BlobContainerClient destinationContainer, string destinationPath) = await GetPartsAsync(newPath, false).ConfigureAwait(false);
+			BlockBlobClient destination = destinationContainer.GetBlockBlobClient(destinationPath);
+
+			await destination.StartCopyFromUriAsync(source.Uri, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+			await source.DeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+			return true;
+		}
+
 	}
 }

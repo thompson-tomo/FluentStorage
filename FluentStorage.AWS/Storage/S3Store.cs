@@ -544,5 +544,34 @@ namespace FluentStorage.AWS.Storage {
 			});
 		}
 
+		/// <summary>
+		/// Moves an object on the bucket. Returns true if it completed and false if it was skipped or the object did not exist.
+		/// </summary>
+		/// <param name="oldPath">Current object path.</param>
+		/// <param name="newPath">New object path.</param>
+		/// <param name="overwrite">Whether to overwrite the destination object if it already exists.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		public override async Task<bool> MoveObject(string oldPath, string newPath, bool overwrite, CancellationToken cancellationToken = default) {
+
+			if (!await ObjectExists(oldPath, cancellationToken).ConfigureAwait(false))
+				return false;
+
+			if (!overwrite && await ObjectExists(newPath, cancellationToken).ConfigureAwait(false))
+				return false;
+
+			AmazonS3Client client = await Client().ConfigureAwait(false);
+
+			await client.CopyObjectAsync(new CopyObjectRequest {
+				SourceBucket = BucketName,
+				SourceKey = oldPath,
+				DestinationBucket = BucketName,
+				DestinationKey = newPath
+			}, cancellationToken).ConfigureAwait(false);
+
+			await client.DeleteObjectAsync(BucketName, oldPath, cancellationToken).ConfigureAwait(false);
+
+			return true;
+		}
+
 	}
 }

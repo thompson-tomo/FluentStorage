@@ -460,13 +460,6 @@ namespace FluentStorage.Storage {
 		}
 
 		/// <summary>
-		/// Gets the capabilities supported by the connected FTP/SFTP server.
-		/// </summary>
-		public virtual async Task<List<object>> GetCapabilities(CancellationToken cancellationToken = default) {
-			throw new NotImplementedException();
-		}
-
-		/// <summary>
 		/// Returns true if the specified directory or virtual directory exists.
 		/// </summary>
 		public virtual async Task<bool> DirectoryExists(string folderPath, CancellationToken cancellationToken = default) {

@@ -562,12 +562,6 @@ namespace FluentStorage.SFTP {
 		}
 
 		/// <summary>
-		/// SFTP does not support server capability checks. This API will always return a blank list.
-		/// </returns>
-		public override async Task<List<object>> GetCapabilities(CancellationToken cancellationToken = default) {
-			return new List<object>();
-		}
-		/// <summary>
 		/// Creates a new folder on the SFTP server.
 		/// </summary>
 		/// <param name="folderPath">Path to the new folder.</param>

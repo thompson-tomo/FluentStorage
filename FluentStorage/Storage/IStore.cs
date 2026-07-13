@@ -236,11 +236,6 @@ namespace FluentStorage.Storage {
 		/// </summary>
 		Task<Dictionary<string, object>> GetServer(CancellationToken cancellationToken = default);
 
-		/// <summary>
-		/// Gets the capabilities supported by the connected FTP/SFTP server.
-		/// </summary>
-		Task<List<object>> GetCapabilities(CancellationToken cancellationToken = default);
-
 		/// <summary>Creates a new folder.</summary>
 		/// <param name="folderPath">Path to the new folder.</param>
 		Task CreateDirectory(string folderPath, bool force, CancellationToken cancellationToken = default);

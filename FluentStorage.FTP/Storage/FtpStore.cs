@@ -211,8 +211,8 @@ namespace FluentStorage.FTP.Storage {
 		}
 
 		/// <summary>
-		/// Gets information about the connected FTP server.
-		/// Returns a `Dictionary` with the following keys: `ServerOS`, `ServerType`, `SystemType`.
+		/// Gets information and capabilities of the connected FTP server.
+		/// Returns a `Dictionary` with the following keys: `ServerOS`, `ServerType`, `SystemType`, `Capabilities`.
 		/// </summary>
 		public override async Task<Dictionary<string, object>> GetServer(CancellationToken cancellationToken = default) {
 
@@ -221,21 +221,9 @@ namespace FluentStorage.FTP.Storage {
 			return new Dictionary<string, object> {
 				["ServerOS"] = client.ServerOS,
 				["ServerType"] = client.ServerType,
-				["SystemType"] = client.SystemType
+				["SystemType"] = client.SystemType,
+				["Capabilities"] = client.Capabilities,
 			};
-		}
-
-		/// <summary>
-		/// Gets the capabilities advertised by the connected FTP server.
-		/// </summary>
-		/// <returns>
-		/// A list of supported FTP capabilities (for example, UTF8, MLSD, HASH, MDTM, or REST).
-		/// </returns>
-		public override async Task<List<object>> GetCapabilities(CancellationToken cancellationToken = default) {
-
-			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
-
-			return client.Capabilities?.Cast<object>().ToList()?? new List<object>();
 		}
 
 		/// <summary>

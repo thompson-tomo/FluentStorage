@@ -1,22 +1,23 @@
-﻿using FluentStorage.Storage;
+﻿using Amazon.Runtime;
+using Amazon.S3;
+using Amazon.S3.Model;
+using Amazon.S3.Transfer;
+using Amazon.S3.Util;
+using FluentStorage.AWS.Utils;
+using FluentStorage.Enums;
+using FluentStorage.Exceptions;
+using FluentStorage.Storage;
+using FluentStorage.Streaming;
+using FluentStorage.Utils.Extensions;
+using MimeMapping;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using Amazon.S3;
-using Amazon.Runtime;
-using Amazon.S3.Model;
-using Amazon.S3.Transfer;
-using System.Threading.Tasks;
+using System.Net.Mime;
 using System.Threading;
-using FluentStorage.Streaming;
-using Amazon.S3.Util;
-using MimeMapping;
-using FluentStorage.AWS.Utils;
-using FluentStorage.Enums;
-using FluentStorage.Exceptions;
-using FluentStorage.Utils.Extensions;
+using System.Threading.Tasks;
 
 namespace FluentStorage.AWS.Storage {
 	/// <summary>
@@ -506,7 +507,7 @@ namespace FluentStorage.AWS.Storage {
 		/// expires after the specified duration. When a MIME type is provided, it is included
 		/// in the signature and must be supplied by the client when making the request.
 		/// </summary>
-		public override async Task<string> GetPresignedUrl(string fullPath, string mimeType, bool forDownload, bool https, int expiresInSeconds = 86000) {
+		public override async Task<string> GetPresignedUrl(string fullPath, bool forDownload, bool https, int expiresInSeconds = 86000) {
 			IAmazonS3 client = await Client().ConfigureAwait(false);
 
 			var request = new GetPreSignedUrlRequest() {
@@ -517,9 +518,13 @@ namespace FluentStorage.AWS.Storage {
 				Verb = forDownload ? HttpVerb.GET : HttpVerb.PUT,
 			};
 
-			// #122 : If `ContentType` is not set, the generated SDK request signature does not include a `Content-Type` header.
-			if (!string.IsNullOrWhiteSpace(mimeType))
-				request.ContentType = mimeType;
+			// Auto compute a MIME type (content type) if not given
+			if (contentType == null) {
+				contentType = MimeUtility.GetMimeMapping(fullPath);
+			}
+
+			// set content type on the SDK request
+			request.ContentType = contentType;
 
 			return await client.GetPreSignedURLAsync(request);
 		}

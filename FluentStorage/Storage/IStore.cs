@@ -247,12 +247,12 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Get a pre-signed URL to upload an object to this bucket.
 		/// </summary>
-		Task<string> GetUploadUrl(string objectPath, string mimeType, bool https, int expiresInSeconds = 86000);
+		Task<string> GetUploadUrl(string objectPath, bool https, int expiresInSeconds = 86000);
 
 		/// <summary>
 		/// Get a pre-signed URL to download an object from this bucket.
 		/// </summary>
-		Task<string> GetDownloadUrl(string objectPath, string mimeType, bool https, int expiresInSeconds = 86000);
+		Task<string> GetDownloadUrl(string objectPath, bool https, int expiresInSeconds = 86000);
 
 		/// <summary>
 		/// Generates a pre-signed URL for the specified object.
@@ -261,7 +261,7 @@ namespace FluentStorage.Storage {
 		/// expires after the specified duration. When a MIME type is provided, it is included
 		/// in the signature and must be supplied by the client when making the request.
 		/// </summary>
-		Task<string> GetPresignedUrl(string objectPath, string mimeType, bool forDownload, bool https, int expiresInSeconds = 86000);
+		Task<string> GetPresignedUrl(string objectPath, bool forDownload, bool https, int expiresInSeconds = 86000);
 
 
 		// ---------------------------------------------------------------------

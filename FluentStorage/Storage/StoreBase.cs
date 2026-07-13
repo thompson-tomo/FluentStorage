@@ -1,4 +1,5 @@
 ﻿using FluentStorage.Enums;
+using FluentStorage.Exceptions;
 using FluentStorage.Model;
 using FluentStorage.Utils.Extensions;
 using System;
@@ -244,7 +245,7 @@ namespace FluentStorage.Storage {
 		}
 
 		/// <summary>
-		/// Writes byte array to the target.
+		/// Writes byte array to the object.
 		/// </summary>
 		public virtual async Task SetBytes(string objectPath, byte[] data, bool append = false, CancellationToken cancellationToken = default) {
 			if (data == null) {
@@ -257,7 +258,7 @@ namespace FluentStorage.Storage {
 		}
 
 		/// <summary>
-		/// Reads object data as byte array
+		/// Reads object data as byte array.
 		/// </summary>
 		public virtual async Task<byte[]> GetBytes(string objectPath, CancellationToken cancellationToken = default) {
 			Stream src = await OpenRead(objectPath, cancellationToken).ConfigureAwait(false);

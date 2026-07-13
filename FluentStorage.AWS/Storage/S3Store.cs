@@ -518,13 +518,8 @@ namespace FluentStorage.AWS.Storage {
 				Verb = forDownload ? HttpVerb.GET : HttpVerb.PUT,
 			};
 
-			// Auto compute a MIME type (content type) if not given
-			if (contentType == null) {
-				contentType = MimeUtility.GetMimeMapping(fullPath);
-			}
-
-			// set content type on the SDK request
-			request.ContentType = contentType;
+			// Auto compute a MIME type (content type) based on the file path
+			request.ContentType = MimeUtility.GetMimeMapping(fullPath);
 
 			return await client.GetPreSignedURLAsync(request);
 		}

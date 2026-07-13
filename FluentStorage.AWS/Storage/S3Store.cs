@@ -418,7 +418,7 @@ namespace FluentStorage.AWS.Storage {
 		///
 		/// Blobs that do not exist are returned as <c>null</c>.
 		/// </summary>
-		public async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public override async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			return (await Task.WhenAll(fullPaths.Select(GetBlobAsync)).ConfigureAwait(false)).ToList();
 		}
 
@@ -451,7 +451,7 @@ namespace FluentStorage.AWS.Storage {
 		/// onto itself with replacement metadata. Blob contents are not re-uploaded.
 		/// Blobs with no metadata are skipped.
 		/// </summary>
-		public async Task SetObjectsInfo(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
+		public override async Task SetObjectsInfo(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
 			if (blobs == null)
 				return;
 

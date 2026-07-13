@@ -70,9 +70,6 @@ namespace FluentStorage.Storage {
 		}
 
 
-		public virtual async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			return (await (Task.WhenAll(fullPaths.Select(fp => GetObjectInfo(fp, cancellationToken))).ConfigureAwait(false))).ToList();
-		}
 		public virtual async Task SetObject(string fullPath, Stream sourceStream, string contentType, bool append, CancellationToken cancellationToken) {
 			await SetObject(fullPath, sourceStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
@@ -210,6 +207,10 @@ namespace FluentStorage.Storage {
 		/// <returns>Blob metadata or null if blob doesn't exist</returns>
 		public virtual async Task<StoreObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
+		}
+
+		public virtual async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+			return (await (Task.WhenAll(fullPaths.Select(fp => GetObjectInfo(fp, cancellationToken))).ConfigureAwait(false))).ToList();
 		}
 
 		public virtual Task SetObjectsInfo(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {

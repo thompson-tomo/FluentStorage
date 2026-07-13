@@ -283,7 +283,7 @@ namespace FluentStorage.Storage.Files {
 		/// <summary>
 		/// See interface
 		/// </summary>
-		public Task<List<StoreObject>> GetBlobsAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
+		public override Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
 			var result = new List<StoreObject>();
 
 			foreach (string blobId in ids) {
@@ -302,7 +302,7 @@ namespace FluentStorage.Storage.Files {
 			return Task.FromResult<List<StoreObject>>(result);
 		}
 
-		public Task SetBlobsAsync(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
+		public override Task SetObjectsInfo(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPaths(blobs);
 
 			foreach (StoreObject blob in blobs.Where(b => b != null)) {

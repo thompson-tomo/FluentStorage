@@ -134,7 +134,7 @@ namespace FluentStorage.Storage {
 			return result;
 		}
 
-		public Task<List<StoreObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken) {
+		public override Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken) {
 			GenericValidation.CheckBlobFullPaths(fullPaths);
 
 			var result = new List<StoreObject>();
@@ -151,7 +151,7 @@ namespace FluentStorage.Storage {
 			return Task.FromResult<List<StoreObject>>(result);
 		}
 
-		public Task SetBlobsAsync(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
+		public override Task SetObjectsInfo(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
 			if (blobs == null)
 				return Task.FromResult(true);
 

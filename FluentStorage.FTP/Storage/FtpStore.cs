@@ -141,7 +141,7 @@ namespace FluentStorage.FTP.Storage {
 			return await client.FileExists(path).ConfigureAwait(false);
 		}
 
-		public async Task<List<StoreObject>> GetBlobsAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
+		public override async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
 			AsyncFtpClient client = await GetClientAsync().ConfigureAwait(false);
 
 			List<StoreObject> results = new List<StoreObject>();
@@ -164,10 +164,6 @@ namespace FluentStorage.FTP.Storage {
 				results.Add(r);
 			}
 			return results;
-		}
-
-		public Task SetBlobsAsync(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
-			throw new NotSupportedException();
 		}
 
 		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {

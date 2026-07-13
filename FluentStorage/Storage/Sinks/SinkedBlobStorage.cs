@@ -34,15 +34,15 @@ namespace FluentStorage.Storage.Sinks {
 			return _parent.ObjectExists(fullPath, cancellationToken);
 		}
 
-		public Task<List<StoreObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public override Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			return _parent.GetObjectsInfo(fullPaths, cancellationToken);
 		}
 
-		public Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
+		public override Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			return _parent.ListObjects(options, cancellationToken);
 		}
 
-		public Task SetBlobsAsync(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) => _parent.SetObjectsInfo(blobs, cancellationToken);
+		public override Task SetObjectsInfo(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) => _parent.SetObjectsInfo(blobs, cancellationToken);
 
 		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
 

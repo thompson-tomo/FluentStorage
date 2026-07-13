@@ -218,7 +218,7 @@ namespace FluentStorage.SFTP {
 		/// <returns>
 		/// List of blob IDs
 		/// </returns>
-		public async Task<List<StoreObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public override async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 
 			SftpClient client = GetClient();
@@ -397,18 +397,6 @@ namespace FluentStorage.SFTP {
 			client.RenameFile(oldPath, newPath);
 
 			return Task.CompletedTask;
-		}
-
-		/// <summary>
-		/// Set blob information which is useful for setting blob attributes (user metadata etc.)
-		/// </summary>
-		/// <param name="blobs"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		/// <exception cref="System.NotSupportedException"></exception>
-		public Task SetBlobsAsync(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
-			ThrowIfDisposed();
-			throw new NotSupportedException();
 		}
 
 		public override async Task SetObject(string fullPath, Stream dataStream, bool append, CancellationToken cancellationToken) {

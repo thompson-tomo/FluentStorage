@@ -142,14 +142,10 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 			return true;
 		}
 
-		public async Task<List<StoreObject>> GetBlobsAsync(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public override async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPaths(fullPaths);
 
 			return (await Task.WhenAll(fullPaths.Select(fullPath => GetBlobAsync(fullPath))).ConfigureAwait(false)).ToList();
-		}
-
-		public Task SetBlobsAsync(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
-			throw new NotSupportedException();
 		}
 
 		private async Task<StoreObject> GetBlobAsync(string fullPath) {

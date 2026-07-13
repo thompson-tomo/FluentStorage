@@ -245,6 +245,10 @@ namespace FluentStorage.Storage {
 		/// <param name="folderPath">Path to the new folder.</param>
 		Task CreateDirectory(string folderPath, bool force, CancellationToken cancellationToken = default);
 
+		/// <summary>Deletes a folder.</summary>
+		/// <param name="folderPath">Path to the folder.</param>
+		Task DeleteDirectory(string folderPath, bool recursive, CancellationToken cancellationToken = default);
+
 		/// <summary>
 		/// Returns true if the specified directory or virtual directory exists.
 		/// </summary>

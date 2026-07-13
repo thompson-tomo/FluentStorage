@@ -444,6 +444,15 @@ namespace FluentStorage.Storage {
 		}
 
 		/// <summary>
+		/// Deletes a folder in this file system. Does nothing in cloud storage buckets.
+		/// </summary>
+		/// <param name="folderPath">Path to the new folder.</param>
+		public virtual async Task DeleteDirectory(string folderPath, bool recursive, CancellationToken cancellationToken = default) {
+			throw new NotImplementedException();
+		}
+
+
+		/// <summary>
 		/// Gets information about the connected FTP/SFTP server.
 		/// </summary>
 		public virtual async Task<Dictionary<string, object>> GetServer(CancellationToken cancellationToken = default) {

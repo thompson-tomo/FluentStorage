@@ -250,6 +250,18 @@ namespace FluentStorage.FTP.Storage {
 		}
 
 		/// <summary>
+		/// Deletes a folder on the FTP server.
+		/// </summary>
+		/// <param name="folderPath">Path to the folder.</param>
+		/// <param name="recursive">Whether to delete all child files and folders.</param>
+		public override async Task DeleteDirectory(string folderPath, bool recursive, CancellationToken cancellationToken = default) {
+
+			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+
+			await client.DeleteDirectory(folderPath, recursive ? FtpListOption.Recursive : FtpListOption.Auto, cancellationToken).ConfigureAwait(false);
+		}
+
+		/// <summary>
 		/// Returns true if the specified directory exists on the FTP server.
 		/// </summary>
 		/// <param name="folderPath">Path to the directory.</param>

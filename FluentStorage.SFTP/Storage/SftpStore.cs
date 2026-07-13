@@ -581,6 +581,45 @@ namespace FluentStorage.SFTP {
 		}
 
 		/// <summary>
+		/// Deletes a folder.
+		/// </summary>
+		/// <param name="folderPath">Path to the folder.</param>
+		/// <param name="recursive">Whether to delete all child files and folders.</param>
+		public override async Task DeleteDirectory(string folderPath, bool recursive, CancellationToken cancellationToken = default) {
+
+			SftpClient client = GetClient();
+
+			folderPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(folderPath));
+
+			if (await DirectoryExists(folderPath, cancellationToken)) {
+				if (recursive) {
+					DeleteDirectoryRecursive(client, folderPath);
+				}
+				else {
+					client.DeleteDirectory(folderPath);
+				}
+			}
+		}
+
+		private static void DeleteDirectoryRecursive(SftpClient client, string folderPath) {
+
+			foreach (var entry in client.ListDirectory(folderPath)) {
+
+				if (entry.Name == "." || entry.Name == "..")
+					continue;
+
+				if (entry.IsDirectory) {
+					DeleteDirectoryRecursive(client, entry.FullName);
+				}
+				else {
+					client.DeleteFile(entry.FullName);
+				}
+			}
+
+			client.DeleteDirectory(folderPath);
+		}
+
+		/// <summary>
 		/// Determines whether the specified directory exists on the SFTP server.
 		/// </summary>
 		/// <param name="folderPath">Path to the directory.</param>

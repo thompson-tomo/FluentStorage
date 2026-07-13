@@ -37,7 +37,7 @@ namespace FluentStorage.FTP.Storage {
 		public override bool HasFileSystem() {
 			return true;
 		}
-		private async Task<AsyncFtpClient> GetClientAsync() {
+		private async Task<AsyncFtpClient> GetClient() {
 			if (!_client.IsConnected) {
 				await _client.Connect().ConfigureAwait(false);
 
@@ -49,7 +49,7 @@ namespace FluentStorage.FTP.Storage {
 		}
 
 		public async Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
-			AsyncFtpClient client = await GetClientAsync().ConfigureAwait(false);
+			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
 
 			if (options == null)
 				options = new StorageListOptions();
@@ -105,7 +105,7 @@ namespace FluentStorage.FTP.Storage {
 		}
 
 		public override async Task DeleteObjects(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			AsyncFtpClient client = await GetClientAsync().ConfigureAwait(false);
+			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
 
 			foreach (string path in fullPaths) {
 				await DeleteObject(path, cancellationToken);
@@ -113,7 +113,7 @@ namespace FluentStorage.FTP.Storage {
 		}
 
 		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken = default) {
-			AsyncFtpClient client = await GetClientAsync().ConfigureAwait(false);
+			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
 
 			if (await client.FileExists(fullPath, cancellationToken)) {
 				await client.DeleteFile(fullPath, cancellationToken).ConfigureAwait(false);
@@ -124,7 +124,7 @@ namespace FluentStorage.FTP.Storage {
 		}
 
 		public override async Task<List<bool>> ObjectsExists(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
-			AsyncFtpClient client = await GetClientAsync().ConfigureAwait(false);
+			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
 
 			List<bool> results = new List<bool>();
 			foreach (string path in ids) {
@@ -136,13 +136,13 @@ namespace FluentStorage.FTP.Storage {
 		}
 
 		public override async Task<bool> ObjectExists(string path, CancellationToken cancellationToken = default) {
-			AsyncFtpClient client = await GetClientAsync().ConfigureAwait(false);
+			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
 
 			return await client.FileExists(path).ConfigureAwait(false);
 		}
 
 		public override async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
-			AsyncFtpClient client = await GetClientAsync().ConfigureAwait(false);
+			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
 
 			List<StoreObject> results = new List<StoreObject>();
 			foreach (string path in ids) {
@@ -167,7 +167,7 @@ namespace FluentStorage.FTP.Storage {
 		}
 
 		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
-			AsyncFtpClient client = await GetClientAsync().ConfigureAwait(false);
+			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
 
 			try {
 				return await client.OpenRead(fullPath, FtpDataType.Binary, 0, true).ConfigureAwait(false);
@@ -182,7 +182,7 @@ namespace FluentStorage.FTP.Storage {
 		}
 		public override async Task SetObject(string fullPath, Stream dataStream, string contentType, bool append = false, CancellationToken cancellationToken = default) {
 
-			AsyncFtpClient client = await GetClientAsync().ConfigureAwait(false);
+			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
 
 			await retryPolicy.ExecuteAsync(async () => {
 				string directory = Path.GetDirectoryName(fullPath);
@@ -210,6 +210,92 @@ namespace FluentStorage.FTP.Storage {
 			GC.SuppressFinalize(this);
 		}
 
+		/// <summary>
+		/// Gets information about the connected FTP server.
+		/// Returns a `Dictionary` with the following keys: `ServerOS`, `ServerType`, `SystemType`.
+		/// </summary>
+		public override async Task<Dictionary<string, object>> GetServer(CancellationToken cancellationToken = default) {
+
+			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+
+			return new Dictionary<string, object> {
+				["ServerOS"] = client.ServerOS,
+				["ServerType"] = client.ServerType,
+				["SystemType"] = client.SystemType
+			};
+		}
+
+		/// <summary>
+		/// Gets the capabilities advertised by the connected FTP server.
+		/// </summary>
+		/// <returns>
+		/// A list of supported FTP capabilities (for example, UTF8, MLSD, HASH, MDTM, or REST).
+		/// </returns>
+		public override async Task<List<object>> GetCapabilities(CancellationToken cancellationToken = default) {
+
+			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+
+			return client.Capabilities?.Cast<object>().ToList()?? new List<object>();
+		}
+
+		/// <summary>
+		/// Creates a new folder on the FTP server.
+		/// </summary>
+		/// <param name="folderPath">Path to the new folder.</param>
+		public override async Task CreateDirectory(string folderPath, bool force, CancellationToken cancellationToken = default) {
+
+			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+
+			await client.CreateDirectory(folderPath, force, cancellationToken).ConfigureAwait(false);
+		}
+
+		/// <summary>
+		/// Returns true if the specified directory exists on the FTP server.
+		/// </summary>
+		/// <param name="folderPath">Path to the directory.</param>
+		/// <returns>
+		public override async Task<bool> DirectoryExists(string folderPath, CancellationToken cancellationToken = default) {
+
+			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+			return await client.DirectoryExists(folderPath, cancellationToken).ConfigureAwait(false);
+		}
+
+		/// <summary>
+		/// Moves a directory to a new location on the FTP server.
+		/// </summary>
+		/// <param name="sourceFolderPath">Source directory path.</param>
+		/// <param name="destinationFolderPath">Destination directory path.</param>
+		public override async Task MoveDirectory(string sourceFolderPath, string destinationFolderPath, CancellationToken cancellationToken = default) {
+
+			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+			await client.MoveDirectory(sourceFolderPath, destinationFolderPath, FtpRemoteExists.Overwrite, cancellationToken).ConfigureAwait(false);
+		}
+
+		/// <summary>
+		/// Gets the Unix CHMOD permissions of a file on the FTP server.
+		/// </summary>
+		/// <param name="filePath">Path to the file.</param>
+		/// <returns>
+		/// The file permissions as a numeric CHMOD value (for example, 644 or 755).
+		/// </returns>
+		public override async Task<int> GetFilePermissions(string filePath, CancellationToken cancellationToken = default) {
+
+			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+
+			FtpListItem item = await client.GetFilePermissions(filePath, cancellationToken).ConfigureAwait(false);
+			return item?.Chmod ?? 0;
+		}
+
+		/// <summary>
+		/// Sets the Unix CHMOD permissions of a file on the FTP server.
+		/// </summary>
+		/// <param name="filePath">Path to the file.</param>
+		/// <param name="permissions">Permissions as a numeric CHMOD value (for example, 644 or 755).</param>
+		public override async Task SetFilePermissions(string filePath, int permissions, CancellationToken cancellationToken = default) {
+
+			AsyncFtpClient client = await GetClient().ConfigureAwait(false);
+			await client.Chmod(filePath, permissions, cancellationToken).ConfigureAwait(false);
+		}
 
 	}
 }

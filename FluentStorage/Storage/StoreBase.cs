@@ -439,58 +439,56 @@ namespace FluentStorage.Storage {
 		/// Creates a new folder in this file system. Does nothing in cloud storage buckets.
 		/// </summary>
 		/// <param name="folderPath">Path to the new folder.</param>
-		public async Task CreateDirectory(string folderPath, CancellationToken cancellationToken = default) {
-			if (this is IStore fileSystem) {
-				await fileSystem.CreateDirectory(folderPath, cancellationToken).ConfigureAwait(false);
-			}
+		public virtual async Task CreateDirectory(string folderPath, bool force, CancellationToken cancellationToken = default) {
+			throw new NotImplementedException();
 		}
 
 		/// <summary>
 		/// Gets information about the connected FTP/SFTP server.
 		/// </summary>
-		public async Task<object> GetServer(CancellationToken cancellationToken = default) {
+		public virtual async Task<Dictionary<string, object>> GetServer(CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
 		}
 
 		/// <summary>
 		/// Gets the capabilities supported by the connected FTP/SFTP server.
 		/// </summary>
-		public async Task<List<object>> GetCapabilities(CancellationToken cancellationToken = default) {
+		public virtual async Task<List<object>> GetCapabilities(CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
 		}
 
 		/// <summary>
 		/// Returns true if the specified directory or virtual directory exists.
 		/// </summary>
-		public async Task<bool> DirectoryExists(string folderPath, CancellationToken cancellationToken = default) {
+		public virtual async Task<bool> DirectoryExists(string folderPath, CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
 		}
 
 		/// <summary>
 		/// Moves a directory or virtual directory.
 		/// </summary>
-		public async Task MoveDirectory(string sourceFolderPath, string destinationFolderPath, CancellationToken cancellationToken = default) {
+		public virtual async Task MoveDirectory(string sourceFolderPath, string destinationFolderPath, CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
 		}
 
 		/// <summary>
 		/// Renames a directory or virtual directory.
 		/// </summary>
-		public async Task RenameDirectory(string folderPath, string newFolderName, CancellationToken cancellationToken = default) {
+		/*public virtual async Task RenameDirectory(string folderPath, string newFolderName, CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
-		}
+		}*/
 
 		/// <summary>
 		/// Gets the CHMOD permissions of a file.
 		/// </summary>
-		public async Task<int> GetFilePermissions(string filePath, CancellationToken cancellationToken = default) {
+		public virtual async Task<int> GetFilePermissions(string filePath, CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
 		}
 
 		/// <summary>
 		/// Sets the CHMOD permissions of a file.
 		/// </summary>
-		public async Task SetFilePermissions(string filePath, int permissions, CancellationToken cancellationToken = default) {
+		public virtual async Task SetFilePermissions(string filePath, int permissions, CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
 		}
 

@@ -525,9 +525,131 @@ namespace FluentStorage.SFTP {
 			}
 		}
 
-		public async Task CreateFolderAsync(string folderPath, CancellationToken cancellationToken) {
-			//throw new NotImplementedException();
+		/// <summary>
+		/// Gets information about the connected SFTP server.
+		///
+		/// Returns a dictionary with `ProtocolVersion`, `ServerVersion`, `ClientVersion`,
+		/// `ClientEncryption`, `ServerEncryption`, `KeyExchangeAlgorithm`,
+		/// `ClientHmacAlgorithm`, `ServerHmacAlgorithm`,
+		/// `ClientCompressionAlgorithm`, `ServerCompressionAlgorithm`.
+		/// </summary>
+		public override async Task<Dictionary<string, object>> GetServer(CancellationToken cancellationToken = default) {
+
+			SftpClient client = GetClient();
+
+			return new Dictionary<string, object> {
+
+				// SFTP
+				["ProtocolVersion"] = client.ProtocolVersion,
+
+				// Server
+				["ServerVersion"] = client.ConnectionInfo.ServerVersion,
+				["ClientVersion"] = client.ConnectionInfo.ClientVersion,
+
+				// Encryption
+				["ClientEncryption"] = client.ConnectionInfo.CurrentClientEncryption,
+				["ServerEncryption"] = client.ConnectionInfo.CurrentServerEncryption,
+				["KeyExchangeAlgorithm"] = client.ConnectionInfo.CurrentKeyExchangeAlgorithm,
+
+				// HMAC / Integrity
+				["ClientHmacAlgorithm"] = client.ConnectionInfo.CurrentClientHmacAlgorithm,
+				["ServerHmacAlgorithm"] = client.ConnectionInfo.CurrentServerHmacAlgorithm,
+
+				// Compression
+				["ClientCompressionAlgorithm"] = client.ConnectionInfo.CurrentClientCompressionAlgorithm,
+				["ServerCompressionAlgorithm"] = client.ConnectionInfo.CurrentServerCompressionAlgorithm,
+			};
 		}
+
+		/// <summary>
+		/// SFTP does not support server capability checks. This API will always return a blank list.
+		/// </returns>
+		public override async Task<List<object>> GetCapabilities(CancellationToken cancellationToken = default) {
+			return new List<object>();
+		}
+		/// <summary>
+		/// Creates a new folder on the SFTP server.
+		/// </summary>
+		/// <param name="folderPath">Path to the new folder.</param>
+		public override async Task CreateDirectory(string folderPath, bool force, CancellationToken cancellationToken = default) {
+
+			SftpClient client = GetClient();
+
+			folderPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(folderPath));
+
+			client.CreateDirectory(folderPath);
+		}
+
+		/// <summary>
+		/// Determines whether the specified directory exists on the SFTP server.
+		/// </summary>
+		/// <param name="folderPath">Path to the directory.</param>
+		/// <returns>
+		/// <c>true</c> if the directory exists; otherwise, <c>false</c>.
+		/// </returns>
+		public override async Task<bool> DirectoryExists(string folderPath, CancellationToken cancellationToken = default) {
+
+			SftpClient client = GetClient();
+
+			folderPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(folderPath));
+
+			return client.Exists(folderPath) && client.GetAttributes(folderPath).IsDirectory;
+		}
+
+		/// <summary>
+		/// Moves a directory to a new location on the SFTP server.
+		/// </summary>
+		/// <param name="sourceFolderPath">Source directory path.</param>
+		/// <param name="destinationFolderPath">Destination directory path.</param>
+		public override async Task MoveDirectory(string sourceFolderPath, string destinationFolderPath, CancellationToken cancellationToken = default) {
+
+			SftpClient client = GetClient();
+
+			sourceFolderPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(sourceFolderPath));
+			destinationFolderPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(destinationFolderPath));
+
+			client.RenameFile(sourceFolderPath, destinationFolderPath);
+		}
+
+		/// <summary>
+		/// Gets the Unix CHMOD permissions of a file on the SFTP server.
+		/// </summary>
+		/// <param name="filePath">Path to the file.</param>
+		/// <returns>
+		/// The file permissions as a numeric CHMOD value (for example, 644 or 755).
+		/// </returns>
+		public override async Task<int> GetFilePermissions(string filePath, CancellationToken cancellationToken = default) {
+
+			SftpClient client = GetClient();
+
+			filePath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(filePath));
+
+			var attributes = client.GetAttributes(filePath);
+
+			// Convert the permission flags to a traditional octal CHMOD value.
+			int chmod =
+				((attributes.OwnerCanRead ? 4 : 0) + (attributes.OwnerCanWrite ? 2 : 0) + (attributes.OwnerCanExecute ? 1 : 0)) * 100 +
+				((attributes.GroupCanRead ? 4 : 0) + (attributes.GroupCanWrite ? 2 : 0) + (attributes.GroupCanExecute ? 1 : 0)) * 10 +
+				((attributes.OthersCanRead ? 4 : 0) + (attributes.OthersCanWrite ? 2 : 0) + (attributes.OthersCanExecute ? 1 : 0));
+
+			return chmod;
+		}
+
+		/// <summary>
+		/// Sets the Unix CHMOD permissions of a file on the SFTP server.
+		/// </summary>
+		/// <param name="filePath">Path to the file.</param>
+		/// <param name="permissions">Permissions as a numeric CHMOD value (for example, 644 or 755).</param>
+		public override async Task SetFilePermissions(string filePath, int permissions, CancellationToken cancellationToken = default) {
+
+			SftpClient client = GetClient();
+
+			filePath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(filePath));
+
+			client.ChangePermissions(filePath, (short)permissions);
+		}
+
+
 
 	}
 }

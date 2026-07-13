@@ -571,7 +571,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			string folderPath = RandomBlobPath();
 
 			try {
-				await _storage.CreateDirectory(folderPath);
+				await _storage.CreateDirectory(folderPath, false);
 
 				List<StoreObject> files = await _storage.ListDirectory(folderPath);
 				Assert.True(files.Any());  //check dummy file exists

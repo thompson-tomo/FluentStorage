@@ -231,19 +231,19 @@ namespace FluentStorage.Storage {
 		// File Systems Only
 		// ---------------------------------------------------------------------
 
-		/// <summary>Creates a new folder.</summary>
-		/// <param name="folderPath">Path to the new folder.</param>
-		Task CreateDirectory(string folderPath, CancellationToken cancellationToken = default);
-
 		/// <summary>
 		/// Gets information about the connected FTP/SFTP server.
 		/// </summary>
-		Task<object> GetServer(CancellationToken cancellationToken = default);
+		Task<Dictionary<string, object>> GetServer(CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Gets the capabilities supported by the connected FTP/SFTP server.
 		/// </summary>
 		Task<List<object>> GetCapabilities(CancellationToken cancellationToken = default);
+
+		/// <summary>Creates a new folder.</summary>
+		/// <param name="folderPath">Path to the new folder.</param>
+		Task CreateDirectory(string folderPath, bool force, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Returns true if the specified directory or virtual directory exists.
@@ -258,7 +258,7 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Renames a directory or virtual directory.
 		/// </summary>
-		Task RenameDirectory(string folderPath,string newFolderName,CancellationToken cancellationToken = default);
+		//Task RenameDirectory(string folderPath,string newFolderName,CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Gets the CHMOD permissions of a file.

@@ -15,7 +15,7 @@
 
 ### One Interface To Rule Them All
 
-FluentStorage is a fully managed polycloud .NET cloud storage library, optimized for speed. It helps you interface with multiple cloud providers from a single unified API, allowing you to switch cloud providers or support multiple cloud providers without any logic changes.
+FluentStorage is a fully managed polycloud .NET cloud storage library, optimized for speed. It helps you interface with multiple cloud providers from a [single unified API](#polycloud-api), allowing you to switch cloud providers or support multiple cloud providers without any logic changes.
 
 It provides a [single unified API](#polycloud-api) for [Object storage](https://github.com/robinrodricks/FluentStorage/wiki/Blob-Storage) and [Queue messaging](https://github.com/robinrodricks/FluentStorage/wiki/Message-Storage) across all [cloud storage providers](#storage-providers) like AWS S3, AWS SQS, GCP Storage, FTP, FTPS, SFTP, Azure Blob, Azure Files, Azure Queue, Azure Service Bus, Azure Data Lake, Azure Key Vault, Cloudflare R2, DigitalOcean Spaces, MinIO, Wasabi, Backblaze B2, Hetzner, Vultr. Each provider has its own [Nuget package](#packages) with zero configuration required.
 

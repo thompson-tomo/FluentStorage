@@ -15,7 +15,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure DataLake Storage with Shared Key
 		/// </summary>
-		public static IAzureDataLakeStorage FromSharedKey(
+		public static IAzureDataLakeStore FromSharedKey(
 		   string accountName,
 		   string key,
 		   Uri serviceUri) {
@@ -25,14 +25,14 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure DataLake Storage with Shared Key
 		/// </summary>
-		public static IAzureDataLakeStorage FromSharedKey(string accountName, string key) {
+		public static IAzureDataLakeStore FromSharedKey(string accountName, string key) {
 			return FromSharedKey(accountName, key, null, default);
 		}
 
 		/// <summary>
 		/// Creates Azure DataLake Storage with Shared Key
 		/// </summary>
-		public static IAzureDataLakeStorage FromSharedKey(
+		public static IAzureDataLakeStore FromSharedKey(
 		   string accountName,
 		   string key,
 		   AzureCloudEnvironment cloudEnvironment) {
@@ -42,7 +42,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure DataLake Storage with Shared Key
 		/// </summary>
-		public static IAzureDataLakeStorage FromSharedKey(
+		public static IAzureDataLakeStore FromSharedKey(
 		   string accountName,
 		   string key,
 		   Uri serviceUri,
@@ -63,7 +63,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure DataLake Storage with Azure AD
 		/// </summary>
-		public static IAzureDataLakeStorage FromAzureAd(
+		public static IAzureDataLakeStore FromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
@@ -75,7 +75,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure DataLake Storage with Azure AD and AD Authority endpoint
 		/// </summary>
-		public static IAzureDataLakeStorage FromAzureAd(
+		public static IAzureDataLakeStore FromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
@@ -86,7 +86,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure DataLake Storage with Azure AD and AD Authority endpoint
 		/// </summary>
-		public static IAzureDataLakeStorage FromAzureAd(
+		public static IAzureDataLakeStore FromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
@@ -98,7 +98,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Create Azure DataLake Gen 2 Storage with Azure AD
 		/// </summary>
-		public static IAzureDataLakeStorage FromAzureAd(
+		public static IAzureDataLakeStore FromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
@@ -130,7 +130,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Data Lake Gen 2 with Managed Identity
 		/// </summary>
-		public static IAzureDataLakeStorage FromMsi(
+		public static IAzureDataLakeStore FromMsi(
 		   string accountName,
 		   AzureCloudEnvironment azureCloudEnvironment) {
 			return FromMsi(accountName, null, azureCloudEnvironment);
@@ -139,14 +139,14 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Data Lake Gen 2 with Managed Identity
 		/// </summary>
-		public static IAzureDataLakeStorage FromMsi(string accountName) {
+		public static IAzureDataLakeStore FromMsi(string accountName) {
 			return FromMsi(accountName, null, default);
 		}
 
 		/// <summary>
 		/// Creates Azure Data Lake Gen 2 with Managed Identity (client id)
 		/// </summary>
-		public static IAzureDataLakeStorage FromMsi(
+		public static IAzureDataLakeStore FromMsi(
 		   string accountName,
 		   string clientId) {
 			return FromMsi(accountName, clientId, default);
@@ -155,7 +155,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Data Lake Gen 2 Storage with Managed Identity
 		/// </summary>
-		public static IAzureDataLakeStorage FromMsi(
+		public static IAzureDataLakeStore FromMsi(
 		   string accountName,
 		   string clientId,
 		   AzureCloudEnvironment azureCloudEnvironment) {

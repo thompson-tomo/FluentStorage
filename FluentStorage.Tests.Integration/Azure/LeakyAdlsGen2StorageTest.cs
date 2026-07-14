@@ -12,7 +12,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 	[Trait("Category", "Blobs")]
 	public class LeakyAdlsGen2StorageTest : IAsyncLifetime {
 		private readonly ITestSettings _settings;
-		private readonly IAzureDataLakeStorage _storage;
+		private readonly IAzureDataLakeStore _storage;
 		private static readonly string Filesystem = nameof(LeakyAdlsGen2StorageTest).ToLower();
 
 		public LeakyAdlsGen2StorageTest() {
@@ -26,7 +26,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 
 		[Fact]
 		public async Task Authenticate_with_shared_key() {
-			IAzureDataLakeStorage authInstance =
+			IAzureDataLakeStore authInstance =
 			   AzureDataLakeStorage.FromSharedKey(_settings.AzureGen2StorageName,
 				  _settings.AzureGen2StorageKey);
 
@@ -50,7 +50,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 
 		[Fact]
 		public async Task FS_list_doesnt_crash() {
-			List<Filesystem> list = await _storage.ListFilesystemsAsync();
+			List<Filesystem> list = await _storage.ListFilesystems();
 
 			Assert.True(list.Count > 0);
 		}
@@ -61,15 +61,15 @@ namespace FluentStorage.Tests.Integration.Azure {
 
 			try {
 				//await _storage.DeleteFilesystemAsync(filesystem);
-				Assert.DoesNotContain(await _storage.ListFilesystemsAsync(), x => x.Name == filesystem);
+				Assert.DoesNotContain(await _storage.ListFilesystems(), x => x.Name == filesystem);
 
-				await _storage.CreateFilesystemAsync(filesystem);
-				Assert.Contains(await _storage.ListFilesystemsAsync(), x => x.Name == filesystem);
+				await _storage.CreateFilesystem(filesystem);
+				Assert.Contains(await _storage.ListFilesystems(), x => x.Name == filesystem);
 			}
 			finally {
-				await _storage.DeleteFilesystemAsync(filesystem);
+				await _storage.DeleteFilesystem(filesystem);
 			}
-			Assert.DoesNotContain(await _storage.ListFilesystemsAsync(), x => x.Name == filesystem);
+			Assert.DoesNotContain(await _storage.ListFilesystems(), x => x.Name == filesystem);
 		}
 
 		[Fact]
@@ -92,15 +92,15 @@ namespace FluentStorage.Tests.Integration.Azure {
 			await _storage.SetText(path, "perm?");
 
 			//check that user has no permissions
-			AccessControl access = await _storage.GetAccessControlAsync(path);
+			AccessControl access = await _storage.GetAccessControl(path);
 			Assert.DoesNotContain(access.Acl, x => x.Identity == userId);
 
 			//assign user a write permission
 			access.Acl.Add(new AclEntry(ObjectType.User, userId, false, true, false));
-			await _storage.SetAccessControlAsync(path, access);
+			await _storage.SetAccessControl(path, access);
 
 			//check user has permissions now
-			access = await _storage.GetAccessControlAsync(path);
+			access = await _storage.GetAccessControl(path);
 			AclEntry userAcl = access.Acl.First(e => e.Identity == userId);
 			Assert.False(userAcl.CanRead);
 			Assert.True(userAcl.CanWrite);
@@ -116,15 +116,15 @@ namespace FluentStorage.Tests.Integration.Azure {
 			await _storage.SetText(path, "perm?");
 
 			//check that user has no permissions
-			AccessControl access = await _storage.GetAccessControlAsync(path, true);
+			AccessControl access = await _storage.GetAccessControl(path, true);
 			Assert.DoesNotContain(access.Acl, x => x.Identity == userId);
 
 			//assign user a write permission
 			access.Acl.Add(new AclEntry(ObjectType.User, userId, false, true, false));
-			await _storage.SetAccessControlAsync(path, access);
+			await _storage.SetAccessControl(path, access);
 
 			//check user has permissions now
-			access = await _storage.GetAccessControlAsync(path, true);
+			access = await _storage.GetAccessControl(path, true);
 			Assert.True(access.Acl.First().Identity.Contains('@'));
 		}
 
@@ -138,15 +138,15 @@ namespace FluentStorage.Tests.Integration.Azure {
 			await _storage.SetText(filePath, "perm?");
 
 			//check that user has no permissions
-			AccessControl access = await _storage.GetAccessControlAsync(directoryPath);
+			AccessControl access = await _storage.GetAccessControl(directoryPath);
 			Assert.DoesNotContain(access.Acl, x => x.Identity == userId);
 
 			//assign user a write permission
 			access.Acl.Add(new AclEntry(ObjectType.User, userId, false, true, false));
-			await _storage.SetAccessControlAsync(directoryPath, access);
+			await _storage.SetAccessControl(directoryPath, access);
 
 			//check user has permissions now
-			access = await _storage.GetAccessControlAsync(directoryPath);
+			access = await _storage.GetAccessControl(directoryPath);
 			AclEntry userAcl = access.Acl.First(e => e.Identity == userId);
 			Assert.False(userAcl.CanRead);
 			Assert.True(userAcl.CanWrite);
@@ -163,15 +163,15 @@ namespace FluentStorage.Tests.Integration.Azure {
 			await _storage.SetText(filePath, "perm?");
 
 			//check that user has no permissions
-			AccessControl access = await _storage.GetAccessControlAsync(directoryPath);
+			AccessControl access = await _storage.GetAccessControl(directoryPath);
 			Assert.DoesNotContain(access.Acl, x => x.Identity == userId);
 
 			//assign user a write permission
 			access.DefaultAcl.Add(new AclEntry(ObjectType.User, userId, false, true, false));
-			await _storage.SetAccessControlAsync(directoryPath, access);
+			await _storage.SetAccessControl(directoryPath, access);
 
 			//check user has permissions now
-			access = await _storage.GetAccessControlAsync(directoryPath);
+			access = await _storage.GetAccessControl(directoryPath);
 			AclEntry userAcl = access.DefaultAcl.First(e => e.Identity == userId);
 			Assert.False(userAcl.CanRead);
 			Assert.True(userAcl.CanWrite);
@@ -184,21 +184,21 @@ namespace FluentStorage.Tests.Integration.Azure {
 			string userId = _settings.OperatorObjectId;
 
 			//create filesystem
-			await _storage.CreateFilesystemAsync(filesystem);
+			await _storage.CreateFilesystem(filesystem);
 
 			//check that user has no permissions
-			AccessControl access = await _storage.GetAccessControlAsync(filesystem);
+			AccessControl access = await _storage.GetAccessControl(filesystem);
 			Assert.DoesNotContain(access.Acl, x => x.Identity == userId);
 
 			//assign user a write permission
 			access.Acl.Add(new AclEntry(ObjectType.User, userId, false, true, false));
-			await _storage.SetAccessControlAsync(filesystem, access);
+			await _storage.SetAccessControl(filesystem, access);
 
 			//check user has permissions now
-			access = await _storage.GetAccessControlAsync(filesystem);
+			access = await _storage.GetAccessControl(filesystem);
 
 			//delete filesystem
-			await _storage.DeleteFilesystemAsync(filesystem);
+			await _storage.DeleteFilesystem(filesystem);
 
 			AclEntry userAcl = access.Acl.First(e => e.Identity == userId);
 			Assert.False(userAcl.CanRead);
@@ -212,21 +212,21 @@ namespace FluentStorage.Tests.Integration.Azure {
 			string userId = _settings.OperatorObjectId;
 
 			//create filesystem
-			await _storage.CreateFilesystemAsync(filesystem);
+			await _storage.CreateFilesystem(filesystem);
 
 			//check that user has no permissions
-			AccessControl access = await _storage.GetAccessControlAsync(filesystem);
+			AccessControl access = await _storage.GetAccessControl(filesystem);
 			Assert.DoesNotContain(access.Acl, x => x.Identity == userId);
 
 			//assign user a write permission
 			access.DefaultAcl.Add(new AclEntry(ObjectType.User, userId, false, true, false));
-			await _storage.SetAccessControlAsync(filesystem, access);
+			await _storage.SetAccessControl(filesystem, access);
 
 			//check user has permissions now
-			access = await _storage.GetAccessControlAsync(filesystem);
+			access = await _storage.GetAccessControl(filesystem);
 
 			//delete filesystem
-			await _storage.DeleteFilesystemAsync(filesystem);
+			await _storage.DeleteFilesystem(filesystem);
 
 			AclEntry userAcl = access.DefaultAcl.First(e => e.Identity == userId);
 			Assert.False(userAcl.CanRead);

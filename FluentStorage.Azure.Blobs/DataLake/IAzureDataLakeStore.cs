@@ -6,40 +6,41 @@ using FluentStorage.Azure.Blobs.Storage;
 
 namespace FluentStorage.Azure.Blobs {
 	/// <summary>
-	/// Additional Gen 2 storage operations
+	/// Data Lake Gen 2 storage operations
 	/// </summary>
-	public interface IAzureDataLakeStorage : IAzureBlobStore {
-		/// <summary>
-		/// Lists filesystems using Data Lake native REST API
-		/// </summary>
-		/// <returns></returns>
-		Task<List<Filesystem>> ListFilesystemsAsync(CancellationToken cancellationToken = default);
+	public interface IAzureDataLakeStore : IAzureBlobStore {
 
 		/// <summary>
-		/// Creates a filesystem
+		/// Lists filesystems in the data lake.
+		/// </summary>
+		/// <returns></returns>
+		Task<List<Filesystem>> ListFilesystems(CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Creates a filesystem in the data lake.
 		/// </summary>
 		/// <param name="filesystemName"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		Task CreateFilesystemAsync(string filesystemName, CancellationToken cancellationToken = default);
+		Task CreateFilesystem(string filesystemName, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Deletes a filesystem
+		/// Deletes a filesystem from the data lake.
 		/// </summary>
 		/// <param name="filesystem"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		Task DeleteFilesystemAsync(string filesystem, CancellationToken cancellationToken = default);
+		Task DeleteFilesystem(string filesystem, CancellationToken cancellationToken = default);
 
 
 		/// <summary>
 		/// Sets permissions on an object
 		/// </summary>
 		/// <param name="fullPath"></param>
-		/// <param name="accessControl">Access control rules. A good idea whould be to retreive them using <see cref="GetAccessControlAsync(string, bool, CancellationToken)"/>, modify, and send back via this method.</param>
+		/// <param name="accessControl">Access control rules. A good idea whould be to retreive them using <see cref="GetAccessControl(string, bool, CancellationToken)"/>, modify, and send back via this method.</param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		Task SetAccessControlAsync(string fullPath, AccessControl accessControl, CancellationToken cancellationToken = default);
+		Task SetAccessControl(string fullPath, AccessControl accessControl, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Gets permissions from an object
@@ -48,7 +49,7 @@ namespace FluentStorage.Azure.Blobs {
 		/// <param name="getUpn">When true, the call will return UPNs instead of object IDs when querying for permissions</param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		Task<AccessControl> GetAccessControlAsync(string fullPath, bool getUpn = false, CancellationToken cancellationToken = default);
+		Task<AccessControl> GetAccessControl(string fullPath, bool getUpn = false, CancellationToken cancellationToken = default);
 
 	}
 }

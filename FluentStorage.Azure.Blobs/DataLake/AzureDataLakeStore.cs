@@ -11,7 +11,7 @@ using FluentStorage.Azure.Blobs.DataLake.Model;
 using FluentStorage.Azure.Blobs.Utils;
 
 namespace FluentStorage.Azure.Blobs.DataLake {
-	public class AzureDataLakeStore : AzureBlobStore, IAzureDataLakeStorage {
+	public class AzureDataLakeStore : AzureBlobStore, IAzureDataLakeStore {
 		private readonly ExtendedSdk _extended;
 
 		public AzureDataLakeStore(BlobServiceClient client, string accountName, StorageSharedKeyCredential sasSigningCredentials = null, string containerName = null, AzureCloudEnvironment azureCloudEnvironment = default) : base(client, accountName, sasSigningCredentials, containerName) {
@@ -30,23 +30,23 @@ namespace FluentStorage.Azure.Blobs.DataLake {
 		}
 
 
-		public Task<List<Filesystem>> ListFilesystemsAsync(CancellationToken cancellationToken = default) {
+		public Task<List<Filesystem>> ListFilesystems(CancellationToken cancellationToken = default) {
 			return _extended.ListFilesystemsAsync(cancellationToken);
 		}
 
-		public Task CreateFilesystemAsync(string filesystemName, CancellationToken cancellationToken = default) {
+		public Task CreateFilesystem(string filesystemName, CancellationToken cancellationToken = default) {
 			return _extended.CreateFilesystemAsync(filesystemName, cancellationToken);
 		}
 
-		public Task DeleteFilesystemAsync(string filesystemName, CancellationToken cancellationToken = default) {
+		public Task DeleteFilesystem(string filesystemName, CancellationToken cancellationToken = default) {
 			return _extended.DeleteFilesystemAsync(filesystemName, cancellationToken);
 		}
 
-		public Task SetAccessControlAsync(string fullPath, AccessControl accessControl, CancellationToken cancellationToken = default) {
+		public Task SetAccessControl(string fullPath, AccessControl accessControl, CancellationToken cancellationToken = default) {
 			return _extended.SetAccessControlAsync(fullPath, accessControl, cancellationToken);
 		}
 
-		public Task<AccessControl> GetAccessControlAsync(string fullPath, bool getUpn = false, CancellationToken cancellationToken = default) {
+		public Task<AccessControl> GetAccessControl(string fullPath, bool getUpn = false, CancellationToken cancellationToken = default) {
 			return _extended.GetAccessControlAsync(fullPath, getUpn, cancellationToken);
 		}
 

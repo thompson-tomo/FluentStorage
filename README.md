@@ -31,7 +31,7 @@ FluentStorage supports the following cloud storage providers:
 
 |       		| Documentation Link                                               | Main interface | Store class |  `GetClient()` returns
 |---------------| --------------------------------------------------------------------------- | ---------------- | ---------------- | ---------------- | 
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/aws-s3.png" width="32"></img>| [AWS S3](https://github.com/robinrodricks/FluentStorage/wiki/AWS-S3-Storage#connect-to-aws-s3)   |  `IStore` | `S3Store` |`AmazonS3Client`  |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/aws.png" width="32"></img>| [AWS S3](https://github.com/robinrodricks/FluentStorage/wiki/AWS-S3-Storage#connect-to-aws-s3)   |  `IStore` | `S3Store` |`AmazonS3Client`  |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img>|  [Azure Blobs](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Blob-Storage) | `IAzureBlobStore` | `AzureBlobStore` | `BlobServiceClient` |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img>| [Azure Files](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Files-Storage) 	| `IStore` | `AzureFilesStore` | `ShareServiceClient` |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure-data-lake.png" width="32"></img>| [Azure DataLake](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Data-Lake) 	| `IStore` | `AzureDataLakeStore` | --- |
@@ -58,14 +58,14 @@ This table shows the API supported by `IStore` across various cloud and server p
 
 <tr>
 <th>API</th>
-<th><b>Azure<br>Blobs</b></th>
-<th><b>Azure<br>Files</b></th>
-<th><b>AWS S3</b></th>
-<th><b>S3<br>Compatible</b></th>
-<th><b>GCP</b></th>
-<th><b>FTP</b></th>
-<th><b>SFTP</b></th>
-<th><b>Local<br>Disk</b></th>
+<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img> <br><b>Azure<br>Blobs</b></th>
+<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img> <br><b>Azure<br>Files</b></th>
+<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/aws.png" width="32"></img> <br><b>AWS S3</b></th>
+<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/r2.png" width="32"></img> <br><b>S3<br>Compatible</b></th>
+<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/gcp.png" width="32"></img> <br><b>GCP</b></th>
+<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/ftp.png" width="32"></img> <br><b>FTP</b></th>
+<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/sftp.png" width="32"></img> <br><b>SFTP</b></th>
+<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/local.png" width="32"></img> <br><b>Local<br>Disk</b></th>
 </tr>
 
 </thead>

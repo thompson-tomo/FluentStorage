@@ -70,6 +70,14 @@ namespace FluentStorage.Storage {
 		public Dictionary<string, object> Properties { get; private set; } = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
 		/// <summary>
+		/// User defined metadata. Key names are case-insensitive.
+		/// </summary>
+		public Dictionary<string, string> Metadata { get; private set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+		internal object Tag { get; set; }
+
+
+		/// <summary>
 		/// Try to get property and cast it to a specified type
 		/// </summary>
 		public bool TryGetProperty<TValue>(string name, out TValue value, TValue defaultValue = default) {
@@ -86,13 +94,6 @@ namespace FluentStorage.Storage {
 			value = defaultValue;
 			return false;
 		}
-
-		/// <summary>
-		/// User defined metadata. Key names are case-insensitive.
-		/// </summary>
-		public Dictionary<string, string> Metadata { get; private set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-
-		internal object Tag { get; set; }
 
 		/// <summary>
 		/// Tries to add properties in pairs when value is not null

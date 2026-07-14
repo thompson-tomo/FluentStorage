@@ -17,19 +17,13 @@
 
 FluentStorage is a fully managed polycloud .NET cloud storage library, optimized for speed. It helps you interface with multiple cloud providers from a single unified API, allowing you to switch cloud providers or support multiple cloud providers without any logic changes.
 
-* Provides a Unified API for [Object storage](https://github.com/robinrodricks/FluentStorage/wiki/Blob-Storage) and [Queue messaging](https://github.com/robinrodricks/FluentStorage/wiki/Message-Storage) across all cloud storage providers.
+It provides a single unified API for [Object storage](https://github.com/robinrodricks/FluentStorage/wiki/Blob-Storage) and [Queue messaging](https://github.com/robinrodricks/FluentStorage/wiki/Message-Storage) across all [cloud storage providers](#storage-providers) like AWS S3, AWS SQS, GCP Storage, FTP, FTPS, SFTP, Azure Blob & File Storage, Azure QueueStorage, Azure Service Bus, Azure Data Lake, Azure Key Vault, Cloudflare R2, DigitalOcean Spaces, MinIO, Wasabi, Backblaze B2, Hetzner, Vultr. Each provider has its own [Nuget package](#packages) with zero configuration required.
 
-* [Supports all popular providers](#storage-providers): AWS S3, AWS SQS, GCP Storage, FTP, FTPS, SFTP, Azure Blob & File Storage, Azure QueueStorage, Azure Service Bus, Azure Data Lake, Azure Key Vault, Cloudflare R2, DigitalOcean Spaces, MinIO, Wasabi, Backblaze B2, Hetzner, Vultr.
+Its API is fully asynchronous and has identical behavior across all providers. It also implements [in-memory and on-disk storage providers](https://github.com/robinrodricks/FluentStorage/wiki/Standard-Storage), so you can test on a local machine or use vendor-free serverless implementations for parts of your application.
 
-* [Supports providers using individual Nuget packages](#packages), with hassle-free configuration and zero learning path.
+It is written entirely in C#, with no external dependencies. Some external dependencies are requireed by provider specific packages.
 
-* Uses asynchronous API and has identical behavior across all storage providers as far as possible.
-
-* Implements [in-memory and on-disk versions](https://github.com/robinrodricks/FluentStorage/wiki/Standard-Storage) of all the abstractions, therefore you can develop fast on a local machine or use vendor-free serverless implementations for parts of your application.
-
-* Written entirely in C#. Supports .NET 5+ and .NET Standard 2.0+. External dependencies are only added by FluentStorage sub-packages.
-
-* Released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
+FluentStorage is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
 
 
 

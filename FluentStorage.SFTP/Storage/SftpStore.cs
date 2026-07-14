@@ -210,14 +210,9 @@ namespace FluentStorage.SFTP {
 			return fullPathExists;
 		}
 
-		/// <summary>
-		/// Gets blob information which is useful for retrieving blob metadata
-		/// </summary>
-		/// <param name="fullPaths"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns>
-		/// List of blob IDs
-		/// </returns>
+		public override async Task<StoreObject> GetObjectInfo(string path, CancellationToken cancellationToken = default) {
+			return (await GetObjectsInfo(new List<string> { path }, cancellationToken).ConfigureAwait(false)).FirstOrDefault();
+		}
 		public override async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 

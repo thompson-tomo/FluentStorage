@@ -134,6 +134,9 @@ namespace FluentStorage.Storage {
 			return result;
 		}
 
+		public override async Task<StoreObject> GetObjectInfo(string path, CancellationToken cancellationToken = default) {
+			return (await GetObjectsInfo(new List<string> { path }, cancellationToken).ConfigureAwait(false)).FirstOrDefault();
+		}
 		public override Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken) {
 			GenericValidation.CheckBlobFullPaths(fullPaths);
 

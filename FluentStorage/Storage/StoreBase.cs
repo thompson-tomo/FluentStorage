@@ -88,9 +88,13 @@ namespace FluentStorage.Storage {
 		}
 
 
-		public virtual async Task SetObject(string objectPath, Stream sourceStream, string contentType, bool append, CancellationToken cancellationToken) {
+		public virtual async Task SetObject(string objectPath, Stream sourceStream, bool append, CancellationToken cancellationToken) {
 			await SetObject(objectPath, sourceStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
+		public virtual async Task SetObject(string objectPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken) {
+			throw new NotImplementedException();
+		}
+
 
 
 		/// <summary>
@@ -221,26 +225,30 @@ namespace FluentStorage.Storage {
 		}
 
 		/// <summary>
-		/// Gets basic blob metadata
+		/// Gets object metadata or null if object doesn't exist
 		/// </summary>
-		/// <returns>Blob metadata or null if blob doesn't exist</returns>
 		public virtual async Task<StoreObject> GetObjectInfo(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
+		/// <summary>
+		/// Gets object metadata or null if object doesn't exist
+		/// </summary>
 		public virtual async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> objectPaths, CancellationToken cancellationToken = default) {
-			return (await (Task.WhenAll(objectPaths.Select(fp => GetObjectInfo(fp, cancellationToken))).ConfigureAwait(false))).ToList();
+			throw new NotSupportedException();
 		}
 
+		/// <summary>
+		/// Set object metadata if the object exists
+		/// </summary>
 		public virtual Task SetObjectsInfo(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
+		/// <summary>
+		/// Set object metadata if the object exists
+		/// </summary>
 		public virtual async Task SetObjectInfo(StoreObject obj, CancellationToken cancellationToken = default) {
-			throw new NotImplementedException();
-		}
-
-		public virtual async Task SetObject(string objectPath, Stream dataStream, bool append, CancellationToken cancellationToken) {
 			throw new NotImplementedException();
 		}
 

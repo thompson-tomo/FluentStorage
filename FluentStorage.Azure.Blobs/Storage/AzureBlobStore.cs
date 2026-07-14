@@ -94,9 +94,6 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			return (await Task.WhenAll(fullPaths.Select(p => ObjectExists(p, cancellationToken))).ConfigureAwait(false)).ToList();
 		}
 
-		public override async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			return (await Task.WhenAll(fullPaths.Select(p => GetObjectInfo(p, cancellationToken))).ConfigureAwait(false)).ToList();
-		}
 
 		/// <summary>
 		/// Opens an object for reading and returns its content stream.
@@ -192,10 +189,58 @@ namespace FluentStorage.Azure.Blobs.Storage {
 				//happens when trying to write to a non-file object i.e. folder
 			}
 		}
+
+		public override async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+			return (await Task.WhenAll(fullPaths.Select(p => GetObjectInfo(p, cancellationToken))).ConfigureAwait(false)).ToList();
+		}
 		public override async Task SetObjectsInfo(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPaths(blobs);
 
 			await Task.WhenAll(blobs.Select(b => SetObjectInfo(b, cancellationToken))).ConfigureAwait(false);
+		}
+
+		public override async Task SetObjectInfo(StoreObject blob, CancellationToken cancellationToken) {
+			if (!await ObjectExists(blob, cancellationToken).ConfigureAwait(false))
+				return;
+
+			(BlobContainerClient container, string path) = await GetPartsAsync(blob, false).ConfigureAwait(false);
+
+			if (string.IsNullOrEmpty(path)) {
+				//it's a container!
+
+				await container.SetMetadataAsync(blob.Metadata, cancellationToken: cancellationToken).ConfigureAwait(false);
+			}
+			else {
+				BlockBlobClient client = container.GetBlockBlobClient(path);
+
+				await client.SetMetadataAsync(blob.Metadata, cancellationToken: cancellationToken).ConfigureAwait(false);
+			}
+		}
+
+		protected virtual async Task<StoreObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken) {
+			(BlobContainerClient container, string path) = await GetPartsAsync(fullPath, false).ConfigureAwait(false);
+
+			if (container == null)
+				return null;
+
+			if (string.IsNullOrEmpty(path)) {
+				//it's a container
+
+				Response<BlobContainerProperties> attributes = await container.GetPropertiesAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+				return AzConvert.ToBlob(container.Name, attributes);
+			}
+
+			BlobClient client = container.GetBlobClient(path);
+
+			try {
+				Response<BlobProperties> properties = await client.GetPropertiesAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+				return AzConvert.ToBlob(_containerName, path, properties);
+			}
+			catch (RequestFailedException ex) when (ex.ErrorCode == "BlobNotFound") {
+				return null;
+			}
 		}
 
 
@@ -409,50 +454,6 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		}
 
 
-
-		public override async Task SetObjectInfo(StoreObject blob, CancellationToken cancellationToken) {
-			if (!await ObjectExists(blob, cancellationToken).ConfigureAwait(false))
-				return;
-
-			(BlobContainerClient container, string path) = await GetPartsAsync(blob, false).ConfigureAwait(false);
-
-			if (string.IsNullOrEmpty(path)) {
-				//it's a container!
-
-				await container.SetMetadataAsync(blob.Metadata, cancellationToken: cancellationToken).ConfigureAwait(false);
-			}
-			else {
-				BlockBlobClient client = container.GetBlockBlobClient(path);
-
-				await client.SetMetadataAsync(blob.Metadata, cancellationToken: cancellationToken).ConfigureAwait(false);
-			}
-		}
-
-		protected virtual async Task<StoreObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken) {
-			(BlobContainerClient container, string path) = await GetPartsAsync(fullPath, false).ConfigureAwait(false);
-
-			if (container == null)
-				return null;
-
-			if (string.IsNullOrEmpty(path)) {
-				//it's a container
-
-				Response<BlobContainerProperties> attributes = await container.GetPropertiesAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
-
-				return AzConvert.ToBlob(container.Name, attributes);
-			}
-
-			BlobClient client = container.GetBlobClient(path);
-
-			try {
-				Response<BlobProperties> properties = await client.GetPropertiesAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
-
-				return AzConvert.ToBlob(_containerName, path, properties);
-			}
-			catch (RequestFailedException ex) when (ex.ErrorCode == "BlobNotFound") {
-				return null;
-			}
-		}
 
 
 		private async Task<List<BlobContainerClient>> ListContainersAsync(CancellationToken cancellationToken) {

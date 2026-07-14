@@ -280,9 +280,9 @@ namespace FluentStorage.Storage.Files {
 			return false;
 		}
 
-		/// <summary>
-		/// See interface
-		/// </summary>
+		public override async Task<StoreObject> GetObjectInfo(string path, CancellationToken cancellationToken = default) {
+			return (await GetObjectsInfo(new List<string> { path }, cancellationToken).ConfigureAwait(false)).FirstOrDefault();
+		}
 		public override Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
 			var result = new List<StoreObject>();
 

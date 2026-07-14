@@ -468,6 +468,9 @@ namespace FluentStorage.AWS.Storage {
 			return null;
 		}
 
+		public override async Task SetObjectInfo(StoreObject obj, CancellationToken cancellationToken = default) {
+			await SetObjectsInfo(new List<StoreObject> { obj }, cancellationToken).ConfigureAwait(false);
+		}
 		/// <summary>
 		/// Updates the metadata for the specified blobs.
 		///
@@ -475,13 +478,13 @@ namespace FluentStorage.AWS.Storage {
 		/// onto itself with replacement metadata. Blob contents are not re-uploaded.
 		/// Blobs with no metadata are skipped.
 		/// </summary>
-		public override async Task SetObjectsInfo(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
-			if (blobs == null)
+		public override async Task SetObjectsInfo(IEnumerable<StoreObject> objs, CancellationToken cancellationToken = default) {
+			if (objs == null)
 				return;
 
 			AmazonS3Client client = await Client().ConfigureAwait(false);
 
-			foreach (StoreObject blob in blobs.Where(b => b != null)) {
+			foreach (StoreObject blob in objs.Where(b => b != null)) {
 				if (blob.Metadata != null) {
 					await AwsConverter.UpdateMetadataAsync(
 					   client,

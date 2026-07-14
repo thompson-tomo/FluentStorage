@@ -161,15 +161,18 @@ namespace FluentStorage.FTP.Storage {
 			return await client.FileExists(path).ConfigureAwait(false);
 		}
 
-		public override async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
+		public override async Task<StoreObject> GetObjectInfo(string path, CancellationToken cancellationToken = default) {
+			return (await GetObjectsInfo(new List<string> { path }, cancellationToken).ConfigureAwait(false)).FirstOrDefault();
+		}
+		public override async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> paths, CancellationToken cancellationToken = default) {
 			AsyncFtpClient client = await Client().ConfigureAwait(false);
 
 			List<StoreObject> results = new List<StoreObject>();
-			foreach (string path in ids) {
+			foreach (string path in paths) {
 				string cpath = StoragePath.Normalize(path);
 				string parentPath = StoragePath.GetParent(cpath);
 
-				FtpListItem[] all = await client.GetListing(parentPath).ConfigureAwait(false);
+				FtpListItem[] all = await client.GetListing(parentPath, FtpListOption.SizeModify).ConfigureAwait(false);
 				FtpListItem foundItem = all.FirstOrDefault(i => i.FullName == cpath);
 
 				if (foundItem == null) {

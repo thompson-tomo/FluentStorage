@@ -272,6 +272,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tbody>
 </table>
 
+## Polycloud Types
 
 This table shows the important class types across various cloud and server providers.
 

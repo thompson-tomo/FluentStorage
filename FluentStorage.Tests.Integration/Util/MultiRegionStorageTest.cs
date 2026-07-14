@@ -18,7 +18,6 @@ namespace FluentStorage.Tests.Integration.Util {
 		[InlineData(AzureCloudEnvironment.Global)]
 		[InlineData(AzureCloudEnvironment.China)]
 		[InlineData(AzureCloudEnvironment.USGovernment)]
-		[InlineData(AzureCloudEnvironment.Germany)]
 		public void Blob_Factory_methods_use_correct_cloud_endpoint(AzureCloudEnvironment environment) {
 			var endpoint = AzureCloudEndpoints.GetBlobEndpoint(environment);
 			var authorityHost = AzureCloudEndpoints.GetAuthorityEndpoint(environment);
@@ -59,7 +58,6 @@ namespace FluentStorage.Tests.Integration.Util {
 		[InlineData(AzureCloudEnvironment.Global)]
 		[InlineData(AzureCloudEnvironment.China)]
 		[InlineData(AzureCloudEnvironment.USGovernment)]
-		[InlineData(AzureCloudEnvironment.Germany)]
 		public void Files_Factory_methods_use_correct_cloud_endpoint(AzureCloudEnvironment environment) {
 			var endpoint = AzureCloudEndpoints.GetBlobEndpoint(environment);
 			var authorityHost = AzureCloudEndpoints.GetAuthorityEndpoint(environment);

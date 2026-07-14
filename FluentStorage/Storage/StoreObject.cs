@@ -146,8 +146,6 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Create a new instance
 		/// </summary>
-		/// <param name="fullPath"></param>
-		/// <param name="objType"></param>
 		public StoreObject(string fullPath, StorageObjectType objType = StorageObjectType.File) {
 			SetFullPath(fullPath);
 
@@ -155,11 +153,18 @@ namespace FluentStorage.Storage {
 		}
 
 		/// <summary>
+		/// Create a new instance
+		/// </summary>
+		public StoreObject(StorageObjectType objType, string folderPath, string name) {
+			Name = name ?? throw new ArgumentNullException(nameof(name));
+			Name = StoragePath.NormalizePart(Name);
+			FolderPath = StoragePath.Normalize(folderPath);
+			Type = objType;
+		}
+
+		/// <summary>
 		/// Creates a new instance
 		/// </summary>
-		/// <param name="folderPath">Folder path to the blob</param>
-		/// <param name="name">Name of the blob withing a specific folder.</param>
-		/// <param name="objType">Blob kind (file or folder)</param>
 		public StoreObject(string folderPath, string name, StorageObjectType objType) {
 			Name = name ?? throw new ArgumentNullException(nameof(name));
 			Name = StoragePath.NormalizePart(Name);

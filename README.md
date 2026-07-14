@@ -69,7 +69,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 <table>
 <thead>
 <tr>
-<th>Feature</th>
+<th>API</th>
 <th><b>Azure<br>Blobs</b></th>
 <th><b>Azure<br>Files</b></th>
 <th><b>AWS S3</b></th>

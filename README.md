@@ -72,7 +72,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>GetClient</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td>
+<td>✔️</td><td>✔️</td><td>✔️<br></td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>GetServer</td>

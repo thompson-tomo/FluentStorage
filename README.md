@@ -64,6 +64,174 @@ FluentStorage supports the following cloud storage providers:
 
 To add support for a new provider, search for `[ADD STORAGE PROVIDER]` across all code files and make the required changes.
 
+## Polycloud API
+
+This table shows the API supported by `IStore` across various cloud and server providers.
+
+<table>
+  <thead>
+    <tr>
+      <th>Feature</th>
+      <th><b>Azure<br>Blobs</b></th>
+      <th><b>Azure<br>Files</b></th>
+      <th><b>S3 &amp;<br> S3-compatible</b></th>
+      <th><b>GCP</b></th>
+      <th><b>FTP</b></th>
+      <th><b>SFTP</b></th>
+    </tr>
+  </thead>
+  <tbody>
+
+    <tr>
+      <td colspan="7"><b>Server info</b></td>
+    </tr>
+    <tr>
+      <td>GetClient</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td>
+    </tr>
+    <tr>
+      <td>GetServer</td>
+      <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
+    </tr>
+
+    <tr>
+      <td colspan="7"><b>File listing</b></td>
+    </tr>
+    <tr>
+      <td>ListDirectory</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+    </tr>
+    <tr>
+      <td>ListObjects</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+    </tr>
+
+    <tr>
+      <td colspan="7"><b>File upload/download</b></td>
+    </tr>
+    <tr>
+      <td>GetObject</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+    </tr>
+    <tr>
+      <td>SetObject</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+    </tr>
+    <tr>
+      <td>GetBytes</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+    </tr>
+    <tr>
+      <td>SetBytes</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+    </tr>
+    <tr>
+      <td>DownloadObject</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+    </tr>
+    <tr>
+      <td>UploadObject</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+    </tr>
+    <tr>
+      <td>OpenRead</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+    </tr>
+    <tr>
+      <td>OpenWrite</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+    </tr>
+
+    <tr>
+      <td colspan="7"><b>File manipulation</b></td>
+    </tr>
+    <tr>
+      <td>ObjectExists</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+    </tr>
+    <tr>
+      <td>MoveObject</td>
+      <td>✔️</td><td>❌</td><td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td>
+    </tr>
+    <tr>
+      <td>CopyObjectTo</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+    </tr>
+    <tr>
+      <td>DeleteObject</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+    </tr>
+    <tr>
+      <td>DeleteObjects</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+    </tr>
+    <tr>
+      <td>GetObjectInfo</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+    </tr>
+    <tr>
+      <td>GetObjectsInfo</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+    </tr>
+    <tr>
+      <td>SetObjectInfo</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td>
+    </tr>
+    <tr>
+      <td>SetObjectsInfo</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td>
+    </tr>
+    <tr>
+      <td>GetFilePermissions</td>
+      <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
+    </tr>
+    <tr>
+      <td>SetFilePermissions</td>
+      <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
+    </tr>
+
+    <tr>
+      <td colspan="7"><b>Presigned URL generation</b></td>
+    </tr>
+    <tr>
+      <td>GetUploadUrl</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td>
+    </tr>
+    <tr>
+      <td>GetDownloadUrl</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td>
+    </tr>
+    <tr>
+      <td>GetPresignedUrl</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td>
+    </tr>
+    <tr>
+      <td>GetObjectSas</td>
+      <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td>
+    </tr>
+
+    <tr>
+      <td colspan="7"><b>Directory manipulation</b></td>
+    </tr>
+    <tr>
+      <td>CreateDirectory</td>
+      <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
+    </tr>
+    <tr>
+      <td>DeleteDirectory</td>
+      <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
+    </tr>
+    <tr>
+      <td>DirectoryExists</td>
+      <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
+    </tr>
+    <tr>
+      <td>MoveDirectory</td>
+      <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
+    </tr>
+
+  </tbody>
+</table>
 
 
 ## Packages

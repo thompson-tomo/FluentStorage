@@ -17,27 +17,19 @@
 
 FluentStorage is a field-tested polycloud .NET cloud storage library that helps you interface with multiple cloud providers from a single unified interface.
 
-It provides a generic interface for Object storage and Queue messaging across all cloud storage providers.
+* Provides a Unified API for [Object storage](https://github.com/robinrodricks/FluentStorage/wiki/Blob-Storage) and [Queue messaging](https://github.com/robinrodricks/FluentStorage/wiki/Message-Storage) across all cloud storage providers.
 
-It is written entirely in C#. Supports .NET 5+ and .NET Standard 2.0+. External dependencies are only added by FluentStorage sub-packages.
-
-FluentStorage is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
-
-## Features
-
-* Unified API to interface with all major cloud providers for [Object storage](https://github.com/robinrodricks/FluentStorage/wiki/Blob-Storage) and [Queue messaging](https://github.com/robinrodricks/FluentStorage/wiki/Message-Storage).
-
-* Provides a generic interface regardless on which storage provider you are using.
-
-* [Supports all popular providers](#storage-providers): AWS S3, AWS SQS, GCP Storage, FTP, FTPS, SFTP, Azure Blob & File Storage, Azure Queue Storage, Azure Service Bus, Azure Data Lake, Azure Key Vault, Cloudflare R2, DigitalOcean Spaces, MinIO, Wasabi, Backblaze B2, Hetzner, Vultr.
+* [Supports all popular providers](#storage-providers): AWS S3, AWS SQS, GCP Storage, FTP, FTPS, SFTP, Azure Blob & File Storage, Azure QueueStorage, Azure Service Bus, Azure Data Lake, Azure Key Vault, Cloudflare R2, DigitalOcean Spaces, MinIO, Wasabi, Backblaze B2, Hetzner, Vultr.
 
 * [Supports providers using individual Nuget packages](#packages), with hassle-free configuration and zero learning path.
 
+* Uses asynchronous API and has identical behavior across all storage providers as far as possible.
+
 * Implements [in-memory and on-disk versions](https://github.com/robinrodricks/FluentStorage/wiki/Standard-Storage) of all the abstractions, therefore you can develop fast on a local machine or use vendor-free serverless implementations for parts of your application.
 
-* API is exclusively asynchronous.
+* Written entirely in C#. Supports .NET 5+ and .NET Standard 2.0+. External dependencies are only added by FluentStorage sub-packages.
 
-* API has identical behavior across all storage providers as far as possible.
+* Released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
 
 
 

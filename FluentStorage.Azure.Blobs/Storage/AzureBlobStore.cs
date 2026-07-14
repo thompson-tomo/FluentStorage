@@ -23,7 +23,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 	/// <summary>
 	/// Manages a single Azure Blob container.
 	/// </summary>
-	public class AzureBlobStore : StoreBase, IAzureBlobStorage {
+	public class AzureBlobStore : StoreBase, IAzureBlobStore {
 
 		private readonly BlobServiceClient _client;
 		private readonly StorageSharedKeyCredential _sasSigningCredentials;

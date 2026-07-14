@@ -17,14 +17,14 @@ using FluentStorage.Enums;
 namespace FluentStorage.Tests.Integration.Azure {
 	[Trait("Category", "Blobs")]
 	public class LeakyAzureBlobStorageTest {
-		private readonly IAzureBlobStorage _native;
+		private readonly IAzureBlobStore _native;
 
 		public LeakyAzureBlobStorageTest() {
 			ITestSettings settings = Settings.Instance;
 
 			IStore storage = AzureBlobStorage.FromSharedKey(
 			   settings.AzureStorageName, settings.AzureStorageKey);
-			_native = (IAzureBlobStorage)storage;
+			_native = (IAzureBlobStore)storage;
 		}
 
 		[Fact]

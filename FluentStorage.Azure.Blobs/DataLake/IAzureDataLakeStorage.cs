@@ -8,7 +8,7 @@ namespace FluentStorage.Azure.Blobs {
 	/// <summary>
 	/// Additional Gen 2 storage operations
 	/// </summary>
-	public interface IAzureDataLakeStorage : IAzureBlobStorage {
+	public interface IAzureDataLakeStorage : IAzureBlobStore {
 		/// <summary>
 		/// Lists filesystems using Data Lake native REST API
 		/// </summary>

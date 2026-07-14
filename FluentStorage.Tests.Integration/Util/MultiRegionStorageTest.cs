@@ -28,24 +28,24 @@ namespace FluentStorage.Tests.Integration.Util {
 			string validBase64Key = Convert.ToBase64String(new byte[32]);
 
 			// Shared key
-			IAzureBlobStorage blobSharedKey = AzureBlobStorage.FromSharedKey(Account, validBase64Key, serviceUri: null, cloudEnvironment: environment);
+			IAzureBlobStore blobSharedKey = AzureBlobStorage.FromSharedKey(Account, validBase64Key, serviceUri: null, cloudEnvironment: environment);
 			var client = GetBlobServiceClient(blobSharedKey);
 			Assert.Equal(expectedHost, client.Uri.Host);
 
 			// Token credential
 			var tokenCred = new ClientSecretCredential("test-tenant", "test-application", "test-secret", new TokenCredentialOptions { AuthorityHost = authorityHost });
 
-			IAzureBlobStorage blobToken = AzureBlobStorage.FromTokenCredential(Account, tokenCred, environment);
+			IAzureBlobStore blobToken = AzureBlobStorage.FromTokenCredential(Account, tokenCred, environment);
 			var client2 = GetBlobServiceClient(blobToken);
 			Assert.Equal(expectedHost, client2.Uri.Host);
 
 			// Managed identity
-			IAzureBlobStorage blobMsi = AzureBlobStorage.FromMsi(Account, clientId: null, azureCloudEnvironment: environment);
+			IAzureBlobStore blobMsi = AzureBlobStorage.FromMsi(Account, clientId: null, azureCloudEnvironment: environment);
 			var client3 = GetBlobServiceClient(blobMsi);
 			Assert.Equal(expectedHost, client3.Uri.Host);
 
 			// Azure Ad
-			IAzureBlobStorage blobAzureAd = AzureBlobStorage.FromAzureAd(
+			IAzureBlobStore blobAzureAd = AzureBlobStorage.FromAzureAd(
 				Account,
 				tenantId: "test-tenant",
 				applicationId: "test-application",

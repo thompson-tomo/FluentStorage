@@ -24,7 +24,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Blob Storage from an existing <see cref="BlobServiceClient"/>.
 		/// </summary>
-		public static IAzureBlobStorage FromClient(
+		public static IAzureBlobStore FromClient(
 		   BlobServiceClient blobServiceClient) {
 			return FromClient(blobServiceClient, null);
 		}
@@ -32,7 +32,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Blob Storage from an existing <see cref="BlobServiceClient"/>.
 		/// </summary>
-		public static IAzureBlobStorage FromClient(
+		public static IAzureBlobStore FromClient(
 		   BlobServiceClient blobServiceClient,
 		   string containerName) {
 			if (blobServiceClient is null) {
@@ -45,7 +45,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Connect to local emulator
 		/// </summary>
-		public static IAzureBlobStorage FromLocalEmulator() {
+		public static IAzureBlobStore FromLocalEmulator() {
 			var credential = new StorageSharedKeyCredential(
 			   "devstoreaccount1",
 			   "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==");
@@ -60,7 +60,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Blob Storage with Shared Key
 		/// </summary>
-		public static IAzureBlobStorage FromSharedKey(
+		public static IAzureBlobStore FromSharedKey(
 		   string accountName,
 		   string key,
 		   Uri serviceUri) {
@@ -70,14 +70,14 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Blob Storage with Shared Key
 		/// </summary>
-		public static IAzureBlobStorage FromSharedKey(string accountName, string key) {
+		public static IAzureBlobStore FromSharedKey(string accountName, string key) {
 			return FromSharedKey(accountName, key, null, default);
 		}
 
 		/// <summary>
 		/// Creates Azure Blob Storage with Shared Key
 		/// </summary>
-		public static IAzureBlobStorage FromSharedKey(
+		public static IAzureBlobStore FromSharedKey(
 		   string accountName,
 		   string key,
 		   AzureCloudEnvironment cloudEnvironment) {
@@ -87,7 +87,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Blob Storage with Shared Key
 		/// </summary>
-		public static IAzureBlobStorage FromSharedKey(
+		public static IAzureBlobStore FromSharedKey(
 		   string accountName,
 		   string key,
 		   Uri serviceUri,
@@ -107,7 +107,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Blob Storage with Azure AD
 		/// </summary>
-		public static IAzureBlobStorage FromAzureAd(
+		public static IAzureBlobStore FromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
@@ -119,7 +119,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Blob Storage with Azure AD and AD Authority endpoint
 		/// </summary>
-		public static IAzureBlobStorage FromAzureAd(
+		public static IAzureBlobStore FromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
@@ -130,7 +130,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Blob Storage with Azure AD and AD Authority endpoint
 		/// </summary>
-		public static IAzureBlobStorage FromAzureAd(
+		public static IAzureBlobStore FromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
@@ -142,7 +142,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Blob Storage with Azure AD and AD Authority endpoint
 		/// </summary>
-		public static IAzureBlobStorage FromAzureAd(
+		public static IAzureBlobStore FromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
@@ -174,7 +174,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Blob Storage with Token Credential
 		/// </summary>
-		public static IAzureBlobStorage FromTokenCredential(
+		public static IAzureBlobStore FromTokenCredential(
 		   string accountName,
 		   TokenCredential tokenCredential) {
 			return FromTokenCredential(accountName, tokenCredential, default);
@@ -183,7 +183,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Blob Storage with Token Credential
 		/// </summary>
-		public static IAzureBlobStorage FromTokenCredential(
+		public static IAzureBlobStore FromTokenCredential(
 		   string accountName,
 		   TokenCredential tokenCredential,
 		   AzureCloudEnvironment azureCloudEnvironment) {
@@ -195,7 +195,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Blob Storage with Token Credential
 		/// </summary>
-		public static IAzureBlobStorage FromSas(
+		public static IAzureBlobStore FromSas(
 		   string sas, BlobClientOptions options = default) {
 			AzureBlobUtils.TryParseSasUrl(sas, out string accountName, out string containerName, out string sasQuery);
 
@@ -207,7 +207,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Blob Storage with Managed Identity
 		/// </summary>
-		public static IAzureBlobStorage FromMsi(
+		public static IAzureBlobStore FromMsi(
 		   string accountName,
 		   AzureCloudEnvironment azureCloudEnvironment) {
 			return FromMsi(accountName, null, azureCloudEnvironment);
@@ -216,14 +216,14 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Blob Storage with Managed Identity
 		/// </summary>
-		public static IAzureBlobStorage FromMsi(string accountName) {
+		public static IAzureBlobStore FromMsi(string accountName) {
 			return FromMsi(accountName, null, default);
 		}
 
 		/// <summary>
 		/// Creates Azure Blob Storage with Managed Identity (client id)
 		/// </summary>
-		public static IAzureBlobStorage FromMsi(
+		public static IAzureBlobStore FromMsi(
 		   string accountName,
 		   string clientId) {
 			return FromMsi(accountName, clientId, default);
@@ -232,7 +232,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Blob Storage with Managed Identity
 		/// </summary>
-		public static IAzureBlobStorage FromMsi(
+		public static IAzureBlobStore FromMsi(
 		   string accountName,
 		   string clientId,
 		   AzureCloudEnvironment azureCloudEnvironment) {

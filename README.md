@@ -25,7 +25,7 @@ FluentStorage is released under the permissive MIT License, so it can be used in
 
 ## Features
 
-* Unified API to interface with all major cloud providers for [Blobs](https://github.com/robinrodricks/FluentStorage/wiki/Blob-Storage) and [Messaging](https://github.com/robinrodricks/FluentStorage/wiki/Message-Storage).
+* Unified API to interface with all major cloud providers for [Object storage](https://github.com/robinrodricks/FluentStorage/wiki/Blob-Storage) and [Queue messaging](https://github.com/robinrodricks/FluentStorage/wiki/Message-Storage).
 
 * Provides a generic interface regardless on which storage provider you are using.
 

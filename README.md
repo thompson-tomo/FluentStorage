@@ -277,7 +277,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 This table shows the important class types across various cloud and server providers.
 
 | API | **Azure Blobs** | **Azure Files** | **AWS S3 & S3-Compatible** | **GCP** | **FTP** | **SFTP** | **Local Disk** |
-|------|:---------------:|:---------------:|:----------:|:-------:|:-------:|:--------:|
+|------|:---------------:|:---------------:|:----------:|:-------:|:-------:|:--------:|:--------:|
 | Main interface | `IAzureBlobStore` | `IStore` | `IStore` | `IStore` | `IStore` | `IStore` | `IStore` |
 | Main store class | `AzureBlobStore` | `AzureFilesStore` | `S3Store` | `GoogleCloudStore` | `FtpStore` | `SftpStore` | `DiskStore` |
 | `GetClient()` return type | `BlobServiceClient` | `ShareServiceClient` | `AmazonS3Client` | `StorageClient` | `AsyncFtpClient` | `SftpClient` | None |

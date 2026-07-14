@@ -15,7 +15,6 @@ namespace FluentStorage.Azure {
 		   {AzureCloudEnvironment.Global, "core.windows.net"},
 		   {AzureCloudEnvironment.USGovernment, "core.usgovcloudapi.net"},
 		   {AzureCloudEnvironment.China, "core.chinacloudapi.cn"},
-		   {AzureCloudEnvironment.Germany, "core.cloudapi.de"},
 		};
 
 		/// <summary>
@@ -25,7 +24,6 @@ namespace FluentStorage.Azure {
 		   {AzureCloudEnvironment.Global, "dfs.core.windows.net"},
 		   {AzureCloudEnvironment.USGovernment, "dfs.core.usgovcloudapi.net"},
 		   {AzureCloudEnvironment.China, "dfs.core.chinacloudapi.cn"},
-		   {AzureCloudEnvironment.Germany, "dfs.core.cloudapi.de"},
 		};
 
 		/// <summary>
@@ -35,7 +33,6 @@ namespace FluentStorage.Azure {
 		   {AzureCloudEnvironment.Global, AzureAuthorityHosts.AzurePublicCloud},
 		   {AzureCloudEnvironment.USGovernment, AzureAuthorityHosts.AzureGovernment},
 		   {AzureCloudEnvironment.China, AzureAuthorityHosts.AzureChina},
-		   {AzureCloudEnvironment.Germany,AzureAuthorityHosts.AzureGermany},
 		};
 
 		/// <summary>

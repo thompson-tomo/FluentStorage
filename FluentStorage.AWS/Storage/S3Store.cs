@@ -241,7 +241,7 @@ namespace FluentStorage.AWS.Storage {
 		/// <summary>
 		/// Lists all objects in this bucket.
 		/// </summary>
-		public async Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
+		public override async Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			if (options == null)
 				options = new StorageListOptions();
 
@@ -272,7 +272,7 @@ namespace FluentStorage.AWS.Storage {
 		/// before uploading, potentially consuming a large amount of memory.
 		/// 
 		/// </summary>
-		public async Task SetObject(string fullPath, Stream dataStream, bool append = false,
+		public override async Task SetObject(string fullPath, Stream dataStream, bool append = false,
 		   CancellationToken cancellationToken = default) {
 			await SetObject(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
@@ -289,7 +289,7 @@ namespace FluentStorage.AWS.Storage {
 		/// before uploading, potentially consuming a large amount of memory.
 		/// 
 		/// </summary>
-		public async Task SetObject(string fullPath, Stream dataStream, string contentType,
+		public override async Task SetObject(string fullPath, Stream dataStream, string contentType,
 			bool append = false, CancellationToken cancellationToken = default) {
 
 			if (append)
@@ -414,7 +414,7 @@ namespace FluentStorage.AWS.Storage {
 		///
 		/// The existence checks are performed in parallel.
 		/// </summary>
-		public async Task<List<bool>> ObjectsExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public override async Task<List<bool>> ObjectsExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			
 			return (await Task.WhenAll(fullPaths.Select(fullPath => ObjectExists(fullPath, cancellationToken))).ConfigureAwait(false)).ToList();
 		}

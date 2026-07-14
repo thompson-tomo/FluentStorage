@@ -51,7 +51,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			return _client;
 		}
 
-		public virtual async Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
+		public override async Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			if (options == null)
 				options = new StorageListOptions();
 
@@ -85,13 +85,13 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		}
 
 
-		public async Task DeleteObjects(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public override async Task DeleteObjects(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			ArgValidator.AssertFullPaths(fullPaths);
 
 			await Task.WhenAll(fullPaths.Select(fullPath => DeleteObjects(fullPath, cancellationToken))).ConfigureAwait(false);
 		}
 
-		public async Task<List<bool>> ObjectsExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public override async Task<List<bool>> ObjectsExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			return (await Task.WhenAll(fullPaths.Select(p => ObjectExists(p, cancellationToken))).ConfigureAwait(false)).ToList();
 		}
 
@@ -150,7 +150,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		/// <summary>
 		/// Uploads a blob to Azure Blob storage, by automatically computing the Content-Type.
 		/// </summary>
-		public async Task SetObject(string fullPath, Stream dataStream,
+		public override async Task SetObject(string fullPath, Stream dataStream,
 			bool append = false, CancellationToken cancellationToken = default) {
 			await SetObject(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
@@ -158,7 +158,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		/// <summary>
 		/// Uploads a blob to Azure Blob storage, with the given Content-Type.
 		/// </summary>
-		public async Task SetObject(string fullPath, Stream dataStream,
+		public override async Task SetObject(string fullPath, Stream dataStream,
 			string contentType = null,
 			bool append = false, CancellationToken cancellationToken = default) {
 			ArgValidator.AssertFullPath(fullPath);
@@ -218,7 +218,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			}
 		}
 
-		protected virtual async Task<StoreObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken) {
+		public override async Task<StoreObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken) {
 			(BlobContainerClient container, string path) = await GetPartsAsync(fullPath, false).ConfigureAwait(false);
 
 			if (container == null)

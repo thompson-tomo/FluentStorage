@@ -268,7 +268,7 @@ namespace FluentStorage.SFTP {
 		/// <returns>
 		/// List of blob IDs
 		/// </returns>
-		public async Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
+		public override async Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 
 			options ??= new StorageListOptions();

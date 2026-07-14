@@ -34,7 +34,7 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 		public override async Task<object> GetClient() {
 			return _client;
 		}
-		public async Task<List<StoreObject>> ListObjects(StorageListOptions options, CancellationToken cancellationToken) {
+		public override async Task<List<StoreObject>> ListObjects(StorageListOptions options, CancellationToken cancellationToken) {
 			if (options == null) options = new StorageListOptions();
 
 			ArgValidator.AssertPrefix(options.FilePrefix);

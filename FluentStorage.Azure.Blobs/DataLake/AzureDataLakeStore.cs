@@ -60,7 +60,7 @@ namespace FluentStorage.Azure.Blobs.DataLake {
 			return _extended.ListAsync(options, cancellationToken);
 		}
 
-		protected override Task<StoreObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken) {
+		public override Task<StoreObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken) {
 			return _extended.GetBlobAsync(fullPath, cancellationToken);
 		}
 

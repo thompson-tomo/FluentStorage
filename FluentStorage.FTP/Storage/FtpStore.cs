@@ -58,7 +58,7 @@ namespace FluentStorage.FTP.Storage {
 		/// List all the files within the given directory (`options.FolderPath`)
 		/// and optionally include size and date modified (`options.IncludeAttributes`).
 		/// </summary>
-		public async Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
+		public override async Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			AsyncFtpClient client = await Client().ConfigureAwait(false);
 
 			if (options == null)

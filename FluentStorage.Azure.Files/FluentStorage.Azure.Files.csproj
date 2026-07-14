@@ -19,7 +19,7 @@
       <AssemblyOriginatorKeyFile>..\FluentStorage\sn.snk</AssemblyOriginatorKeyFile>
       <DocumentationFile>$(SolutionDir)build\FluentStorage.Azure.Files.xml</DocumentationFile>
       <BaseOutputPath>$(SolutionDir)build\</BaseOutputPath>
-
+      <WarningsAsErrors>CS0114;CS0507</WarningsAsErrors>
    </PropertyGroup>
 
    <PropertyGroup Condition="'$(Configuration)' == 'Release'">

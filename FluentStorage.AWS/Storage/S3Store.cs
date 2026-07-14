@@ -471,6 +471,7 @@ namespace FluentStorage.AWS.Storage {
 		public override async Task SetObjectInfo(StoreObject obj, CancellationToken cancellationToken = default) {
 			await SetObjectsInfo(new List<StoreObject> { obj }, cancellationToken).ConfigureAwait(false);
 		}
+
 		/// <summary>
 		/// Updates the metadata for the specified blobs.
 		///

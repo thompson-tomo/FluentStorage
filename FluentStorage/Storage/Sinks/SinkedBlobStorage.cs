@@ -46,11 +46,11 @@ namespace FluentStorage.Storage.Sinks {
 		}
 
 		public override Task SetObjectInfo(StoreObject obj, CancellationToken cancellationToken = default) {
-			_parent.SetObjectInfo(obj, cancellationToken);
+			return _parent.SetObjectInfo(obj, cancellationToken);
 		}
 
 		public override Task SetObjectsInfo(IEnumerable<StoreObject> objs, CancellationToken cancellationToken = default) {
-			_parent.SetObjectsInfo(objs, cancellationToken);
+			return _parent.SetObjectsInfo(objs, cancellationToken);
 		}
 
 		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {

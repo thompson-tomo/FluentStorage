@@ -302,6 +302,10 @@ namespace FluentStorage.Storage.Files {
 			return Task.FromResult<List<StoreObject>>(result);
 		}
 
+		public override async Task SetObjectInfo(StoreObject obj, CancellationToken cancellationToken = default) {
+			await SetObjectsInfo(new List<StoreObject> { obj }, cancellationToken).ConfigureAwait(false);
+		}
+
 		public override Task SetObjectsInfo(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
 			GenericValidation.CheckBlobFullPaths(blobs);
 

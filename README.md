@@ -29,23 +29,23 @@ It is written entirely in C#, with no external dependencies. FluentStorage is re
 
 FluentStorage supports the following cloud storage providers:
 
-|       		| Documentation Link                                               | 
+|       		| Documentation Link                                               | Main interface | Store class |  `GetClient()` returns
 |---------------| --------------------------------------------------------------------------- | 
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/aws-s3.png" width="32"></img>| [AWS S3](https://github.com/robinrodricks/FluentStorage/wiki/AWS-S3-Storage#connect-to-aws-s3)         |
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure-blob-block.png" width="32"></img>|  [Azure Blobs](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Blob-Storage) |
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure-blob-file.png" width="32"></img>| [Azure Files](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Files-Storage) |
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure-data-lake.png" width="32"></img>| [Azure DataLake](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Data-Lake) |
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/gcp.png" width="32"></img>| [GCP](https://github.com/robinrodricks/FluentStorage/wiki/Google-Cloud-Storage)         |
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/minio.png" width="32"></img>| [MinIO](https://github.com/robinrodricks/FluentStorage/wiki/MinIO-Storage)         |
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/r2.png" width="32"></img>| [Cloudflare R2](https://github.com/robinrodricks/FluentStorage/wiki/Cloudflare-R2-Storage)  |
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/digitalocean.png" width="32"></img>|[DigitalOcean Spaces](https://github.com/robinrodricks/FluentStorage/wiki/DigitalOcean-Spaces-Storage)  |
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/wasabi.png" width="32"></img>| [Wasabi](https://github.com/robinrodricks/FluentStorage/wiki/Wasabi-Storage)         |
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/backblaze.png" width="32"></img>|  [Backblaze B2](https://github.com/robinrodricks/FluentStorage/wiki/Backblaze-B2-Storage)  |
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/hetzner.png" width="32"></img>|  [Hetzner](https://github.com/robinrodricks/FluentStorage/wiki/Hetzner-Storage)  |
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/vultr.png" width="32"></img>|  [Vultr](https://github.com/robinrodricks/FluentStorage/wiki/Vultr-Storage)        |
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/ftp.png" width="32"></img>|  [FTP](https://github.com/robinrodricks/FluentStorage/wiki/FTP-Storage)        |
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/sftp.png" width="32"></img>|  [SFTP](https://github.com/robinrodricks/FluentStorage/wiki/SFTP-Storage)        |
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/local.png" width="32"></img>|  [Local Disk](https://github.com/robinrodricks/FluentStorage/wiki/Standard-Storage)        |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/aws-s3.png" width="32"></img>| [AWS S3](https://github.com/robinrodricks/FluentStorage/wiki/AWS-S3-Storage#connect-to-aws-s3)   |  `IStore` | `S3Store` |`AmazonS3Client`  |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure-blob-block.png" width="32"></img>|  [Azure Blobs](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Blob-Storage) | `IAzureBlobStore` | `AzureBlobStore` | `BlobServiceClient` |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure-blob-file.png" width="32"></img>| [Azure Files](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Files-Storage) 	| `IStore` | `AzureFilesStore` | `ShareServiceClient` |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure-data-lake.png" width="32"></img>| [Azure DataLake](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Data-Lake) 	| `IStore` | `AzureDataLakeStore` | --- |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/gcp.png" width="32"></img>| [GCP](https://github.com/robinrodricks/FluentStorage/wiki/Google-Cloud-Storage)         			| `IStore` | `GoogleCloudStore` | `StorageClient` |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/minio.png" width="32"></img>| [MinIO](https://github.com/robinrodricks/FluentStorage/wiki/MinIO-Storage)         				| `IStore` | `S3Store` |`AmazonS3Client`  |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/r2.png" width="32"></img>| [Cloudflare R2](https://github.com/robinrodricks/FluentStorage/wiki/Cloudflare-R2-Storage)  			| `IStore` | `S3Store` |`AmazonS3Client`  |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/digitalocean.png" width="32"></img>|[DigitalOcean Spaces](https://github.com/robinrodricks/FluentStorage/wiki/DigitalOcean-Spaces-Storage)  |`IStore` | `S3Store` |`AmazonS3Client`  |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/wasabi.png" width="32"></img>| [Wasabi](https://github.com/robinrodricks/FluentStorage/wiki/Wasabi-Storage)         			| `IStore` | `S3Store` |`AmazonS3Client`  |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/backblaze.png" width="32"></img>|  [Backblaze B2](https://github.com/robinrodricks/FluentStorage/wiki/Backblaze-B2-Storage)  	| `IStore` | `S3Store` |`AmazonS3Client`  |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/hetzner.png" width="32"></img>|  [Hetzner](https://github.com/robinrodricks/FluentStorage/wiki/Hetzner-Storage)  				|`IStore` | `S3Store` |`AmazonS3Client`  |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/vultr.png" width="32"></img>|  [Vultr](https://github.com/robinrodricks/FluentStorage/wiki/Vultr-Storage)        				| `IStore` | `S3Store` |`AmazonS3Client`  |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/ftp.png" width="32"></img>|  [FTP](https://github.com/robinrodricks/FluentStorage/wiki/FTP-Storage)        						| `IStore` | `FtpStore` |  `AsyncFtpClient` |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/sftp.png" width="32"></img>|  [SFTP](https://github.com/robinrodricks/FluentStorage/wiki/SFTP-Storage)        					| `IStore` | `SftpStore` | `SftpClient` |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/local.png" width="32"></img>|  [Local Disk](https://github.com/robinrodricks/FluentStorage/wiki/Standard-Storage)        		| `IStore` | `DiskStore` | --- |
 
 To add support for a new provider, search for `[ADD STORAGE PROVIDER]` across all code files and make the required changes.
 
@@ -274,17 +274,6 @@ This table shows the API supported by `IStore` across various cloud and server p
 
 </tbody>
 </table>
-
-## Polycloud Types
-
-This table shows the important class types across various cloud and server providers.
-
-| API | **Azure Blobs** | **Azure Files** | **AWS S3 & S3-Compatible** | **GCP** | **FTP** | **SFTP** | **Local Disk** |
-|------|:---------------:|:---------------:|:----------:|:-------:|:-------:|:--------:|:--------:|
-| Main interface | `IAzureBlobStore` | `IStore` | `IStore` | `IStore` | `IStore` | `IStore` | `IStore` |
-| Main store class | `AzureBlobStore` | `AzureFilesStore` | `S3Store` | `GoogleCloudStore` | `FtpStore` | `SftpStore` | `DiskStore` |
-| `GetClient()` return type | `BlobServiceClient` | `ShareServiceClient` | `AmazonS3Client` | `StorageClient` | `AsyncFtpClient` | `SftpClient` | None |
-
 
 ## Packages
 

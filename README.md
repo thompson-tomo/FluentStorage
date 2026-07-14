@@ -215,15 +215,15 @@ This table shows the API supported by `IStore` across various cloud and server p
 <td colspan="7"><b>Directory manipulation</b></td>
 </tr>
 <tr>
+<td>DirectoryExists</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
+</tr>
+<tr>
 <td>CreateDirectory</td>
 <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>DeleteDirectory</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
-</tr>
-<tr>
-<td>DirectoryExists</td>
 <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>

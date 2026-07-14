@@ -68,7 +68,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 <tbody>
 
 <tr>
-<td colspan="8"><b>Server info</b></td>
+<td colspan="8"><b>System</b></td>
 </tr>
 <tr>
 <td>GetClient</td>
@@ -271,6 +271,14 @@ This table shows the API supported by `IStore` across various cloud and server p
 
 </tbody>
 </table>
+
+
+This table shows the important class types across various cloud and server providers.
+
+| API | **Azure Blobs** | **Azure Files** | **AWS S3** | **S3 Compatible** | **GCP** | **FTP** | **SFTP** |
+|------|:---------------:|:---------------:|:----------:|:-----------------:|:-------:|:-------:|:--------:|
+| Main store class | `AzureBlobStore` | `AzureFilesStore` | `S3Store` | `S3Store` | `GoogleCloudStore` | `FtpStore` | `SftpStore` |
+| `GetClient()` return type | `BlobServiceClient` | `ShareServiceClient` | `AmazonS3Client️` | `AmazonS3Client` | `StorageClient` | `AsyncFtpClient` | `SftpClient` |
 
 
 ## Packages

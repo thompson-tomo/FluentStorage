@@ -15,7 +15,7 @@
 
 ### One Interface To Rule Them All
 
-FluentStorage is a field-tested polycloud .NET cloud storage library that helps you interface with multiple cloud providers from a single unified interface.
+FluentStorage is a fully managed polycloud .NET cloud storage library, optimized for speed. It helps you interface with multiple cloud providers from a single unified API, allowing you to switch cloud providers or support multiple cloud providers without any logic changes.
 
 * Provides a Unified API for [Object storage](https://github.com/robinrodricks/FluentStorage/wiki/Blob-Storage) and [Queue messaging](https://github.com/robinrodricks/FluentStorage/wiki/Message-Storage) across all cloud storage providers.
 

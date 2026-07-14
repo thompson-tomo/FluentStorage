@@ -22,8 +22,8 @@ namespace FluentStorage.Queue.Large {
 			}
 		}
 
-		public async Task DeadLetterAsync(QueueMessage message, string reason, string errorDescription, CancellationToken cancellationToken = default) {
-			await _parentReceiver.DeadLetterAsync(message, reason, errorDescription, cancellationToken).ConfigureAwait(false);
+		public async Task DeadLetterMessage(QueueMessage message, string reason, string errorDescription, CancellationToken cancellationToken = default) {
+			await _parentReceiver.DeadLetterMessage(message, reason, errorDescription, cancellationToken).ConfigureAwait(false);
 
 			await DeleteBlobAsync(message).ConfigureAwait(false);
 		}
@@ -42,8 +42,8 @@ namespace FluentStorage.Queue.Large {
 
 		public Task<int> GetMessageCountAsync() => _parentReceiver.GetMessageCountAsync();
 
-		public Task StartMessagePumpAsync(Func<List<QueueMessage>, CancellationToken, Task> onMessageAsync, int maxBatchSize = 1, CancellationToken cancellationToken = default) {
-			return _parentReceiver.StartMessagePumpAsync(
+		public Task StartMessagePump(Func<List<QueueMessage>, CancellationToken, Task> onMessageAsync, int maxBatchSize = 1, CancellationToken cancellationToken = default) {
+			return _parentReceiver.StartMessagePump(
 			   (mms, ct) => DownloadingMessagePumpAsync(mms, onMessageAsync, ct),
 			   maxBatchSize, cancellationToken);
 		}
@@ -62,8 +62,8 @@ namespace FluentStorage.Queue.Large {
 			await onParentMessagesAsync(messages, cancellationToken).ConfigureAwait(false);
 		}
 
-		public Task KeepAliveAsync(QueueMessage message, TimeSpan? timeToLive = null, CancellationToken cancellationToken = default) =>
-		   _parentReceiver.KeepAliveAsync(message, timeToLive, cancellationToken);
-		public Task<List<QueueMessage>> PeekMessagesAsync(int maxMessages, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+		public Task KeepAlive(QueueMessage message, TimeSpan? timeToLive = null, CancellationToken cancellationToken = default) =>
+		   _parentReceiver.KeepAlive(message, timeToLive, cancellationToken);
+		public Task<List<QueueMessage>> PeekMessages(int maxMessages, CancellationToken cancellationToken = default) => throw new NotSupportedException();
 	}
 }

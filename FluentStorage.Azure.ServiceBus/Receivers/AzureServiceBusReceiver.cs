@@ -88,7 +88,7 @@ namespace FluentStorage.Azure.ServiceBus.Receivers {
 		public Task<int> GetMessageCountAsync() => throw new NotSupportedException();
 
 
-		public async Task DeadLetterAsync(QueueMessage message, string reason, string errorDescription,
+		public async Task DeadLetterMessage(QueueMessage message, string reason, string errorDescription,
 		                                  CancellationToken cancellationToken = default) {
 			if (_autoComplete)
 				return;
@@ -107,7 +107,7 @@ namespace FluentStorage.Azure.ServiceBus.Receivers {
 			}
 		}
 
-		public async Task KeepAliveAsync(QueueMessage message, TimeSpan? timeToLive = null,
+		public async Task KeepAlive(QueueMessage message, TimeSpan? timeToLive = null,
 		                                 CancellationToken cancellationToken = default) {
 			if (_autoComplete)
 				return;
@@ -118,7 +118,7 @@ namespace FluentStorage.Azure.ServiceBus.Receivers {
 			await _receiverClient.RenewMessageLockAsync(bm, cancellationToken).ConfigureAwait(false);
 		}
 
-		public async Task StartMessagePumpAsync(
+		public async Task StartMessagePump(
 			Func<List<QueueMessage>, CancellationToken, Task> onMessageAsync,
 			int maxBatchSize = 1,
 			CancellationToken cancellationToken = default) {
@@ -171,7 +171,7 @@ namespace FluentStorage.Azure.ServiceBus.Receivers {
 			return Task.FromResult(true);
 		}
 
-		public async Task<List<QueueMessage>> PeekMessagesAsync(
+		public async Task<List<QueueMessage>> PeekMessages(
 			int maxMessages, CancellationToken cancellationToken = default) {
 			var peek = await _receiverClient
 			                 .PeekMessagesAsync(maxMessages, cancellationToken: cancellationToken)

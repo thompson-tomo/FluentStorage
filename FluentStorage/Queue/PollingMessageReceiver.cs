@@ -31,7 +31,7 @@ namespace FluentStorage.Queue {
 		/// <summary>
 		/// See interface
 		/// </summary>
-		public abstract Task DeadLetterAsync(QueueMessage message, string reason, string errorDescription, CancellationToken cancellationToken = default);
+		public abstract Task DeadLetterMessage(QueueMessage message, string reason, string errorDescription, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// See interface
@@ -43,7 +43,7 @@ namespace FluentStorage.Queue {
 		/// <summary>
 		/// See interface
 		/// </summary>
-		public Task StartMessagePumpAsync(Func<List<QueueMessage>, CancellationToken, Task> onMessageAsync, int maxBatchSize = 1, CancellationToken cancellationToken = default)
+		public Task StartMessagePump(Func<List<QueueMessage>, CancellationToken, Task> onMessageAsync, int maxBatchSize = 1, CancellationToken cancellationToken = default)
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 		{
 			if (onMessageAsync == null) throw new ArgumentNullException(nameof(onMessageAsync));
@@ -101,7 +101,7 @@ namespace FluentStorage.Queue {
 		/// <summary>
 		/// See interface
 		/// </summary>
-		public Task KeepAliveAsync(QueueMessage message, TimeSpan? timeToLive = null, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+		public Task KeepAlive(QueueMessage message, TimeSpan? timeToLive = null, CancellationToken cancellationToken = default) => throw new NotSupportedException();
 
 		/// <summary>
 		/// see interface
@@ -109,7 +109,7 @@ namespace FluentStorage.Queue {
 		/// <param name="maxMessages"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		public virtual Task<List<QueueMessage>> PeekMessagesAsync(int maxMessages, CancellationToken cancellationToken = default) {
+		public virtual Task<List<QueueMessage>> PeekMessages(int maxMessages, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 	}

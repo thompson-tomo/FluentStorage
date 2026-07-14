@@ -104,8 +104,8 @@ namespace FluentStorage.Tests.Messaging {
 			await _sut.SendAsync(channelName, message).ConfigureAwait(false);
 
 			// Assert
-			messageProcessorMock.Verify(mock => mock.ProcessMessagesAsync(It.IsAny<List<QueueMessage>>()), Times.Once);
-			messageProcessorMock.Verify(mock => mock.ProcessMessagesAsync(It.Is<List<QueueMessage>>(messages => messages.Count == 1
+			messageProcessorMock.Verify(mock => mock.ProcessMessages(It.IsAny<List<QueueMessage>>()), Times.Once);
+			messageProcessorMock.Verify(mock => mock.ProcessMessages(It.Is<List<QueueMessage>>(messages => messages.Count == 1
 																															   && messages.ElementAt(0).StringContent == message.StringContent)),
 																												   Times.Once);
 
@@ -133,17 +133,17 @@ namespace FluentStorage.Tests.Messaging {
 			await _sut.SendAsync(channelName, message).ConfigureAwait(false);
 
 			// Assert
-			firstProcessorMock.Verify(mock => mock.ProcessMessagesAsync(It.Is<List<QueueMessage>>(messages => messages.Count == 1
+			firstProcessorMock.Verify(mock => mock.ProcessMessages(It.Is<List<QueueMessage>>(messages => messages.Count == 1
 																														     && messages.ElementAt(0).StringContent == message.StringContent)),
 																												 Times.Once);
 			firstProcessorMock.VerifyNoOtherCalls();
 
-			secondProcessorMock.Verify(mock => mock.ProcessMessagesAsync(It.Is<List<QueueMessage>>(messages => messages.Count == 1
+			secondProcessorMock.Verify(mock => mock.ProcessMessages(It.Is<List<QueueMessage>>(messages => messages.Count == 1
 																														     && messages.ElementAt(0).StringContent == message.StringContent)),
 																												 Times.Once);
 			secondProcessorMock.VerifyNoOtherCalls();
 
-			thirdProcessorMock.Verify(mock => mock.ProcessMessagesAsync(It.Is<List<QueueMessage>>(messages => messages.Count == 1
+			thirdProcessorMock.Verify(mock => mock.ProcessMessages(It.Is<List<QueueMessage>>(messages => messages.Count == 1
 																														     && messages.ElementAt(0).StringContent == message.StringContent)),
 																												 Times.Once);
 			thirdProcessorMock.VerifyNoOtherCalls();

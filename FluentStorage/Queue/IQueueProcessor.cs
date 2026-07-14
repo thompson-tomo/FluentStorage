@@ -9,10 +9,8 @@ namespace FluentStorage.Queue {
 	/// </summary>
 	public interface IQueueProcessor {
 		/// <summary>
-		/// 
+		/// Process the given messages in this queue
 		/// </summary>
-		/// <param name="messages"></param>
-		/// <returns></returns>
-		Task ProcessMessagesAsync(List<QueueMessage> messages);
+		Task ProcessMessages(List<QueueMessage> messages);
 	}
 }

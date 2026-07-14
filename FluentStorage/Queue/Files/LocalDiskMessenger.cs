@@ -197,7 +197,7 @@ namespace FluentStorage.Queue.Files {
 
 						foreach (IQueueProcessor item in messageProcessors) {
 							try {
-								item.ProcessMessagesAsync((new[] { queueMessage }).ToList()).GetAwaiter().GetResult();
+								item.ProcessMessages((new[] { queueMessage }).ToList()).GetAwaiter().GetResult();
 							}
 							catch (Exception) {
 								// swalllow the exception has no caller can could be notified anyway

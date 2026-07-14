@@ -49,7 +49,7 @@ namespace FluentStorage.AWS.Messaging {
 			return messages.Messages.Select(Converter.ToQueueMessage).ToList();
 		}
 
-		public override async Task<List<QueueMessage>> PeekMessagesAsync(int maxMessages, CancellationToken cancellationToken = default) {
+		public override async Task<List<QueueMessage>> PeekMessages(int maxMessages, CancellationToken cancellationToken = default) {
 			var request = new ReceiveMessageRequest(_queueUrl) {
 				MessageAttributeNames = new List<string> { ".*" },
 				MaxNumberOfMessages = maxMessages,
@@ -62,7 +62,7 @@ namespace FluentStorage.AWS.Messaging {
 			return messages.Messages.Select(Converter.ToQueueMessage).ToList();
 		}
 
-		public override Task DeadLetterAsync(QueueMessage message, string reason, string errorDescription, CancellationToken cancellationToken = default) {
+		public override Task DeadLetterMessage(QueueMessage message, string reason, string errorDescription, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 	}

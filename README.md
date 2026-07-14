@@ -54,6 +54,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 
 <table>
 <thead>
+
 <tr>
 <th>API</th>
 <th><b>Azure<br>Blobs</b></th>
@@ -64,6 +65,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 <th><b>FTP</b></th>
 <th><b>SFTP</b></th>
 </tr>
+
 </thead>
 <tbody>
 
@@ -125,6 +127,17 @@ This table shows the API supported by `IStore` across various cloud and server p
 <tr>
 <td>OpenWrite</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+</tr>
+
+<tr>
+<th>API</th>
+<th><b>Azure<br>Blobs</b></th>
+<th><b>Azure<br>Files</b></th>
+<th><b>AWS S3</b></th>
+<th><b>S3<br>Compatible</b></th>
+<th><b>GCP</b></th>
+<th><b>FTP</b></th>
+<th><b>SFTP</b></th>
 </tr>
 
 <tr>

@@ -72,11 +72,11 @@ This table shows the API supported by `IStore` across various cloud and server p
 <td colspan="9"><b>System</b></td>
 </tr>
 <tr>
-<td>GetClient</td>
+<td>&nbsp;&nbsp; GetClient</td>
 <td>✔️</td><td>✔️</td><td>✔️<br></td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td>
 </tr>
 <tr>
-<td>GetServer</td>
+<td>&nbsp;&nbsp; GetServer</td>
 <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td>
 </tr>
 
@@ -84,11 +84,11 @@ This table shows the API supported by `IStore` across various cloud and server p
 <td colspan="9"><b>File listing</b></td>
 </tr>
 <tr>
-<td>ListDirectory</td>
+<td>&nbsp;&nbsp; ListDirectory</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>ListObjects</td>
+<td>&nbsp;&nbsp; ListObjects</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
@@ -96,35 +96,35 @@ This table shows the API supported by `IStore` across various cloud and server p
 <td colspan="9"><b>File upload/download</b></td>
 </tr>
 <tr>
-<td>GetObject</td>
+<td>&nbsp;&nbsp; GetObject</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>SetObject</td>
+<td>&nbsp;&nbsp; SetObject</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>GetBytes</td>
+<td>&nbsp;&nbsp; GetBytes</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>SetBytes</td>
+<td>&nbsp;&nbsp; SetBytes</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>DownloadObject</td>
+<td>&nbsp;&nbsp; DownloadObject</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>UploadObject</td>
+<td>&nbsp;&nbsp; UploadObject</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>OpenRead</td>
+<td>&nbsp;&nbsp; OpenRead</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>OpenWrite</td>
+<td>&nbsp;&nbsp; OpenWrite</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
@@ -144,43 +144,43 @@ This table shows the API supported by `IStore` across various cloud and server p
 <td colspan="9"><b>File manipulation</b></td>
 </tr>
 <tr>
-<td>ObjectExists</td>
+<td>&nbsp;&nbsp; ObjectExists</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>MoveObject</td>
+<td>&nbsp;&nbsp; MoveObject</td>
 <td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td>
 </tr>
 <tr>
-<td>DeleteObject</td>
+<td>&nbsp;&nbsp; DeleteObject</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>DeleteObjects</td>
+<td>&nbsp;&nbsp; DeleteObjects</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>GetObjectInfo</td>
+<td>&nbsp;&nbsp; GetObjectInfo</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>GetObjectsInfo</td>
+<td>&nbsp;&nbsp; GetObjectsInfo</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>SetObjectInfo</td>
+<td>&nbsp;&nbsp; SetObjectInfo</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>✔️</td>
 </tr>
 <tr>
-<td>SetObjectsInfo</td>
+<td>&nbsp;&nbsp; SetObjectsInfo</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>✔️</td>
 </tr>
 <tr>
-<td>GetFilePermissions</td>
+<td>&nbsp;&nbsp; GetFilePermissions</td>
 <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td>
 </tr>
 <tr>
-<td>SetFilePermissions</td>
+<td>&nbsp;&nbsp; SetFilePermissions</td>
 <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td>
 </tr>
 
@@ -188,19 +188,19 @@ This table shows the API supported by `IStore` across various cloud and server p
 <td colspan="9"><b>Directory manipulation</b></td>
 </tr>
 <tr>
-<td>DirectoryExists</td>
+<td>&nbsp;&nbsp; DirectoryExists</td>
 <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>CreateDirectory</td>
+<td>&nbsp;&nbsp; CreateDirectory</td>
 <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>DeleteDirectory</td>
+<td>&nbsp;&nbsp; DeleteDirectory</td>
 <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>MoveDirectory</td>
+<td>&nbsp;&nbsp; MoveDirectory</td>
 <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
@@ -221,19 +221,19 @@ This table shows the API supported by `IStore` across various cloud and server p
 <td colspan="9"><b>Presigned URL generation</b></td>
 </tr>
 <tr>
-<td>GetUploadUrl</td>
+<td>&nbsp;&nbsp; GetUploadUrl</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
-<td>GetDownloadUrl</td>
+<td>&nbsp;&nbsp; GetDownloadUrl</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
-<td>GetPresignedUrl</td>
+<td>&nbsp;&nbsp; GetPresignedUrl</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
-<td>GetObjectSas</td>
+<td>&nbsp;&nbsp; GetObjectSas</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 
@@ -241,31 +241,31 @@ This table shows the API supported by `IStore` across various cloud and server p
 <td colspan="9"><b>Security and access control</b></td>
 </tr>
 <tr>
-<td>SetAcl</td>
+<td>&nbsp;&nbsp; SetAcl</td>
 <td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
-<td>AcquireLease</td>
+<td>&nbsp;&nbsp; AcquireLease</td>
 <td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
-<td>BreakLease</td>
+<td>&nbsp;&nbsp; BreakLease</td>
 <td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
-<td>GetContainerPublicAccess</td>
+<td>&nbsp;&nbsp; GetContainerPublicAccess</td>
 <td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
-<td>SetContainerPublicAccess</td>
+<td>&nbsp;&nbsp; SetContainerPublicAccess</td>
 <td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
-<td>GetStorageSas</td>
+<td>&nbsp;&nbsp; GetStorageSas</td>
 <td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
-<td>GetContainerSas</td>
+<td>&nbsp;&nbsp; GetContainerSas</td>
 <td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 

@@ -64,7 +64,7 @@ FluentStorage supports the following cloud storage providers:
 
 To add support for a new provider, search for `[ADD STORAGE PROVIDER]` across all code files and make the required changes.
 
-## Polycloud API
+## Polycloud API Supported
 
 This table shows the API supported by `IStore` across various cloud and server providers.
 
@@ -74,7 +74,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 <th>Feature</th>
 <th><b>Azure<br>Blobs</b></th>
 <th><b>Azure<br>Files</b></th>
-<th><b>S3 &amp;<br> S3-compatible</b></th>
+<th><b>AWS S3 &amp;<br> S3-compatible</b></th>
 <th><b>GCP</b></th>
 <th><b>FTP</b></th>
 <th><b>SFTP</b></th>

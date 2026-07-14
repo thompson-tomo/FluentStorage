@@ -39,7 +39,7 @@ namespace FluentStorage.GCP.Storage {
 		}
 
 		protected override async Task<List<StoreObject>> ListPath(
-		   string path, StorageListOptions options, CancellationToken cancellationToken) {
+		   string path, StorageListOptions options, CancellationToken cancellationToken = default) {
 
 			ObjectsResource.ListRequest request = _client.Service.Objects.List(_bucketName);
 			request.Prefix = StoragePath.IsRootPath(path) ? null : (NormalisePath(path) + "/");
@@ -92,7 +92,7 @@ namespace FluentStorage.GCP.Storage {
 			await _client.UpdateObjectAsync(item, cancellationToken: cancellationToken).ConfigureAwait(false);
 		}
 
-		public override async Task<StoreObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken) {
+		public override async Task<StoreObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken = default) {
 			fullPath = NormalisePath(fullPath);
 
 			try {
@@ -109,7 +109,7 @@ namespace FluentStorage.GCP.Storage {
 			}
 		}
 
-		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken) {
+		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken = default) {
 			try {
 				await _client.DeleteObjectAsync(_bucketName, NormalisePath(fullPath), cancellationToken: cancellationToken).ConfigureAwait(false);
 			}
@@ -134,7 +134,7 @@ namespace FluentStorage.GCP.Storage {
 			}
 		}
 
-		public override async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken) {
+		public override async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken = default) {
 			ArgValidator.AssertFullPath(fullPath);
 
 			try {

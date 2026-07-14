@@ -113,7 +113,7 @@ namespace FluentStorage.AWS.Messaging {
 		}
 
 		private async Task<List<QueueMessage>> ReceiveInternalAsync(
-		   string channelName, int count, TimeSpan visibility, CancellationToken cancellationToken) {
+		   string channelName, int count, TimeSpan visibility, CancellationToken cancellationToken = default) {
 			if (channelName is null)
 				throw new ArgumentNullException(nameof(channelName));
 

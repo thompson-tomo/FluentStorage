@@ -50,7 +50,7 @@ namespace FluentStorage.Queue.Large {
 
 		private async Task DownloadingMessagePumpAsync(List<QueueMessage> messages,
 		   Func<List<QueueMessage>, CancellationToken, Task> onParentMessagesAsync,
-		   CancellationToken cancellationToken) {
+		   CancellationToken cancellationToken = default) {
 			//process messages to download external content
 			foreach (QueueMessage message in messages) {
 				if (!message.Properties.TryGetValue(QueueMessage.LargeMessageContentHeaderName, out string fileId)) continue;

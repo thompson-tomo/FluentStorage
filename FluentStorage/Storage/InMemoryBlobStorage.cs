@@ -19,7 +19,7 @@ namespace FluentStorage.Storage {
 
 		private readonly Dictionary<string, Tag> _pathToTag = new Dictionary<string, Tag>();
 
-		public Task<List<StoreObject>> ListObjects(StorageListOptions options, CancellationToken cancellationToken) {
+		public Task<List<StoreObject>> ListObjects(StorageListOptions options, CancellationToken cancellationToken = default) {
 			if (options == null) options = new StorageListOptions();
 
 			IEnumerable<KeyValuePair<string, Tag>> query = _pathToTag;
@@ -52,11 +52,11 @@ namespace FluentStorage.Storage {
 			return Task.FromResult(matches);
 		}
 
-		public override async Task SetObject(string fullPath, Stream sourceStream, bool append, CancellationToken cancellationToken) {
+		public override async Task SetObject(string fullPath, Stream sourceStream, bool append, CancellationToken cancellationToken = default) {
 			await SetObject(fullPath, sourceStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
 
-		public override async Task SetObject(string fullPath, Stream sourceStream, string contentType, bool append, CancellationToken cancellationToken) {
+		public override async Task SetObject(string fullPath, Stream sourceStream, string contentType, bool append, CancellationToken cancellationToken = default) {
 			ArgValidator.AssertFullPath(fullPath);
 			fullPath = StoragePath.Normalize(fullPath);
 
@@ -79,7 +79,7 @@ namespace FluentStorage.Storage {
 
 		}
 
-		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken) {
+		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
 			ArgValidator.AssertFullPath(fullPath);
 			fullPath = StoragePath.Normalize(fullPath);
 
@@ -125,7 +125,7 @@ namespace FluentStorage.Storage {
 
 		}
 
-		public override async Task<List<bool>> ObjectsExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken) {
+		public override async Task<List<bool>> ObjectsExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			var result = new List<bool>();
 
 			foreach (string fullPath in fullPaths) {
@@ -138,7 +138,7 @@ namespace FluentStorage.Storage {
 		public override async Task<StoreObject> GetObjectInfo(string path, CancellationToken cancellationToken = default) {
 			return (await GetObjectsInfo(new List<string> { path }, cancellationToken).ConfigureAwait(false)).FirstOrDefault();
 		}
-		public override Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken) {
+		public override Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			ArgValidator.AssertFullPaths(fullPaths);
 
 			var result = new List<StoreObject>();

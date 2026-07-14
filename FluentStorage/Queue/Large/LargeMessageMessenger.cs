@@ -36,7 +36,7 @@ namespace FluentStorage.Queue.Large {
 			return StoragePath.Combine("message", Guid.NewGuid().ToString());
 		}
 
-		private async Task SendAsync(string channelName, QueueMessage message, CancellationToken cancellationToken) {
+		private async Task SendAsync(string channelName, QueueMessage message, CancellationToken cancellationToken = default) {
 			if (message?.Content.Length > _minSizeLarge) {
 				AddBlobId(message, out string id);
 

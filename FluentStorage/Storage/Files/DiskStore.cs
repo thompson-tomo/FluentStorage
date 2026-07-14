@@ -84,7 +84,7 @@ namespace FluentStorage.Storage.Files {
 		/// <summary>
 		/// Returns the list of blob names in this storage, optionally filtered by prefix
 		/// </summary>
-		public Task<List<StoreObject>> ListObjects(StorageListOptions options, CancellationToken cancellationToken) {
+		public Task<List<StoreObject>> ListObjects(StorageListOptions options, CancellationToken cancellationToken = default) {
 			if (options == null) options = new StorageListOptions();
 
 			ArgValidator.AssertPrefix(options.FilePrefix);
@@ -184,7 +184,7 @@ namespace FluentStorage.Storage.Files {
 			return path;
 		}
 
-		public override async Task SetObject(string fullPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken) {
+		public override async Task SetObject(string fullPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken = default) {
 			if (dataStream is null)
 				throw new ArgumentNullException(nameof(dataStream));
 			ArgValidator.AssertFullPath(fullPath);
@@ -194,14 +194,14 @@ namespace FluentStorage.Storage.Files {
 			using Stream stream = CreateStream(fullPath, !append);
 			await dataStream.CopyToAsync(stream);
 		}
-		public override async Task SetObject(string fullPath, Stream dataStream, bool append, CancellationToken cancellationToken) {
+		public override async Task SetObject(string fullPath, Stream dataStream, bool append, CancellationToken cancellationToken = default) {
 			await SetObject(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>
 		/// Opens file and returns a readable file stream
 		/// </summary>
-		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken) {
+		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
 			ArgValidator.AssertFullPath(fullPath);
 
 			fullPath = StoragePath.Normalize(fullPath);
@@ -217,7 +217,7 @@ namespace FluentStorage.Storage.Files {
 		/// <summary>
 		/// Opens file and returns a writeable file stream
 		/// </summary>
-		public override async Task<Stream> OpenWrite(string fullPath, bool overwrite, CancellationToken cancellationToken) {
+		public override async Task<Stream> OpenWrite(string fullPath, bool overwrite, CancellationToken cancellationToken = default) {
 			ArgValidator.AssertFullPath(fullPath);
 
 			fullPath = StoragePath.Normalize(fullPath);
@@ -264,7 +264,7 @@ namespace FluentStorage.Storage.Files {
 		/// <summary>
 		/// Checks if files exist on disk
 		/// </summary>
-		public override async Task<List<bool>> ObjectsExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken) {
+		public override async Task<List<bool>> ObjectsExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			var result = new List<bool>();
 
 			if (fullPaths != null) {
@@ -282,7 +282,7 @@ namespace FluentStorage.Storage.Files {
 		/// <summary>
 		/// Checks if a file exists on disk
 		/// </summary>
-		public override async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken) {
+		public override async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken = default) {
 			var result = new List<bool>();
 
 			if (fullPath != null) {

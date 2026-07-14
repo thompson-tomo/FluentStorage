@@ -63,11 +63,11 @@ namespace FluentStorage.Storage {
 		}
 
 		protected virtual async Task<List<StoreObject>> ListPath(
-		   string path, StorageListOptions options, CancellationToken cancellationToken) {
+		   string path, StorageListOptions options, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		protected virtual async Task ListInternal(string path, StorageListOptions options, List<StoreObject> container, CancellationToken cancellationToken) {
+		protected virtual async Task ListInternal(string path, StorageListOptions options, List<StoreObject> container, CancellationToken cancellationToken = default) {
 			List<StoreObject> chunk = await ListPath(path, options, cancellationToken).ConfigureAwait(false);
 
 			if (options.BrowseFilter != null) {
@@ -88,10 +88,10 @@ namespace FluentStorage.Storage {
 		}
 
 
-		public virtual async Task SetObject(string objectPath, Stream sourceStream, bool append, CancellationToken cancellationToken) {
+		public virtual async Task SetObject(string objectPath, Stream sourceStream, bool append, CancellationToken cancellationToken = default) {
 			await SetObject(objectPath, sourceStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
-		public virtual async Task SetObject(string objectPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken) {
+		public virtual async Task SetObject(string objectPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
 		}
 

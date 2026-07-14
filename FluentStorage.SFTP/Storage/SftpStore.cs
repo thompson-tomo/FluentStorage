@@ -299,7 +299,7 @@ namespace FluentStorage.SFTP {
 		/// <param name="options"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns>List of blob IDs</returns>
-		async Task<List<StoreObject>> ListDirectoryAsync(SftpClient client, string folderToList, StorageListOptions options, CancellationToken cancellationToken) {
+		async Task<List<StoreObject>> ListDirectoryAsync(SftpClient client, string folderToList, StorageListOptions options, CancellationToken cancellationToken = default) {
 
 			List<StoreObject> blobCollection = new List<StoreObject>();
 
@@ -389,7 +389,7 @@ namespace FluentStorage.SFTP {
 			return true;
 		}
 
-		public override async Task SetObject(string fullPath, Stream dataStream, bool append, CancellationToken cancellationToken) {
+		public override async Task SetObject(string fullPath, Stream dataStream, bool append, CancellationToken cancellationToken = default) {
 			await SetObject(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
 		/// <summary>

@@ -203,7 +203,7 @@ namespace FluentStorage.FTP.Storage {
 			}
 		}
 
-		public override async Task SetObject(string fullPath, Stream dataStream, bool append, CancellationToken cancellationToken) {
+		public override async Task SetObject(string fullPath, Stream dataStream, bool append, CancellationToken cancellationToken = default) {
 			await SetObject(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
 		public override async Task SetObject(string fullPath, Stream dataStream, string contentType, bool append = false, CancellationToken cancellationToken = default) {

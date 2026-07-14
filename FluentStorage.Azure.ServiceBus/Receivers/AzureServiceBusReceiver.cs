@@ -69,7 +69,7 @@ namespace FluentStorage.Azure.ServiceBus.Receivers {
 			await Task.WhenAll(messages.Select(m => ConfirmAsync(m,cancellationToken))).ConfigureAwait(false);
 		}
 
-		private async Task ConfirmAsync(QueueMessage message, CancellationToken cancellationToken) {
+		private async Task ConfirmAsync(QueueMessage message, CancellationToken cancellationToken = default) {
 			//delete the message and get the deleted element, very nice method!
 			if (!_messageIdToBrokeredMessage.TryRemove(message.Id, out ServiceBusReceivedMessage bm))
 				return;

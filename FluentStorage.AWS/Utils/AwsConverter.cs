@@ -36,7 +36,7 @@ namespace FluentStorage.AWS.Storage {
 			await client.CopyObjectAsync(request).ConfigureAwait(false);
 		}
 
-		private static async Task AppendMetadataAsync(AmazonS3Client client, string bucketName, StoreObject blob, CancellationToken cancellationToken) {
+		private static async Task AppendMetadataAsync(AmazonS3Client client, string bucketName, StoreObject blob, CancellationToken cancellationToken = default) {
 			if (blob == null)
 				return;
 
@@ -45,7 +45,7 @@ namespace FluentStorage.AWS.Storage {
 			AddMetadata(blob, obj);
 		}
 
-		public static async Task AppendMetadataAsync(AmazonS3Client client, string bucketName, IEnumerable<StoreObject> blobs, CancellationToken cancellationToken) {
+		public static async Task AppendMetadataAsync(AmazonS3Client client, string bucketName, IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
 			await Task.WhenAll(
 			   blobs.Select(blob => AppendMetadataAsync(client, bucketName, blob, cancellationToken))).ConfigureAwait(false);
 		}

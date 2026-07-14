@@ -77,7 +77,7 @@ namespace FluentStorage.Storage.Sinks {
 				await _parent.SetObject(fullPath, source, append, cancellationToken).ConfigureAwait(false);
 			}
 		}
-		public override async Task SetObject(string fullPath, Stream dataSourceStream, string contentType, bool append, CancellationToken cancellationToken) {
+		public override async Task SetObject(string fullPath, Stream dataSourceStream, string contentType, bool append, CancellationToken cancellationToken = default) {
 			if (dataSourceStream == null)
 				return;
 

@@ -422,7 +422,7 @@ namespace FluentStorage.AWS.Storage {
 		/// <summary>
 		/// Determines whether an object exists by requesting its metadata.
 		/// </summary>
-		public override async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken) {
+		public override async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken = default) {
 			ArgValidator.AssertFullPath(fullPath);
 
 			try {

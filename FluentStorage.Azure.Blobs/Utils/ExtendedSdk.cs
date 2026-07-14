@@ -56,7 +56,7 @@ namespace FluentStorage.Azure.Blobs.Utils {
 			return httpPipeline;
 		}
 
-		public async Task<List<Filesystem>> ListFilesystemsAsync(CancellationToken cancellationToken) {
+		public async Task<List<Filesystem>> ListFilesystemsAsync(CancellationToken cancellationToken = default) {
 			FilesystemList response = await InvokeAsync<FilesystemList>(
 			   "?resource=account",
 			   RequestMethod.Get,
@@ -65,13 +65,13 @@ namespace FluentStorage.Azure.Blobs.Utils {
 			return response.Filesystems;
 		}
 
-		public async Task<List<StoreObject>> ListFilesystemsAsBlobsAsync(CancellationToken cancellationToken) {
+		public async Task<List<StoreObject>> ListFilesystemsAsBlobsAsync(CancellationToken cancellationToken = default) {
 			List<Filesystem> fss = await ListFilesystemsAsync(cancellationToken).ConfigureAwait(false);
 
 			return fss.Select(AzConvert.ToBlob).ToList();
 		}
 
-		public async Task CreateFilesystemAsync(string name, CancellationToken cancellationToken) {
+		public async Task CreateFilesystemAsync(string name, CancellationToken cancellationToken = default) {
 			try {
 				await InvokeAsync<Void>($"{name}?resource=filesystem", RequestMethod.Put, cancellationToken)
 				   .ConfigureAwait(false);
@@ -81,7 +81,7 @@ namespace FluentStorage.Azure.Blobs.Utils {
 			}
 		}
 
-		public async Task DeleteFilesystemAsync(string name, CancellationToken cancellationToken) {
+		public async Task DeleteFilesystemAsync(string name, CancellationToken cancellationToken = default) {
 			try {
 				await InvokeAsync<Void>($"{name}?resource=filesystem", RequestMethod.Delete, cancellationToken)
 				   .ConfigureAwait(false);
@@ -94,7 +94,7 @@ namespace FluentStorage.Azure.Blobs.Utils {
 		public async Task SetAccessControlAsync(
 		   string fullPath,
 		   AccessControl accessControl,
-		   CancellationToken cancellationToken) {
+		   CancellationToken cancellationToken = default) {
 			DecomposePath(fullPath, out string filesystemName, out string relativePath, false);
 
 			await InvokeAsync<Void>(
@@ -109,7 +109,7 @@ namespace FluentStorage.Azure.Blobs.Utils {
 		public async Task<AccessControl> GetAccessControlAsync(
 		   string fullPath,
 		   bool getUpn,
-		   CancellationToken cancellationToken) {
+		   CancellationToken cancellationToken = default) {
 			DecomposePath(fullPath, out string filesystemName, out string relativePath, false);
 
 			(Void _, IDictionary<string, string> headers) = await InvokeExtraAsync<Void>(
@@ -125,7 +125,7 @@ namespace FluentStorage.Azure.Blobs.Utils {
 			return new AccessControl(owner, group, permissions, acl);
 		}
 
-		public async Task DeleteAsync(string fullPath, CancellationToken cancellationToken) {
+		public async Task DeleteAsync(string fullPath, CancellationToken cancellationToken = default) {
 			DecomposePath(fullPath, out string fs, out string rp, false);
 
 			if (StoragePath.IsRootPath(rp)) {
@@ -145,7 +145,7 @@ namespace FluentStorage.Azure.Blobs.Utils {
 
 		}
 
-		public async Task<StoreObject> GetBlobAsync(string fullPath, CancellationToken cancellationToken) {
+		public async Task<StoreObject> GetBlobAsync(string fullPath, CancellationToken cancellationToken = default) {
 			DecomposePath(fullPath, out string fs, out string rp, false);
 
 			if (StoragePath.IsRootPath(rp)) {
@@ -178,7 +178,7 @@ namespace FluentStorage.Azure.Blobs.Utils {
 
 
 		public async Task<List<StoreObject>> ListAsync(
-		   StorageListOptions options, CancellationToken cancellationToken) {
+		   StorageListOptions options, CancellationToken cancellationToken = default) {
 			if (options == null)
 				options = new StorageListOptions();
 
@@ -191,7 +191,7 @@ namespace FluentStorage.Azure.Blobs.Utils {
 			return result;
 		}
 
-		private Task<StoreObject> GetWithMetadata(StoreObject b, CancellationToken cancellationToken) {
+		private Task<StoreObject> GetWithMetadata(StoreObject b, CancellationToken cancellationToken = default) {
 			if (b.IsFile) {
 				return GetBlobAsync(b, cancellationToken);
 			}
@@ -199,7 +199,7 @@ namespace FluentStorage.Azure.Blobs.Utils {
 			return Task.FromResult(b);
 		}
 
-		public async Task<List<StoreObject>> InternalListAsync(StorageListOptions options, CancellationToken cancellationToken) {
+		public async Task<List<StoreObject>> InternalListAsync(StorageListOptions options, CancellationToken cancellationToken = default) {
 			if (StoragePath.IsRootPath(options.FolderPath)) {
 				//only filesystems are in the root path
 				var result = new List<StoreObject>(await ListFilesystemsAsBlobsAsync(cancellationToken).ConfigureAwait(false));
@@ -221,7 +221,7 @@ namespace FluentStorage.Azure.Blobs.Utils {
 			}
 		}
 
-		private async Task<List<StoreObject>> ListPath(string path, int? maxResults, StorageListOptions options, CancellationToken cancellationToken) {
+		private async Task<List<StoreObject>> ListPath(string path, int? maxResults, StorageListOptions options, CancellationToken cancellationToken = default) {
 			//get filesystem name and folder path
 			string[] parts = StoragePath.Split(path);
 

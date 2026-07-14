@@ -38,7 +38,7 @@ namespace FluentStorage.AWS.Messaging {
 			await _client.DeleteMessageBatchAsync(request, cancellationToken).ConfigureAwait(false);
 		}
 
-		protected override async Task<List<QueueMessage>> ReceiveMessagesAsync(int maxBatchSize, CancellationToken cancellationToken) {
+		protected override async Task<List<QueueMessage>> ReceiveMessagesAsync(int maxBatchSize, CancellationToken cancellationToken = default) {
 			var request = new ReceiveMessageRequest(_queueUrl) {
 				MessageAttributeNames = new List<string> { ".*" },
 				MaxNumberOfMessages = Math.Min(10, maxBatchSize)

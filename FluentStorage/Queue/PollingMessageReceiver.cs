@@ -53,7 +53,7 @@ namespace FluentStorage.Queue {
 			return Task.FromResult(true);
 		}
 
-		private async Task PollTasksAsync(Func<List<QueueMessage>, CancellationToken, Task> callback, int maxBatchSize, CancellationToken cancellationToken) {
+		private async Task PollTasksAsync(Func<List<QueueMessage>, CancellationToken, Task> callback, int maxBatchSize, CancellationToken cancellationToken = default) {
 			try {
 				List<QueueMessage> messages = await ReceiveMessagesSafeAsync(maxBatchSize, cancellationToken).ConfigureAwait(false);
 				while (messages != null && messages.Count > 0) {
@@ -77,7 +77,7 @@ namespace FluentStorage.Queue {
 			}
 		}
 
-		private async Task<List<QueueMessage>> ReceiveMessagesSafeAsync(int maxBatchSize, CancellationToken cancellationToken) {
+		private async Task<List<QueueMessage>> ReceiveMessagesSafeAsync(int maxBatchSize, CancellationToken cancellationToken = default) {
 			try {
 				List<QueueMessage> messages = await ReceiveMessagesAsync(maxBatchSize, cancellationToken).ConfigureAwait(false);
 
@@ -96,7 +96,7 @@ namespace FluentStorage.Queue {
 		/// <summary>
 		/// See interface
 		/// </summary>
-		protected abstract Task<List<QueueMessage>> ReceiveMessagesAsync(int maxBatchSize, CancellationToken cancellationToken);
+		protected abstract Task<List<QueueMessage>> ReceiveMessagesAsync(int maxBatchSize, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// See interface

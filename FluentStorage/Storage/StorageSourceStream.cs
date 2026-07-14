@@ -58,7 +58,7 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// No change, but remembers that read was performed
 		/// </summary>
-		public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) {
+		public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default) {
 			_noRead = false;
 
 			return _origin.ReadAsync(buffer, offset, count, cancellationToken);

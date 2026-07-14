@@ -24,7 +24,7 @@ namespace FluentStorage.AWS.Storage {
 			_bucketName = bucketName;
 		}
 
-		public async Task<List<StoreObject>> ListAsync(StorageListOptions options, CancellationToken cancellationToken) {
+		public async Task<List<StoreObject>> ListAsync(StorageListOptions options, CancellationToken cancellationToken = default) {
 			var container = new List<StoreObject>();
 
 			_limiter = new AsyncLimiter(options.NumberOfRecursionThreads ?? StorageListOptions.MAX_THREADS);
@@ -38,7 +38,7 @@ namespace FluentStorage.AWS.Storage {
 				  : container;
 		}
 
-		private async Task ListFolderAsync(List<StoreObject> container, string path, StorageListOptions options, CancellationToken cancellationToken) {
+		private async Task ListFolderAsync(List<StoreObject> container, string path, StorageListOptions options, CancellationToken cancellationToken = default) {
 			var request = new ListObjectsV2Request() {
 				MaxKeys = options.PageSize ?? StorageListOptions.PAGE_SIZE,
 				BucketName = _bucketName,
@@ -94,7 +94,7 @@ namespace FluentStorage.AWS.Storage {
 		}
 
 
-		public async Task DeleteRecursiveAsync(string fullPath, CancellationToken cancellationToken) {
+		public async Task DeleteRecursiveAsync(string fullPath, CancellationToken cancellationToken = default) {
 			var request = new ListObjectsV2Request() {
 				BucketName = _bucketName,
 				Prefix = fullPath + "/"

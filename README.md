@@ -30,7 +30,7 @@ It is written entirely in C#, with no external dependencies. FluentStorage is re
 FluentStorage supports the following cloud storage providers:
 
 |       		| Documentation Link                                               | Main interface | Store class |  `GetClient()` returns
-|---------------| --------------------------------------------------------------------------- | 
+|---------------| --------------------------------------------------------------------------- | ---------------- | ---------------- | ---------------- | 
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/aws-s3.png" width="32"></img>| [AWS S3](https://github.com/robinrodricks/FluentStorage/wiki/AWS-S3-Storage#connect-to-aws-s3)   |  `IStore` | `S3Store` |`AmazonS3Client`  |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img>|  [Azure Blobs](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Blob-Storage) | `IAzureBlobStore` | `AzureBlobStore` | `BlobServiceClient` |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img>| [Azure Files](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Files-Storage) 	| `IStore` | `AzureFilesStore` | `ShareServiceClient` |

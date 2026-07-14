@@ -14,6 +14,9 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace FluentStorage.Alibaba.Storage {
+	/// <summary>
+	/// Manages a single Alibaba Object Storage Service bucket.
+	/// </summary>
 	public class AlibabaStore : StoreBase {
 		private readonly string _bucketName;
 		private readonly OssClient _client;

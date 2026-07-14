@@ -21,9 +21,7 @@ It provides a [single unified API](#polycloud-api) for [Object storage](https://
 
 It provides extensive Object manipulation commands, File uploads/downloads, Directory listing, File permissions/CHMOD, UTF-8 support, Async/await support and more. Its API is fully asynchronous and has identical behavior across all providers. It also implements [in-memory and on-disk storage providers](https://github.com/robinrodricks/FluentStorage/wiki/Standard-Storage), so you can test on a local machine.
 
-It is written entirely in C#, with no external dependencies. Some external dependencies are required by provider specific packages.
-
-FluentStorage is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
+It is written entirely in C#, with no external dependencies. FluentStorage is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
 
 
 

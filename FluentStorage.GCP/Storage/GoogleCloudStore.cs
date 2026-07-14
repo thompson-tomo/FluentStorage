@@ -15,6 +15,7 @@ using System.Linq;
 using Google.Apis.Storage.v1;
 using FluentStorage.Enums;
 using FluentStorage.Streaming;
+using FluentStorage.Utils.Validation;
 
 namespace FluentStorage.GCP.Storage {
 	/// <summary>
@@ -67,7 +68,7 @@ namespace FluentStorage.GCP.Storage {
 		}
 
 		public override async Task SetObjectsInfo(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
-			GenericValidation.CheckBlobFullPaths(blobs);
+			ArgValidator.AssertFullPaths(blobs);
 
 			await Task.WhenAll(blobs.Select(b => SetObjectInfo(b, cancellationToken))).ConfigureAwait(false);
 		}
@@ -134,7 +135,7 @@ namespace FluentStorage.GCP.Storage {
 		}
 
 		public override async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 
 			try {
 				await _client.GetObjectAsync(
@@ -154,7 +155,7 @@ namespace FluentStorage.GCP.Storage {
 		   bool append = false, CancellationToken cancellationToken = default) {
 			if (append)
 				throw new NotSupportedException();
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 			fullPath = NormalisePath(fullPath);
 
 			await _client.UploadObjectAsync(_bucketName, fullPath, null, dataStream, cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -164,7 +165,7 @@ namespace FluentStorage.GCP.Storage {
 		/// Opens an object for reading and returns its content stream.
 		/// </summary>
 		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 			fullPath = NormalisePath(fullPath);
 
 			// no read streaming support in this crappy SDK
@@ -185,7 +186,7 @@ namespace FluentStorage.GCP.Storage {
 		/// Object will be written when the stream is disposed.
 		/// </summary>
 		public override async Task<Stream> OpenWrite(string fullPath, bool overwrite, CancellationToken cancellationToken = default) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 
 			// exit if file exists and overwriting is disabled
 			if (!overwrite && await ObjectExists(fullPath, cancellationToken)) return null;

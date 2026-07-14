@@ -4,18 +4,17 @@ using System.IO;
 using System.Linq;
 using FluentStorage.Storage;
 
-namespace FluentStorage {
+namespace FluentStorage.Utils.Validation {
 	/// <summary>
 	/// A collection of generic library wise validations
 	/// </summary>
-	public static class GenericValidation {
+	public static class ArgValidator {
 		private const int MaxBlobPrefixLength = 50;
 
 		/// <summary>
-		/// Validates blob prefix search
+		/// Validates prefix length
 		/// </summary>
-		/// <param name="prefix"></param>
-		public static void CheckBlobPrefix(string prefix) {
+		public static void AssertPrefix(string prefix) {
 			if (prefix == null) return;
 
 			string[] parts = prefix.Split('/');
@@ -31,36 +30,35 @@ namespace FluentStorage {
 		/// <summary>
 		/// Validates blob full path
 		/// </summary>
-		/// <param name="fullPath"></param>
-		public static void CheckBlobFullPath(string fullPath) {
+		public static void AssertFullPath(string fullPath) {
 			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
 		}
 
 		/// <summary>
 		/// Checks blob full path for generic rules
 		/// </summary>
-		public static void CheckBlobFullPaths(IEnumerable<string> fullPaths) {
+		public static void AssertFullPaths(IEnumerable<string> fullPaths) {
 			if (fullPaths == null) return;
 
 			foreach (string fullPath in fullPaths) {
-				CheckBlobFullPath(fullPath);
+				AssertFullPath(fullPath);
 			}
 		}
 
 		/// <summary>
 		/// Checks blob full path for generic rules
 		/// </summary>
-		public static void CheckBlobFullPaths(IEnumerable<StoreObject> blobs) {
+		public static void AssertFullPaths(IEnumerable<StoreObject> blobs) {
 			if (blobs == null)
 				return;
 
-			CheckBlobFullPaths(blobs.Select(b => b.FullPath));
+			AssertFullPaths(blobs.Select(b => b.FullPath));
 		}
 
 		/// <summary>
 		/// Checks source stream for generic rules
 		/// </summary>
-		public static void CheckSourceStream(Stream inputStream) {
+		public static void AssertInputStream(Stream inputStream) {
 			if (inputStream == null) throw new ArgumentNullException(nameof(inputStream));
 
 			try {

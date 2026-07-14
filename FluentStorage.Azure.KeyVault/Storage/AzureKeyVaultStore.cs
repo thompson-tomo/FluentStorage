@@ -13,6 +13,7 @@ using Azure;
 using FluentStorage.Utils.Extensions;
 using FluentStorage.Enums;
 using FluentStorage.Streaming;
+using FluentStorage.Utils.Validation;
 
 namespace FluentStorage.Azure.KeyVault.Storage {
 	public class AzureKeyVaultStore : StoreBase {
@@ -36,7 +37,7 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 		public async Task<List<StoreObject>> ListObjects(StorageListOptions options, CancellationToken cancellationToken) {
 			if (options == null) options = new StorageListOptions();
 
-			GenericValidation.CheckBlobPrefix(options.FilePrefix);
+			ArgValidator.AssertPrefix(options.FilePrefix);
 
 			if (!StoragePath.IsRootPath(options.FolderPath)) return new List<StoreObject>();
 
@@ -83,7 +84,7 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 		}
 
 		public override async Task SetObject(string fullPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 			fullPath = NormaliseSecretName(fullPath);
 			if (append) throw new ArgumentException("appending to secrets is not supported", nameof(append));
 
@@ -99,7 +100,7 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 		/// Opens an object for reading and returns its content stream.
 		/// </summary>
 		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 			fullPath = NormaliseSecretName(fullPath);
 
 			try {
@@ -119,7 +120,7 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 		/// Object will be written when the stream is disposed.
 		/// </summary>
 		public override async Task<Stream> OpenWrite(string fullPath, bool overwrite, CancellationToken cancellationToken) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 
 			// exit if file exists and overwriting is disabled
 			if (!overwrite && await ObjectExists(fullPath, cancellationToken)) return null;
@@ -140,7 +141,7 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 		}
 
 		public override async Task DeleteObjects(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			GenericValidation.CheckBlobFullPaths(fullPaths);
+			ArgValidator.AssertFullPaths(fullPaths);
 
 			await Task.WhenAll(fullPaths.Select(fullPath => DeleteObject(fullPath, cancellationToken))).ConfigureAwait(false);
 		}
@@ -157,13 +158,13 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 		}
 
 		public override async Task<List<bool>> ObjectsExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			GenericValidation.CheckBlobFullPaths(fullPaths);
+			ArgValidator.AssertFullPaths(fullPaths);
 
 			return (await Task.WhenAll(fullPaths.Select(fullPath => ObjectExists(fullPath))).ConfigureAwait(false)).ToList();
 		}
 
 		public override async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken = default) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 
 			fullPath = NormaliseSecretName(fullPath);
 
@@ -178,7 +179,7 @@ namespace FluentStorage.Azure.KeyVault.Storage {
 		}
 
 		public override async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			GenericValidation.CheckBlobFullPaths(fullPaths);
+			ArgValidator.AssertFullPaths(fullPaths);
 
 			return (await Task.WhenAll(fullPaths.Select(fullPath => GetObjectInfo(fullPath))).ConfigureAwait(false)).ToList();
 		}

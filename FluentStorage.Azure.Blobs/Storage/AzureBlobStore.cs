@@ -10,6 +10,7 @@ using FluentStorage.Enums;
 using FluentStorage.Exceptions;
 using FluentStorage.Model;
 using FluentStorage.Storage;
+using FluentStorage.Utils.Validation;
 using MimeMapping;
 using System;
 using System.Collections.Concurrent;
@@ -85,7 +86,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 
 
 		public async Task DeleteObjects(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
-			GenericValidation.CheckBlobFullPaths(fullPaths);
+			ArgValidator.AssertFullPaths(fullPaths);
 
 			await Task.WhenAll(fullPaths.Select(fullPath => DeleteObjects(fullPath, cancellationToken))).ConfigureAwait(false);
 		}
@@ -99,7 +100,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		/// Opens an object for reading and returns its content stream.
 		/// </summary>
 		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 
 			(BlobContainerClient container, string path) = await GetPartsAsync(fullPath, false).ConfigureAwait(false);
 
@@ -127,7 +128,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		/// Object will be written when the stream is disposed or flushed.
 		/// </summary>
 		public override async Task<Stream> OpenWrite(string fullPath, bool overwrite, CancellationToken cancellationToken = default) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 
 			// exit if file exists and overwriting is disabled
 			if (!overwrite && await ObjectExists(fullPath, cancellationToken)) return null;
@@ -160,7 +161,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		public async Task SetObject(string fullPath, Stream dataStream,
 			string contentType = null,
 			bool append = false, CancellationToken cancellationToken = default) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 
 			if (dataStream == null)
 				throw new ArgumentNullException(nameof(dataStream));
@@ -194,7 +195,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			return (await Task.WhenAll(fullPaths.Select(p => GetObjectInfo(p, cancellationToken))).ConfigureAwait(false)).ToList();
 		}
 		public override async Task SetObjectsInfo(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
-			GenericValidation.CheckBlobFullPaths(blobs);
+			ArgValidator.AssertFullPaths(blobs);
 
 			await Task.WhenAll(blobs.Select(b => SetObjectInfo(b, cancellationToken))).ConfigureAwait(false);
 		}
@@ -251,7 +252,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		   string proposedLeaseId = null,
 		   bool waitForRelease = false,
 		   CancellationToken cancellationToken = default) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 
 			if (maxLeaseTime != null) {
 				if (maxLeaseTime.Value < TimeSpan.FromSeconds(15) || maxLeaseTime.Value >= TimeSpan.FromMinutes(1)) {
@@ -298,7 +299,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		}
 
 		public async Task BreakLease(string fullPath, bool ignoreErrors = false, CancellationToken cancellationToken = default) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 
 			(BlobContainerClient container, string path) = await GetPartsAsync(fullPath, true).ConfigureAwait(false);
 
@@ -439,7 +440,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			if (options == null)
 				throw new ArgumentNullException(nameof(options));
 
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 
 			(BlobContainerClient container, string path) = await GetPartsAsync(fullPath, true).ConfigureAwait(false);
 
@@ -546,7 +547,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		}
 
 		private async Task<(BlobContainerClient, string)> GetPartsAsync(string fullPath, bool createContainer = true) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 
 			fullPath = StoragePath.Normalize(fullPath);
 			if (fullPath == null)

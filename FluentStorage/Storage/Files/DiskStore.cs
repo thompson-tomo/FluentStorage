@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.IO.Abstractions;
 using FluentStorage.Enums;
+using FluentStorage.Utils.Validation;
 
 namespace FluentStorage.Storage.Files {
 	/// <summary>
@@ -21,8 +22,7 @@ namespace FluentStorage.Storage.Files {
 		/// <param name="directoryFullName">Root directory</param>
 		/// </summary>
 		public DiskStore(string directoryFullName)
-			: this(directoryFullName, new FileSystem())
-		{ }
+			: this(directoryFullName, new FileSystem()) { }
 
 		/// <summary>
 		/// Creates an instance in a specific disk directory
@@ -37,17 +37,61 @@ namespace FluentStorage.Storage.Files {
 			_directoryFullName = _fileSystem.Path.GetFullPath(directoryFullName);
 		}
 
+		private string NormalizeFilePath(string fullPath, bool createIfNotExists = true) {
+			//id can contain path separators
+			fullPath = fullPath.Trim(StoragePath.PathSeparator);
+			string[] parts = fullPath.Split(StoragePath.PathSeparator).Select(EncodePathPart).ToArray();
+			string name = parts[parts.Length - 1];
+			string dir;
+			if (parts.Length == 1) {
+				dir = _directoryFullName;
+			}
+			else {
+				string extraPath = string.Join(StoragePath.PathSeparatorString, parts, 0, parts.Length - 1);
+
+				fullPath = _fileSystem.Path.Combine(_directoryFullName, extraPath);
+
+				dir = fullPath;
+				if (!_fileSystem.Directory.Exists(dir) && createIfNotExists)
+					_fileSystem.Directory.CreateDirectory(dir);
+			}
+
+			return _fileSystem.Path.Combine(dir, name);
+		}
+
+		private string NormalizeFolderPath(string path, bool createIfNotExists) {
+			if (path == null) return _directoryFullName;
+			string[] parts = StoragePath.Split(path);
+
+			string fullPath = _directoryFullName;
+
+			foreach (string part in parts) {
+				fullPath = _fileSystem.Path.Combine(fullPath, part);
+			}
+
+			if (!_fileSystem.Directory.Exists(fullPath)) {
+				if (createIfNotExists) {
+					_fileSystem.Directory.CreateDirectory(fullPath);
+				}
+				else {
+					return null;
+				}
+			}
+
+			return fullPath;
+		}
+
 		/// <summary>
 		/// Returns the list of blob names in this storage, optionally filtered by prefix
 		/// </summary>
 		public Task<List<StoreObject>> ListObjects(StorageListOptions options, CancellationToken cancellationToken) {
 			if (options == null) options = new StorageListOptions();
 
-			GenericValidation.CheckBlobPrefix(options.FilePrefix);
+			ArgValidator.AssertPrefix(options.FilePrefix);
 
 			if (!_fileSystem.Directory.Exists(_directoryFullName)) return Task.FromResult<List<StoreObject>>(new List<StoreObject>());
 
-			string fullPath = GetFolder(options?.FolderPath, false);
+			string fullPath = NormalizeFolderPath(options?.FolderPath, false);
 			if (fullPath == null) return Task.FromResult<List<StoreObject>>(new List<StoreObject>());
 
 			string[] fileIds = _fileSystem.Directory.GetFiles(
@@ -90,102 +134,50 @@ namespace FluentStorage.Storage.Files {
 			if (kind == StorageObjectType.File) {
 				var fi = new FileInfo(fullPath);
 
-				var blob = new StoreObject(relPath, kind);
-				blob.Size = fi.Length;
+				var obj = new StoreObject(relPath, kind);
+				obj.Size = fi.Length;
 				// Converting the local time to a DateTimeOffset will save the offset of UTC.
-				blob.DateModified = fi.LastWriteTime;
-				blob.DateCreated = fi.CreationTime;
-				blob.TryAddProperties(
+				obj.DateModified = fi.LastWriteTime;
+				obj.DateCreated = fi.CreationTime;
+				obj.TryAddProperties(
 				   "IsReadOnly", fi.IsReadOnly.ToString(),
 				   // Universal sortable ("u") is always the same regardless of culture.
 				   "LastAccessTimeUtc", fi.LastAccessTimeUtc.ToString("u"),
 				   "Attributes", FormatFlags(fi.Attributes));
 
 				if (includeMeta) {
-					EnrichWithMetadata(blob);
+					AddMetadata(obj);
 				}
 
-				return blob;
+				return obj;
 			}
 			else {
 				var di = _fileSystem.DirectoryInfo.New(fullPath);
 
-				var blob = new StoreObject(relPath, StorageObjectType.Folder);
-				blob.DateModified = di.LastWriteTime;
-				blob.DateCreated = di.CreationTime;
-				blob.TryAddProperties(
+				var obj = new StoreObject(relPath, StorageObjectType.Folder);
+				obj.DateModified = di.LastWriteTime;
+				obj.DateCreated = di.CreationTime;
+				obj.TryAddProperties(
 				   "LastAccessTimeUtc", di.LastAccessTimeUtc.ToString("u"),
 				   "Attributes", FormatFlags(di.Attributes));
 
 				if (includeMeta) {
-					EnrichWithMetadata(blob);
+					AddMetadata(obj);
 				}
 
-				return blob;
+				return obj;
 			}
-		}
-
-		private string GetFolder(string path, bool createIfNotExists) {
-			if (path == null) return _directoryFullName;
-			string[] parts = StoragePath.Split(path);
-
-			string fullPath = _directoryFullName;
-
-			foreach (string part in parts) {
-				fullPath = _fileSystem.Path.Combine(fullPath, part);
-			}
-
-			if (!_fileSystem.Directory.Exists(fullPath)) {
-				if (createIfNotExists) {
-					_fileSystem.Directory.CreateDirectory(fullPath);
-				}
-				else {
-					return null;
-				}
-			}
-
-			return fullPath;
-		}
-
-		private string GetFilePath(string fullPath, bool createIfNotExists = true) {
-			//id can contain path separators
-			fullPath = fullPath.Trim(StoragePath.PathSeparator);
-			string[] parts = fullPath.Split(StoragePath.PathSeparator).Select(EncodePathPart).ToArray();
-			string name = parts[parts.Length - 1];
-			string dir;
-			if (parts.Length == 1) {
-				dir = _directoryFullName;
-			}
-			else {
-				string extraPath = string.Join(StoragePath.PathSeparatorString, parts, 0, parts.Length - 1);
-
-				fullPath = _fileSystem.Path.Combine(_directoryFullName, extraPath);
-
-				dir = fullPath;
-				if (!_fileSystem.Directory.Exists(dir) && createIfNotExists)
-					_fileSystem.Directory.CreateDirectory(dir);
-			}
-
-			return _fileSystem.Path.Combine(dir, name);
 		}
 
 		private Stream CreateStream(string fullPath, bool overwrite = true) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 			if (!_fileSystem.Directory.Exists(_directoryFullName)) _fileSystem.Directory.CreateDirectory(_directoryFullName);
-			string path = GetFilePath(fullPath);
+			string path = NormalizeFilePath(fullPath);
 
 			_fileSystem.Directory.CreateDirectory(_fileSystem.Path.GetDirectoryName(path));
 			Stream s = overwrite ? _fileSystem.File.Create(path) : _fileSystem.File.OpenWrite(path);
 			s.Seek(0, SeekOrigin.End);
 			return s;
-		}
-
-		private Stream OpenStream(string fullPath) {
-			GenericValidation.CheckBlobFullPath(fullPath);
-			string path = GetFilePath(fullPath);
-			if (!_fileSystem.File.Exists(path)) return null;
-
-			return _fileSystem.File.OpenRead(path);
 		}
 
 		private static string EncodePathPart(string path) {
@@ -195,7 +187,7 @@ namespace FluentStorage.Storage.Files {
 		public override async Task SetObject(string fullPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken) {
 			if (dataStream is null)
 				throw new ArgumentNullException(nameof(dataStream));
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 
 			fullPath = StoragePath.Normalize(fullPath);
 
@@ -203,19 +195,39 @@ namespace FluentStorage.Storage.Files {
 			await dataStream.CopyToAsync(stream);
 		}
 		public override async Task SetObject(string fullPath, Stream dataStream, bool append, CancellationToken cancellationToken) {
-			await SetObject(fullPath, dataStream, append, cancellationToken).ConfigureAwait(false);
+			await SetObject(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>
-		/// Opens file and returns the open stream
+		/// Opens file and returns a readable file stream
 		/// </summary>
 		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 
 			fullPath = StoragePath.Normalize(fullPath);
-			Stream result = OpenStream(fullPath);
 
-			return result;
+			string path = NormalizeFilePath(fullPath);
+
+			// exit if file does not exist
+			if (!_fileSystem.File.Exists(path)) return null;
+
+			return _fileSystem.File.OpenRead(path);
+		}
+
+		/// <summary>
+		/// Opens file and returns a writeable file stream
+		/// </summary>
+		public override async Task<Stream> OpenWrite(string fullPath, bool overwrite, CancellationToken cancellationToken) {
+			ArgValidator.AssertFullPath(fullPath);
+
+			fullPath = StoragePath.Normalize(fullPath);
+
+			string path = NormalizeFilePath(fullPath);
+
+			// exit if file exists and overwriting is disabled
+			if (!overwrite && _fileSystem.File.Exists(path)) return null;
+
+			return _fileSystem.File.OpenWrite(path);
 		}
 
 		/// <summary>
@@ -239,7 +251,7 @@ namespace FluentStorage.Storage.Files {
 		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken = default) {
 			if (fullPath == null) return;
 
-			string path = GetFilePath(StoragePath.Normalize(fullPath));
+			string path = NormalizeFilePath(StoragePath.Normalize(fullPath));
 
 			if (_fileSystem.File.Exists(path)) {
 				_fileSystem.File.Delete(path);
@@ -256,10 +268,10 @@ namespace FluentStorage.Storage.Files {
 			var result = new List<bool>();
 
 			if (fullPaths != null) {
-				GenericValidation.CheckBlobFullPaths(fullPaths);
+				ArgValidator.AssertFullPaths(fullPaths);
 
 				foreach (string fullPath in fullPaths) {
-					bool exists = _fileSystem.File.Exists(GetFilePath(StoragePath.Normalize(fullPath), false));
+					bool exists = _fileSystem.File.Exists(NormalizeFilePath(StoragePath.Normalize(fullPath), false));
 					result.Add(exists);
 				}
 			}
@@ -274,8 +286,8 @@ namespace FluentStorage.Storage.Files {
 			var result = new List<bool>();
 
 			if (fullPath != null) {
-				GenericValidation.CheckBlobFullPath(fullPath);
-				return _fileSystem.File.Exists(GetFilePath(StoragePath.Normalize(fullPath), false));
+				ArgValidator.AssertFullPath(fullPath);
+				return _fileSystem.File.Exists(NormalizeFilePath(StoragePath.Normalize(fullPath), false));
 			}
 			return false;
 		}
@@ -287,9 +299,9 @@ namespace FluentStorage.Storage.Files {
 			var result = new List<StoreObject>();
 
 			foreach (string blobId in ids) {
-				GenericValidation.CheckBlobFullPath(blobId);
+				ArgValidator.AssertFullPath(blobId);
 
-				string filePath = GetFilePath(blobId, false);
+				string filePath = NormalizeFilePath(blobId, false);
 
 				if (!_fileSystem.File.Exists(filePath)) {
 					result.Add(null);
@@ -307,10 +319,10 @@ namespace FluentStorage.Storage.Files {
 		}
 
 		public override Task SetObjectsInfo(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
-			GenericValidation.CheckBlobFullPaths(blobs);
+			ArgValidator.AssertFullPaths(blobs);
 
 			foreach (StoreObject blob in blobs.Where(b => b != null)) {
-				string blobPath = GetFilePath(blob.FullPath);
+				string blobPath = NormalizeFilePath(blob.FullPath);
 
 				if (!_fileSystem.File.Exists(blobPath))
 					continue;
@@ -318,15 +330,15 @@ namespace FluentStorage.Storage.Files {
 				if (blob?.Metadata == null)
 					continue;
 
-				string attrPath = GetFilePath(blob.FullPath) + AttributesFileExtension;
+				string attrPath = NormalizeFilePath(blob.FullPath) + AttributesFileExtension;
 				_fileSystem.File.WriteAllBytes(attrPath, blob.AttributesToByteArray());
 			}
 
 			return Task.CompletedTask;
 		}
 
-		private void EnrichWithMetadata(StoreObject blob) {
-			string path = GetFilePath(StoragePath.Normalize(blob.FullPath));
+		private void AddMetadata(StoreObject blob) {
+			string path = NormalizeFilePath(StoragePath.Normalize(blob.FullPath));
 
 			if (!_fileSystem.File.Exists(path)) return;
 
@@ -342,6 +354,76 @@ namespace FluentStorage.Storage.Files {
 			catch (IOException) {
 				//sometimes files are locked, inaccessible etc.
 			}
+		}
+
+
+		/// <summary>
+		/// Creates a new folder.
+		/// </summary>
+		public override async Task CreateDirectory(string folderPath, bool force, CancellationToken cancellationToken = default) {
+			ArgValidator.AssertFullPath(folderPath);
+
+			folderPath = StoragePath.Normalize(folderPath);
+
+			string path = NormalizeFilePath(folderPath);
+
+			if (_fileSystem.Directory.Exists(path)) {
+				return;
+			}
+
+			_fileSystem.Directory.CreateDirectory(path);
+
+			await Task.CompletedTask;
+		}
+
+		/// <summary>
+		/// Deletes a folder.
+		/// </summary>
+		public override async Task DeleteDirectory(string folderPath, bool recursive, CancellationToken cancellationToken = default) {
+			ArgValidator.AssertFullPath(folderPath);
+
+			folderPath = StoragePath.Normalize(folderPath);
+
+			string path = NormalizeFolderPath(folderPath, false);
+
+			if (_fileSystem.Directory.Exists(path))
+				_fileSystem.Directory.Delete(path, recursive);
+
+			await Task.CompletedTask;
+		}
+
+		/// <summary>
+		/// Returns true if the specified directory exists.
+		/// </summary>
+		public override async Task<bool> DirectoryExists(string folderPath, CancellationToken cancellationToken = default) {
+			ArgValidator.AssertFullPath(folderPath);
+
+			folderPath = StoragePath.Normalize(folderPath);
+
+			string path = NormalizeFolderPath(folderPath, false);
+
+			await Task.CompletedTask;
+			return _fileSystem.Directory.Exists(path);
+		}
+
+		/// <summary>
+		/// Moves a directory.
+		/// </summary>
+		public override async Task MoveDirectory(string sourceFolderPath, string destinationFolderPath, CancellationToken cancellationToken = default) {
+			ArgValidator.AssertFullPath(sourceFolderPath);
+			ArgValidator.AssertFullPath(destinationFolderPath);
+
+			sourceFolderPath = StoragePath.Normalize(sourceFolderPath);
+			destinationFolderPath = StoragePath.Normalize(destinationFolderPath);
+
+			string sourcePath = NormalizeFolderPath(sourceFolderPath, false);
+			string destinationPath = NormalizeFolderPath(destinationFolderPath, false);
+
+			if (_fileSystem.Directory.Exists(sourcePath)) {
+				_fileSystem.Directory.Move(sourcePath, destinationPath);
+			}
+
+			await Task.CompletedTask;
 		}
 
 	}

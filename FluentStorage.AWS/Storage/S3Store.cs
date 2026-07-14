@@ -10,6 +10,7 @@ using FluentStorage.Model;
 using FluentStorage.Storage;
 using FluentStorage.Streaming;
 using FluentStorage.Utils.Extensions;
+using FluentStorage.Utils.Validation;
 using MimeMapping;
 using System;
 using System.Collections.Generic;
@@ -244,7 +245,7 @@ namespace FluentStorage.AWS.Storage {
 			if (options == null)
 				options = new StorageListOptions();
 
-			GenericValidation.CheckBlobPrefix(options.FilePrefix);
+			ArgValidator.AssertPrefix(options.FilePrefix);
 
 			AmazonS3Client client = await Client().ConfigureAwait(false);
 
@@ -295,7 +296,7 @@ namespace FluentStorage.AWS.Storage {
 				throw new NotSupportedException();
 
 			// Compute the full object path.
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 			fullPath = StoragePath.Normalize(fullPath, true);
 
 			// Auto compute a MIME type (content type) if not given
@@ -341,7 +342,7 @@ namespace FluentStorage.AWS.Storage {
 		/// Returns null if the blob does not exist.
 		/// </summary>
 		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 
 			fullPath = StoragePath.Normalize(fullPath, true);
 			GetObjectResponse response = await GetObjectAsync(fullPath).ConfigureAwait(false);
@@ -356,7 +357,7 @@ namespace FluentStorage.AWS.Storage {
 		/// Object will be written when the stream is disposed.
 		/// </summary>
 		public override async Task<Stream> OpenWrite(string fullPath, bool overwrite, CancellationToken cancellationToken = default) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 
 			// exit if file exists and overwriting is disabled
 			if (!overwrite && await ObjectExists(fullPath, cancellationToken)) return null;
@@ -398,7 +399,7 @@ namespace FluentStorage.AWS.Storage {
 		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken = default) {
 			AmazonS3Client client = await Client().ConfigureAwait(false);
 
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 
 			fullPath = StoragePath.Normalize(fullPath, true);
 
@@ -422,7 +423,7 @@ namespace FluentStorage.AWS.Storage {
 		/// Determines whether an object exists by requesting its metadata.
 		/// </summary>
 		public override async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 
 			try {
 				AmazonS3Client client = await Client().ConfigureAwait(false);
@@ -452,7 +453,7 @@ namespace FluentStorage.AWS.Storage {
 		/// Returns null if the blob does not exist.
 		/// </summary>
 		public override async Task<StoreObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken = default) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 			fullPath = StoragePath.Normalize(fullPath, true);
 
 			AmazonS3Client client = await Client().ConfigureAwait(false);

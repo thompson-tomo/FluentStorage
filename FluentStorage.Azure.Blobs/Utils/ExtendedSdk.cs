@@ -11,13 +11,12 @@ using Azure;
 using Azure.Core;
 using Azure.Core.Pipeline;
 using Azure.Storage.Blobs;
-
-using FluentStorage;
 using FluentStorage.Storage;
 using FluentStorage.Azure;
 using FluentStorage.Utils.Extensions;
 using FluentStorage.Azure.Blobs.DataLake.Model;
 using FluentStorage.Azure.Blobs.DataLake;
+using FluentStorage.Utils.Validation;
 
 namespace FluentStorage.Azure.Blobs.Utils {
 	class ExtendedSdk {
@@ -383,7 +382,7 @@ namespace FluentStorage.Azure.Blobs.Utils {
 		}
 
 		private void DecomposePath(string path, out string filesystemName, out string relativePath, bool requireRelativePath = true) {
-			GenericValidation.CheckBlobFullPath(path);
+			ArgValidator.AssertFullPath(path);
 			string[] parts = StoragePath.Split(path);
 
 			if (requireRelativePath && parts.Length < 2) {

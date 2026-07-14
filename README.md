@@ -62,6 +62,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 <th><b>GCP</b></th>
 <th><b>FTP</b></th>
 <th><b>SFTP</b></th>
+<th><b>Local<br>Disk</b></th>
 </tr>
 
 </thead>
@@ -72,11 +73,11 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>GetClient</td>
-<td>✔️</td><td>✔️</td><td>✔️<br></td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️<br></td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td>
 </tr>
 <tr>
 <td>GetServer</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td>
 </tr>
 
 <tr>
@@ -84,11 +85,11 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>ListDirectory</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>ListObjects</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 <tr>
@@ -96,35 +97,35 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>GetObject</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>SetObject</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>GetBytes</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>SetBytes</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>DownloadObject</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>UploadObject</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>OpenRead</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>OpenWrite</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 <tr>
@@ -136,6 +137,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 <th><b>GCP</b></th>
 <th><b>FTP</b></th>
 <th><b>SFTP</b></th>
+<th><b>Local<br>Disk</b></th>
 </tr>
 
 <tr>
@@ -143,47 +145,43 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>ObjectExists</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>MoveObject</td>
-<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td>
-</tr>
-<tr>
-<td>CopyObjectTo</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td>
 </tr>
 <tr>
 <td>DeleteObject</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>DeleteObjects</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>GetObjectInfo</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>GetObjectsInfo</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>SetObjectInfo</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>✔️</td>
 </tr>
 <tr>
 <td>SetObjectsInfo</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>✔️</td>
 </tr>
 <tr>
 <td>GetFilePermissions</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td>
 </tr>
 <tr>
 <td>SetFilePermissions</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td>
 </tr>
 
 <tr>
@@ -191,19 +189,19 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>DirectoryExists</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>CreateDirectory</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>DeleteDirectory</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>MoveDirectory</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 
@@ -216,6 +214,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 <th><b>GCP</b></th>
 <th><b>FTP</b></th>
 <th><b>SFTP</b></th>
+<th><b>Local<br>Disk</b></th>
 </tr>
 
 <tr>
@@ -223,19 +222,19 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>GetUploadUrl</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
 <td>GetDownloadUrl</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
 <td>GetPresignedUrl</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
 <td>GetObjectSas</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 
 <tr>
@@ -243,31 +242,31 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>SetAcl</td>
-<td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
+<td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
 <td>AcquireLease</td>
-<td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
+<td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
 <td>BreakLease</td>
-<td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
+<td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
 <td>GetContainerPublicAccess</td>
-<td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
+<td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
 <td>SetContainerPublicAccess</td>
-<td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
+<td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
 <td>GetStorageSas</td>
-<td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
+<td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
 <td>GetContainerSas</td>
-<td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
+<td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 
 </tbody>
@@ -277,11 +276,11 @@ This table shows the API supported by `IStore` across various cloud and server p
 
 This table shows the important class types across various cloud and server providers.
 
-| API | **Azure Blobs** | **Azure Files** | **AWS S3 & S3-Compatible** | **GCP** | **FTP** | **SFTP** |
+| API | **Azure Blobs** | **Azure Files** | **AWS S3 & S3-Compatible** | **GCP** | **FTP** | **SFTP** | **Local Disk** |
 |------|:---------------:|:---------------:|:----------:|:-------:|:-------:|:--------:|
-| Main interface | `IAzureBlobStore` | `IStore` | `IStore` | `IStore` | `IStore` | `IStore` |
-| Main store class | `AzureBlobStore` | `AzureFilesStore` | `S3Store` | `GoogleCloudStore` | `FtpStore` | `SftpStore` |
-| `GetClient()` return type | `BlobServiceClient` | `ShareServiceClient` | `AmazonS3Client` | `StorageClient` | `AsyncFtpClient` | `SftpClient` |
+| Main interface | `IAzureBlobStore` | `IStore` | `IStore` | `IStore` | `IStore` | `IStore` | `IStore` |
+| Main store class | `AzureBlobStore` | `AzureFilesStore` | `S3Store` | `GoogleCloudStore` | `FtpStore` | `SftpStore` | `DiskStore` |
+| `GetClient()` return type | `BlobServiceClient` | `ShareServiceClient` | `AmazonS3Client` | `StorageClient` | `AsyncFtpClient` | `SftpClient` | None |
 
 
 ## Packages

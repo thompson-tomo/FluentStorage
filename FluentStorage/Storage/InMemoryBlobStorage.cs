@@ -8,6 +8,7 @@ using FluentStorage.Streaming;
 using FluentStorage.Utils.Extensions;
 using FluentStorage.Utils.IO;
 using FluentStorage.Enums;
+using FluentStorage.Utils.Validation;
 
 namespace FluentStorage.Storage {
 	class InMemoryBlobStorage : StoreBase {
@@ -56,7 +57,7 @@ namespace FluentStorage.Storage {
 		}
 
 		public override async Task SetObject(string fullPath, Stream sourceStream, string contentType, bool append, CancellationToken cancellationToken) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 			fullPath = StoragePath.Normalize(fullPath);
 
 			if (sourceStream is null)
@@ -79,7 +80,7 @@ namespace FluentStorage.Storage {
 		}
 
 		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 			fullPath = StoragePath.Normalize(fullPath);
 
 			if (!_pathToTag.TryGetValue(fullPath, out Tag tag) || tag.data == null) return null;
@@ -138,7 +139,7 @@ namespace FluentStorage.Storage {
 			return (await GetObjectsInfo(new List<string> { path }, cancellationToken).ConfigureAwait(false)).FirstOrDefault();
 		}
 		public override Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken) {
-			GenericValidation.CheckBlobFullPaths(fullPaths);
+			ArgValidator.AssertFullPaths(fullPaths);
 
 			var result = new List<StoreObject>();
 
@@ -173,7 +174,7 @@ namespace FluentStorage.Storage {
 		}
 
 		private void Write(string fullPath, Stream sourceStream) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 			fullPath = StoragePath.Normalize(fullPath);
 
 			if (sourceStream is MemoryStream ms)
@@ -213,7 +214,7 @@ namespace FluentStorage.Storage {
 		}
 
 		public override async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken = default) {
-			GenericValidation.CheckBlobFullPath(fullPath);
+			ArgValidator.AssertFullPath(fullPath);
 
 			return _pathToTag.ContainsKey(fullPath);
 		}

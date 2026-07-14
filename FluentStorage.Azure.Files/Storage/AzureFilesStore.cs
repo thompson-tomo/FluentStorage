@@ -11,6 +11,7 @@ using Azure.Storage.Files.Shares;
 using Azure.Storage.Files.Shares.Models;
 using FluentStorage.Azure.Files.Utils;
 using FluentStorage.Storage;
+using FluentStorage.Utils.Validation;
 
 namespace FluentStorage.Azure.Files.Storage {
 	/// <summary>
@@ -233,7 +234,7 @@ namespace FluentStorage.Azure.Files.Storage {
 		}
 
 		public override async Task SetObjectsInfo(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
-			GenericValidation.CheckBlobFullPaths(blobs);
+			ArgValidator.AssertFullPaths(blobs);
 
 			await Task.WhenAll(blobs.Select(b => SetObjectInfo(b, cancellationToken))).ConfigureAwait(false);
 		}

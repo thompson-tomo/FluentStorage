@@ -22,7 +22,7 @@ namespace FluentStorage.Tests.Messaging {
 			var smallMessage = new QueueMessage(RandomGenerator.GetRandomBytes(50, 50));
 
 			//send small message
-			await _publisher.SendAsync("test", smallMessage);
+			await _publisher.SendMessage("test", smallMessage);
 			int blobCount = (await (_blobStorage as StoreBase).ListFileObjects(new StorageListOptions { Recurse = true })).Count;
 
 			//validate that small message was never uploaded
@@ -37,7 +37,7 @@ namespace FluentStorage.Tests.Messaging {
 			var largeMessage = new QueueMessage(RandomGenerator.GetRandomBytes(150, 150));
 
 			//send large message
-			await _publisher.SendAsync("test", largeMessage);
+			await _publisher.SendMessage("test", largeMessage);
 			int blobCount = (await (_blobStorage as StoreBase).ListFileObjects(new StorageListOptions { Recurse = true })).Count;
 
 			//validate that small message was uploaded once

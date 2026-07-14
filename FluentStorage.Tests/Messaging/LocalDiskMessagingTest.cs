@@ -95,13 +95,13 @@ namespace FluentStorage.Tests.Messaging {
 			string channelName = Guid.NewGuid().ToString();
 			QueueMessage message = QueueMessage.FromText(Guid.NewGuid().ToString());
 
-			await _sut.CreateChannelAsync(channelName).ConfigureAwait(false);
+			await _sut.CreateChannel(channelName).ConfigureAwait(false);
 
 			Mock<IQueueProcessor> messageProcessorMock = new();
 
 			// Act
 			await _sut.StartMessageProcessor(channelName, messageProcessorMock.Object).ConfigureAwait(false);
-			await _sut.SendAsync(channelName, message).ConfigureAwait(false);
+			await _sut.SendMessage(channelName, message).ConfigureAwait(false);
 
 			// Assert
 			messageProcessorMock.Verify(mock => mock.ProcessMessages(It.IsAny<List<QueueMessage>>()), Times.Once);
@@ -117,7 +117,7 @@ namespace FluentStorage.Tests.Messaging {
 			string channelName = Guid.NewGuid().ToString();
 			QueueMessage message = QueueMessage.FromText(Guid.NewGuid().ToString());
 
-			await _sut.CreateChannelAsync(channelName).ConfigureAwait(false);
+			await _sut.CreateChannel(channelName).ConfigureAwait(false);
 
 			MockRepository mockRepository= new MockRepository(MockBehavior.Loose);
 
@@ -130,7 +130,7 @@ namespace FluentStorage.Tests.Messaging {
 			await _sut.StartMessageProcessor(channelName, secondProcessorMock.Object).ConfigureAwait(false);
 			await _sut.StartMessageProcessor(channelName, thirdProcessorMock.Object).ConfigureAwait(false);
 
-			await _sut.SendAsync(channelName, message).ConfigureAwait(false);
+			await _sut.SendMessage(channelName, message).ConfigureAwait(false);
 
 			// Assert
 			firstProcessorMock.Verify(mock => mock.ProcessMessages(It.Is<List<QueueMessage>>(messages => messages.Count == 1

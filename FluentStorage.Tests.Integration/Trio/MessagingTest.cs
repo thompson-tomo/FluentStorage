@@ -26,7 +26,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 
 		public async Task InitializeAsync() {
 			try {
-				await _msg.CreateChannelAsync(_qn);
+				await _msg.CreateChannel(_qn);
 			}
 			catch (NotSupportedException) {
 
@@ -41,7 +41,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 			//clear up all the channels
 
 			try {
-				await _msg.DeleteChannelAsync(_qn);
+				await _msg.DeleteChannel(_qn);
 			}
 			catch { }
 		}
@@ -50,12 +50,12 @@ namespace FluentStorage.Tests.Integration.Messaging {
 		public async Task SendMessage_OneMessage_DoesntCrash() {
 			var qm = QueueMessage.FromText("test");
 
-			await _msg.SendAsync(_qn, qm);
+			await _msg.SendMessage(_qn, qm);
 		}
 
 		[Fact]
 		public async Task SendMessage_NullChannel_ArgumentException() {
-			await Assert.ThrowsAsync<ArgumentNullException>(() => _msg.SendAsync(null, QueueMessage.FromText("test")));
+			await Assert.ThrowsAsync<ArgumentNullException>(() => _msg.SendMessage(null, QueueMessage.FromText("test")));
 		}
 
 		[Fact]
@@ -73,7 +73,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 			string channelName = NewChannelName();
 
 			try {
-				await _msg.CreateChannelAsync(channelName);
+				await _msg.CreateChannel(channelName);
 			}
 			catch (NotSupportedException) {
 				return;
@@ -100,13 +100,13 @@ namespace FluentStorage.Tests.Integration.Messaging {
 			string channelName = NewChannelName();
 
 			try {
-				await _msg.CreateChannelAsync(channelName);
+				await _msg.CreateChannel(channelName);
 			}
 			catch (NotSupportedException) {
 				return;
 			}
 
-			await _msg.DeleteChannelAsync(channelName);
+			await _msg.DeleteChannel(channelName);
 
 			List<string> channels = await _msg.ListChannels();
 
@@ -130,7 +130,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 				return;
 			}
 
-			await _msg.SendAsync(_qn, QueueMessage.FromText("bla bla"));
+			await _msg.SendMessage(_qn, QueueMessage.FromText("bla bla"));
 
 			long count2 = await _msg.GetMessageCount(_qn + _receiveChannelSuffix);
 
@@ -196,7 +196,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 			var msg = QueueMessage.FromText("hm");
 			msg.Properties["tag"] = tag;
 
-			await _msg.SendAsync(_qn, msg);
+			await _msg.SendMessage(_qn, msg);
 
 			return tag;
 		}

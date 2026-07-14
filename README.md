@@ -187,6 +187,38 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 
 <tr>
+<td colspan="8"><b>Directory manipulation</b></td>
+</tr>
+<tr>
+<td>DirectoryExists</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
+</tr>
+<tr>
+<td>CreateDirectory</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
+</tr>
+<tr>
+<td>DeleteDirectory</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
+</tr>
+<tr>
+<td>MoveDirectory</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
+</tr>
+
+
+<tr>
+<th>API</th>
+<th><b>Azure<br>Blobs</b></th>
+<th><b>Azure<br>Files</b></th>
+<th><b>AWS S3</b></th>
+<th><b>S3<br>Compatible</b></th>
+<th><b>GCP</b></th>
+<th><b>FTP</b></th>
+<th><b>SFTP</b></th>
+</tr>
+
+<tr>
 <td colspan="8"><b>Presigned URL generation</b></td>
 </tr>
 <tr>
@@ -204,17 +236,6 @@ This table shows the API supported by `IStore` across various cloud and server p
 <tr>
 <td>GetObjectSas</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td>
-</tr>
-
-<tr>
-<th>API</th>
-<th><b>Azure<br>Blobs</b></th>
-<th><b>Azure<br>Files</b></th>
-<th><b>AWS S3</b></th>
-<th><b>S3<br>Compatible</b></th>
-<th><b>GCP</b></th>
-<th><b>FTP</b></th>
-<th><b>SFTP</b></th>
 </tr>
 
 <tr>
@@ -247,26 +268,6 @@ This table shows the API supported by `IStore` across various cloud and server p
 <tr>
 <td>GetContainerSas</td>
 <td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
-</tr>
-
-<tr>
-<td colspan="8"><b>Directory manipulation</b></td>
-</tr>
-<tr>
-<td>DirectoryExists</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
-</tr>
-<tr>
-<td>CreateDirectory</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
-</tr>
-<tr>
-<td>DeleteDirectory</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
-</tr>
-<tr>
-<td>MoveDirectory</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
 </tr>
 
 </tbody>

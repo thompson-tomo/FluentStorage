@@ -230,19 +230,19 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>&nbsp;&nbsp; GetUploadUrl</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
+<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; GetDownloadUrl</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
+<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; GetPresignedUrl</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
+<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; GetObjectSas</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
+<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 
 <tr>

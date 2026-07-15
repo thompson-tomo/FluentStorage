@@ -3,7 +3,7 @@ using FluentStorage.Storage;
 
 namespace FluentStorage.AWS.Factory {
 	/// <summary>
-	/// Vultr Object Storage factory to create instances of `IBucket` using this provider.
+	/// Vultr Object Storage factory to create instances of `IStore` using this provider.
 	/// </summary>
 	public static class VultrStorage {
 

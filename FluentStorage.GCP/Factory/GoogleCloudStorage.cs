@@ -7,7 +7,7 @@ using FluentStorage.GCP.Storage;
 
 namespace FluentStorage {
 	/// <summary>
-	/// Google Cloud Storage factory to create instances of `IBucket` using this provider.
+	/// Google Cloud Storage factory to create instances of `IStore` using this provider.
 	/// </summary>
 	public static class GoogleCloudStorage {
 

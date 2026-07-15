@@ -3,7 +3,7 @@ using FluentStorage.Storage;
 
 namespace FluentStorage.AWS.Factory {
 	/// <summary>
-	/// MinIO S3-compatible storage factory to create instances of `IBucket` using this provider.
+	/// MinIO S3-compatible storage factory to create instances of `IStore` using this provider.
 	/// </summary>
 	public static class MinioS3Storage {
 

@@ -8,7 +8,7 @@ using FluentStorage.FTP.Storage;
 
 namespace FluentStorage {
 	/// <summary>
-	/// FluentFTP factory to create instances of `IBucket` using this provider.
+	/// FluentFTP factory to create instances of `IStore` using this provider.
 	/// </summary>
 	public static class FtpStorage {
 		/// <summary>

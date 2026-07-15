@@ -10,7 +10,7 @@ using FluentStorage.Azure.Files.Storage;
 
 namespace FluentStorage {
 	/// <summary>
-	/// Azure Files/Data Lake Factory to create instances of `IBucket` using this provider.
+	/// Azure Files/Data Lake Factory to create instances of `IStore` using this provider.
 	/// </summary>
 	public static class AzureFilesStorage {
 		/// <summary>

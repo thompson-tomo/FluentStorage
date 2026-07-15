@@ -15,7 +15,7 @@ namespace FluentStorage.Storage {
 	/// <summary>
 	/// The base class used for all FluentStorage stores, including cloud buckets and disk-type stores.
 	/// It implements many high level API methods for file manipulation, upload and download.
-	/// It helps the provider-specific stores provide concrete implementations for the vast API of IBucket.
+	/// It helps the provider-specific stores provide concrete implementations for the vast API of IStore.
 	/// </summary>
 	public abstract class StoreBase : IStore {
 

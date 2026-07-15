@@ -11,7 +11,7 @@ using Amazon.S3.Transfer;
 
 namespace FluentStorage {
 	/// <summary>
-	/// Amazon Web Services S3 factory to create instances of `IBucket` using this provider.
+	/// Amazon Web Services S3 factory to create instances of `IStore` using this provider.
 	/// </summary>
 	public static class AwsS3Storage {
 

@@ -5,7 +5,7 @@ using FluentStorage.SFTP;
 
 namespace FluentStorage {
 	/// <summary>
-	/// SSH.NET SFTP factory to create instances of `IBucket` using this provider.
+	/// SSH.NET SFTP factory to create instances of `IStore` using this provider.
 	/// </summary>
 	public static class SftpStorage {
 		private class Module : IExternalModule {

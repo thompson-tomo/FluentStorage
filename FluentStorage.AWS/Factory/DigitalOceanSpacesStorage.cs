@@ -3,7 +3,7 @@ using FluentStorage.Storage;
 
 namespace FluentStorage.AWS.Factory {
 	/// <summary>
-	/// DigitalOcean Spaces factory to create instances of `IBucket` using this provider.
+	/// DigitalOcean Spaces factory to create instances of `IStore` using this provider.
 	/// </summary>
 	internal class DigitalOceanSpacesStorage {
 

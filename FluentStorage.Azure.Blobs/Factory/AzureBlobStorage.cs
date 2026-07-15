@@ -11,7 +11,7 @@ using FluentStorage.Azure.Blobs.Utils;
 
 namespace FluentStorage {
 	/// <summary>
-	/// Azuree Blob Factory to create instances of `IBucket` using this provider.
+	/// Azuree Blob Factory to create instances of `IStore` using this provider.
 	/// </summary>
 	public static class AzureBlobStorage {
 		/// <summary>

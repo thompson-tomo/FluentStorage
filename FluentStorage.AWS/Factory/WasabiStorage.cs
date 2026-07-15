@@ -3,7 +3,7 @@ using FluentStorage.Storage;
 
 namespace FluentStorage.AWS.Factory {
 	/// <summary>
-	/// Wasabi storage factory to create instances of `IBucket` using this provider.
+	/// Wasabi storage factory to create instances of `IStore` using this provider.
 	/// </summary>
 	public static class WasabiStorage {
 

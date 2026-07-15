@@ -16,7 +16,6 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates an instance of a publisher to Azure Storage Queues
 		/// </summary>
-		/// <param name="factory">Factory reference</param>
 		/// <param name="accountName">Account name. Must not be <see langword="null"/> or empty.</param>
 		/// <param name="storageKey">Storage key. Must not be <see langword="null"/> or empty.</param>
 		/// <param name="serviceUri">Alternative service uri. Pass <see langword="null"/> for default.</param>

@@ -26,7 +26,6 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates an Amazon S3 storage using assumed role permissions (useful when running the code wform within ECS tasks or lambda where you don't need to provide and manage accessKeys and secrets as the permissions are assumed via the IAM role the lambda or ecs tasks has assigned to it)
 		/// </summary>
-		/// <param name="factory">Factory reference</param>
 		/// <param name="bucketName">Bucket name</param>
 		/// <param name="region">Required regional endpoint.</param>
 		/// <returns>A reference to the created storage</returns>
@@ -39,7 +38,6 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates an Amazon S3 storage
 		/// </summary>
-		/// <param name="factory">Factory reference</param>
 		/// <param name="accessKeyId">Access key ID</param>
 		/// <param name="secretAccessKey">Secret access key</param>
 		/// /// <param name="sessionToken">Optional. Only required when using session credentials.</param>
@@ -60,7 +58,6 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates an Amazon S3 storage provider for a custom S3-compatible storage server
 		/// </summary>
-		/// <param name="factory">Factory reference</param>
 		/// <param name="accessKeyId">Access key ID</param>
 		/// <param name="secretAccessKey">Secret access key</param>
 		/// <param name="sessionToken">Optional. Only required when using session credentials.</param>
@@ -83,7 +80,6 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates an Amazon S3 storage provider using credentials from AWS CLI configuration file (~/.aws/credentials)
 		/// </summary>
-		/// <param name="factory">Factory reference</param>
 		/// <param name="awsCliProfileName"></param>
 		/// <param name="bucketName">Bucket name</param>
 		/// <param name="region"></param>
@@ -98,7 +94,6 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates an Amazon S3 storage provider using credentials retrieved from SSO.
 		/// </summary>
-		/// <param name="factory">Factory reference</param>
 		/// <param name="credentials"></param>
 		/// <param name="bucketName">Bucket name</param>
 		/// <param name="region"></param>

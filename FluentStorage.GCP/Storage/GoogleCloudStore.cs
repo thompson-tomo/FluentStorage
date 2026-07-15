@@ -1,33 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using Google.Api.Gax;
-using Google.Apis.Auth.OAuth2;
-using Google.Cloud.Storage.V1;
+﻿using FluentStorage.Enums;
+using FluentStorage.Model;
 using FluentStorage.Storage;
-using GObjects = Google.Apis.Storage.v1.Data.Objects;
-using GObject = Google.Apis.Storage.v1.Data.Object;
-using Google;
-using System.Net;
-using System.Linq;
-using Google.Apis.Storage.v1;
-using FluentStorage.Enums;
 using FluentStorage.Streaming;
 using FluentStorage.Utils.Validation;
+using Google;
+using Google.Api.Gax;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Storage.v1;
+using Google.Cloud.Storage.V1;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using GObject = Google.Apis.Storage.v1.Data.Object;
+using GObjects = Google.Apis.Storage.v1.Data.Objects;
 
 namespace FluentStorage.GCP.Storage {
 	/// <summary>
 	/// Manages a single Google Cloud Storage bucket.
 	/// </summary>
 	public class GoogleCloudStore : StoreBase {
-		
+
 		private readonly StorageClient _client;
+		private readonly UrlSigner _urlSigner;
 		private readonly string _bucketName;
 
 		public GoogleCloudStore(string bucketName, GoogleCredential credential = null, EncryptionKey encryptionKey = null) : base() {
 			_client = StorageClient.Create(credential, encryptionKey);
+			_urlSigner = UrlSigner.FromCredential(credential);
 			_bucketName = bucketName;
 		}
 
@@ -212,5 +216,122 @@ namespace FluentStorage.GCP.Storage {
 			path = StoragePath.Normalize(path);
 			return path.Substring(1);
 		}
+
+		/// <summary>
+		/// Generates a pre-signed URL for the specified object.
+		/// The URL grants temporary access to the object and expries after the specified duration. MIME type is auto computed.
+		/// </summary>
+		public override async Task<string> GetPresignedUrl(string fullPath,bool forDownload,bool https,
+			int expiresInSeconds = 86000) {
+
+			ArgValidator.AssertFullPath(fullPath);
+			fullPath = NormalisePath(fullPath);
+
+			UrlSigner.RequestTemplate template = UrlSigner.RequestTemplate
+				.FromBucket(_bucketName)
+				.WithObjectName(fullPath)
+				.WithHttpMethod(forDownload ? HttpMethod.Get : HttpMethod.Put);
+
+			UrlSigner.Options opt = UrlSigner.Options.FromDuration(TimeSpan.FromSeconds(expiresInSeconds));
+
+			// signed URLs cannot be generated from `StorageClient` alone,
+			// we need a `UrlSigner` which is created at init time (from a service account credential or IAM signing service)
+			string url = await _urlSigner.SignAsync(template, opt);
+
+			return url;
+		}
+
+		/// <summary>
+		/// Generates a pre-signed URL for the specified object.
+		/// The URL grants temporary access to the object and expries after the specified duration. MIME type is auto computed.
+		/// </summary>
+		public override async Task<string> GetObjectSas(string objectPath, StorageUrlOptions options) {
+
+			if (options == null)
+				throw new ArgumentNullException(nameof(options));
+
+			// supports only the common options.
+			return await GetPresignedUrl(
+				objectPath,
+				options.Permissions.HasFlag(StorageUrlPermissions.Read),
+				options.RequireHttps,
+				(int)options.ExpiresIn.TotalSeconds)
+			.ConfigureAwait(false);
+		}
+
+		/// <summary>
+		/// Move object from one path to another.
+		/// </summary>
+		public override async Task<bool> MoveObject(string oldPath,string newPath,bool overwrite, CancellationToken cancellationToken = default) {
+
+			ArgValidator.AssertFullPath(oldPath);
+			ArgValidator.AssertFullPath(newPath);
+
+			oldPath = NormalisePath(oldPath);
+			newPath = NormalisePath(newPath);
+
+			// exit if overwriting not wanted and the object exists
+			if (!overwrite) {
+				try {
+					await _client.GetObjectAsync(_bucketName,newPath, cancellationToken: cancellationToken);
+
+					return false;
+				}
+				catch (Google.GoogleApiException ex)
+					when (ex.HttpStatusCode == System.Net.HttpStatusCode.NotFound) {
+				}
+			}
+
+			await _client.CopyObjectAsync(_bucketName,oldPath,_bucketName,newPath,cancellationToken: cancellationToken);
+
+			await _client.DeleteObjectAsync(_bucketName,oldPath, cancellationToken: cancellationToken);
+
+			return true;
+		}
+
+		/// <summary>
+		/// Enumerate all objects under the prefix and delete it.
+		/// </summary>
+		public override async Task DeleteDirectory(string folderPath,bool recursive, CancellationToken cancellationToken = default) {
+
+			ArgValidator.AssertFullPath(folderPath);
+
+			folderPath = StoragePath.IsRootPath(folderPath) ? "" : NormalisePath(folderPath) + "/";
+
+			if (recursive) {
+
+				await foreach (Google.Apis.Storage.v1.Data.Object obj in
+					_client.ListObjectsAsync(_bucketName, folderPath)
+						.WithCancellation(cancellationToken)) {
+
+					await _client.DeleteObjectAsync(obj, cancellationToken: cancellationToken);
+				}
+			}
+			else {
+
+				bool hasFiles = false;
+
+				await foreach (Google.Apis.Storage.v1.Data.Object obj in
+					_client.ListObjectsAsync(
+						_bucketName,
+						folderPath,
+						new ListObjectsOptions {Delimiter = "/"})
+						.WithCancellation(cancellationToken)) {
+
+					hasFiles = true;
+					break;
+				}
+
+				if (hasFiles)
+					throw new IOException("Directory is not empty.");
+
+				await foreach (Google.Apis.Storage.v1.Data.Object obj in
+					_client.ListObjectsAsync(_bucketName, folderPath).WithCancellation(cancellationToken)) {
+
+					await _client.DeleteObjectAsync(obj, cancellationToken: cancellationToken);
+				}
+			}
+		}
+
 	}
 }

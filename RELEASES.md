@@ -25,10 +25,13 @@
    - We no longer support [Databricks, ServiceFabric, EventHub](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#deleted-libraries), [Virtual storage and ZIP archives](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#deleted-api)
  - **FluentStorage.AWS**
    - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
+   - New API: `GetClient`, `MoveObject`, `DownloadObject`, `UploadObject`, `OpenRead`, `OpenWrite`, `GetUploadUrl`, `GetDownloadUrl`, `GetPresignedUrl`, `GetObjectSas`
  - **FluentStorage.GCP**
    - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
+   - New API: `GetPresignedUrl`, `GetObjectSas`, `MoveObject`, `DeleteDirectory`
  - **FluentStorage.Azure.Blobs**
    - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
+   - New API: `GetClient`, `MoveObject`, `DownloadObject`, `UploadObject`, `OpenRead`, `OpenWrite`, `GetUploadUrl`, `GetDownloadUrl`, `GetPresignedUrl`, `GetObjectSas`
  - **FluentStorage.Azure.Files**
    - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
  - **FluentStorage.Azure.ServiceBus**
@@ -40,9 +43,11 @@
  - **FluentStorage.FTP**
    - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
    - FTP has new [directory and server API](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#new-ftpsftp-api) for file systems
+   - New API: `GetServer`, `CreateDirectory`, `DeleteDirectory`, `DirectoryExists`, `MoveDirectory`, `GetFilePermissions`, `SetFilePermissions`, `MoveObject`, `DownloadObject`, `UploadObject`, `GetBytes`, `SetBytes`.
  - **FluentStorage.SFTP**
    - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
    - SFTP has new [directory and server API](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#new-ftpsftp-api) for file systems
+   - New API: `GetServer`, `CreateDirectory`, `DeleteDirectory`, `DirectoryExists`, `MoveDirectory`, `GetFilePermissions`, `SetFilePermissions`, `MoveObject`, `DownloadObject`, `UploadObject`, `GetBytes`, `SetBytes`.
  - **FluentStorage.Alibaba**
    - New: Alibaba OSS provider using native Aliyun SDK. Introduces the factory API `AlibabaStorage` and store class `AlibabaStore`.
  - **FluentStorage.Minio**

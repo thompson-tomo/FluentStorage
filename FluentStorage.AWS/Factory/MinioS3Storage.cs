@@ -3,12 +3,12 @@ using FluentStorage.Storage;
 
 namespace FluentStorage.AWS.Factory {
 	/// <summary>
-	/// MinIO storage factory to create instances of `IBucket` using this provider.
+	/// MinIO S3-compatible storage factory to create instances of `IBucket` using this provider.
 	/// </summary>
-	public static class MinIOStorage {
+	public static class MinioS3Storage {
 
 		/// <summary>
-		/// Creates an MinIO storage provider (S3-compatible).
+		/// Creates a MinIO storage provider (S3-compatible using Amazon S3 SDK).
 		/// </summary>
 		/// <param name="accessKeyId">Access key ID</param>
 		/// <param name="secretAccessKey">Secret access key</param>

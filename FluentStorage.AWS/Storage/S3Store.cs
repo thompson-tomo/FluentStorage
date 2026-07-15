@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 
 namespace FluentStorage.AWS.Storage {
 	/// <summary>
-	/// Manages a single S3 or S3-compatible bucket.
+	/// Manages a single S3 or S3-compatible bucket using the Amazon S3 SDK.
 	/// </summary>
 	public class S3Store : StoreBase, IS3Storage {
 		private const int ListChunkSize = 10;

@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace FluentStorage.Alibaba.Storage {
 	/// <summary>
-	/// Manages a single Alibaba Object Storage Service bucket.
+	/// Manages a single Alibaba Object Storage Service bucket using the native Aliyun OSS SDK.
 	/// </summary>
 	public class AlibabaStore : StoreBase {
 		private readonly string _bucketName;

@@ -75,7 +75,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 <tbody>
 
 <tr>
-<td colspan="9"><b>System</b></td>
+<td colspan="10"><b>System</b></td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; GetClient</td>
@@ -87,7 +87,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 
 <tr>
-<td colspan="9"><b>File listing</b></td>
+<td colspan="10"><b>File listing</b></td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; ListDirectory</td>
@@ -99,7 +99,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 
 <tr>
-<td colspan="9"><b>File upload/download</b></td>
+<td colspan="10"><b>File upload/download</b></td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; GetObject</td>
@@ -148,7 +148,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 
 <tr>
-<td colspan="9"><b>File manipulation</b></td>
+<td colspan="10"><b>File manipulation</b></td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; ObjectExists</td>
@@ -192,7 +192,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 
 <tr>
-<td colspan="9"><b>Directory manipulation</b></td>
+<td colspan="10"><b>Directory manipulation</b></td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; DirectoryExists</td>
@@ -226,7 +226,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 
 <tr>
-<td colspan="9"><b>Presigned URL generation</b></td>
+<td colspan="10"><b>Presigned URL generation</b></td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; GetUploadUrl</td>
@@ -246,7 +246,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 
 <tr>
-<td colspan="9"><b>Security and access control</b></td>
+<td colspan="10"><b>Security and access control</b></td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; SetAcl</td>

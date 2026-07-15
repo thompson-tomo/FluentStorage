@@ -1,18 +1,60 @@
 ﻿# Release Notes
 
 #### FluentStorage 8.0.0
+ - **Please read the [Migration Guide](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide) to help you migrate from older versions to FluentStorage 8!**
+ - **FluentStorage**
+   - All [cloud storage API](https://github.com/robinrodricks/FluentStorage#polycloud-api) methods have been redesigned to improve productivity and ease of use.
+   - All extension-method factory API has been removed: For example `StorageFactory.Blobs` and `StorageFactory.Messages` no longer exist.
+   - Factory classes have been introduced on a [per-provided basis](https://github.com/robinrodricks/FluentStorage#storage-providers).
+   - Factory classes can be accessed directly to construct new `IStore` objects: For example `AwsS3Storage.FromCredentials` rather than `StorageFactory.Blobs.AwsS3`.
+   - All API methods are `async` and the "Async" suffix has been dropped.
+   - All API methods have an optional `CancellationToken` rather than forcing users to provide one.
+   - At initialization, S3-compatible stores will no longer create the bucket if the specified bucket does not exist.
+   - `WriteAsync()` is renamed to `SetObject()` and will auto compute the object's MIME type (`Content-Type`) if it is not supplied.
+   - `GetPresignedUrl()` and its variations will auto compute the object's MIME type (`Content-Type`).
+   - `CreateDirectory()` will no longer create a "dummy file" in a cloud storage bucket.
+   - `RenameAsync()` is renamed to `MoveObject()` and will no longer perform a recursive copy and delete, instead it will efficiently move using native operations.
+   - `ExistsAsync()` is renamed to `ObjectExists()` and will consistently return true/false if the file or folder exists on the bucket/server.
+   - `DeleteAsync()` is renamed to `DeleteObject()` and will consistently delete a single file or folder from the bucket/server.
+   - `DeleteObjects()` will consistently delete multiple files or folders from the bucket/server.
+   - `GetClient()` will consistently return the internal cloud SDK client for all types of cloud storage. (Replaces `NativeBlobClient`)
+   - Collections returned by APIs will always be `List` instead of `IReadOnlyCollection`. 
+   - Exceptions are moved into the `FluentStorage.Exceptions` namespace
+   - Enums are moved into the `FluentStorage.Enums` namespace
+   - Bucket stores now support [presigned URL and more object manipulation API](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#new-bucket-api)
+   - We no longer support [Databricks, ServiceFabric, EventHub](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#deleted-libraries), [Virtual storage and ZIP archives](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#deleted-api)
+ - **FluentStorage.AWS**
+   - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
+ - **FluentStorage.GCP**
+   - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
+ - **FluentStorage.Azure.Blobs**
+   - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
+ - **FluentStorage.Azure.Files**
+   - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
+ - **FluentStorage.Azure.ServiceBus**
+   - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
+ - **FluentStorage.Azure.KeyVault**
+   - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
+ - **FluentStorage.Azure.Queues**
+   - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
+ - **FluentStorage.FTP**
+   - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
+   - FTP has new [directory and server API](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#new-ftpsftp-api) for file systems
+ - **FluentStorage.SFTP**
+   - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
+   - SFTP has new [directory and server API](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#new-ftpsftp-api) for file systems
+ - **FluentStorage.Alibaba**
+   - New: Alibaba OSS provider using native Aliyun SDK. Introduces the factory API `AlibabaStorage` and store class `AlibabaStore`.
+ - **FluentStorage.Minio**
+   - New: MinIO storage provider using native Minio SDK. Introduces the factory API `MinioStorage` and store class `MinioStore`.
  - **FluentStorage.Databricks**
-   - Deprecated and unlisted from Nuget.
-   - We will no longer maintain this package because DBFS isn't a mainstream storage backend for a storage abstraction library.
+   - Deprecated and unlisted from Nuget since it is out of scope.
  - **FluentStorage.Azure.EventHub**
-   - Deprecated and unlisted from Nuget.
-   - Due to low community usage, we will no longer maintain this library.
+   - Deprecated and unlisted from Nuget since it has very low community usage.
  - **FluentStorage.Azure.DataLake**
-   - Deprecated and unlisted from Nuget.
-   - We are no longer maintaining this package as it only caters to DataLake Gen 1, which has been superseded by DataLake Gen2. Gen1 is considered a legacy service and is no longer the direction Microsoft recommends for new development.
+   - Deprecated and unlisted from Nuget since DataLake Gen 1 is obsolete.
  - **FluentStorage.Azure.ServiceFabric**
-   - Deprecated and unlisted from Nuget.
-   - We will no longer maintain this package because ServiceFabric is not a first-class object storage or messaging service, which is outside our current scope, and it also has extremely low community usage.
+   - Deprecated and unlisted from Nuget since it is out of scope and has very low community usage.
 
 #### FluentStorage 7.1.1
  - **FluentStorage**

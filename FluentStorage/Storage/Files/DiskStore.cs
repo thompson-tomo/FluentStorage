@@ -37,6 +37,10 @@ namespace FluentStorage.Storage.Files {
 			_directoryFullName = _fileSystem.Path.GetFullPath(directoryFullName);
 		}
 
+		public override bool HasFileSystem() {
+			return true;
+		}
+
 		private string NormalizeFilePath(string fullPath, bool createIfNotExists = true) {
 			//id can contain path separators
 			fullPath = fullPath.Trim(StoragePath.PathSeparator);

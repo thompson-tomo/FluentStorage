@@ -259,8 +259,8 @@ namespace FluentStorage.Storage {
 
 		/// <summary>
 		/// Get a pre-signed URL to upload an object to this bucket.
-		/// <param name="objectPath">Full path of the object</param>
 		/// </summary>
+		/// <param name="objectPath">Full path of the object</param>
 		/// <param name="https">true for to require HTTPS, false to permit HTTP and HTTPS</param>
 		/// <param name="expiresInSeconds">Number of seconds until the URL expires.</param>
 		Task<string> GetUploadUrl(string objectPath, bool https, int expiresInSeconds = 86000);
@@ -324,12 +324,12 @@ namespace FluentStorage.Storage {
 		//Task RenameDirectory(string folderPath,string newFolderName,CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Gets the CHMOD permissions of a file.
+		/// Gets the CHMOD permissions of a file (FTP/SFTP only).
 		/// </summary>
 		Task<int> GetFilePermissions(string filePath,CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Sets the CHMOD permissions of a file.
+		/// Sets the CHMOD permissions of a file (FTP/SFTP only).
 		/// </summary>
 		Task SetFilePermissions(string filePath,int permissions,CancellationToken cancellationToken = default);
 	}

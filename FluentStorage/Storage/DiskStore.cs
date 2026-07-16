@@ -1,13 +1,14 @@
-﻿using System;
+﻿using FluentStorage.Enums;
+using FluentStorage.Model;
+using FluentStorage.Utils.Validation;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
 using System.IO.Abstractions;
-using FluentStorage.Enums;
-using FluentStorage.Utils.Validation;
-using FluentStorage.Model;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FluentStorage.Storage {
 	/// <summary>
@@ -49,6 +50,56 @@ namespace FluentStorage.Storage {
 			return _fileSystem;
 		}
 
+		/// <summary>
+		/// Gets information and capabilities of the connected machine.
+		/// 
+		/// Returns a Dictionary with keys:
+		/// - Machine: `MachineName`, `UserName`, `ProcessorCount`.
+		/// - OS: `ServerOS`, `Platform`, `Architecture`.
+		/// - Runtime: `Runtime`, `ProcessArchitecture`.
+		/// - Environment: `CurrentDirectory`, `SystemDirectory`, `TempDirectory`.
+		/// - Storage: `Drives` : List of (`Name`, `Type`, `Format`, `Size`, `FreeSpace`, `Label`).
+		/// </summary>
+		public override async Task<Dictionary<string, object>> GetServer(CancellationToken cancellationToken = default) {
+
+			await Task.CompletedTask.ConfigureAwait(false);
+
+			var drives = DriveInfo.GetDrives()
+				.Where(x => x.IsReady)
+				.Select(x => new Dictionary<string, object> {
+					["Name"] = x.Name,
+					["Type"] = x.DriveType,
+					["Format"] = x.DriveFormat,
+					["Size"] = x.TotalSize,
+					["FreeSpace"] = x.AvailableFreeSpace,
+					["Label"] = x.VolumeLabel,
+				}).ToList();
+
+			return new Dictionary<string, object> {
+
+				// Operating System
+				["ServerOS"] = Environment.OSVersion.ToString(),
+				["Platform"] = Environment.OSVersion.Platform.ToString(),
+				["Architecture"] = RuntimeInformation.OSArchitecture.ToString(),
+
+				// Runtime
+				["Runtime"] = RuntimeInformation.FrameworkDescription,
+				["ProcessArchitecture"] = RuntimeInformation.ProcessArchitecture.ToString(),
+
+				// Machine
+				["MachineName"] = Environment.MachineName,
+				["UserName"] = Environment.UserName,
+				["ProcessorCount"] = Environment.ProcessorCount,
+
+				// Environment
+				["CurrentDirectory"] = Environment.CurrentDirectory,
+				["SystemDirectory"] = Environment.SystemDirectory,
+				["TempDirectory"] = Path.GetTempPath(),
+
+				// Storage
+				["Drives"] = drives,
+			};
+		}
 		private string NormalizeFilePath(string fullPath, bool createIfNotExists = true) {
 			//id can contain path separators
 			fullPath = fullPath.Trim(StoragePath.PathSeparator);

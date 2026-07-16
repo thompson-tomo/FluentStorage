@@ -369,6 +369,23 @@ namespace FluentStorage.SFTP {
 			}
 		}
 
+		public override async Task<Stream> OpenRange(string fullPath,long offset,long length, CancellationToken cancellationToken = default) {
+			ThrowIfDisposed();
+
+			fullPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
+
+			SftpClient client = Client();
+
+			Stream stream = client.OpenRead(fullPath);
+			stream.Seek(offset, SeekOrigin.Begin);
+
+			return stream;
+		}
+
+		public override bool IsSeekable() {
+			return true;
+		}
+
 		/// <summary>
 		/// Rename a file on the SFTP server.
 		/// </summary>

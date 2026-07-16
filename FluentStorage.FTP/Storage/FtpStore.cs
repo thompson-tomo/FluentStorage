@@ -203,6 +203,19 @@ namespace FluentStorage.FTP.Storage {
 			}
 		}
 
+		public override async Task<Stream> OpenRange(string fullPath,long offset,long length,CancellationToken cancellationToken = default) {
+			
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
+
+			Stream stream = await client.OpenRead(fullPath,restart: offset,token: cancellationToken).ConfigureAwait(false);
+
+			return stream;
+		}
+
+		public override bool IsSeekable() {
+			return true;
+		}
+
 		public override async Task SetObject(string fullPath, Stream dataStream, bool append, CancellationToken cancellationToken = default) {
 			await SetObject(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
 		}

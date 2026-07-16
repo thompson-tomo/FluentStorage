@@ -18,6 +18,10 @@ using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
 
 namespace FluentStorage.Mongo.Storage {
+
+	/// <summary>
+	/// Manages a single MongoDB GridFS bucket using the native MongoDB Driver.
+	/// </summary>
 	public class MongoGridStore : StoreBase {
 		private IMongoClient _client;
 		private IMongoDatabase _database;

@@ -11,6 +11,7 @@ using FluentStorage.Utils.Extensions;
 using FluentStorage.Utils.Generator;
 using FluentStorage.Enums;
 using FluentStorage.Model;
+using FluentStorage.Streaming;
 
 namespace FluentStorage.Tests.Integration.Blobs {
 	[Trait("Category", "Blobs")]

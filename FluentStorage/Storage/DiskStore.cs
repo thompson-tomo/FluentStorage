@@ -147,39 +147,56 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Returns the list of blob names in this storage, optionally filtered by prefix
 		/// </summary>
-		public Task<List<StoreObject>> ListObjects(StorageListOptions options, CancellationToken cancellationToken = default) {
+		public override async Task<List<StoreObject>> ListObjects(StorageListOptions options, CancellationToken cancellationToken = default) {
+
+			// Apply default options
 			if (options == null) options = new StorageListOptions();
 
+			// Validate search prefix
 			ArgValidator.AssertPrefix(options.FilePrefix);
 
-			if (!_fileSystem.Directory.Exists(_directoryFullName)) return Task.FromResult(new List<StoreObject>());
+			// Ensure storage root exists
+			if (!_fileSystem.Directory.Exists(_directoryFullName))return new List<StoreObject>();
 
-			string fullPath = NormalizeFolderPath(options?.FolderPath, false);
-			if (fullPath == null) return Task.FromResult(new List<StoreObject>());
+			// Resolve target folder path
+			string fullPath = NormalizeFolderPath(options.FolderPath, false);
+			if (fullPath == null)return new List<StoreObject>();
 
+			// get files
 			string[] fileIds = _fileSystem.Directory.GetFiles(
-			   fullPath,
-			   string.IsNullOrEmpty(options.FilePrefix)
-				  ? "*"
-				  : options.FilePrefix + "*",
-			   options.Recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+				fullPath,
+				string.IsNullOrEmpty(options.FilePrefix) ? "*" : options.FilePrefix + "*",
+				options.Recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly
+			);
 
+			// get folders
 			string[] directoryIds = _fileSystem.Directory.GetDirectories(
-				  fullPath,
-				  string.IsNullOrEmpty(options.FilePrefix)
-					 ? "*"
-					 : options.FilePrefix + "*",
-				  options.Recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+				fullPath,
+				string.IsNullOrEmpty(options.FilePrefix) ? "*" : options.FilePrefix + "*",
+				options.Recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly
+			);
 
+			// new results
 			var result = new List<StoreObject>();
-			result.AddRange(directoryIds.Select(id => ToBlobItem(id, StorageObjectType.Folder, options.IncludeAttributes)));
-			result.AddRange(
-			   fileIds.Where(fid => !fid.EndsWith(AttributesFileExtension)).Select(id => ToBlobItem(id, StorageObjectType.File, options.IncludeAttributes)));
+
+			// add folders
+			result.AddRange(directoryIds.Select(id =>
+				ToBlobItem(id, StorageObjectType.Folder, options.IncludeAttributes))
+			);
+
+			// add files (except ATTR files)
+			result.AddRange(fileIds
+					.Where(fid => !fid.EndsWith(AttributesFileExtension))
+					.Select(id => ToBlobItem(id, StorageObjectType.File, options.IncludeAttributes))
+			);
+
+			// apply filters and result limits
 			result = result
-			   .Where(i => options.BrowseFilter == null || options.BrowseFilter(i))
-			   .Take(options.MaxResults == null ? int.MaxValue : options.MaxResults.Value)
-			   .ToList();
-			return Task.FromResult(result);
+				.Where(i => options.BrowseFilter == null || options.BrowseFilter(i))
+				.Take(options.MaxResults ?? int.MaxValue)
+				.ToList();
+
+			return result;
 		}
 
 		private static string FormatFlags(FileAttributes fa) {
@@ -398,7 +415,7 @@ namespace FluentStorage.Storage {
 		public override async Task<StoreObject> GetObjectInfo(string path, CancellationToken cancellationToken = default) {
 			return (await GetObjectsInfo(new List<string> { path }, cancellationToken).ConfigureAwait(false)).FirstOrDefault();
 		}
-		public override Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
+		public override async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
 			var result = new List<StoreObject>();
 
 			foreach (string blobId in ids) {
@@ -414,14 +431,14 @@ namespace FluentStorage.Storage {
 				result.Add(ToBlobItem(filePath, StorageObjectType.File, true));
 			}
 
-			return Task.FromResult(result);
+			return result;
 		}
 
 		public override async Task SetObjectInfo(StoreObject obj, CancellationToken cancellationToken = default) {
 			await SetObjectsInfo(new List<StoreObject> { obj }, cancellationToken).ConfigureAwait(false);
 		}
 
-		public override Task SetObjectsInfo(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
+		public override async Task SetObjectsInfo(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
 			ArgValidator.AssertFullPaths(blobs);
 
 			foreach (StoreObject blob in blobs.Where(b => b != null)) {
@@ -436,8 +453,6 @@ namespace FluentStorage.Storage {
 				string attrPath = NormalizeFilePath(blob.FullPath) + AttributesFileExtension;
 				_fileSystem.File.WriteAllBytes(attrPath, blob.AttributesToByteArray());
 			}
-
-			return Task.CompletedTask;
 		}
 
 		private void AddMetadata(StoreObject blob) {

@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace FluentStorage.Tests.Integration.Util {
-	class NonSeekableStream : Stream {
+namespace FluentStorage.Streaming {
+	/// <summary>
+	/// Simple implementation of a non-seekable stream.
+	/// </summary>
+	public class NonSeekableStream : Stream {
 		private readonly Stream parent;
 
 		public NonSeekableStream(Stream parent) {

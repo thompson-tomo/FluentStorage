@@ -7,7 +7,7 @@ namespace FluentStorage.Mongo.Factory {
 	/// <summary>
 	/// Factory methods for creating MongoDB stores.
 	/// </summary>
-	public static class MongoStorage {
+	public static class MongoGridStorage {
 
 		/// <summary>
 		/// Construct from a MongoDB connection string (eg. "mongodb+srv://user:pass@cluster0.mongodb.net").

@@ -49,7 +49,7 @@ namespace FluentStorage.Tests.Integration.Messaging {
 
 	public class AwsSQSFixture : MessagingFixture {
 		protected override IQueue CreateMessenger(ITestSettings settings) {
-			return AwsSqsStorage.FromCredentials(
+			return AwsSqsStorage.PublisherFromCredentials(
 			   settings.AwsAccessKeyId,
 			   settings.AwsSecretAccessKey,
 			   "https://sqs.us-east-1.amazonaws.com",

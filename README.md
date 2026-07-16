@@ -295,9 +295,15 @@ This table shows the API supported by specific cloud providers:
 <tbody>
 
 <tr>
-<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img> <br><b>Azure Blobs</b> <br> <code>IAzureBlobStore</code> </th>
-<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img> <br><b>Azure Data Lake</b> <br> <code>IAzureDataLakeStore</code> </th>
-<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/aws.png" width="32"></img> <br><b>AWS S3</b> <br> <code>IS3Storage</code> </th>
+<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img> <br><b>Azure Blobs</b> </th>
+<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img> <br><b>Azure Data Lake</b> </th>
+<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/aws.png" width="32"></img> <br><b>AWS S3</b> </th>
+</tr>
+
+<tr>
+<th> <code>IAzureBlobStore</code> </th>
+<th> <code>IAzureDataLakeStore</code> </th>
+<th> <code>IS3Storage</code> </th>
 </tr>
 
 <tr>

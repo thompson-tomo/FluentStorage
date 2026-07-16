@@ -21,17 +21,17 @@
    - Collections returned by APIs will always be `List` instead of `IReadOnlyCollection`. 
    - Exceptions are moved into the `FluentStorage.Exceptions` namespace
    - Enums are moved into the `FluentStorage.Enums` namespace
-   - Bucket stores now support [presigned URL and more object manipulation API](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#new-bucket-api)
+   - Bucket stores now support [streaming/seeking, presigned URL and more object manipulation API](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#new-bucket-api)
    - We no longer support [Databricks, ServiceFabric, EventHub](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#deleted-libraries), [Virtual storage and ZIP archives](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#deleted-api)
  - **FluentStorage.AWS**
    - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
-   - New API: `GetClient`, `MoveObject`, `DownloadObject`, `UploadObject`, `OpenRead`, `OpenWrite`, `GetUploadUrl`, `GetDownloadUrl`, `GetPresignedUrl`, `GetObjectSas`
+   - New API: `GetClient`, `MoveObject`, `DownloadObject`, `UploadObject`, `OpenRead`, `OpenWrite`, `GetUploadUrl`, `GetDownloadUrl`, `GetPresignedUrl`, `GetObjectSas`, `OpenRange`, `OpenSeekable`
  - **FluentStorage.GCP**
    - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
-   - New API: `GetPresignedUrl`, `GetObjectSas`, `MoveObject`, `DeleteDirectory`
+   - New API: `GetPresignedUrl`, `GetObjectSas`, `MoveObject`, `DeleteDirectory`, `OpenRange`, `OpenSeekable`
  - **FluentStorage.Azure.Blobs**
    - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
-   - New API: `GetClient`, `MoveObject`, `DownloadObject`, `UploadObject`, `OpenRead`, `OpenWrite`, `GetUploadUrl`, `GetDownloadUrl`, `GetPresignedUrl`, `GetObjectSas`
+   - New API: `GetClient`, `MoveObject`, `DownloadObject`, `UploadObject`, `OpenRead`, `OpenWrite`, `GetUploadUrl`, `GetDownloadUrl`, `GetPresignedUrl`, `GetObjectSas`, `OpenRange`, `OpenSeekable`
  - **FluentStorage.Azure.Files**
    - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
  - **FluentStorage.Azure.ServiceBus**

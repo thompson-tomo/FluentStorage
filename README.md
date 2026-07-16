@@ -134,17 +134,6 @@ This table shows the API supported by `IStore` across various cloud and server p
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
-<tr>
-<td colspan="10"><b>File streaming/seeking</b></td>
-</tr>
-<tr>
-<td>&nbsp;&nbsp; OpenRange</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
-</tr>
-<tr>
-<td>&nbsp;&nbsp; OpenSeekable</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
-</tr>
 
 <tr>
 <th>API</th>
@@ -157,6 +146,18 @@ This table shows the API supported by `IStore` across various cloud and server p
 <th><b>FTP</b></th>
 <th><b>SFTP</b></th>
 <th><b>Local<br>Disk</b></th>
+</tr>
+
+<tr>
+<td colspan="10"><b>File streaming/seeking</b></td>
+</tr>
+<tr>
+<td>&nbsp;&nbsp; OpenRange</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+</tr>
+<tr>
+<td>&nbsp;&nbsp; OpenSeekable</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 <tr>
@@ -207,6 +208,20 @@ This table shows the API supported by `IStore` across various cloud and server p
 <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td>
 </tr>
 
+
+<tr>
+<th>API</th>
+<th><b>Azure<br>Blobs</b></th>
+<th><b>Azure<br>Files</b></th>
+<th><b>AWS S3</b></th>
+<th><b>GCP</b></th>
+<th><b>MinIO</b></th>
+<th><b>Alibaba</b></th>
+<th><b>FTP</b></th>
+<th><b>SFTP</b></th>
+<th><b>Local<br>Disk</b></th>
+</tr>
+
 <tr>
 <td colspan="10"><b>Directory manipulation</b></td>
 </tr>
@@ -227,20 +242,6 @@ This table shows the API supported by `IStore` across various cloud and server p
 <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
-
-<tr>
-<th>API</th>
-<th><b>Azure<br>Blobs</b></th>
-<th><b>Azure<br>Files</b></th>
-<th><b>AWS S3</b></th>
-<th><b>GCP</b></th>
-<th><b>MinIO</b></th>
-<th><b>Alibaba</b></th>
-<th><b>FTP</b></th>
-<th><b>SFTP</b></th>
-<th><b>Local<br>Disk</b></th>
-</tr>
-
 <tr>
 <td colspan="10"><b>Presigned URL generation</b></td>
 </tr>
@@ -259,6 +260,20 @@ This table shows the API supported by `IStore` across various cloud and server p
 <tr>
 <td>&nbsp;&nbsp; GetObjectSas</td>
 <td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
+</tr>
+
+
+<tr>
+<th>API</th>
+<th><b>Azure<br>Blobs</b></th>
+<th><b>Azure<br>Files</b></th>
+<th><b>AWS S3</b></th>
+<th><b>GCP</b></th>
+<th><b>MinIO</b></th>
+<th><b>Alibaba</b></th>
+<th><b>FTP</b></th>
+<th><b>SFTP</b></th>
+<th><b>Local<br>Disk</b></th>
 </tr>
 
 <tr>

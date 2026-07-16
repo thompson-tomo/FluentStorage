@@ -47,7 +47,7 @@ FluentStorage supports the following cloud storage providers:
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/alibaba.png" width="32"></img>|  [Alibaba OSS](https://github.com/robinrodricks/FluentStorage/wiki/Alibaba-OSS-Storage)         | `AlibabaStorage` | `AlibabaStore` |`OssClient`  |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/ftp.png" width="32"></img>|  [FTP](https://github.com/robinrodricks/FluentStorage/wiki/FTP-Storage)        						| `FtpStorage` | `FtpStore` |  `AsyncFtpClient` |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/sftp.png" width="32"></img>|  [SFTP](https://github.com/robinrodricks/FluentStorage/wiki/SFTP-Storage)        					| `SftpStorage` | `SftpStore` | `SftpClient` |
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/local.png" width="32"></img>|  [Local Disk](https://github.com/robinrodricks/FluentStorage/wiki/Standard-Storage)        		| `StorageFactory` | `DiskStore` | --- |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/local.png" width="32"></img>|  [Local Disk](https://github.com/robinrodricks/FluentStorage/wiki/Standard-Storage)        		| `StorageFactory` | `DiskStore` | `IFileSystem` |
 
 To add support for a new provider, search for `[ADD STORAGE PROVIDER]` across all code files and make the required changes.
 
@@ -79,7 +79,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>&nbsp;&nbsp; GetClient</td>
-<td>✔️</td><td>✔️</td><td>✔️<br></td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td>
+<td>✔️</td><td>✔️</td><td>✔️<br></td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; GetServer</td>

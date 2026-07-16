@@ -231,7 +231,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>&nbsp;&nbsp; DirectoryExists</td>
-<td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; CreateDirectory</td>
@@ -239,7 +239,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>&nbsp;&nbsp; DeleteDirectory</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; MoveDirectory</td>

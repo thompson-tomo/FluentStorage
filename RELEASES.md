@@ -1,5 +1,14 @@
 ﻿# Release Notes
 
+#### FluentStorage 8.0.3
+ - Add APIs to all providers: `GetObjectLength` and integrate it with streaming/seeking implementation
+
+#### FluentStorage 8.0.2
+ - Add streaming/seeking APIs to all providers: `OpenRange`, `OpenSeekable`
+
+#### FluentStorage 8.0.1
+ - Fix some issues with the original v8 release.
+
 #### FluentStorage 8.0.0
  - **Please read the [Migration Guide](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide) to help you migrate from older versions to FluentStorage 8!**
  - **FluentStorage**

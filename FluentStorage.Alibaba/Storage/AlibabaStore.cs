@@ -24,9 +24,6 @@ namespace FluentStorage.Alibaba.Storage {
 		private volatile bool _bucketChecked;
 		private readonly SemaphoreSlim _bucketCheckLock = new SemaphoreSlim(1, 1);
 
-		/// <summary>
-		/// Standard AccessKey / AccessKeySecret authentication.
-		/// </summary>
 		public AlibabaStore(string endpoint, string bucketName, string accessKeyId, string accessKeySecret) {
 			if (string.IsNullOrWhiteSpace(endpoint)) throw new ArgumentNullException(nameof(endpoint));
 			if (string.IsNullOrWhiteSpace(bucketName)) throw new ArgumentNullException(nameof(bucketName));
@@ -37,9 +34,6 @@ namespace FluentStorage.Alibaba.Storage {
 			_client = new OssClient(endpoint, accessKeyId, accessKeySecret);
 		}
 
-		/// <summary>
-		/// STS (temporary security token) authentication.
-		/// </summary>
 		public AlibabaStore(string endpoint, string bucketName, string accessKeyId, string accessKeySecret, string securityToken) {
 			if (string.IsNullOrWhiteSpace(endpoint)) throw new ArgumentNullException(nameof(endpoint));
 			if (string.IsNullOrWhiteSpace(bucketName)) throw new ArgumentNullException(nameof(bucketName));
@@ -51,9 +45,6 @@ namespace FluentStorage.Alibaba.Storage {
 			_client = new OssClient(endpoint, accessKeyId, accessKeySecret, securityToken);
 		}
 
-		/// <summary>
-		/// Advanced constructor allowing a custom ClientConfiguration (timeouts, proxy, retry policy, etc).
-		/// </summary>
 		public AlibabaStore(string endpoint, string bucketName, string accessKeyId, string accessKeySecret, ClientConfiguration configuration) {
 			if (string.IsNullOrWhiteSpace(endpoint)) throw new ArgumentNullException(nameof(endpoint));
 			if (string.IsNullOrWhiteSpace(bucketName)) throw new ArgumentNullException(nameof(bucketName));

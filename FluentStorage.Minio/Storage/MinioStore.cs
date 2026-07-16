@@ -27,9 +27,6 @@ namespace FluentStorage.Minio.Storage {
 		private bool _bucketChecked;
 		private readonly SemaphoreSlim _bucketCheckLock = new SemaphoreSlim(1, 1);
 
-		/// <summary>
-		/// Creates a store using static (long-lived) access key / secret key credentials.
-		/// </summary>
 		public MinioStore(string endpoint, string accessKey, string secretKey, string bucketName,
 			bool useSsl = true, string region = null) {
 			if (string.IsNullOrWhiteSpace(endpoint)) throw new ArgumentNullException(nameof(endpoint));
@@ -50,9 +47,6 @@ namespace FluentStorage.Minio.Storage {
 			_client = builder.Build();
 		}
 
-		/// <summary>
-		/// Creates a store using temporary/STS credentials (access key, secret key and session token).
-		/// </summary>
 		public MinioStore(string endpoint, string accessKey, string secretKey, string sessionToken,
 			string bucketName, bool useSsl = true, string region = null) {
 			if (string.IsNullOrWhiteSpace(endpoint)) throw new ArgumentNullException(nameof(endpoint));
@@ -75,21 +69,12 @@ namespace FluentStorage.Minio.Storage {
 			_client = builder.Build();
 		}
 
-		/// <summary>
-		/// Creates a store wrapping an already-configured Minio client (e.g. custom credential
-		/// providers, IAM role chains, MinIO's AssumeRole/WebIdentity providers, etc).
-		/// </summary>
 		public MinioStore(IMinioClient existingClient, string bucketName) {
 			_client = existingClient ?? throw new ArgumentNullException(nameof(existingClient));
 			if (string.IsNullOrWhiteSpace(bucketName)) throw new ArgumentNullException(nameof(bucketName));
 			_bucketName = bucketName;
 		}
 
-		/// <summary>
-		/// Creates a store using EC2/ECS/EKS instance-role (IAM) credentials, resolved automatically
-		/// from the instance metadata service (or a MinIO-compatible IAM endpoint if supplied).
-		/// No access/secret keys are passed in - the SDK fetches and auto-refreshes them.
-		/// </summary>
 		public MinioStore(string endpoint, string bucketName, bool useSsl = true, string region = null,
 			string iamEndpoint = null) {
 			if (string.IsNullOrWhiteSpace(endpoint)) throw new ArgumentNullException(nameof(endpoint));

@@ -29,6 +29,16 @@ namespace FluentStorage.Mongo.Storage {
 		// Constructors
 		// ------------------------------------------------------------------
 
+		public MongoGridStore(IMongoClient client, IMongoDatabase database, string bucketName = "fs") {
+			if (client == null) throw new ArgumentNullException(nameof(client));
+			if (database == null) throw new ArgumentNullException(nameof(database));
+			if (string.IsNullOrWhiteSpace(bucketName)) throw new ArgumentNullException(nameof(bucketName));
+
+			_client = client;
+			_database = database;
+			Construct(null, bucketName);
+
+		}
 		public MongoGridStore(string connectionString, string databaseName, string bucketName = "fs") {
 			if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentNullException(nameof(connectionString));
 			if (string.IsNullOrWhiteSpace(databaseName)) throw new ArgumentNullException(nameof(databaseName));
@@ -92,7 +102,9 @@ namespace FluentStorage.Mongo.Storage {
 		}
 
 		private void Construct(string databaseName, string bucketName) {
-			_database = _client.GetDatabase(databaseName);
+			if (databaseName != null) {
+				_database = _client.GetDatabase(databaseName);
+			}
 			_bucketName = bucketName;
 			_bucket = new GridFSBucket(_database, new GridFSBucketOptions {
 				BucketName = _bucketName

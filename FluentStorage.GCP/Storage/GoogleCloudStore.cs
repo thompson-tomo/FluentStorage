@@ -300,9 +300,8 @@ namespace FluentStorage.GCP.Storage {
 		/// Move object from one path to another.
 		/// </summary>
 		public override async Task<bool> MoveObject(string oldPath,string newPath,bool overwrite, CancellationToken cancellationToken = default) {
-
-			ArgValidator.AssertFullPath(oldPath);
-			ArgValidator.AssertFullPath(newPath);
+			if (string.IsNullOrWhiteSpace(oldPath)) throw new ArgumentNullException(nameof(oldPath));
+			if (string.IsNullOrWhiteSpace(newPath)) throw new ArgumentNullException(nameof(newPath));
 
 			oldPath = NormalisePath(oldPath);
 			newPath = NormalisePath(newPath);

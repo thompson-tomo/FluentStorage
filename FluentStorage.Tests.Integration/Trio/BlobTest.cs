@@ -575,8 +575,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 			try {
 				await _storage.CreateDirectory(folderPath, false);
 
-				List<StoreObject> files = await _storage.ListDirectory(folderPath);
-				Assert.True(files.Any());  //check dummy file exists
+				Assert.True(await _storage.DirectoryExists(folderPath));
 			}
 			catch (NotSupportedException) {
 

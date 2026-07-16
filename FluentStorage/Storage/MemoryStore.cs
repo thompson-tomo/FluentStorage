@@ -20,7 +20,7 @@ namespace FluentStorage.Storage {
 
 		private readonly Dictionary<string, Tag> _pathToTag = new Dictionary<string, Tag>();
 
-		public Task<List<StoreObject>> ListObjects(StorageListOptions options, CancellationToken cancellationToken = default) {
+		public override async Task<List<StoreObject>> ListObjects(StorageListOptions options, CancellationToken cancellationToken = default) {
 			if (options == null) options = new StorageListOptions();
 
 			IEnumerable<KeyValuePair<string, Tag>> query = _pathToTag;
@@ -50,7 +50,7 @@ namespace FluentStorage.Storage {
 
 			List<StoreObject> matches = query.Select(p => p.Value.blob).ToList();
 
-			return Task.FromResult(matches);
+			return matches;
 		}
 
 		public override async Task SetObject(string fullPath, Stream sourceStream, bool append, CancellationToken cancellationToken = default) {
@@ -139,7 +139,7 @@ namespace FluentStorage.Storage {
 		public override async Task<StoreObject> GetObjectInfo(string path, CancellationToken cancellationToken = default) {
 			return (await GetObjectsInfo(new List<string> { path }, cancellationToken).ConfigureAwait(false)).FirstOrDefault();
 		}
-		public override Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+		public override async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			ArgValidator.AssertFullPaths(fullPaths);
 
 			var result = new List<StoreObject>();
@@ -153,16 +153,16 @@ namespace FluentStorage.Storage {
 				}
 			}
 
-			return Task.FromResult<List<StoreObject>>(result);
+			return result;
 		}
 
 		public override async Task SetObjectInfo(StoreObject obj, CancellationToken cancellationToken = default) {
 			await SetObjectsInfo(new List<StoreObject> { obj }, cancellationToken).ConfigureAwait(false);
 		}
 
-		public override Task SetObjectsInfo(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
+		public override async Task SetObjectsInfo(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default) {
 			if (blobs == null)
-				return Task.FromResult(true);
+				return;
 
 			foreach (StoreObject blob in blobs) {
 				if (_pathToTag.TryGetValue(blob, out Tag tag)) {
@@ -170,8 +170,6 @@ namespace FluentStorage.Storage {
 					tag.blob.Metadata.AddRange(blob.Metadata);
 				}
 			}
-
-			return Task.FromResult(true);
 		}
 
 		private void Write(string fullPath, Stream sourceStream) {

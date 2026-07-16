@@ -645,6 +645,8 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		/// <param name="overwrite">Whether to overwrite the destination object if it already exists.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		public override async Task<bool> MoveObject(string oldPath, string newPath, bool overwrite, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(oldPath)) throw new ArgumentNullException(nameof(oldPath));
+			if (string.IsNullOrWhiteSpace(newPath)) throw new ArgumentNullException(nameof(newPath));
 
 			if (!await ObjectExists(oldPath, cancellationToken).ConfigureAwait(false))
 				return false;

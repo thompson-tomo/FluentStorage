@@ -410,6 +410,8 @@ namespace FluentStorage.SFTP {
 		/// <param name="newPath">New Remote file path</param>
 		public override async Task<bool> MoveObject(string oldPath, string newPath, bool overwrite, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
+			if (string.IsNullOrWhiteSpace(oldPath)) throw new ArgumentNullException(nameof(oldPath));
+			if (string.IsNullOrWhiteSpace(newPath)) throw new ArgumentNullException(nameof(newPath));
 
 			oldPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(oldPath));
 			newPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(newPath));

@@ -419,6 +419,8 @@ namespace FluentStorage.FTP.Storage {
 		/// <param name="newPath">New remote path.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		public override async Task<bool> MoveObject(string oldPath, string newPath, bool overwrite, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(oldPath)) throw new ArgumentNullException(nameof(oldPath));
+			if (string.IsNullOrWhiteSpace(newPath)) throw new ArgumentNullException(nameof(newPath));
 
 			AsyncFtpClient client = await Client().ConfigureAwait(false);
 

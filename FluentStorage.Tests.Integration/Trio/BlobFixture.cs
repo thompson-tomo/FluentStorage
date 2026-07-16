@@ -28,8 +28,8 @@ namespace FluentStorage.Tests.Integration.Blobs {
 		public string TestDir {
 			get {
 				if (_testDir == null) {
-					string buildDir = new FileInfo(new Uri(Assembly.GetExecutingAssembly().Location).LocalPath).Directory.FullName;
-					_testDir = Path.Combine(buildDir, "TEST-" + Guid.NewGuid());
+					string buildDir = @"C:\Temp\FluentStorage\";
+					_testDir = Path.Combine(buildDir, "TEST -" + Guid.NewGuid());
 				}
 
 				return _testDir;
@@ -65,8 +65,7 @@ namespace FluentStorage.Tests.Integration.Blobs {
 				try {
 					Directory.Delete(_testDir, true);
 				}
-				catch (DirectoryNotFoundException) {
-				}
+				catch (Exception) {}
 				_testDir = null;
 			}
 		}

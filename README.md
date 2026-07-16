@@ -135,6 +135,18 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 
 <tr>
+<td colspan="10"><b>File streaming/seeking</b></td>
+</tr>
+<tr>
+<td>&nbsp;&nbsp; OpenRange</td>
+<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
+</tr>
+<tr>
+<td>&nbsp;&nbsp; OpenSeekable</td>
+<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
+</tr>
+
+<tr>
 <th>API</th>
 <th><b>Azure<br>Blobs</b></th>
 <th><b>Azure<br>Files</b></th>

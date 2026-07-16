@@ -34,16 +34,16 @@
    - We no longer support [Databricks, ServiceFabric, EventHub](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#deleted-libraries), [Virtual storage and ZIP archives](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#deleted-api)
  - **FluentStorage.AWS**
    - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
-   - New API: `GetClient`, `MoveObject`, `DownloadObject`, `UploadObject`, `OpenRead`, `OpenWrite`, `GetUploadUrl`, `GetDownloadUrl`, `GetPresignedUrl`, `GetObjectSas`, `OpenRange`, `OpenSeekable`
+   - New API: `GetClient`, `MoveObject`, `DownloadObject`, `UploadObject`, `OpenRead`, `OpenWrite`, `GetUploadUrl`, `GetDownloadUrl`, `GetPresignedUrl`, `GetObjectSas`, `OpenRange`, `OpenSeekable`, `GetObjectLength`.
  - **FluentStorage.GCP**
    - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
-   - New API: `GetPresignedUrl`, `GetObjectSas`, `MoveObject`, `DeleteDirectory`, `OpenRange`, `OpenSeekable`
+   - New API: `GetPresignedUrl`, `GetObjectSas`, `MoveObject`, `DeleteDirectory`, `OpenRange`, `OpenSeekable`, `GetObjectLength`.
  - **FluentStorage.Azure.Blobs**
    - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
-   - New API: `GetClient`, `MoveObject`, `DownloadObject`, `UploadObject`, `OpenRead`, `OpenWrite`, `GetUploadUrl`, `GetDownloadUrl`, `GetPresignedUrl`, `GetObjectSas`, `OpenRange`, `OpenSeekable`
+   - New API: `GetClient`, `MoveObject`, `DownloadObject`, `UploadObject`, `OpenRead`, `OpenWrite`, `GetUploadUrl`, `GetDownloadUrl`, `GetPresignedUrl`, `GetObjectSas`, `OpenRange`, `OpenSeekable`, `GetObjectLength`.
  - **FluentStorage.Azure.Files**
    - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
-   - New API: `GetClient`, `OpenRange`, `OpenSeekable`
+   - New API: `GetClient`, `OpenRange`, `OpenSeekable`, `GetObjectLength`.
  - **FluentStorage.Azure.ServiceBus**
    - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
  - **FluentStorage.Azure.KeyVault**
@@ -53,11 +53,11 @@
  - **FluentStorage.FTP**
    - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
    - FTP has new [directory and server API](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#new-ftpsftp-api) for file systems
-   - New API: `GetServer`, `CreateDirectory`, `DeleteDirectory`, `DirectoryExists`, `MoveDirectory`, `GetFilePermissions`, `SetFilePermissions`, `MoveObject`, `DownloadObject`, `UploadObject`, `GetBytes`, `SetBytes`, `OpenRange`, `OpenSeekable`.
+   - New API: `GetServer`, `CreateDirectory`, `DeleteDirectory`, `DirectoryExists`, `MoveDirectory`, `GetFilePermissions`, `SetFilePermissions`, `MoveObject`, `DownloadObject`, `UploadObject`, `GetBytes`, `SetBytes`, `OpenRange`, `OpenSeekable`, `GetObjectLength`.
  - **FluentStorage.SFTP**
    - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
    - SFTP has new [directory and server API](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#new-ftpsftp-api) for file systems
-   - New API: `GetServer`, `CreateDirectory`, `DeleteDirectory`, `DirectoryExists`, `MoveDirectory`, `GetFilePermissions`, `SetFilePermissions`, `MoveObject`, `DownloadObject`, `UploadObject`, `GetBytes`, `SetBytes`, `OpenRange`, `OpenSeekable`.
+   - New API: `GetServer`, `CreateDirectory`, `DeleteDirectory`, `DirectoryExists`, `MoveDirectory`, `GetFilePermissions`, `SetFilePermissions`, `MoveObject`, `DownloadObject`, `UploadObject`, `GetBytes`, `SetBytes`, `OpenRange`, `OpenSeekable`, `GetObjectLength`.
  - **FluentStorage.Alibaba**
    - New: Alibaba OSS provider using native Aliyun SDK. Introduces the factory API `AlibabaStorage` and store class `AlibabaStore`.
  - **FluentStorage.Minio**

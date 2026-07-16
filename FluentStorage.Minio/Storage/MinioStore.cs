@@ -424,6 +424,9 @@ namespace FluentStorage.Minio.Storage {
 			return stream;
 		}
 
+		public override bool IsSeekable() {
+			return true;
+		}
 		public override async Task DeleteObjects(IEnumerable<string> fullPaths,
 			CancellationToken cancellationToken = default) {
 			if (fullPaths == null) throw new ArgumentNullException(nameof(fullPaths));

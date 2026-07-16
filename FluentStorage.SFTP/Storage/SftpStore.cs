@@ -138,7 +138,7 @@ namespace FluentStorage.SFTP {
 			_disposeClient = disposeClient;
 		}
 
-		public override bool HasFileSystem() {
+		public override bool IsFileSystem() {
 			return true;
 		}
 

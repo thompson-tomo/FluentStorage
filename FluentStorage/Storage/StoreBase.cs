@@ -26,7 +26,10 @@ namespace FluentStorage.Storage {
 
 		}
 
-		public virtual bool HasFileSystem() {
+		public virtual bool IsFileSystem() {
+			return false;
+		}
+		public virtual bool IsSeekable() {
 			return false;
 		}
 		public virtual async Task<object> GetClient() {
@@ -45,6 +48,7 @@ namespace FluentStorage.Storage {
 		}
 
 		public virtual async Task<SeekableStream> OpenSeekable(string path, int bufferSize = 64 * 1024, CancellationToken cancellationToken = default) {
+			if (!IsSeekable()) throw new NotSupportedException();
 			if (!await ObjectExists(path)) return null;
 			return new SeekableStream(this, path, bufferSize);
 		}

@@ -29,7 +29,12 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Returns true if the given object storage is backed by a file system (Disk/FTP/FTPS).
 		/// </summary>
-		bool HasFileSystem();
+		bool IsFileSystem();
+
+		/// <summary>
+		/// Returns true if the given object storage supports seeking and streaming.
+		/// </summary>
+		bool IsSeekable();
 
 		// ---------------------------------------------------------------------
 		// Listing

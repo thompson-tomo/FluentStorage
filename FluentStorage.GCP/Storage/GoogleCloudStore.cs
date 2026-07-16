@@ -231,6 +231,9 @@ namespace FluentStorage.GCP.Storage {
 			return stream;
 		}
 
+		public override bool IsSeekable() {
+			return true;
+		}
 		/// <summary>
 		/// GCP requires no trailing root
 		/// </summary>

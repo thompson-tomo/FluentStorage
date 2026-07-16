@@ -406,6 +406,10 @@ namespace FluentStorage.AWS.Storage {
 			return response.ResponseStream;
 		}
 
+		public override bool IsSeekable() {
+			return true;
+		}
+
 		/// <summary>
 		/// Deletes multiple objects in parallel.
 		///

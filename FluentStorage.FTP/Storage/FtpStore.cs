@@ -34,7 +34,7 @@ namespace FluentStorage.FTP.Storage {
 			_dispose = dispose;
 		}
 
-		public override bool HasFileSystem() {
+		public override bool IsFileSystem() {
 			return true;
 		}
 		/// <summary>

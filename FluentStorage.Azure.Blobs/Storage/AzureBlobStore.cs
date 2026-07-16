@@ -166,6 +166,9 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			return response.Value.Content;
 		}
 
+		public override bool IsSeekable() {
+			return true;
+		}
 		/// <summary>
 		/// Uploads a blob to Azure Blob storage, by automatically computing the Content-Type.
 		/// </summary>

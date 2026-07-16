@@ -37,7 +37,7 @@ namespace FluentStorage.Storage.Files {
 			_directoryFullName = _fileSystem.Path.GetFullPath(directoryFullName);
 		}
 
-		public override bool HasFileSystem() {
+		public override bool IsFileSystem() {
 			return true;
 		}
 
@@ -234,6 +234,26 @@ namespace FluentStorage.Storage.Files {
 			return _fileSystem.File.OpenWrite(path);
 		}
 
+		public override Task<Stream> OpenRange(string fullPath,long offset,long length,CancellationToken cancellationToken = default) {
+			ArgValidator.AssertFullPath(fullPath);
+
+			fullPath = StoragePath.Normalize(fullPath);
+
+			string path = NormalizeFilePath(fullPath);
+
+			// exit if file does not exist
+			if (!_fileSystem.File.Exists(path)) return null;
+
+			Stream stream = _fileSystem.File.Open(path,FileMode.Open,FileAccess.Read,FileShare.Read);
+
+			stream.Seek(offset, SeekOrigin.Begin);
+
+			return Task.FromResult(stream);
+		}
+
+		public override bool IsSeekable() {
+			return true;
+		}
 		/// <summary>
 		/// Deletes multiple objects by its full path.
 		/// </summary>

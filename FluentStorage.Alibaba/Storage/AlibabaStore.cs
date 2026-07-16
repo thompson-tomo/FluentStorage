@@ -202,6 +202,9 @@ namespace FluentStorage.Alibaba.Storage {
 			return stream;
 		}
 
+		public override bool IsSeekable() {
+			return true;
+		}
 		// ------------------------------------------------------------------
 		// Delete
 		// ------------------------------------------------------------------

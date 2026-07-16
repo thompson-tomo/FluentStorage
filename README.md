@@ -446,12 +446,6 @@ In 2023, we added:
 
 
 
-## Supported Cloud Services
-
-![Slide](https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers.svg)
-
-
-
 ## Similar Libraries
 
 - [Foundatio](https://github.com/FoundatioFx/Foundatio) - Caching, Messaging, Queues and Storage library with AWS, Azure and many other providers
@@ -479,7 +473,7 @@ Has FluentStorage made a difference for you or your organization? If so, conside
 
 ## Contributors
 
-Special thanks to these awesome people who helped create FluentStorage! Shoutout to [Ivan Gavryliuk](https://github.com/aloneguid) for the original project [Storage.Net](https://github.com/aloneguid/storage).
+Special thanks to these awesome people who helped create FluentStorage!
 
 
 <a href="https://github.com/robinrodricks/FluentStorage/graphs/contributors">

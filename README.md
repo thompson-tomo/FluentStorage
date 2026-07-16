@@ -19,9 +19,9 @@ FluentStorage is a fully managed polycloud .NET cloud storage library, optimized
 
 It provides a [single unified API](#polycloud-api) for [Object storage](https://github.com/robinrodricks/FluentStorage/wiki/Object-Storage) and [Queue messaging](https://github.com/robinrodricks/FluentStorage/wiki/Message-Storage) across all [cloud storage providers](#storage-providers) like AWS S3, AWS SQS, GCP Storage, FTP, FTPS, SFTP, Local Disk, Azure Blob, Azure Files, Azure Queue, Azure Service Bus, Azure Data Lake, Azure Key Vault, Cloudflare R2, DigitalOcean Spaces, MinIO, Wasabi, Backblaze B2, Hetzner, Vultr, Alibaba OSS. Each provider has its own [Nuget package](#packages) with zero configuration required.
 
-It provides extensive Object manipulation commands, File uploads/downloads, File streaming/seeking, Directory listing, File permissions/CHMOD, UTF-8 support and more. Its API is fully asynchronous and has identical behavior across all providers. It also implements [in-memory and on-disk storage providers](https://github.com/robinrodricks/FluentStorage/wiki/Standard-Storage), so you can test on a local machine or access attached NAS/EBS drives.
+It provides extensive Object manipulation commands, File uploads/downloads, File streaming/seeking, Directory listing, File permissions/CHMOD, UTF-8 support and more. Its API is fully asynchronous and has identical behavior across all providers. It also implements [in-memory and local disk providers](https://github.com/robinrodricks/FluentStorage/wiki/Standard-Storage), so you can test on a local machine or access attached NAS/EBS drives.
 
-It is written entirely in C#, with few external dependencies.
+It is written entirely in C#, with few external dependencies. No configuration files are required.
 
 FluentStorage is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
 

@@ -382,6 +382,31 @@ namespace FluentStorage.AWS.Storage {
 		}
 
 		/// <summary>
+		/// Opens a readable stream beginning at the specified byte offset.
+		/// 
+		/// S3 returns:
+		/// * 206 Partial Content for valid ranges.
+		/// * 416 Requested Range Not Satisfiable if offset is beyond the end of the object.
+		/// </summary>
+		public override async Task<Stream> OpenRange(string path,long offset,long length,CancellationToken cancellationToken = default) {
+			AmazonS3Client client = await Client().ConfigureAwait(false);
+
+			var request = new GetObjectRequest {
+				BucketName = BucketName,
+				Key = path
+			};
+
+			// Request the desired byte range.
+			request.ByteRange = new ByteRange(offset, offset + length - 1);
+
+			GetObjectResponse response = await client
+				.GetObjectAsync(request, cancellationToken)
+				.ConfigureAwait(false);
+
+			return response.ResponseStream;
+		}
+
+		/// <summary>
 		/// Deletes multiple objects in parallel.
 		///
 		/// Each path is processed independently, including deletion of any virtual directory

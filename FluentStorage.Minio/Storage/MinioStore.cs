@@ -401,7 +401,28 @@ namespace FluentStorage.Minio.Storage {
 			});
 		}
 
+		public override async Task<Stream> OpenRange(string fullPath,long offset,long length,CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
 
+			var client = await Client(cancellationToken).ConfigureAwait(false);
+			string key = NormalizeKey(fullPath);
+
+			var stream = new MemoryStream();
+
+			var args = new GetObjectArgs()
+				.WithBucket(_bucketName)
+				.WithObject(key)
+				.WithOffsetAndLength(offset, length);
+
+			await client.GetObjectAsync(
+				args.WithCallbackStream(async s => {
+					await s.CopyToAsync(stream, (int)length, cancellationToken).ConfigureAwait(false);
+				}),
+				cancellationToken).ConfigureAwait(false);
+
+			stream.Position = 0;
+			return stream;
+		}
 
 		public override async Task DeleteObjects(IEnumerable<string> fullPaths,
 			CancellationToken cancellationToken = default) {

@@ -1,6 +1,7 @@
 ﻿using FluentStorage.Enums;
 using FluentStorage.Exceptions;
 using FluentStorage.Model;
+using FluentStorage.Streaming;
 using FluentStorage.Utils.Extensions;
 using System;
 using System.Collections.Generic;
@@ -32,12 +33,22 @@ namespace FluentStorage.Storage {
 			return null;
 		}
 
-		public virtual Task<Stream> OpenRead(string objectPath, CancellationToken cancellationToken = default) {
+		public virtual async Task<Stream> OpenRead(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
-		public virtual Task<Stream> OpenWrite(string objectPath, bool overwrite, CancellationToken cancellationToken = default) {
+		public virtual async Task<Stream> OpenWrite(string objectPath, bool overwrite, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
+
+		public virtual async Task<Stream> OpenRange(string path, long offset, long length, CancellationToken cancellationToken = default) {
+			throw new NotSupportedException();
+		}
+
+		public virtual async Task<SeekableStream> OpenSeekable(string path, int bufferSize = 64 * 1024, CancellationToken cancellationToken = default) {
+			if (!await ObjectExists(path)) return null;
+			return new SeekableStream(this, path, bufferSize);
+		}
+
 
 		public virtual async Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			var result = new List<StoreObject>();

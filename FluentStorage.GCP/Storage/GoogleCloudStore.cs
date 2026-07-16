@@ -14,6 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using GObject = Google.Apis.Storage.v1.Data.Object;
@@ -207,6 +208,27 @@ namespace FluentStorage.GCP.Storage {
 				await _client.UploadObjectAsync(_bucketName,fullPath,
 					null,s, null, cancellationToken).ConfigureAwait(false);
 			});
+		}
+
+		/// <summary>
+		/// Opens a readable stream beginning at the specified byte offset.
+		/// </summary>
+		public override async Task<Stream> OpenRange(string path,long offset,long length,CancellationToken cancellationToken = default) {
+			ArgValidator.AssertFullPath(path);
+
+			path = NormalisePath(path);
+
+			var stream = new MemoryStream();
+
+			var options = new DownloadObjectOptions {
+				Range = new RangeHeaderValue(offset, offset + length - 1)
+			};
+
+			await _client.DownloadObjectAsync(_bucketName,path,stream,options,cancellationToken)
+				.ConfigureAwait(false);
+
+			stream.Position = 0;
+			return stream;
 		}
 
 		/// <summary>

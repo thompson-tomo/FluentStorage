@@ -182,6 +182,26 @@ namespace FluentStorage.Alibaba.Storage {
 			});
 		}
 
+		public override async Task<Stream> OpenRange(string fullPath,long offset,long length,CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
+
+			var client = await Client().ConfigureAwait(false);
+			var key = NormalizeKey(fullPath);
+
+			var request = new GetObjectRequest(_bucketName, key);
+
+			request.SetRange(offset,offset + length - 1);
+
+			var stream = new MemoryStream();
+
+			await Task.Run(() => {
+				client.GetObject(request, stream);
+			}, cancellationToken).ConfigureAwait(false);
+
+			stream.Position = 0;
+			return stream;
+		}
+
 		// ------------------------------------------------------------------
 		// Delete
 		// ------------------------------------------------------------------

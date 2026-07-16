@@ -1,5 +1,6 @@
 ﻿using FluentStorage.Enums;
 using FluentStorage.Model;
+using FluentStorage.Streaming;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -136,6 +137,22 @@ namespace FluentStorage.Storage {
 		/// <param name="cancellationToken">Cancellation token.</param>
 		/// <returns></returns>
 		Task<Stream> OpenWrite(string objectPath, bool overwrite, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Opens a readable stream beginning at the specified byte offset.
+		/// It is your responsibility to dispose this stream.
+		/// </summary>
+		/// <param name="path">Full path of the object.</param>
+		/// <param name="offset">Starting byte offset.</param>
+		/// <param name="length">Maximum number of bytes to expose. </param>
+		Task<Stream> OpenRange(string path, long offset, long length, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Opens a seekable read stream for streaming or video playback of an object.
+		/// Returns null if the file does not exists.
+		/// It is your responsibility to dispose this stream.
+		/// </summary>
+		Task<SeekableStream> OpenSeekable(string path, int bufferSize = 64 * 1024, CancellationToken cancellationToken = default);
 
 		/// <summary>Copies an object into an existing stream.</summary>
 		/// <param name="objectPath">Full path of the object.</param>

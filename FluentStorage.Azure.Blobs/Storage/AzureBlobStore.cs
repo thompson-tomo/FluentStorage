@@ -19,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using HttpRange = Azure.HttpRange;
 
 namespace FluentStorage.Azure.Blobs.Storage {
 	/// <summary>
@@ -145,6 +146,24 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			}
 
 			return null;
+		}
+
+		/// <summary>
+		/// Opens a readable stream beginning at the specified byte offset.
+		/// </summary>
+		public override async Task<Stream> OpenRange(string fullPath,long offset,long length, CancellationToken cancellationToken = default) {
+			ArgValidator.AssertFullPath(fullPath);
+
+			(BlobContainerClient container, string path) =
+				await GetPartsAsync(fullPath, false).ConfigureAwait(false);
+
+			BlockBlobClient client = container.GetBlockBlobClient(path);
+
+			var response = await client.DownloadStreamingAsync(
+				new HttpRange(offset, length), null, false, cancellationToken)
+				.ConfigureAwait(false);
+
+			return response.Value.Content;
 		}
 
 		/// <summary>

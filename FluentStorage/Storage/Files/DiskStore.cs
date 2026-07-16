@@ -41,6 +41,13 @@ namespace FluentStorage.Storage.Files {
 			return true;
 		}
 
+		/// <summary>
+		/// Returns the IFileSystem instance for this store.
+		/// </summary>
+		public override async Task<object> GetClient() {
+			return _fileSystem;
+		}
+
 		private string NormalizeFilePath(string fullPath, bool createIfNotExists = true) {
 			//id can contain path separators
 			fullPath = fullPath.Trim(StoragePath.PathSeparator);

@@ -1,0 +1,519 @@
+﻿using FluentStorage.Enums;
+using FluentStorage.Exceptions;
+using FluentStorage.Model;
+using FluentStorage.Storage;
+using FluentStorage.Streaming;
+using MimeMapping;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using MongoDB.Driver.GridFS;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Sockets;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Security.Cryptography.X509Certificates;
+
+namespace FluentStorage.Mongo.Storage {
+	public class MongoGridStore : StoreBase {
+		private IMongoClient _client;
+		private IMongoDatabase _database;
+		private string _bucketName;
+
+		private GridFSBucket _bucket;
+
+		// ------------------------------------------------------------------
+		// Constructors
+		// ------------------------------------------------------------------
+
+		public MongoGridStore(string connectionString, string databaseName, string bucketName = "fs") {
+			if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentNullException(nameof(connectionString));
+			if (string.IsNullOrWhiteSpace(databaseName)) throw new ArgumentNullException(nameof(databaseName));
+			if (string.IsNullOrWhiteSpace(bucketName)) throw new ArgumentNullException(nameof(bucketName));
+
+			_client = new MongoClient(connectionString);
+			Construct(databaseName, bucketName);
+		}
+
+		public MongoGridStore(string host, int port, string username, string password, string databaseName,
+			string bucketName = "fs", string authDatabase = null, bool useSsl = false) {
+			if (string.IsNullOrWhiteSpace(host)) throw new ArgumentNullException(nameof(host));
+			if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException(nameof(username));
+			if (string.IsNullOrWhiteSpace(password)) throw new ArgumentNullException(nameof(password));
+			if (string.IsNullOrWhiteSpace(databaseName)) throw new ArgumentNullException(nameof(databaseName));
+			if (string.IsNullOrWhiteSpace(bucketName)) throw new ArgumentNullException(nameof(bucketName));
+
+			var credential = MongoCredential.CreateCredential(
+				authDatabase ?? databaseName,
+				username,
+				password);
+
+			var settings = new MongoClientSettings {
+				Server = new MongoServerAddress(host, port),
+				Credential = credential,
+				UseTls = useSsl
+			};
+
+			_client = new MongoClient(settings);
+			Construct(databaseName, bucketName);
+		}
+
+		public MongoGridStore(string host, int port, X509Certificate2 clientCertificate, string databaseName,
+			string bucketName = "fs") {
+
+			if (string.IsNullOrWhiteSpace(host)) throw new ArgumentNullException(nameof(host));
+			if (clientCertificate == null) throw new ArgumentNullException(nameof(clientCertificate));
+			if (string.IsNullOrWhiteSpace(databaseName)) throw new ArgumentNullException(nameof(databaseName));
+			if (string.IsNullOrWhiteSpace(bucketName)) throw new ArgumentNullException(nameof(bucketName));
+
+			var settings = new MongoClientSettings {
+				Server = new MongoServerAddress(host, port),
+				Credential = MongoCredential.CreateMongoX509Credential(),
+				UseTls = true,
+				SslSettings = new SslSettings {
+					ClientCertificates = new[] { clientCertificate }
+				}
+			};
+
+			_client = new MongoClient(settings);
+			Construct(databaseName, bucketName);
+		}
+
+		public MongoGridStore(MongoClientSettings clientSettings, string databaseName, string bucketName = "fs") {
+			if (clientSettings == null) throw new ArgumentNullException(nameof(clientSettings));
+			if (string.IsNullOrWhiteSpace(databaseName)) throw new ArgumentNullException(nameof(databaseName));
+			if (string.IsNullOrWhiteSpace(bucketName)) throw new ArgumentNullException(nameof(bucketName));
+
+			_client = new MongoClient(clientSettings);
+			Construct(databaseName, bucketName);
+		}
+
+		private void Construct(string databaseName, string bucketName) {
+			_database = _client.GetDatabase(databaseName);
+			_bucketName = bucketName;
+			_bucket = new GridFSBucket(_database, new GridFSBucketOptions {
+				BucketName = _bucketName
+			});
+		}
+
+		// ------------------------------------------------------------------
+		// Client / _bucket accessors
+		// ------------------------------------------------------------------
+
+		public override async Task<object> GetClient() {
+			return await Task.FromResult<object>(_client).ConfigureAwait(false);
+		}
+
+		// ------------------------------------------------------------------
+		// Path helpers
+		// ------------------------------------------------------------------
+
+		private static string NormalizePath(string path) {
+			if (string.IsNullOrEmpty(path)) return string.Empty;
+			return path.Replace('\\', '/').Trim('/');
+		}
+
+		private static (string folderPath, string name) SplitPath(string fullPath) {
+			string normalized = NormalizePath(fullPath);
+			int idx = normalized.LastIndexOf('/');
+			if (idx < 0) return (string.Empty, normalized);
+			return (normalized.Substring(0, idx), normalized.Substring(idx + 1));
+		}
+
+		// ------------------------------------------------------------------
+		// Write
+		// ------------------------------------------------------------------
+
+		public override async Task SetObject(string fullPath, Stream dataStream, bool append = false, CancellationToken cancellationToken = default) {
+			await SetObject(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
+		}
+
+		public override async Task SetObject(string fullPath, Stream dataStream, string contentType, bool append = false, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
+			if (dataStream == null) throw new ArgumentNullException(nameof(dataStream));
+
+			string path = NormalizePath(fullPath);
+			contentType ??= MimeUtility.GetMimeMapping(fullPath);
+
+
+			Stream uploadStream = dataStream;
+			MemoryStream combinedStream = null;
+
+			try {
+				if (append) {
+					// GridFS files are immutable: emulate append by combining existing
+					// content (if any) with the new content and re-uploading as one file.
+					GridFSFileInfo existing = await FindLatestAsync(_bucket, path, cancellationToken).ConfigureAwait(false);
+					if (existing != null) {
+						combinedStream = new MemoryStream();
+						using (Stream existingStream = await _bucket.OpenDownloadStreamAsync(existing.Id, cancellationToken: cancellationToken).ConfigureAwait(false)) {
+							await existingStream.CopyToAsync(combinedStream, 81920, cancellationToken).ConfigureAwait(false);
+						}
+						await dataStream.CopyToAsync(combinedStream, 81920, cancellationToken).ConfigureAwait(false);
+						combinedStream.Position = 0;
+						uploadStream = combinedStream;
+					}
+				}
+
+				// Remove any previous revision(s) so SetObject behaves like an overwrite/upsert.
+				await DeleteAllRevisionsAsync(_bucket, path, cancellationToken).ConfigureAwait(false);
+
+				var options = new GridFSUploadOptions {
+					Metadata = new BsonDocument
+					{
+						{ "contentType", contentType ?? "application/octet-stream" }
+					}
+				};
+
+				await _bucket.UploadFromStreamAsync(path, uploadStream, options, cancellationToken).ConfigureAwait(false);
+			}
+			finally {
+				combinedStream?.Dispose();
+			}
+		}
+
+		// ------------------------------------------------------------------
+		// Read
+		// ------------------------------------------------------------------
+
+		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
+
+			string path = NormalizePath(fullPath);
+
+			return await _bucket.OpenDownloadStreamByNameAsync(path, cancellationToken: cancellationToken).ConfigureAwait(false);
+		}
+
+		public override async Task<Stream> OpenWrite(string fullPath, bool overwrite, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
+
+			string path = NormalizePath(fullPath);
+
+			if (!overwrite) {
+				bool exists = await ObjectExists(path, cancellationToken).ConfigureAwait(false);
+				if (exists) {
+					throw new StorageException($"Object '{path}' already exists and overwrite is disabled.");
+				}
+			}
+
+			var stream = new MemoryStream();
+
+			return new FixedStream(stream, null, async s => {
+				s.Position = 0;
+				await SetObject(path, s, append: false, cancellationToken: cancellationToken).ConfigureAwait(false);
+			});
+		}
+
+		public override async Task<Stream> OpenRange(string path, long offset, long length, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(path)) throw new ArgumentNullException(nameof(path));
+			if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
+			if (length < 0) throw new ArgumentOutOfRangeException(nameof(length));
+
+			string normalized = NormalizePath(path);
+
+			var opt = new GridFSDownloadByNameOptions();
+			opt.Seekable = true;
+			var downloadStream = await _bucket.OpenDownloadStreamByNameAsync(normalized, opt, cancellationToken).ConfigureAwait(false);
+
+			// we hope this stream is seekable, else the entire seeking/streaming functionality will be broken,
+			// more testing and feedback is required
+			downloadStream.Seek(offset, SeekOrigin.Begin);
+			return downloadStream;
+		}
+
+		public override bool IsSeekable() {
+			return true;
+		}
+
+		// ------------------------------------------------------------------
+		// Delete
+		// ------------------------------------------------------------------
+
+		public override async Task DeleteObjects(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+			if (fullPaths == null) throw new ArgumentNullException(nameof(fullPaths));
+
+
+			foreach (string path in fullPaths) {
+				if (string.IsNullOrWhiteSpace(path)) continue;
+				await DeleteAllRevisionsAsync(_bucket, NormalizePath(path), cancellationToken).ConfigureAwait(false);
+			}
+		}
+
+		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
+
+			await DeleteAllRevisionsAsync(_bucket, NormalizePath(fullPath), cancellationToken).ConfigureAwait(false);
+		}
+
+		private static async Task DeleteAllRevisionsAsync(GridFSBucket gridBucket, string path, CancellationToken cancellationToken) {
+			FilterDefinition<GridFSFileInfo> filter = Builders<GridFSFileInfo>.Filter.Eq(f => f.Filename, path);
+
+			List<GridFSFileInfo> matches;
+			using (IAsyncCursor<GridFSFileInfo> cursor = await gridBucket.FindAsync(filter, cancellationToken: cancellationToken).ConfigureAwait(false)) {
+				matches = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
+			}
+
+			foreach (GridFSFileInfo file in matches) {
+				try {
+					await gridBucket.DeleteAsync(file.Id, cancellationToken).ConfigureAwait(false);
+				}
+				catch (GridFSFileNotFoundException) {
+					// Harmless race - another caller already deleted this revision. Suppress.
+				}
+			}
+		}
+
+		public override async Task DeleteDirectory(string folderPath, bool recursive, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(folderPath)) throw new ArgumentNullException(nameof(folderPath));
+
+			List<StoreObject> items = await ListDirectory(folderPath, recursive, cancellationToken).ConfigureAwait(false);
+			if (items == null || items.Count == 0) return;
+
+
+			foreach (StoreObject item in items.Where(i => i.Type == StorageObjectType.File)) {
+				string fullPath = string.IsNullOrEmpty(item.FolderPath) ? item.Name : $"{item.FolderPath}/{item.Name}";
+				await DeleteAllRevisionsAsync(_bucket, NormalizePath(fullPath), cancellationToken).ConfigureAwait(false);
+			}
+		}
+
+		// ------------------------------------------------------------------
+		// Existence / info
+		// ------------------------------------------------------------------
+
+		public override async Task<List<bool>> ObjectsExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+			if (fullPaths == null) throw new ArgumentNullException(nameof(fullPaths));
+
+			var results = new List<bool>();
+			foreach (string path in fullPaths) {
+				results.Add(await ObjectExists(path, cancellationToken).ConfigureAwait(false));
+			}
+			return results;
+		}
+
+		public override async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
+
+			GridFSFileInfo info = await FindLatestAsync(_bucket, NormalizePath(fullPath), cancellationToken).ConfigureAwait(false);
+			return info != null;
+		}
+
+		public override async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
+			if (fullPaths == null) throw new ArgumentNullException(nameof(fullPaths));
+
+			var results = new List<StoreObject>();
+			foreach (string path in fullPaths) {
+				StoreObject info = await GetObjectInfo(path, cancellationToken).ConfigureAwait(false);
+				if (info != null) results.Add(info);
+			}
+			return results;
+		}
+
+		public override async Task<StoreObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
+
+			string path = NormalizePath(fullPath);
+
+			GridFSFileInfo info = await FindLatestAsync(_bucket, path, cancellationToken).ConfigureAwait(false);
+			if (info == null) return null;
+
+			return ToStoreObject(info, includeAttributes: true);
+		}
+
+		public override async Task SetObjectInfo(StoreObject obj, CancellationToken cancellationToken = default) {
+			if (obj == null) throw new ArgumentNullException(nameof(obj));
+
+			await SetObjectsInfo(new[] { obj }, cancellationToken).ConfigureAwait(false);
+		}
+
+		public override async Task SetObjectsInfo(IEnumerable<StoreObject> objs, CancellationToken cancellationToken = default) {
+			if (objs == null) throw new ArgumentNullException(nameof(objs));
+
+			// GridFS metadata lives on the "{_bucket}.files" collection. Renaming isn't handled
+			// here (use MoveObject for that) - this only patches the free-form metadata bag.
+
+			IMongoCollection<BsonDocument> filesCollection = _database.GetCollection<BsonDocument>($"{_bucketName}.files");
+
+			foreach (StoreObject obj in objs) {
+				if (obj == null) continue;
+
+				string fullPath = string.IsNullOrEmpty(obj.FolderPath) ? obj.Name : $"{obj.FolderPath}/{obj.Name}";
+				string path = NormalizePath(fullPath);
+
+				var metadataDoc = new BsonDocument();
+				foreach (KeyValuePair<string, string> kv in obj.Metadata) {
+					metadataDoc[kv.Key] = kv.Value != null ? kv.Value : BsonNull.Value;
+				}
+
+				FilterDefinition<BsonDocument> filter = Builders<BsonDocument>.Filter.Eq("filename", path);
+				UpdateDefinition<BsonDocument> update = Builders<BsonDocument>.Update.Set("metadata", metadataDoc);
+
+				await filesCollection.UpdateManyAsync(filter, update, cancellationToken: cancellationToken).ConfigureAwait(false);
+			}
+		}
+
+		private async Task<GridFSFileInfo> FindLatestAsync(GridFSBucket gridBucket, string path, CancellationToken cancellationToken) {
+			FilterDefinition<GridFSFileInfo> filter = Builders<GridFSFileInfo>.Filter.Eq(f => f.Filename, path);
+			SortDefinition<GridFSFileInfo> sort = Builders<GridFSFileInfo>.Sort.Descending(f => f.UploadDateTime);
+
+			var options = new GridFSFindOptions { Sort = sort, Limit = 1 };
+
+			using IAsyncCursor<GridFSFileInfo> cursor = await gridBucket.FindAsync(filter, options, cancellationToken).ConfigureAwait(false);
+			List<GridFSFileInfo> matches = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
+			return matches.FirstOrDefault();
+		}
+
+		private static StoreObject ToStoreObject(GridFSFileInfo info, bool includeAttributes) {
+			var (folderPath, name) = SplitPath(info.Filename);
+
+			var so = new StoreObject(folderPath, name, StorageObjectType.File) {
+				Size = info.Length,
+				DateCreated = info.UploadDateTime,
+				DateModified = info.UploadDateTime
+			};
+
+			if (includeAttributes) {
+				so.TryAddProperties(
+					"Id", info.Id.ToString(),
+					"ChunkSizeBytes", info.ChunkSizeBytes);
+
+				if (info.Metadata != null) {
+					var metaDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+					foreach (BsonElement el in info.Metadata.Elements) {
+						metaDict[el.Name] = el.Value.IsBsonNull ? null : el.Value.ToString();
+					}
+
+					so.TryAddPropertiesFromDictionary(metaDict, metaDict.Keys.ToArray());
+				}
+			}
+
+			return so;
+		}
+
+		// ------------------------------------------------------------------
+		// Move
+		// ------------------------------------------------------------------
+
+		public override async Task<bool> MoveObject(string oldPath, string newPath, bool overwrite, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(oldPath)) throw new ArgumentNullException(nameof(oldPath));
+			if (string.IsNullOrWhiteSpace(newPath)) throw new ArgumentNullException(nameof(newPath));
+
+			string from = NormalizePath(oldPath);
+			string to = NormalizePath(newPath);
+
+
+			GridFSFileInfo source = await FindLatestAsync(_bucket, from, cancellationToken).ConfigureAwait(false);
+			if (source == null) return false;
+
+			GridFSFileInfo destination = await FindLatestAsync(_bucket, to, cancellationToken).ConfigureAwait(false);
+			if (destination != null) {
+				if (!overwrite) return false;
+				await DeleteAllRevisionsAsync(_bucket, to, cancellationToken).ConfigureAwait(false);
+			}
+
+			// RenameAsync is a metadata-only operation server-side - no chunk data is re-written.
+			await _bucket.RenameAsync(source.Id, to, cancellationToken).ConfigureAwait(false);
+			return true;
+		}
+
+		// ------------------------------------------------------------------
+		// Length
+		// ------------------------------------------------------------------
+
+		public override async Task<long> GetObjectLength(string path, long defaultValue = -1, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(path)) return defaultValue;
+
+			try {
+				GridFSFileInfo info = await FindLatestAsync(_bucket, NormalizePath(path), cancellationToken).ConfigureAwait(false);
+				return info?.Length ?? defaultValue;
+			}
+			catch {
+				// Per spec: absorb all exceptions here and fall back to defaultValue.
+				return defaultValue;
+			}
+		}
+
+		// ------------------------------------------------------------------
+		// Listing
+		// ------------------------------------------------------------------
+
+		public override async Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
+			options ??= new StorageListOptions();
+
+
+			string prefix = NormalizePath(options.FolderPath);
+			string prefixWithSlash = string.IsNullOrEmpty(prefix) ? string.Empty : prefix + "/";
+
+			FilterDefinition<GridFSFileInfo> filter = Builders<GridFSFileInfo>.Filter.Empty;
+			if (!string.IsNullOrEmpty(prefixWithSlash)) {
+				filter = Builders<GridFSFileInfo>.Filter.Regex(
+					f => f.Filename,
+					new BsonRegularExpression("^" + Regex.Escape(prefixWithSlash)));
+			}
+
+			var findOptions = new GridFSFindOptions();
+			if (options.PageSize.HasValue) findOptions.BatchSize = options.PageSize;
+
+			List<GridFSFileInfo> allFiles;
+			using (IAsyncCursor<GridFSFileInfo> cursor = await _bucket.FindAsync(filter, findOptions, cancellationToken).ConfigureAwait(false)) {
+				allFiles = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
+			}
+
+			// Only keep the newest revision per filename (GridFS allows duplicate filenames).
+			List<GridFSFileInfo> latestPerFile = allFiles
+				.GroupBy(f => f.Filename, StringComparer.OrdinalIgnoreCase)
+				.Select(g => g.OrderByDescending(f => f.UploadDateTime).First())
+				.OrderBy(f => f.Filename, StringComparer.OrdinalIgnoreCase)
+				.ToList();
+
+			var result = new List<StoreObject>();
+			var seenFolders = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+			foreach (GridFSFileInfo info in latestPerFile) {
+				string filename = info.Filename;
+				if (!string.IsNullOrEmpty(prefixWithSlash) &&
+					!filename.StartsWith(prefixWithSlash, StringComparison.OrdinalIgnoreCase)) {
+					continue;
+				}
+
+				string relative = string.IsNullOrEmpty(prefixWithSlash)
+					? filename
+					: filename.Substring(prefixWithSlash.Length);
+
+				if (string.IsNullOrEmpty(relative)) continue;
+
+				int slashIdx = relative.IndexOf('/');
+
+				if (!options.Recurse && slashIdx >= 0) {
+
+					// Emit a synthetic folder entry, once, for this immediate subfolder.
+					/*string folderName = relative.Substring(0, slashIdx);
+					string folderFullPath = string.IsNullOrEmpty(prefix) ? folderName : $"{prefix}/{folderName}";
+
+					if (seenFolders.Add(folderFullPath)) {
+						result.Add(new StoreObject(prefix, folderName, StorageObjectType.Folder));
+					}*/
+
+					continue;
+				}
+
+				string fileName = slashIdx >= 0 ? relative.Substring(relative.LastIndexOf('/') + 1) : relative;
+
+				if (!string.IsNullOrEmpty(options.FilePrefix) &&
+					!fileName.StartsWith(options.FilePrefix, StringComparison.OrdinalIgnoreCase)) {
+					continue;
+				}
+
+				result.Add(ToStoreObject(info, options.IncludeAttributes));
+
+				if (options.MaxResults.HasValue && result.Count >= options.MaxResults.Value) {
+					break;
+				}
+			}
+
+			return result;
+		}
+	}
+}

@@ -17,7 +17,7 @@ namespace FluentStorage.Storage {
 		public const int PAGE_SIZE = 1000;
 		
 		private string _prefix;
-		private string _folderPath = StoragePath.RootFolderPath;
+		private string _folderPath = "";
 
 		/// <summary>
 		/// Folder path to start browsing from. When not set scanning starts from the root folder.

@@ -29,6 +29,12 @@ namespace FluentStorage.Azure.Blobs.DataLake {
 
 		}
 
+		/// <summary>
+		/// Returns the ExtendedSdk instance for this store.
+		/// </summary>
+		public override async Task<object> GetClient() {
+			return _extended;
+		}
 
 		public Task<List<Filesystem>> ListFilesystems(CancellationToken cancellationToken = default) {
 			return _extended.ListFilesystemsAsync(cancellationToken);

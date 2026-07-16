@@ -280,36 +280,49 @@ This table shows the API supported by `IStore` across various cloud and server p
 <th><b>Local<br>Disk</b></th>
 </tr>
 
+</tbody>
+</table>
+
+
+
+<table>
+<tbody>
+
 <tr>
-<td colspan="10"><b>Security and access control</b></td>
+<th colspan="3"><b>Provider-specific APIs</b></th>
 </tr>
+
 <tr>
-<td>&nbsp;&nbsp; SetAcl</td>
-<td>❌</td><td>❌</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
+<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img> <br><b>Azure Blobs</b></th>
+<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img> <br><b>Azure Data Lake</b></th>
+<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/aws.png" width="32"></img> <br><b>AWS S3</b></th>
 </tr>
+
 <tr>
-<td>&nbsp;&nbsp; AcquireLease</td>
-<td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
-</tr>
-<tr>
-<td>&nbsp;&nbsp; BreakLease</td>
-<td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
-</tr>
-<tr>
-<td>&nbsp;&nbsp; GetContainerPublicAccess</td>
-<td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
-</tr>
-<tr>
-<td>&nbsp;&nbsp; SetContainerPublicAccess</td>
-<td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
-</tr>
-<tr>
-<td>&nbsp;&nbsp; GetStorageSas</td>
-<td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
-</tr>
-<tr>
-<td>&nbsp;&nbsp; GetContainerSas</td>
-<td>✔️</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
+<td>
+	<ul>
+		<li>AcquireLease</li>
+		<li>BreakLease</li>
+		<li>GetContainerPublicAccess</li>
+		<li>SetContainerPublicAccess</li>
+		<li>GetStorageSas</li>
+		<li>GetContainerSas</li>
+	</ul>
+</td>
+<td>
+	<ul>
+		<li>ListFilesystems</li>
+		<li>CreateFilesystem</li>
+		<li>DeleteFilesystem</li>
+		<li>GetAccessControl</li>
+		<li>SetAccessControl</li>
+	</ul>
+</td>
+<td>
+	<ul>
+		<li>SetAcl</li>
+	</ul>
+</td>
 </tr>
 
 </tbody>

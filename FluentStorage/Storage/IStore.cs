@@ -365,5 +365,119 @@ namespace FluentStorage.Storage {
 		/// Sets the CHMOD permissions of a file (FTP/SFTP only).
 		/// </summary>
 		Task SetFilePermissions(string filePath,int permissions,CancellationToken cancellationToken = default);
+
+		// ---------------------------------------------------------------------
+		// Versioning
+		// ---------------------------------------------------------------------
+
+		/// <summary>
+		/// Returns all available versions of the specified object.
+		/// Returns an empty collection if versioning is not enabled or no versions exist.
+		/// </summary>
+		Task<IReadOnlyList<StorageObjectVersion>> ListObjectVersions(string objectPath, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Returns information about a specific version of an object.
+		/// Returns null if the version does not exist.
+		/// </summary>
+		Task<StorageObjectVersion?> GetObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Restores the specified version as the current version of the object.
+		/// Provider-specific restore semantics may apply.
+		/// </summary>
+		Task RestoreObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Permanently deletes the specified object version.
+		/// Does not delete other versions of the object.
+		/// </summary>
+		Task DeleteObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default);
+
+
+		// ---------------------------------------------------------------------
+		// Object Tags
+		// ---------------------------------------------------------------------
+
+		/// <summary>
+		/// Returns all tags associated with the specified object.
+		/// Returns an empty collection if no tags exist.
+		/// </summary>
+		Task<IDictionary<string, string>> GetObjectTags(string objectPath, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Replaces all tags associated with the specified object.
+		/// Existing tags are removed before the new tags are applied.
+		/// </summary>
+		Task SetObjectTags(string objectPath, IDictionary<string, string> tags, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Removes all tags from the specified object.
+		/// Does nothing if the object has no tags.
+		/// </summary>
+		Task DeleteObjectTags(string objectPath, CancellationToken cancellationToken = default);
+
+
+		// ---------------------------------------------------------------------
+		// Storage Tier or Class
+		// ---------------------------------------------------------------------
+
+		/// <summary>
+		/// Returns the storage tier or storage class of the specified object.
+		/// Returns the provider's default tier if not explicitly assigned.
+		/// </summary>
+		Task<StorageTier> GetObjectStorageTier(string objectPath, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Changes the storage tier or storage class of the specified object.
+		/// The operation may complete asynchronously depending on the provider.
+		/// </summary>
+		Task SetObjectStorageTier(string objectPath, StorageTier tier, CancellationToken cancellationToken = default);
+
+
+		// ---------------------------------------------------------------------
+		// Retention Policy
+		// ---------------------------------------------------------------------
+
+		/// <summary>
+		/// Returns the retention policy applied to the specified object.
+		/// Returns null if no retention policy is configured.
+		/// </summary>
+		Task<StorageRetentionPolicy?> GetObjectRetentionPolicy(string objectPath, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Applies or updates the retention policy for the specified object.
+		/// Existing retention settings are replaced.
+		/// </summary>
+		Task SetObjectRetentionPolicy(string objectPath, StorageRetentionPolicy policy, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Removes the retention policy from the specified object.
+		/// The provider may prevent removal while the object is protected.
+		/// </summary>
+		Task ClearObjectRetentionPolicy(string objectPath, CancellationToken cancellationToken = default);
+
+
+		// ---------------------------------------------------------------------
+		// Object Lock
+		// ---------------------------------------------------------------------
+
+		/// <summary>
+		/// Returns the object lock configuration for the specified object.
+		/// Returns null if object locking is not enabled.
+		/// </summary>
+		Task<StorageObjectLock?> GetObjectLock(string objectPath, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Applies or updates the object lock configuration for the specified object.
+		/// Provider-specific restrictions may apply.
+		/// </summary>
+		Task SetObjectLock(string objectPath, StorageObjectLock objectLock, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Removes the object lock from the specified object.
+		/// The provider may prevent removal while the object is protected.
+		/// </summary>
+		Task ClearObjectLock(string objectPath, CancellationToken cancellationToken = default);
 	}
 }

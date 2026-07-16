@@ -179,6 +179,10 @@ This table shows the API supported by `IStore` across various cloud and server p
 <td>&nbsp;&nbsp; DeleteObjects</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
+
+<tr>
+<td colspan="10"><b>File metadata</b></td>
+</tr>
 <tr>
 <td>&nbsp;&nbsp; GetObjectLength</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>

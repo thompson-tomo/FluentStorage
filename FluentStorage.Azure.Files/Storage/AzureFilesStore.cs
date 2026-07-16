@@ -155,6 +155,32 @@ namespace FluentStorage.Azure.Files.Storage {
 			}
 		}
 
+		public override async Task<Stream> OpenRange(string fullPath,long offset,long length,CancellationToken cancellationToken = default) {
+			ShareFileClient file = await GetFileReferenceAsync(fullPath, false, cancellationToken).ConfigureAwait(false);
+
+			if (file == null) {
+				return null;
+			}
+
+			try {
+				var opt = new ShareFileDownloadOptions();
+				opt.Range = new HttpRange(offset, length);
+				var response = await file.DownloadAsync(opt, cancellationToken).ConfigureAwait(false);
+
+				return response.Value.Content;
+			}
+			catch (RequestFailedException ex) when (ex.ErrorCode == "ShareNotFound") {
+				return null;
+			}
+			catch (RequestFailedException ex) when (ex.ErrorCode == "ResourceNotFound") {
+				return null;
+			}
+		}
+
+		public override bool IsSeekable() {
+			return true;
+		}
+
 		/// <summary>
 		/// Opens an object for writing and returns its content stream.
 		/// Object will be written when the stream is disposed or flushed.

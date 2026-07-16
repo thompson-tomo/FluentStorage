@@ -34,6 +34,7 @@
    - New API: `GetClient`, `MoveObject`, `DownloadObject`, `UploadObject`, `OpenRead`, `OpenWrite`, `GetUploadUrl`, `GetDownloadUrl`, `GetPresignedUrl`, `GetObjectSas`, `OpenRange`, `OpenSeekable`
  - **FluentStorage.Azure.Files**
    - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
+   - New API: `GetClient`, `OpenRange`, `OpenSeekable`
  - **FluentStorage.Azure.ServiceBus**
    - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
  - **FluentStorage.Azure.KeyVault**

@@ -529,5 +529,32 @@ namespace FluentStorage.Storage {
 			await Task.CompletedTask;
 		}
 
+		/// <summary>Moves an object (file only) and returns true if it succeeded.</summary>
+		public override async Task<bool> MoveObject(string oldPath, string newPath, bool overwrite, CancellationToken cancellationToken = default) {
+
+			if (oldPath == null || newPath == null) return false;
+
+			string source = NormalizeFilePath(StoragePath.Normalize(oldPath));
+			string destination = NormalizeFilePath(StoragePath.Normalize(newPath));
+
+			cancellationToken.ThrowIfCancellationRequested();
+
+			if (_fileSystem.File.Exists(source)) {
+
+				if (_fileSystem.File.Exists(destination)) {
+					if (!overwrite) return false;
+					try {
+						_fileSystem.File.Delete(destination);
+					}
+					catch (Exception ex) {}
+				}
+
+				_fileSystem.File.Move(source, destination);
+				return true;
+			}
+
+			return false;
+		}
+
 	}
 }

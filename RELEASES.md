@@ -2,6 +2,7 @@
 
 #### FluentStorage 8.0.4
  - `DiskStore`: Fix `ListObjects` and add `GetServer` & `MoveObject` APIs
+ - Streams: Add `NonSeekableStream` to the core package
 
 #### FluentStorage 8.0.3
  - Add APIs to all providers: `GetObjectLength` and integrate it with streaming/seeking implementation

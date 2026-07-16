@@ -410,6 +410,23 @@ namespace FluentStorage.AWS.Storage {
 			return true;
 		}
 
+		public override async Task<long> GetObjectLength(string fullPath, long defaultValue = -1, CancellationToken cancellationToken = default) {
+			try {
+				AmazonS3Client client = await Client().ConfigureAwait(false);
+
+				var response = await client.GetObjectMetadataAsync(new GetObjectMetadataRequest {
+					BucketName = BucketName,
+					Key = fullPath
+				}, cancellationToken).ConfigureAwait(false);
+
+				return response != null && response.HttpStatusCode != HttpStatusCode.NotFound
+					? response.ContentLength : defaultValue;
+			}
+			catch {
+				return defaultValue;
+			}
+		}
+
 		/// <summary>
 		/// Deletes multiple objects in parallel.
 		///

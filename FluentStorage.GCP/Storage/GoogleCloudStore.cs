@@ -224,8 +224,7 @@ namespace FluentStorage.GCP.Storage {
 				Range = new RangeHeaderValue(offset, offset + length - 1)
 			};
 
-			await _client.DownloadObjectAsync(_bucketName,path,stream,options,cancellationToken)
-				.ConfigureAwait(false);
+			await _client.DownloadObjectAsync(_bucketName,path,stream,options,cancellationToken).ConfigureAwait(false);
 
 			stream.Position = 0;
 			return stream;
@@ -234,6 +233,19 @@ namespace FluentStorage.GCP.Storage {
 		public override bool IsSeekable() {
 			return true;
 		}
+		public override async Task<long> GetObjectLength(string fullPath, long defaultValue = -1, CancellationToken cancellationToken = default) {
+			try {
+				ArgValidator.AssertFullPath(fullPath);
+
+				var obj = await _client.GetObjectAsync(_bucketName, fullPath, null, cancellationToken) .ConfigureAwait(false);
+
+				return (obj != null && obj.Size.HasValue) ? (long)obj.Size.Value : defaultValue;
+			}
+			catch {
+				return defaultValue;
+			}
+		}
+
 		/// <summary>
 		/// GCP requires no trailing root
 		/// </summary>

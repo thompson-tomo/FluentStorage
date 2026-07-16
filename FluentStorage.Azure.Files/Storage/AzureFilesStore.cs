@@ -181,6 +181,22 @@ namespace FluentStorage.Azure.Files.Storage {
 			return true;
 		}
 
+		public override async Task<long> GetObjectLength(string fullPath, long defaultValue = -1, CancellationToken cancellationToken = default) {
+			try {
+				ShareFileClient file = await GetFileReferenceAsync(fullPath, false, cancellationToken).ConfigureAwait(false);
+
+				if (file == null)
+					return defaultValue;
+
+				var properties = await file.GetPropertiesAsync(null, cancellationToken).ConfigureAwait(false);
+
+				return properties != null && properties.Value != null ? properties.Value.ContentLength : defaultValue;
+			}
+			catch {
+				return defaultValue;
+			}
+		}
+
 		/// <summary>
 		/// Opens an object for writing and returns its content stream.
 		/// Object will be written when the stream is disposed or flushed.

@@ -385,6 +385,22 @@ namespace FluentStorage.SFTP {
 		public override bool IsSeekable() {
 			return true;
 		}
+		public override async Task<long> GetObjectLength(string fullPath, long defaultValue = -1, CancellationToken cancellationToken = default) {
+			try {
+				ThrowIfDisposed();
+
+				fullPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
+
+				SftpClient client = Client();
+
+				var attrib = client.GetAttributes(fullPath);
+
+				return attrib != null ? attrib.Size : defaultValue;
+			}
+			catch {
+				return defaultValue;
+			}
+		}
 
 		/// <summary>
 		/// Rename a file on the SFTP server.

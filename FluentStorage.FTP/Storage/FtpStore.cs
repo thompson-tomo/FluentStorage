@@ -216,6 +216,18 @@ namespace FluentStorage.FTP.Storage {
 			return true;
 		}
 
+		public override async Task<long> GetObjectLength(string fullPath, long defaultValue = -1, CancellationToken cancellationToken = default) {
+			try {
+
+				AsyncFtpClient client = await Client().ConfigureAwait(false);
+
+				return await client.GetFileSize(fullPath, defaultValue, cancellationToken).ConfigureAwait(false);
+			}
+			catch {
+				return defaultValue;
+			}
+		}
+
 		public override async Task SetObject(string fullPath, Stream dataStream, bool append, CancellationToken cancellationToken = default) {
 			await SetObject(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
 		}

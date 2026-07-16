@@ -205,6 +205,24 @@ namespace FluentStorage.Alibaba.Storage {
 		public override bool IsSeekable() {
 			return true;
 		}
+
+		public override async Task<long> GetObjectLength(string fullPath, long defaultValue = -1, CancellationToken cancellationToken = default) {
+			try {
+				if (string.IsNullOrWhiteSpace(fullPath))
+					return defaultValue;
+
+				var client = await Client().ConfigureAwait(false);
+				var key = NormalizeKey(fullPath);
+
+				ObjectMetadata metadata = client.GetObjectMetadata(_bucketName, key);
+
+				return metadata != null ? metadata.ContentLength : defaultValue;
+			}
+			catch {
+				return defaultValue;
+			}
+		}
+
 		// ------------------------------------------------------------------
 		// Delete
 		// ------------------------------------------------------------------

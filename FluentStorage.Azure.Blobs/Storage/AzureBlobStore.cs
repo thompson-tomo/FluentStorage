@@ -169,6 +169,24 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		public override bool IsSeekable() {
 			return true;
 		}
+
+		public override async Task<long> GetObjectLength(string fullPath, long defaultValue = -1, CancellationToken cancellationToken = default) {
+			try {
+				ArgValidator.AssertFullPath(fullPath);
+
+				(BlobContainerClient container, string path) = await GetPartsAsync(fullPath, false).ConfigureAwait(false);
+
+				BlockBlobClient client = container.GetBlockBlobClient(path);
+
+				var properties = await client.GetPropertiesAsync(null, cancellationToken).ConfigureAwait(false);
+
+				return properties != null && properties.Value != null ? properties.Value.ContentLength : defaultValue;
+			}
+			catch {
+				return defaultValue;
+			}
+		}
+
 		/// <summary>
 		/// Uploads a blob to Azure Blob storage, by automatically computing the Content-Type.
 		/// </summary>

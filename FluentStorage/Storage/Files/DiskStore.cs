@@ -234,7 +234,7 @@ namespace FluentStorage.Storage.Files {
 			return _fileSystem.File.OpenWrite(path);
 		}
 
-		public override Task<Stream> OpenRange(string fullPath,long offset,long length,CancellationToken cancellationToken = default) {
+		public override async Task<Stream> OpenRange(string fullPath,long offset,long length,CancellationToken cancellationToken = default) {
 			ArgValidator.AssertFullPath(fullPath);
 
 			fullPath = StoragePath.Normalize(fullPath);
@@ -248,12 +248,32 @@ namespace FluentStorage.Storage.Files {
 
 			stream.Seek(offset, SeekOrigin.Begin);
 
-			return Task.FromResult(stream);
+			return stream;
 		}
 
 		public override bool IsSeekable() {
 			return true;
 		}
+		public override async Task<long> GetObjectLength(string fullPath, long defaultValue = -1, CancellationToken cancellationToken = default) {
+			try {
+				ArgValidator.AssertFullPath(fullPath);
+
+				fullPath = StoragePath.Normalize(fullPath);
+
+				string path = NormalizeFilePath(fullPath);
+
+				if (!_fileSystem.File.Exists(path))
+					return defaultValue;
+
+				var info = _fileSystem.FileInfo.New(path);
+
+				return info != null && info.Exists ? info.Length : defaultValue;
+			}
+			catch {
+				return defaultValue;
+			}
+		}
+
 		/// <summary>
 		/// Deletes multiple objects by its full path.
 		/// </summary>

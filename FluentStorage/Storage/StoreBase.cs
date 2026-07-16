@@ -53,6 +53,9 @@ namespace FluentStorage.Storage {
 			return new SeekableStream(this, path, bufferSize);
 		}
 
+		public virtual async Task<long> GetObjectLength(string fullPath, long defaultValue = -1, CancellationToken cancellationToken = default) {
+			return defaultValue;
+		}
 
 		public virtual async Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
 			var result = new List<StoreObject>();

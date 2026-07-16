@@ -409,10 +409,7 @@ namespace FluentStorage.Minio.Storage {
 
 			var stream = new MemoryStream();
 
-			var args = new GetObjectArgs()
-				.WithBucket(_bucketName)
-				.WithObject(key)
-				.WithOffsetAndLength(offset, length);
+			var args = new GetObjectArgs().WithBucket(_bucketName).WithObject(key).WithOffsetAndLength(offset, length);
 
 			await client.GetObjectAsync(
 				args.WithCallbackStream(async s => {
@@ -427,6 +424,25 @@ namespace FluentStorage.Minio.Storage {
 		public override bool IsSeekable() {
 			return true;
 		}
+
+		public override async Task<long> GetObjectLength(string fullPath, long defaultValue = -1, CancellationToken cancellationToken = default) {
+			try {
+				if (string.IsNullOrWhiteSpace(fullPath)) return defaultValue;
+
+				var client = await Client(cancellationToken).ConfigureAwait(false);
+				string key = NormalizeKey(fullPath);
+
+				var args = new StatObjectArgs().WithBucket(_bucketName).WithObject(key);
+
+				ObjectStat stat = await client.StatObjectAsync(args, cancellationToken).ConfigureAwait(false);
+
+				return stat != null ? stat.Size : defaultValue;
+			}
+			catch {
+				return defaultValue;
+			}
+		}
+
 		public override async Task DeleteObjects(IEnumerable<string> fullPaths,
 			CancellationToken cancellationToken = default) {
 			if (fullPaths == null) throw new ArgumentNullException(nameof(fullPaths));

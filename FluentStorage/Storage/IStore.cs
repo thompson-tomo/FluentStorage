@@ -124,6 +124,16 @@ namespace FluentStorage.Storage {
 		// ---------------------------------------------------------------------
 
 		/// <summary>
+		/// Gets the length of an object in bytes.
+		/// Catches all exceptions internally.
+		/// Returns `defaultValue` if the object cannot be not found or there was an error.
+		/// </summary>
+		/// <param name="path">The full object path.</param>
+		/// <param name="defaultValue">The value to return if the object was not found or there was an error.</param>
+		/// <param name="cancellationToken">The cancellation token.</param>
+		Task<long> GetObjectLength(string path, long defaultValue = -1, CancellationToken cancellationToken = default);
+
+		/// <summary>
 		/// Opens the object stream for reading.
 		/// It is your responsibility to close and dispose this stream after use.
 		/// </summary>

@@ -286,18 +286,18 @@ This table shows the API supported by `IStore` across various cloud and server p
 </table>
 
 
+## Provider API
+
+This table shows the API supported by specific cloud providers:
+
 
 <table>
 <tbody>
 
 <tr>
-<th colspan="3"><b>Provider-specific APIs</b></th>
-</tr>
-
-<tr>
-<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img> <br><b>Azure Blobs</b></th>
-<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img> <br><b>Azure Data Lake</b></th>
-<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/aws.png" width="32"></img> <br><b>AWS S3</b></th>
+<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img> <br><b>Azure Blobs</b> <br> <code>IAzureBlobStore</code> </th>
+<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img> <br><b>Azure Data Lake</b> <br> <code>IAzureDataLakeStore</code> </th>
+<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/aws.png" width="32"></img> <br><b>AWS S3</b> <br> <code>IS3Storage</code> </th>
 </tr>
 
 <tr>

@@ -14,6 +14,7 @@ using FluentStorage.Utils.Extensions;
 using FluentStorage.Enums;
 using FluentStorage.Streaming;
 using FluentStorage.Utils.Validation;
+using FluentStorage.Model;
 
 namespace FluentStorage.Azure.KeyVault.Storage {
 	public class AzureKeyVaultStore : StoreBase {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using FluentStorage.Storage;
+using FluentStorage.Model;
 
 namespace FluentStorage.Utils.Validation {
 	/// <summary>

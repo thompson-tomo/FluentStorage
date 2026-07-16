@@ -9,9 +9,10 @@ using FluentStorage.Utils.Extensions;
 using FluentStorage.Utils.IO;
 using FluentStorage.Enums;
 using FluentStorage.Utils.Validation;
+using FluentStorage.Model;
 
 namespace FluentStorage.Storage {
-	class InMemoryBlobStorage : StoreBase {
+	class MemoryStore : StoreBase {
 		struct Tag {
 			public StoreObject blob;
 			public byte[] data;

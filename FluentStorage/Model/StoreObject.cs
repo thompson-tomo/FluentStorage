@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace FluentStorage.Storage {
+namespace FluentStorage.Model {
 
 	/// <summary>
 	/// Manages a single object inside a bucket or file system.
@@ -122,7 +122,7 @@ namespace FluentStorage.Storage {
 			if (string.IsNullOrEmpty(prefix))
 				TryAddProperties(keyValues);
 
-			object[] keyValuesWithPrefix = keyValues.Select((e, i) => i % 2 == 0 ? (prefix + (string)e) : e).ToArray();
+			object[] keyValuesWithPrefix = keyValues.Select((e, i) => i % 2 == 0 ? prefix + (string)e : e).ToArray();
 
 			TryAddProperties(keyValuesWithPrefix);
 		}

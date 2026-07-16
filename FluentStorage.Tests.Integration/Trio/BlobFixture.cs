@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Config.Net;
+using FluentStorage.Model;
 using FluentStorage.Storage;
 
 namespace FluentStorage.Tests.Integration.Blobs {

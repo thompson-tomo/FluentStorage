@@ -5,7 +5,6 @@ using Azure.Storage.Sas;
 using FluentStorage.Azure.Blobs.DataLake.Model;
 using FluentStorage.Enums;
 using FluentStorage.Model;
-using FluentStorage.Storage;
 using FluentStorage.Utils.Extensions;
 using MimeMapping;
 using System;

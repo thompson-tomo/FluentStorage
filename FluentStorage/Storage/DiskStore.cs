@@ -7,13 +7,14 @@ using System.Threading;
 using System.IO.Abstractions;
 using FluentStorage.Enums;
 using FluentStorage.Utils.Validation;
+using FluentStorage.Model;
 
-namespace FluentStorage.Storage.Files {
+namespace FluentStorage.Storage {
 	/// <summary>
 	/// Access a local file system directory as a FluentStorage store.
 	/// </summary>
 	internal class DiskStore : StoreBase {
-		private readonly System.IO.Abstractions.IFileSystem _fileSystem;
+		private readonly IFileSystem _fileSystem;
 		private readonly string _directoryFullName;
 		private const string AttributesFileExtension = ".attr";
 
@@ -29,7 +30,7 @@ namespace FluentStorage.Storage.Files {
 		/// <param name="directoryFullName">Root directory</param>
 		/// <param name="fileSystem">FileSystem abstraction</param>
 		/// </summary>
-		public DiskStore(string directoryFullName, System.IO.Abstractions.IFileSystem fileSystem) {
+		public DiskStore(string directoryFullName, IFileSystem fileSystem) {
 			if (directoryFullName == null)
 				throw new ArgumentNullException(nameof(directoryFullName));
 
@@ -100,10 +101,10 @@ namespace FluentStorage.Storage.Files {
 
 			ArgValidator.AssertPrefix(options.FilePrefix);
 
-			if (!_fileSystem.Directory.Exists(_directoryFullName)) return Task.FromResult<List<StoreObject>>(new List<StoreObject>());
+			if (!_fileSystem.Directory.Exists(_directoryFullName)) return Task.FromResult(new List<StoreObject>());
 
 			string fullPath = NormalizeFolderPath(options?.FolderPath, false);
-			if (fullPath == null) return Task.FromResult<List<StoreObject>>(new List<StoreObject>());
+			if (fullPath == null) return Task.FromResult(new List<StoreObject>());
 
 			string[] fileIds = _fileSystem.Directory.GetFiles(
 			   fullPath,
@@ -127,7 +128,7 @@ namespace FluentStorage.Storage.Files {
 			   .Where(i => options.BrowseFilter == null || options.BrowseFilter(i))
 			   .Take(options.MaxResults == null ? int.MaxValue : options.MaxResults.Value)
 			   .ToList();
-			return Task.FromResult<List<StoreObject>>(result);
+			return Task.FromResult(result);
 		}
 
 		private static string FormatFlags(FileAttributes fa) {
@@ -362,7 +363,7 @@ namespace FluentStorage.Storage.Files {
 				result.Add(ToBlobItem(filePath, StorageObjectType.File, true));
 			}
 
-			return Task.FromResult<List<StoreObject>>(result);
+			return Task.FromResult(result);
 		}
 
 		public override async Task SetObjectInfo(StoreObject obj, CancellationToken cancellationToken = default) {

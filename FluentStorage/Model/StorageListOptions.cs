@@ -1,4 +1,5 @@
 ﻿using FluentStorage.Enums;
+using FluentStorage.Model;
 using FluentStorage.Utils.Extensions;
 using FluentStorage.Utils.Validation;
 using System;

@@ -13,6 +13,7 @@ using Xunit;
 using FluentStorage.Azure.Blobs.Policy;
 using FluentStorage.Exceptions;
 using FluentStorage.Enums;
+using FluentStorage.Model;
 
 namespace FluentStorage.Tests.Integration.Azure {
 	[Trait("Category", "Blobs")]

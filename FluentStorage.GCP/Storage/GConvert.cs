@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Collections;
 using FluentStorage.Utils.Extensions;
 using Google.Apis.Storage.v1.Data;
+using FluentStorage.Model;
 
 namespace FluentStorage.GCP.Storage {
 	static class GConvert {

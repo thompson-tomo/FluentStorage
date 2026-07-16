@@ -10,6 +10,7 @@ using FluentStorage.Enums;
 using FluentStorage.Exceptions;
 using FluentStorage.Model;
 using FluentStorage.Storage;
+using FluentStorage.Streaming;
 using FluentStorage.Utils.Validation;
 using MimeMapping;
 using System;

@@ -1,6 +1,7 @@
 ﻿using FluentFTP;
 using FluentFTP.Exceptions;
 using FluentStorage.Enums;
+using FluentStorage.Model;
 using FluentStorage.Storage;
 
 using Polly;

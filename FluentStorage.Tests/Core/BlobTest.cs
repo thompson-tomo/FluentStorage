@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using FluentStorage.Enums;
+using FluentStorage.Model;
 using FluentStorage.Storage;
 using Xunit;
 

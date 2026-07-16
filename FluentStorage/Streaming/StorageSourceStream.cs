@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FluentStorage.Storage {
+namespace FluentStorage.Streaming {
 	/// <summary>
 	/// Fixes common issues in streams that different implementations are really silly about
 	/// </summary>

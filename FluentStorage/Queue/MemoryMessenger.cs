@@ -6,9 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace FluentStorage.Queue {
-	class InMemoryMessenger : IQueue {
-		private static readonly ConcurrentDictionary<string, InMemoryMessenger> _nameToMessenger =
-		   new ConcurrentDictionary<string, InMemoryMessenger>();
+	class MemoryMessenger : IQueue {
+		private static readonly ConcurrentDictionary<string, MemoryMessenger> _nameToMessenger =
+		   new ConcurrentDictionary<string, MemoryMessenger>();
 
 		private readonly ConcurrentDictionary<string, ConcurrentQueue<QueueMessage>> _queues =
 		   new ConcurrentDictionary<string, ConcurrentQueue<QueueMessage>>();
@@ -116,10 +116,10 @@ namespace FluentStorage.Queue {
 		}
 
 		public static IQueue CreateOrGet(string name) {
-			if (_nameToMessenger.TryGetValue(name, out InMemoryMessenger messenger))
+			if (_nameToMessenger.TryGetValue(name, out MemoryMessenger messenger))
 				return messenger;
 
-			messenger = new InMemoryMessenger();
+			messenger = new MemoryMessenger();
 			_nameToMessenger[name] = messenger;
 			return messenger;
 		}

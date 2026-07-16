@@ -9,6 +9,7 @@ using Azure.Core.Pipeline;
 using FluentStorage.Azure.Blobs.Storage;
 using FluentStorage.Azure.Blobs.DataLake.Model;
 using FluentStorage.Azure.Blobs.Utils;
+using FluentStorage.Model;
 
 namespace FluentStorage.Azure.Blobs.DataLake {
 	public class AzureDataLakeStore : AzureBlobStore, IAzureDataLakeStore {

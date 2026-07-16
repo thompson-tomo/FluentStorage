@@ -7,6 +7,7 @@ using Xunit;
 using FluentStorage.Azure.Blobs.DataLake;
 using FluentStorage.Azure.Blobs.DataLake.Model;
 using FluentStorage.Azure.Blobs;
+using FluentStorage.Model;
 
 namespace FluentStorage.Tests.Integration.Azure {
 	[Trait("Category", "Blobs")]

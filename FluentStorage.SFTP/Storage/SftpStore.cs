@@ -10,6 +10,7 @@ using Renci.SshNet;
 using Renci.SshNet.Sftp;
 using FluentStorage.Storage;
 using FluentStorage.Enums;
+using FluentStorage.Model;
 
 namespace FluentStorage.SFTP {
 	/// <summary>

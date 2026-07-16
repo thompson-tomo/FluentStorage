@@ -1,7 +1,7 @@
 ﻿using System;
 using Azure.Storage.Files.Shares.Models;
 using FluentStorage.Enums;
-using FluentStorage.Storage;
+using FluentStorage.Model;
 using FluentStorage.Utils.Extensions;
 
 namespace FluentStorage.Azure.Files.Utils {

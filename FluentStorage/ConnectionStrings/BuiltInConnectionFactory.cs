@@ -1,5 +1,4 @@
 ﻿using FluentStorage.Storage;
-using FluentStorage.Storage.Files;
 using FluentStorage.Queue;
 using FluentStorage.Queue.Files;
 
@@ -13,7 +12,7 @@ namespace FluentStorage.ConnectionStrings {
 			}
 
 			if (connectionString.Prefix == "inmemory") {
-				return new InMemoryBlobStorage();
+				return new MemoryStore();
 			}
 
 			return null;
@@ -23,7 +22,7 @@ namespace FluentStorage.ConnectionStrings {
 			if (connectionString.Prefix == "inmemory") {
 				connectionString.GetRequired("name", true, out string name);
 
-				return InMemoryMessenger.CreateOrGet(name);
+				return MemoryMessenger.CreateOrGet(name);
 			}
 
 			if (connectionString.Prefix == "disk") {

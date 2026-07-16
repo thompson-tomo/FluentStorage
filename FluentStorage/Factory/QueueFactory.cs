@@ -30,7 +30,7 @@ namespace FluentStorage {
 		/// <param name="name">Memory buffer name. Publishers with the same name will contain identical messages. Querying a publisher again
 		/// with the same name returns an identical publisher. To create a receiver for this memory bufffer use the same name.</param>
 		public static IQueue InMemory(string name) {
-			return InMemoryMessenger.CreateOrGet(name);
+			return MemoryMessenger.CreateOrGet(name);
 		}
 
 

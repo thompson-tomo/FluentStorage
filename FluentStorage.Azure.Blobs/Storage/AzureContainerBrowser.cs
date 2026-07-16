@@ -7,6 +7,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using FluentStorage.Azure.Blobs.Utils;
 using FluentStorage.Enums;
+using FluentStorage.Model;
 using FluentStorage.Storage;
 using FluentStorage.Utils.Performance;
 

@@ -10,6 +10,7 @@ using Xunit;
 using FluentStorage.Utils.Extensions;
 using FluentStorage.Utils.Generator;
 using FluentStorage.Enums;
+using FluentStorage.Model;
 
 namespace FluentStorage.Tests.Integration.Blobs {
 	[Trait("Category", "Blobs")]

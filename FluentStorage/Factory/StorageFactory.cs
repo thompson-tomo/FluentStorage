@@ -1,5 +1,4 @@
 ﻿using FluentStorage.Storage;
-using FluentStorage.Storage.Files;
 using FluentStorage.ConnectionStrings;
 using FluentStorage.Queue;
 using System;
@@ -46,7 +45,7 @@ namespace FluentStorage {
 		/// </summary>
 		/// <returns>In-memory blob storage instance</returns>
 		public static IStore InMemory() {
-			return new InMemoryBlobStorage();
+			return new MemoryStore();
 		}
 
 	}

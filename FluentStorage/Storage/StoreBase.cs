@@ -561,5 +561,89 @@ namespace FluentStorage.Storage {
 		}
 
 
+		// ---------------------------------------------------------------------
+		// Object Versioning
+		// ---------------------------------------------------------------------
+
+		public virtual async Task<IReadOnlyList<StorageObjectVersion>> ListObjectVersions(string objectPath, CancellationToken cancellationToken = default) {
+			throw new NotSupportedException();
+		}
+
+		public virtual async Task<StorageObjectVersion?> GetObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
+			throw new NotSupportedException();
+		}
+
+		public virtual async Task RestoreObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
+			throw new NotSupportedException();
+		}
+
+		public virtual async Task DeleteObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
+			throw new NotSupportedException();
+		}
+
+
+		// ---------------------------------------------------------------------
+		// Object Tags
+		// ---------------------------------------------------------------------
+
+		public virtual async Task<IDictionary<string, string>> GetObjectTags(string objectPath, CancellationToken cancellationToken = default) {
+			throw new NotSupportedException();
+		}
+
+		public virtual async Task SetObjectTags(string objectPath, IDictionary<string, string> tags, CancellationToken cancellationToken = default) {
+			throw new NotSupportedException();
+		}
+
+		public virtual async Task DeleteObjectTags(string objectPath, CancellationToken cancellationToken = default) {
+			throw new NotSupportedException();
+		}
+
+
+		// ---------------------------------------------------------------------
+		// Storage Tier or Class
+		// ---------------------------------------------------------------------
+
+		public virtual async Task<StorageTier> GetObjectStorageTier(string objectPath, CancellationToken cancellationToken = default) {
+			throw new NotSupportedException();
+		}
+
+		public virtual async Task SetObjectStorageTier(string objectPath, StorageTier tier, CancellationToken cancellationToken = default) {
+			throw new NotSupportedException();
+		}
+
+
+		// ---------------------------------------------------------------------
+		// Retention Policy
+		// ---------------------------------------------------------------------
+
+		public virtual async Task<StorageRetentionPolicy?> GetObjectRetentionPolicy(string objectPath, CancellationToken cancellationToken = default) {
+			throw new NotSupportedException();
+		}
+
+		public virtual async Task SetObjectRetentionPolicy(string objectPath, StorageRetentionPolicy policy, CancellationToken cancellationToken = default) {
+			throw new NotSupportedException();
+		}
+
+		public virtual async Task ClearObjectRetentionPolicy(string objectPath, CancellationToken cancellationToken = default) {
+			throw new NotSupportedException();
+		}
+
+
+		// ---------------------------------------------------------------------
+		// Object Lock
+		// ---------------------------------------------------------------------
+
+		public virtual async Task<StorageObjectLock?> GetObjectLock(string objectPath, CancellationToken cancellationToken = default) {
+			throw new NotSupportedException();
+		}
+
+		public virtual async Task SetObjectLock(string objectPath, StorageObjectLock objectLock, CancellationToken cancellationToken = default) {
+			throw new NotSupportedException();
+		}
+
+		public virtual async Task ClearObjectLock(string objectPath, CancellationToken cancellationToken = default) {
+			throw new NotSupportedException();
+		}
+
 	}
 }

@@ -17,6 +17,7 @@ using FluentStorage.Utils.Extensions;
 using FluentStorage.Azure.Blobs.DataLake.Model;
 using FluentStorage.Azure.Blobs.DataLake;
 using FluentStorage.Utils.Validation;
+using FluentStorage.Model;
 
 namespace FluentStorage.Azure.Blobs.Utils {
 	class ExtendedSdk {

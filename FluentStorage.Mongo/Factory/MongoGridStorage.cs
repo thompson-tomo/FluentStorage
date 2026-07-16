@@ -1,6 +1,7 @@
 ﻿using FluentStorage.Mongo.Storage;
 using FluentStorage.Storage;
 using MongoDB.Driver;
+using System.Security.Cryptography.X509Certificates;
 
 namespace FluentStorage.Mongo.Factory {
 
@@ -19,27 +20,16 @@ namespace FluentStorage.Mongo.Factory {
 		/// <summary>
 		/// Construct from credentials (SCRAM auth).
 		/// </summary>
-		public static IStore FromCredentials(
-			string host,
-			int port,
-			string username,
-			string password,
-			string databaseName,
-			string bucketName = "fs",
-			string authDatabase = null,
-			bool useSsl = false) {
+		public static IStore FromCredentials(string host,int port,string username,string password,string databaseName,
+			string bucketName = "fs",string authDatabase = null,bool useSsl = false) {
 			return new MongoGridStore(host, port, username, password, databaseName, bucketName, authDatabase, useSsl);
 		}
 
 		/// <summary>
 		/// Construct from a X.509 client certificate (mutual-TLS auth), used for MongoDB Atlas / enterprise deployments.
 		/// </summary>
-		public static IStore FromClientCertificate(
-			string host,
-			int port,
-			System.Security.Cryptography.X509Certificates.X509Certificate2 clientCertificate,
-			string databaseName,
-			string bucketName = "fs") {
+		public static IStore FromClientCertificate(string host,int port, X509Certificate2 clientCertificate,
+			string databaseName, string bucketName = "fs") {
 			return new MongoGridStore(host, port, clientCertificate, databaseName, bucketName);
 		}
 

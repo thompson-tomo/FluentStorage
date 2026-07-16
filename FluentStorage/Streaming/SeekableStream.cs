@@ -43,7 +43,7 @@ namespace FluentStorage.Streaming {
 		/// If omitted, length is discovered lazily and <see cref="Length"/> / seeking from
 		/// <see cref="SeekOrigin.End"/> will throw <see cref="NotSupportedException"/> until then.
 		/// </param>
-		public SeekableStream(IStore store, string path, int bufferSize = 64 * 1024, long? knownLength = null) {
+		public SeekableStream(IStore store, string path, int bufferSize = 65536, long? knownLength = null) {
 			_store = store ?? throw new ArgumentNullException(nameof(store));
 			_path = path ?? throw new ArgumentNullException(nameof(path));
 

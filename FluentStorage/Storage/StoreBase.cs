@@ -47,10 +47,15 @@ namespace FluentStorage.Storage {
 			throw new NotSupportedException();
 		}
 
-		public virtual async Task<SeekableStream> OpenSeekable(string path, int bufferSize = 64 * 1024, CancellationToken cancellationToken = default) {
+		public virtual async Task<SeekableStream> OpenSeekable(string path, int bufferSize = 65536, CancellationToken cancellationToken = default) {
 			if (!IsSeekable()) throw new NotSupportedException();
 			if (!await ObjectExists(path)) return null;
-			return new SeekableStream(this, path, bufferSize);
+
+			var length = await GetObjectLength(path, -1, cancellationToken);
+
+			long? objectLength = length != -1 ? length : null;
+
+			return new SeekableStream(this, path, bufferSize, objectLength);
 		}
 
 		public virtual async Task<long> GetObjectLength(string fullPath, long defaultValue = -1, CancellationToken cancellationToken = default) {

@@ -164,10 +164,11 @@ namespace FluentStorage.Storage {
 
 		/// <summary>
 		/// Opens a seekable read stream for streaming or video playback of an object.
+		/// The object's length is read when the stream is created.
 		/// Returns null if the file does not exists.
 		/// It is your responsibility to dispose this stream.
 		/// </summary>
-		Task<SeekableStream> OpenSeekable(string path, int bufferSize = 64 * 1024, CancellationToken cancellationToken = default);
+		Task<SeekableStream> OpenSeekable(string path, int bufferSize = 65536, CancellationToken cancellationToken = default);
 
 		/// <summary>Copies an object into an existing stream.</summary>
 		/// <param name="objectPath">Full path of the object.</param>

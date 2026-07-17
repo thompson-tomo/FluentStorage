@@ -1,15 +1,13 @@
 ﻿# Release Notes
 
-#### FluentStorage 8.0.5
+#### FluentStorage 8.0.4
  - **FluentStorage**
+   - Disk: Fix `ListObjects` and add `GetServer` & `MoveObject` APIs
+   - Streams: Add `NonSeekableStream` to the core package
+   - Rename core classes: `StoreObject`, `MemoryMessenger`, `DiskStore`, `MemoryStore`
    - Move factory classes from `FluentStorage.AWS.Factory`, `FluentStorage.Alibaba.Factory` and `FluentStorage.Minio.Factory` to root NS
  - **FluentStorage.Mongo**
    - New: MongoDB GridFS storage provider using native MongoDB driver. Introduces the factory API `MongoGridStorage` and store class `MongoGridStore`.
-
-#### FluentStorage 8.0.4
- - Disk storage: Fix `ListObjects` and add `GetServer` & `MoveObject` APIs
- - Streams: Add `NonSeekableStream` to the core package
- - Rename core classes: `StoreObject`, `MemoryMessenger`, `DiskStore`, `MemoryStore`
 
 #### FluentStorage 8.0.3
  - Add APIs to all providers: `GetObjectLength` and integrate it with streaming/seeking implementation

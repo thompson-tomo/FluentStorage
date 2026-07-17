@@ -1,7 +1,6 @@
 ﻿using Aliyun.OSS;
 using Aliyun.OSS.Common;
 using Aliyun.OSS.Util;
-using FluentStorage.Alibaba.Utils;
 using FluentStorage.Enums;
 using FluentStorage.Exceptions;
 using FluentStorage.Model;

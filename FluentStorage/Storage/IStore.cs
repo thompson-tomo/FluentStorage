@@ -37,9 +37,9 @@ namespace FluentStorage.Storage {
 		bool IsSeekable();
 
 		/// <summary>
-		/// Returns true if the given object storage supports file versioning.
+		/// Returns true if the given object storage supports file versioning, and if versioning is enabled at the bucket level.
 		/// </summary>
-		bool IsVersioned();
+		Task<bool> IsVersioned();
 
 		// ---------------------------------------------------------------------
 		// Listing

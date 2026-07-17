@@ -1,5 +1,17 @@
 ﻿# Release Notes
 
+#### FluentStorage 8.0.5
+ - **FluentStorage**
+   - IStore: Improve interface signatures of object versioning APIs
+   - Assertions: Remove `AssertFullPath` and handle it inline in all APIs
+ - **FluentStorage.AWS**
+   - Add versioning APIs: `IsVersioned`, `ListObjectVersions`, `GetObjectVersion`, `RestoreObjectVersion`, `DeleteObjectVersion`
+ - **FluentStorage.Azure.Blob**
+   - Add versioning APIs: `IsVersioned`, `ListObjectVersions`, `GetObjectVersion`, `RestoreObjectVersion`, `DeleteObjectVersion`
+ - **FluentStorage.GCP**
+   - Rewrite path normalization to be simpler and not overly aggressive
+   - Add versioning APIs: `IsVersioned`, `ListObjectVersions`, `GetObjectVersion`, `RestoreObjectVersion`, `DeleteObjectVersion`
+
 #### FluentStorage 8.0.4
  - **FluentStorage**
    - Disk: Fix `ListObjects` and add `GetServer` & `MoveObject` APIs

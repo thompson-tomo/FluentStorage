@@ -491,8 +491,14 @@ namespace FluentStorage.GCP.Storage {
 			}
 		}
 
-		public override bool IsVersioned() {
-			return true;
+		/// <summary>
+		/// Returns true if object versioning is enabled on this bucket.
+		/// </summary>
+		public override async Task<bool> IsVersioned() {
+
+			var bucket = await _client.GetBucketAsync(_bucketName).ConfigureAwait(false);
+
+			return bucket.Versioning?.Enabled == true;
 		}
 
 	}

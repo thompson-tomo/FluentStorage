@@ -236,6 +236,10 @@ This table shows the API supported by `IStore` across various cloud and server p
 <td colspan="11"><b>File versioning</b></td>
 </tr>
 <tr>
+<td>&nbsp; IsVersioned</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
+</tr>
+<tr>
 <td>&nbsp; ListObjectVersions</td>
 <td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
 </tr>

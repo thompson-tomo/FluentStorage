@@ -852,8 +852,17 @@ namespace FluentStorage.AWS.Storage {
 			}
 		}
 
-		public override bool IsVersioned() {
-			return true;
+		/// <summary>
+		/// Returns true if bucket versioning is enabled.
+		/// </summary>
+		public override async Task<bool> IsVersioned() {
+			AmazonS3Client client = await Client().ConfigureAwait(false);
+
+			GetBucketVersioningResponse response = await client.GetBucketVersioningAsync(new GetBucketVersioningRequest {
+				BucketName = _bucketName
+			}).ConfigureAwait(false);
+
+			return response.VersioningConfig.Status == VersionStatus.Enabled;
 		}
 
 	}

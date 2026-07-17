@@ -800,7 +800,10 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			}
 		}
 
-		public override bool IsVersioned() {
+		/// <summary>
+		/// Current Azure SDK does not expose way to check if container supports versioning.
+		/// </summary>
+		public override async Task<bool> IsVersioned() {
 			return true;
 		}
 

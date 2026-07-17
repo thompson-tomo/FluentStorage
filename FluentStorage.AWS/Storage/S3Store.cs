@@ -954,5 +954,66 @@ namespace FluentStorage.AWS.Storage {
 			return true;
 		}
 
+
+		/// <summary>
+		/// Returns the storage tier or storage class of the specified object.
+		/// </summary>
+		public override async Task<StorageTier> GetObjectTier(string objectPath, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))
+				throw new ArgumentNullException(nameof(objectPath));
+
+			AmazonS3Client client = await Client().ConfigureAwait(false);
+
+			try {
+				GetObjectMetadataResponse response = await client.GetObjectMetadataAsync(new GetObjectMetadataRequest {
+					BucketName = _bucketName,
+					Key = objectPath
+				}, cancellationToken).ConfigureAwait(false);
+
+				return AwsTier.ToFluentTier.TryGetValue(response.StorageClass, out StorageTier tier)
+					? tier
+					: StorageTier.Unknown;
+			}
+			catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound) {
+				// Returns NotFound if the object cannot be found.
+				return StorageTier.NotFound;
+			}
+		}
+
+
+		/// <summary>
+		/// Changes the storage tier or storage class of the specified object.
+		/// </summary>
+		public override async Task<bool> SetObjectTier(string objectPath, StorageTier tier, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))
+				throw new ArgumentNullException(nameof(objectPath));
+
+			if (!AwsTier.FromFluentTier.TryGetValue(tier, out S3StorageClass storageClass))
+				throw new StorageException($"AWS S3 does not support the tier \"{tier}\". Use a supported tier and try again.");
+
+			AmazonS3Client client = await Client().ConfigureAwait(false);
+
+			try {
+				await client.CopyObjectAsync(new CopyObjectRequest {
+					SourceBucket = _bucketName,
+					SourceKey = objectPath,
+					DestinationBucket = _bucketName,
+					DestinationKey = objectPath,
+					StorageClass = storageClass,
+					MetadataDirective = S3MetadataDirective.COPY
+				}, cancellationToken).ConfigureAwait(false);
+
+				return true;
+			}
+			catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound) {
+				// Returns true if succeeded, or false if the object cannot be found.
+				return false;
+			}
+		}
+
+		public override async Task<bool> IsTiered() {
+			return true;
+		}
+
 	}
 }

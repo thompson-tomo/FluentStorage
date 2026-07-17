@@ -884,5 +884,60 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			return true;
 		}
 
+
+		/// <summary>
+		/// Returns the storage tier or storage class of the specified object.
+		/// </summary>
+		public override async Task<StorageTier> GetObjectTier(string objectPath, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))
+				throw new ArgumentNullException(nameof(objectPath));
+
+			(BlobContainerClient container, string path) = await GetPartsAsync(objectPath, false).ConfigureAwait(false);
+
+			BlockBlobClient client = container.GetBlockBlobClient(path);
+
+			try {
+				BlobProperties properties = await client.GetPropertiesAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+				return AzureTier.ToFluentTier.TryGetValue(properties.AccessTier, out StorageTier tier)
+					? tier
+					: StorageTier.Unknown;
+			}
+			catch (RequestFailedException ex) when (ex.ErrorCode == "BlobNotFound") {
+				// Returns NotFound if the object cannot be found.
+				return StorageTier.NotFound;
+			}
+		}
+
+
+		/// <summary>
+		/// Changes the storage tier or storage class of the specified object.
+		/// </summary>
+		public override async Task<bool> SetObjectTier(string objectPath, StorageTier tier, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))
+				throw new ArgumentNullException(nameof(objectPath));
+
+			if (!AzureTier.AccessTierMap.TryGetValue(tier, out AccessTier accessTier))
+				throw new StorageException($"Azure Blob does not support the tier \"{tier}\". Use a supported tier and try again.");
+
+			(BlobContainerClient container, string path) = await GetPartsAsync(objectPath, false).ConfigureAwait(false);
+
+			BlockBlobClient client = container.GetBlockBlobClient(path);
+
+			try {
+				await client.SetAccessTierAsync(accessTier, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+				return true;
+			}
+			catch (RequestFailedException ex) when (ex.ErrorCode == "BlobNotFound") {
+				// Returns true if succeeded, or false if the object cannot be found.
+				return false;
+			}
+		}
+
+		public override async Task<bool> IsTiered() {
+			return true;
+		}
+
 	}
 }

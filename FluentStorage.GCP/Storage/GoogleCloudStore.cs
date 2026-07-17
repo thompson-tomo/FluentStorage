@@ -1,5 +1,6 @@
 ﻿using FluentStorage.Enums;
 using FluentStorage.Exceptions;
+using FluentStorage.GCP.Utils;
 using FluentStorage.Model;
 using FluentStorage.Storage;
 using FluentStorage.Streaming;
@@ -571,6 +572,55 @@ namespace FluentStorage.GCP.Storage {
 		}
 
 		public override async Task<bool> IsTagged() {
+			return true;
+		}
+
+		/// <summary>
+		/// Returns the storage tier or storage class of the specified object.
+		/// </summary>
+		public override async Task<StorageTier> GetObjectTier(string objectPath, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))
+				throw new ArgumentNullException(nameof(objectPath));
+
+			try {
+				var obj = await _client.GetObjectAsync(_bucketName, objectPath, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+				return GoogleTier.ToFluentTier.TryGetValue(obj.StorageClass, out StorageTier tier)
+					? tier : StorageTier.Unknown;
+			}
+			catch (GoogleApiException ex) when (ex.Error.Code == 404) {
+				// Returns NotFound if the object cannot be found.
+				return StorageTier.NotFound;
+			}
+		}
+
+
+		/// <summary>
+		/// Changes the storage tier or storage class of the specified object.
+		/// </summary>
+		public override async Task<bool> SetObjectTier(string objectPath, StorageTier tier, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))
+				throw new ArgumentNullException(nameof(objectPath));
+
+			if (!GoogleTier.FromFluentTier.TryGetValue(tier, out string storageClass))
+				throw new StorageException($"Google Cloud Storage does not support the tier \"{tier}\". Use a supported tier and try again.");
+
+			try {
+				var obj = await _client.GetObjectAsync(_bucketName, objectPath, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+				obj.StorageClass = storageClass;
+
+				await _client.UpdateObjectAsync(obj, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+				return true;
+			}
+			catch (GoogleApiException ex) when (ex.Error.Code == 404) {
+				// Returns true if succeeded, or false if the object cannot be found.
+				return false;
+			}
+		}
+
+		public override async Task<bool> IsTiered() {
 			return true;
 		}
 

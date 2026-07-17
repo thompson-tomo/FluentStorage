@@ -38,6 +38,9 @@ namespace FluentStorage.Storage {
 		public virtual async Task<bool> IsTagged() {
 			return false;
 		}
+		public virtual async Task<bool> IsTiered() {
+			return false;
+		}
 		public virtual async Task<object> GetClient() {
 			return null;
 		}
@@ -609,11 +612,11 @@ namespace FluentStorage.Storage {
 		// Storage Tier or Class
 		// ---------------------------------------------------------------------
 
-		public virtual async Task<StorageTier> GetObjectStorageTier(string objectPath, CancellationToken cancellationToken = default) {
+		public virtual async Task<StorageTier> GetObjectTier(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		public virtual async Task<bool> SetObjectStorageTier(string objectPath, StorageTier tier, CancellationToken cancellationToken = default) {
+		public virtual async Task<bool> SetObjectTier(string objectPath, StorageTier tier, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 

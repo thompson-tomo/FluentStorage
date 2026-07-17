@@ -2,23 +2,27 @@
 
 #### FluentStorage 8.0.5
  - **FluentStorage**
-   - IStore: Improve interface signatures of object versioning APIs
+   - IStore: Improve interface signatures of object versioning APIs, tagging APIs and storage tier APIs
    - IStore: Change `IsFileSystem`, `IsSeekable` to async to align with other feature check APIs
    - Assertions: Remove `AssertFullPath` and handle it inline in all APIs
  - **FluentStorage.AWS**
    - Add versioning APIs: `IsVersioned`, `ListObjectVersions`, `GetObjectVersion`, `RestoreObjectVersion`, `DeleteObjectVersion`
    - Add tagging APIs: `IsTagged`, `GetObjectTags`, `SetObjectTags`, `DeleteObjectTags`
+   - Add storage tier APIs: `IsTiered`, `GetObjectTier`, `SetObjectTier`
  - **FluentStorage.Azure.Blob**
    - Add versioning APIs: `IsVersioned`, `ListObjectVersions`, `GetObjectVersion`, `RestoreObjectVersion`, `DeleteObjectVersion`
    - Add tagging APIs: `IsTagged`, `GetObjectTags`, `SetObjectTags`, `DeleteObjectTags`
+   - Add storage tier APIs: `IsTiered`, `GetObjectTier`, `SetObjectTier`
  - **FluentStorage.GCP**
    - Rewrite path normalization to be simpler and not overly aggressive
    - Add versioning APIs: `IsVersioned`, `ListObjectVersions`, `GetObjectVersion`, `RestoreObjectVersion`, `DeleteObjectVersion`
    - Add tagging APIs: `IsTagged`, `GetObjectTags`, `SetObjectTags`, `DeleteObjectTags`
+   - Add storage tier APIs: `IsTiered`, `GetObjectTier`, `SetObjectTier`
  - **FluentStorage.Alibaba**
    - Add tagging APIs: `IsTagged`, `GetObjectTags`, `SetObjectTags`, `DeleteObjectTags`
  - **FluentStorage.Minio**
    - Add tagging APIs: `IsTagged`, `GetObjectTags`, `SetObjectTags`, `DeleteObjectTags`
+   - Add storage tier APIs: `IsTiered`, `GetObjectTier`, `SetObjectTier`
 
 #### FluentStorage 8.0.4
  - **FluentStorage**

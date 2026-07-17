@@ -4,6 +4,12 @@ namespace FluentStorage.Enums {
 	/// Specifies the storage tier or storage class of an object.
 	/// </summary>
 	public enum StorageTier {
+
+		/// <summary>
+		/// Object not found.
+		/// </summary>
+		NotFound = -1,
+
 		/// <summary>
 		/// Unknown or provider-specific storage tier.
 		/// </summary>

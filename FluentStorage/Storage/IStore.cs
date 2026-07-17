@@ -46,6 +46,11 @@ namespace FluentStorage.Storage {
 		/// </summary>
 		Task<bool> IsTagged();
 
+		/// <summary>
+		/// Returns true if the given object storage supports multiple storage tiers/classes.
+		/// </summary>
+		Task<bool> IsTiered();
+
 		// ---------------------------------------------------------------------
 		// Listing
 		// ---------------------------------------------------------------------
@@ -439,18 +444,17 @@ namespace FluentStorage.Storage {
 		// ---------------------------------------------------------------------
 
 		/// <summary>
-		/// Returns the storage tier or storage class of the specified object.
-		/// Returns the provider's default tier if not explicitly assigned.
-		/// Returns Unknown if the object cannot be found.
+		/// Returns the storage tier/class of the specified object.
+		/// Returns `StorageTier.NotFound` if the object cannot be found, or `StorageTier.Unknown` if the tier is not a known type.
 		/// </summary>
-		Task<StorageTier> GetObjectStorageTier(string objectPath, CancellationToken cancellationToken = default);
+		Task<StorageTier> GetObjectTier(string objectPath, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Changes the storage tier or storage class of the specified object.
-		/// The operation may complete asynchronously depending on the provider.
+		/// Changes the storage tier/class of the specified object.
 		/// Returns true if succeeded, or false if the object cannot be found.
+		/// Throws `StorageException` if the provider does not support the given tier.
 		/// </summary>
-		Task<bool> SetObjectStorageTier(string objectPath, StorageTier tier, CancellationToken cancellationToken = default);
+		Task<bool> SetObjectTier(string objectPath, StorageTier tier, CancellationToken cancellationToken = default);
 
 
 		// ---------------------------------------------------------------------

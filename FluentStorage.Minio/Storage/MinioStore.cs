@@ -1,5 +1,6 @@
 ﻿using FluentStorage.Enums;
 using FluentStorage.Exceptions;
+using FluentStorage.Minio.Utils;
 using FluentStorage.Model;
 using FluentStorage.Storage;
 using FluentStorage.Streaming;
@@ -8,6 +9,7 @@ using Minio;
 using Minio.Credentials;
 using Minio.DataModel;
 using Minio.DataModel.Args;
+using Minio.DataModel.ILM;
 using Minio.DataModel.Tags;
 using Minio.Exceptions;
 using System;
@@ -760,6 +762,82 @@ namespace FluentStorage.Minio.Storage {
 
 		public override async Task<bool> IsTagged() {
 			return true;
+		}
+
+		/// <summary>
+		/// Returns the storage tier or storage class of the specified object.
+		/// </summary>
+		public override async Task<StorageTier> GetObjectTier(string objectPath, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))throw new ArgumentNullException(nameof(objectPath));
+
+			var client = await Client(cancellationToken).ConfigureAwait(false);
+			string key = NormalizeKey(objectPath);
+
+			try {
+				ObjectStat response = await client.StatObjectAsync(new StatObjectArgs()
+					.WithBucket(_bucketName)
+					.WithObject(key), cancellationToken).ConfigureAwait(false);
+
+				if (!response.MetaData.TryGetValue("x-amz-storage-class", out string storageClass))
+					return StorageTier.Standard;
+
+				return MinioTier.ToFluentTier.TryGetValue(storageClass, out StorageTier tier)
+					? tier
+					: StorageTier.Unknown;
+			}
+			catch (MinioException ex) when (ex.Message.ToLower().Contains("not found")) {
+				// Returns NotFound if the object cannot be found.
+				return StorageTier.NotFound;
+			}
+		}
+
+
+		/// <summary>
+		/// Changes the storage tier or storage class of the specified object.
+		/// </summary>
+		public override async Task<bool> SetObjectTier(string objectPath, StorageTier tier, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))throw new ArgumentNullException(nameof(objectPath));
+
+			if (!MinioTier.FromFluentTier.TryGetValue(tier, out string storageClass))
+				throw new StorageException($"MinIO does not support the tier \"{tier}\". Use a supported tier and try again.");
+
+			var client = await Client(cancellationToken).ConfigureAwait(false);
+			string key = NormalizeKey(objectPath);
+
+			try {
+				await client.CopyObjectAsync(new CopyObjectArgs()
+					.WithBucket(_bucketName)
+					.WithObject(key)
+					.WithCopyObjectSource(new CopySourceObjectArgs()
+						.WithBucket(_bucketName)
+						.WithObject(key))
+					.WithReplaceMetadataDirective(true)
+					.WithHeaders(new Dictionary<string, string> {
+						["x-amz-storage-class"] = storageClass
+					}), cancellationToken).ConfigureAwait(false);
+
+				return true;
+			}
+			catch (MinioException ex) when (ex.Message.ToLower().Contains("not found")) {
+				// Returns true if succeeded, or false if the object cannot be found.
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// Returns true if bucket lifecycle tiering is configured.
+		/// </summary>
+		public override async Task<bool> IsTiered() {
+			var client = await Client().ConfigureAwait(false);
+			try {
+				LifecycleConfiguration config = await client.GetBucketLifecycleAsync(new GetBucketLifecycleArgs()
+					.WithBucket(_bucketName)).ConfigureAwait(false);
+
+				return config.Rules.Any(x => x.Status == LifecycleRule.LifecycleRuleStatusEnabled && x.TransitionObject != null);
+			}
+			catch (MinioException) {
+			}
+			return false;
 		}
 
 	}

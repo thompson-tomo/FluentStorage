@@ -1,5 +1,7 @@
 ﻿using Aliyun.OSS;
 using Aliyun.OSS.Common;
+using Aliyun.OSS.Util;
+using FluentStorage.Alibaba.Utils;
 using FluentStorage.Enums;
 using FluentStorage.Exceptions;
 using FluentStorage.Model;
@@ -703,5 +705,6 @@ namespace FluentStorage.Alibaba.Storage {
 		public override async Task<bool> IsTagged() {
 			return true;
 		}
+
 	}
 }

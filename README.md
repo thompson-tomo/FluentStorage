@@ -208,14 +208,6 @@ This table shows the API supported by `IStore` across various cloud and server p
 <td>&nbsp; SetObjectsInfo</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>✔️</td>
 </tr>
-<tr>
-<td>&nbsp; GetFilePermissions</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td>
-</tr>
-<tr>
-<td>&nbsp; SetFilePermissions</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td>
-</tr>
 
 
 <tr>
@@ -277,24 +269,36 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 
 <tr>
-<td colspan="11"><b>Directory manipulation</b></td>
+<td colspan="11"><b>File storage tier</b></td>
 </tr>
 <tr>
-<td>&nbsp; DirectoryExists</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>&nbsp; IsTiered</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
 </tr>
 <tr>
-<td>&nbsp; CreateDirectory</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>&nbsp; GetObjectTier</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
 </tr>
 <tr>
-<td>&nbsp; DeleteDirectory</td>
-<td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>&nbsp; SetObjectTier</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
 </tr>
+
+
 <tr>
-<td>&nbsp; MoveDirectory</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<th>API</th>
+<th><b>Azure<br>Blobs</b></th>
+<th><b>Azure<br>Files</b></th>
+<th><b>AWS S3</b></th>
+<th><b>GCP</b></th>
+<th><b>MinIO</b></th>
+<th><b>Mongo</b></th>
+<th><b>Alibaba</b></th>
+<th><b>FTP</b></th>
+<th><b>SFTP</b></th>
+<th><b>Disk</b></th>
 </tr>
+
 
 <tr>
 <td colspan="11"><b>Presigned URL generation</b></td>
@@ -314,6 +318,38 @@ This table shows the API supported by `IStore` across various cloud and server p
 <tr>
 <td>&nbsp; GetObjectSas</td>
 <td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td>
+</tr>
+
+<tr>
+<td colspan="11"><b>File permissions</b></td>
+</tr>
+<tr>
+<td>&nbsp; GetFilePermissions</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td>
+</tr>
+<tr>
+<td>&nbsp; SetFilePermissions</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td>
+</tr>
+
+<tr>
+<td colspan="11"><b>Directory manipulation</b></td>
+</tr>
+<tr>
+<td>&nbsp; DirectoryExists</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
+</tr>
+<tr>
+<td>&nbsp; CreateDirectory</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
+</tr>
+<tr>
+<td>&nbsp; DeleteDirectory</td>
+<td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+</tr>
+<tr>
+<td>&nbsp; MoveDirectory</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 </tbody>

@@ -115,11 +115,82 @@ namespace FluentStorage.Mongo.Storage {
 		}
 
 		// ------------------------------------------------------------------
-		// Client / _bucket accessors
+		// Client / server info
 		// ------------------------------------------------------------------
 
 		public override async Task<object> GetClient() {
 			return _client;
+		}
+
+		/// <summary>
+		/// Gets information about the connected MongoDB server.
+		///
+		/// Returns a dictionary with server capabilities, build information and
+		/// protocol limits.
+		/// </summary>
+		public override async Task<Dictionary<string, object>> GetServer(CancellationToken cancellationToken = default) {
+
+			var database = _client.GetDatabase("admin");
+
+			BsonDocument buildInfo = await database.RunCommandAsync<BsonDocument>(new BsonDocument("buildInfo", 1), null, cancellationToken).ConfigureAwait(false);
+
+			BsonDocument hello = await database.RunCommandAsync<BsonDocument>(new BsonDocument("hello", 1), null, cancellationToken).ConfigureAwait(false);
+
+			static object Get(BsonDocument doc, string name) {
+				if (!doc.TryGetValue(name, out BsonValue value) || value.IsBsonNull)
+					return null;
+
+				return value.BsonType switch {
+					BsonType.Array => value.AsBsonArray.Select(v => BsonTypeMapper.MapToDotNetValue(v)).ToArray(),
+					BsonType.Document => value.AsBsonDocument,
+					_ => BsonTypeMapper.MapToDotNetValue(value)
+				};
+			}
+
+			string serverType = hello.Contains("msg") && hello["msg"] == "isdbgrid" ? "Mongos" :
+				hello.Contains("setName") ? "ReplicaSet" : "Standalone";
+
+			return new Dictionary<string, object> {
+
+				// Protocol
+				["ProtocolVersion"] = Get(buildInfo, "maxWireVersion"),
+				["MinProtocolVersion"] = Get(buildInfo, "minWireVersion"),
+
+				// Server
+				["ServerVersion"] = Get(buildInfo, "version"),
+				["GitVersion"] = Get(buildInfo, "gitVersion"),
+				["ClientVersion"] = typeof(MongoClient).Assembly.GetName().Version?.ToString(),
+
+				// Build
+				["Bits"] = Get(buildInfo, "bits"),
+				["Debug"] = Get(buildInfo, "debug"),
+				["Allocator"] = Get(buildInfo, "allocator"),
+				["JavascriptEngine"] = Get(buildInfo, "javascriptEngine"),
+				["Modules"] = Get(buildInfo, "modules"),
+				["StorageEngines"] = Get(buildInfo, "storageEngines"),
+				["OpenSSLVersion"] = buildInfo.TryGetValue("openssl", out var openssl) && openssl.IsBsonDocument
+					? Get(openssl.AsBsonDocument, "running")
+					: null,
+				["BuildEnvironment"] = Get(buildInfo, "buildEnvironment"),
+				["CompilerFlags"] = Get(buildInfo, "compilerFlags"),
+				["TargetArchitecture"] = Get(buildInfo, "target_arch"),
+
+				// Limits
+				["MaxBsonObjectSize"] = Get(hello, "maxBsonObjectSize"),
+				["MaxMessageSizeBytes"] = Get(hello, "maxMessageSizeBytes"),
+				["MaxWriteBatchSize"] = Get(hello, "maxWriteBatchSize"),
+				["LogicalSessionTimeout"] = Get(hello, "logicalSessionTimeoutMinutes"),
+				["ReadOnly"] = Get(hello, "readOnly"),
+
+				// Topology
+				["ServerType"] = serverType,
+				["IsWritablePrimary"] = Get(hello, "isWritablePrimary"),
+				["ReplicaSetName"] = Get(hello, "setName"),
+				["Hosts"] = Get(hello, "hosts"),
+				["Passives"] = Get(hello, "passives"),
+				["Arbiters"] = Get(hello, "arbiters"),
+				["CompressionAlgorithms"] = Get(hello, "compression"),
+			};
 		}
 
 		// ------------------------------------------------------------------

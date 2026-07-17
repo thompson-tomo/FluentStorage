@@ -565,7 +565,7 @@ namespace FluentStorage.Storage {
 		// Object Versioning
 		// ---------------------------------------------------------------------
 
-		public virtual async Task<IReadOnlyList<StorageObjectVersion>> ListObjectVersions(string objectPath, CancellationToken cancellationToken = default) {
+		public virtual async Task<List<StorageObjectVersion>> ListObjectVersions(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
@@ -573,11 +573,11 @@ namespace FluentStorage.Storage {
 			throw new NotSupportedException();
 		}
 
-		public virtual async Task RestoreObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
+		public virtual async Task<bool> RestoreObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		public virtual async Task DeleteObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
+		public virtual async Task<bool> DeleteObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 

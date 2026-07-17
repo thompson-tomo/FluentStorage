@@ -28,20 +28,13 @@ namespace FluentStorage.Utils.Validation {
 		}
 
 		/// <summary>
-		/// Validates blob full path
-		/// </summary>
-		public static void AssertFullPath(string fullPath) {
-			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
-		}
-
-		/// <summary>
 		/// Checks blob full path for generic rules
 		/// </summary>
 		public static void AssertFullPaths(IEnumerable<string> fullPaths) {
 			if (fullPaths == null) return;
 
 			foreach (string fullPath in fullPaths) {
-				AssertFullPath(fullPath);
+				if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
 			}
 		}
 

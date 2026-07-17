@@ -141,7 +141,7 @@ namespace FluentStorage.GCP.Storage {
 		}
 
 		public override async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken = default) {
-			ArgValidator.AssertFullPath(fullPath);
+			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
 
 			try {
 				await _client.GetObjectAsync(
@@ -161,7 +161,7 @@ namespace FluentStorage.GCP.Storage {
 		   bool append = false, CancellationToken cancellationToken = default) {
 			if (append)
 				throw new NotSupportedException();
-			ArgValidator.AssertFullPath(fullPath);
+			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
 			fullPath = NormalisePath(fullPath);
 
 			await _client.UploadObjectAsync(_bucketName, fullPath, null, dataStream, cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -171,7 +171,7 @@ namespace FluentStorage.GCP.Storage {
 		/// Opens an object for reading and returns its content stream.
 		/// </summary>
 		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
-			ArgValidator.AssertFullPath(fullPath);
+			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
 			fullPath = NormalisePath(fullPath);
 
 			// no read streaming support in this crappy SDK
@@ -192,7 +192,7 @@ namespace FluentStorage.GCP.Storage {
 		/// Object will be written when the stream is disposed.
 		/// </summary>
 		public override async Task<Stream> OpenWrite(string fullPath, bool overwrite, CancellationToken cancellationToken = default) {
-			ArgValidator.AssertFullPath(fullPath);
+			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
 
 			// exit if file exists and overwriting is disabled
 			if (!overwrite && await ObjectExists(fullPath, cancellationToken)) return null;
@@ -215,7 +215,7 @@ namespace FluentStorage.GCP.Storage {
 		/// Opens a readable stream beginning at the specified byte offset.
 		/// </summary>
 		public override async Task<Stream> OpenRange(string path,long offset,long length,CancellationToken cancellationToken = default) {
-			ArgValidator.AssertFullPath(path);
+			if (path == null) throw new ArgumentNullException(nameof(path));
 
 			path = NormalisePath(path);
 
@@ -236,7 +236,7 @@ namespace FluentStorage.GCP.Storage {
 		}
 		public override async Task<long> GetObjectLength(string fullPath, long defaultValue = -1, CancellationToken cancellationToken = default) {
 			try {
-				ArgValidator.AssertFullPath(fullPath);
+				if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
 
 				var obj = await _client.GetObjectAsync(_bucketName, fullPath, null, cancellationToken) .ConfigureAwait(false);
 
@@ -251,8 +251,9 @@ namespace FluentStorage.GCP.Storage {
 		/// GCP requires no trailing root
 		/// </summary>
 		private static string NormalisePath(string path) {
-			path = StoragePath.Normalize(path);
-			return path.Substring(1);
+			if (string.IsNullOrEmpty(path))
+				return path;
+			return path[0] == '/' ? path.Substring(1) : path;
 		}
 
 		/// <summary>
@@ -262,7 +263,7 @@ namespace FluentStorage.GCP.Storage {
 		public override async Task<string> GetPresignedUrl(string fullPath,bool forDownload,bool https,
 			int expiresInSeconds = 86000) {
 
-			ArgValidator.AssertFullPath(fullPath);
+			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
 			fullPath = NormalisePath(fullPath);
 
 			UrlSigner.RequestTemplate template = UrlSigner.RequestTemplate
@@ -315,7 +316,7 @@ namespace FluentStorage.GCP.Storage {
 					return false;
 				}
 				catch (Google.GoogleApiException ex)
-					when (ex.HttpStatusCode == System.Net.HttpStatusCode.NotFound) {
+					when (ex.HttpStatusCode == HttpStatusCode.NotFound) {
 				}
 			}
 
@@ -331,7 +332,7 @@ namespace FluentStorage.GCP.Storage {
 		/// </summary>
 		public override async Task DeleteDirectory(string folderPath, bool recursive, CancellationToken cancellationToken = default) {
 
-			ArgValidator.AssertFullPath(folderPath);
+			if (folderPath == null) throw new ArgumentNullException(nameof(folderPath));
 
 			folderPath = StoragePath.IsRootPath(folderPath) ? "" : NormalisePath(folderPath) + "/";
 
@@ -366,10 +367,12 @@ namespace FluentStorage.GCP.Storage {
 		}
 
 		/// <summary>
-		/// Returns all available generations of the specified object.
+		/// Returns all available versions of the specified object.
 		/// </summary>
-		public override async Task<IReadOnlyList<StorageObjectVersion>> ListObjectVersions(string objectPath, CancellationToken cancellationToken = default) {
-			ArgValidator.AssertFullPath(objectPath);
+		public override async Task<List<StorageObjectVersion>> ListObjectVersions(string objectPath, CancellationToken cancellationToken = default) {
+
+			if (objectPath == null) throw new ArgumentNullException(nameof(objectPath));
+			objectPath = NormalisePath(objectPath); 
 
 			var result = new List<StorageObjectVersion>();
 
@@ -377,78 +380,115 @@ namespace FluentStorage.GCP.Storage {
 				Versions = true
 			};
 
-			foreach (var obj in _client.ListObjects(_bucketName, objectPath, options)) {
-				if (!string.Equals(obj.Name, objectPath, StringComparison.Ordinal))
-					continue;
+			try {
 
-				result.Add(new StorageObjectVersion {
-					VersionId = obj.Generation.ToString(),
-					IsCurrent = obj.TimeDeletedDateTimeOffset == null,
-					DateCreated = obj.TimeCreatedDateTimeOffset.GetValueOrDefault().DateTime,
-					Length = (long)(obj.Size ?? 0),
-					ETag = obj.ETag
-				});
+				await foreach (var obj in _client.ListObjectsAsync(_bucketName,objectPath,
+					options).WithCancellation(cancellationToken).ConfigureAwait(false)) {
+
+					if (!string.Equals(obj.Name, objectPath, StringComparison.Ordinal))
+						continue;
+
+					result.Add(VersionToObject(obj, obj.TimeCreatedDateTimeOffset == null));
+				}
+
+				return result;
 			}
+			catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.NotFound) {
 
-			return result;
+				// Returns an empty collection if versioning is not enabled, or no versions exist, or the object does not exist.
+				return new List<StorageObjectVersion>();
+			}
 		}
 
-
-		/// <summary>
-		/// Returns information about the specified object generation.
-		/// </summary>
-		public override async Task<StorageObjectVersion> GetObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
-			ArgValidator.AssertFullPath(objectPath);
-
-			if (string.IsNullOrWhiteSpace(versionId))throw new ArgumentNullException(nameof(versionId));
-
-			var obj = await _client.GetObjectAsync(_bucketName,objectPath,
-				new GetObjectOptions {
-					Generation = long.Parse(versionId)
-				},
-				cancellationToken).ConfigureAwait(false);
-
+		private static StorageObjectVersion VersionToObject(GObject obj, bool current) {
 			return new StorageObjectVersion {
-				VersionId = obj.Generation.ToString(),
-				IsCurrent = obj.TimeDeletedDateTimeOffset == null,
-				DateCreated = obj.TimeCreatedDateTimeOffset.GetValueOrDefault().DateTime,
-				Length = (long)(obj.Size ?? 0),
+				VersionId = obj.Generation?.ToString() ?? "",
+				IsCurrent = current,
+				DateCreated = obj.TimeCreatedDateTimeOffset?.UtcDateTime ?? DateTime.MinValue,
+				Length = (long?)obj.Size ?? 0,
 				ETag = obj.ETag
 			};
 		}
 
-
 		/// <summary>
-		/// Restores the specified generation as the current object.
+		/// Returns information about a specific version of an object.
 		/// </summary>
-		public override async Task RestoreObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
-			ArgValidator.AssertFullPath(objectPath);
+		public override async Task<StorageObjectVersion> GetObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
 
-			if (string.IsNullOrWhiteSpace(versionId))
-				throw new ArgumentNullException(nameof(versionId));
+			if (objectPath == null) throw new ArgumentNullException(nameof(objectPath));
+			objectPath = NormalisePath(objectPath); 
 
-			await _client.CopyObjectAsync(_bucketName,objectPath,_bucketName,objectPath,
-				new CopyObjectOptions {
-					SourceGeneration = long.Parse(versionId)
-				},
-				cancellationToken).ConfigureAwait(false);
+			if (string.IsNullOrWhiteSpace(versionId))throw new ArgumentNullException(nameof(versionId));
+
+			try {
+
+				var obj = await _client.GetObjectAsync(_bucketName,objectPath,
+					new GetObjectOptions {
+						Generation = long.Parse(versionId)
+					},
+					cancellationToken).ConfigureAwait(false);
+
+				return VersionToObject(obj, false);
+			}
+			catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.NotFound) {
+
+				// Returns null if the version or object does not exist.
+				return null;
+			}
 		}
 
+		/// <summary>
+		/// Restores the specified version as the current version of the object.
+		/// </summary>
+		public override async Task<bool> RestoreObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
+
+			if (objectPath == null) throw new ArgumentNullException(nameof(objectPath));
+			objectPath = NormalisePath(objectPath); 
+
+			if (string.IsNullOrWhiteSpace(versionId))throw new ArgumentNullException(nameof(versionId));
+
+			try {
+
+				await _client.CopyObjectAsync(_bucketName,objectPath,_bucketName,objectPath,
+					new CopyObjectOptions {
+						SourceGeneration = long.Parse(versionId)
+					},
+					cancellationToken).ConfigureAwait(false);
+
+				return true;
+			}
+			catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.NotFound) {
+
+				// Returns true if restored, or false if the object was not found.
+				return false;
+			}
+		}
 
 		/// <summary>
-		/// Permanently deletes the specified object generation.
+		/// Permanently deletes the specified object version. Does not delete other versions.
 		/// </summary>
-		public override async Task DeleteObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
-			ArgValidator.AssertFullPath(objectPath);
+		public override async Task<bool> DeleteObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
 
-			if (string.IsNullOrWhiteSpace(versionId))
-				throw new ArgumentNullException(nameof(versionId));
+			if (objectPath == null) throw new ArgumentNullException(nameof(objectPath));
+			objectPath = NormalisePath(objectPath); 
 
-			await _client.DeleteObjectAsync(_bucketName,objectPath,
-				new DeleteObjectOptions {
-					Generation = long.Parse(versionId)
-				},
-				cancellationToken).ConfigureAwait(false);
+			if (string.IsNullOrWhiteSpace(versionId))throw new ArgumentNullException(nameof(versionId));
+
+			try {
+
+				await _client.DeleteObjectAsync(_bucketName,objectPath,
+					new DeleteObjectOptions {
+						Generation = long.Parse(versionId)
+					},
+					cancellationToken).ConfigureAwait(false);
+
+				return true;
+			}
+			catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.NotFound) {
+
+				// Returns true if deleted, or false if the object or version was not found.
+				return false;
+			}
 		}
 
 	}

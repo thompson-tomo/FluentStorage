@@ -372,27 +372,30 @@ namespace FluentStorage.Storage {
 
 		/// <summary>
 		/// Returns all available versions of the specified object.
-		/// Returns an empty collection if versioning is not enabled or no versions exist.
+		/// Returns an empty collection if versioning is not enabled, or no versions exist, or the object does not exist.
 		/// </summary>
-		Task<IReadOnlyList<StorageObjectVersion>> ListObjectVersions(string objectPath, CancellationToken cancellationToken = default);
+		Task<List<StorageObjectVersion>> ListObjectVersions(string objectPath, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Returns information about a specific version of an object.
-		/// Returns null if the version does not exist.
+		/// Returns null if the version or object does not exist.
 		/// </summary>
 		Task<StorageObjectVersion> GetObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Restores the specified version as the current version of the object.
 		/// Provider-specific restore semantics may apply.
+		/// Returns true if restored, or false if the object was not found.
 		/// </summary>
-		Task RestoreObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default);
+		Task<bool> RestoreObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Permanently deletes the specified object version.
 		/// Does not delete other versions of the object.
+		/// Returns true if deleted, or false if the object was not found.
 		/// </summary>
-		Task DeleteObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default);
+		Task<bool> DeleteObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default);
+
 
 
 		// ---------------------------------------------------------------------

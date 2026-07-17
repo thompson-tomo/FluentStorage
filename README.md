@@ -72,69 +72,69 @@ This table shows the API supported by `IStore` across various cloud and server p
 <th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/alibaba.png" width="32"></img> <br><b>Alibaba</b></th>
 <th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/ftp.png" width="32"></img> <br><b>FTP</b></th>
 <th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/sftp.png" width="32"></img> <br><b>SFTP</b></th>
-<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/local.png" width="32"></img> <br><b>Local<br>Disk</b></th>
+<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/local.png" width="32"></img> <br><b>Disk</b></th>
 </tr>
 
 </thead>
 <tbody>
 
 <tr>
-<td colspan="10"><b>System</b></td>
+<td colspan="11"><b>System information</b></td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; GetClient</td>
+<td>&nbsp; GetClient</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; GetServer</td>
+<td>&nbsp; GetServer</td>
 <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 <tr>
-<td colspan="10"><b>File listing</b></td>
+<td colspan="11"><b>File listing</b></td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; ListDirectory</td>
+<td>&nbsp; ListDirectory</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; ListObjects</td>
+<td>&nbsp; ListObjects</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 <tr>
-<td colspan="10"><b>File upload/download</b></td>
+<td colspan="11"><b>File upload/download</b></td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; GetObject</td>
+<td>&nbsp; GetObject</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; SetObject</td>
+<td>&nbsp; SetObject</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; GetBytes</td>
+<td>&nbsp; GetBytes</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; SetBytes</td>
+<td>&nbsp; SetBytes</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; DownloadObject</td>
+<td>&nbsp; DownloadObject</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; UploadObject</td>
+<td>&nbsp; UploadObject</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; OpenRead</td>
+<td>&nbsp; OpenRead</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; OpenWrite</td>
+<td>&nbsp; OpenWrite</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
@@ -150,70 +150,70 @@ This table shows the API supported by `IStore` across various cloud and server p
 <th><b>Alibaba</b></th>
 <th><b>FTP</b></th>
 <th><b>SFTP</b></th>
-<th><b>Local<br>Disk</b></th>
+<th><b>Disk</b></th>
 </tr>
 
 <tr>
-<td colspan="10"><b>File streaming/seeking</b></td>
+<td colspan="11"><b>File streaming/seeking</b></td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; OpenRange</td>
+<td>&nbsp; OpenRange</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; OpenSeekable</td>
+<td>&nbsp; OpenSeekable</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 <tr>
-<td colspan="10"><b>File manipulation</b></td>
+<td colspan="11"><b>File manipulation</b></td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; ObjectExists</td>
+<td>&nbsp; ObjectExists</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; MoveObject</td>
+<td>&nbsp; MoveObject</td>
 <td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; DeleteObject</td>
+<td>&nbsp; DeleteObject</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; DeleteObjects</td>
+<td>&nbsp; DeleteObjects</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 <tr>
-<td colspan="10"><b>File metadata</b></td>
+<td colspan="11"><b>File metadata</b></td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; GetObjectLength</td>
+<td>&nbsp; GetObjectLength</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; GetObjectInfo</td>
+<td>&nbsp; GetObjectInfo</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; GetObjectsInfo</td>
+<td>&nbsp; GetObjectsInfo</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; SetObjectInfo</td>
+<td>&nbsp; SetObjectInfo</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>✔️</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; SetObjectsInfo</td>
+<td>&nbsp; SetObjectsInfo</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>✔️</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; GetFilePermissions</td>
+<td>&nbsp; GetFilePermissions</td>
 <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; SetFilePermissions</td>
+<td>&nbsp; SetFilePermissions</td>
 <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td>
 </tr>
 
@@ -229,47 +229,67 @@ This table shows the API supported by `IStore` across various cloud and server p
 <th><b>Alibaba</b></th>
 <th><b>FTP</b></th>
 <th><b>SFTP</b></th>
-<th><b>Local<br>Disk</b></th>
+<th><b>Disk</b></th>
 </tr>
 
 <tr>
-<td colspan="10"><b>Directory manipulation</b></td>
+<td colspan="11"><b>File versioning</b></td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; DirectoryExists</td>
+<td>&nbsp; ListObjectVersions</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
+</tr>
+<tr>
+<td>&nbsp; GetObjectVersion</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
+</tr>
+<tr>
+<td>&nbsp; RestoreObjectVersion</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
+</tr>
+<tr>
+<td>&nbsp; DeleteObjectVersion</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
+</tr>
+
+<tr>
+<td colspan="11"><b>Directory manipulation</b></td>
+</tr>
+<tr>
+<td>&nbsp; DirectoryExists</td>
 <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; CreateDirectory</td>
+<td>&nbsp; CreateDirectory</td>
 <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; DeleteDirectory</td>
+<td>&nbsp; DeleteDirectory</td>
 <td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; MoveDirectory</td>
+<td>&nbsp; MoveDirectory</td>
 <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 <tr>
-<td colspan="10"><b>Presigned URL generation</b></td>
+<td colspan="11"><b>Presigned URL generation</b></td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; GetUploadUrl</td>
-<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
+<td>&nbsp; GetUploadUrl</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; GetDownloadUrl</td>
-<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
+<td>&nbsp; GetDownloadUrl</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; GetPresignedUrl</td>
-<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
+<td>&nbsp; GetPresignedUrl</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td>
 </tr>
 <tr>
-<td>&nbsp;&nbsp; GetObjectSas</td>
-<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
+<td>&nbsp; GetObjectSas</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td>
 </tr>
 
 </tbody>

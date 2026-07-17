@@ -250,7 +250,7 @@ namespace FluentStorage.Storage {
 		}
 
 		private Stream CreateStream(string fullPath, bool overwrite = true) {
-			ArgValidator.AssertFullPath(fullPath);
+			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
 			if (!_fileSystem.Directory.Exists(_directoryFullName)) _fileSystem.Directory.CreateDirectory(_directoryFullName);
 			string path = NormalizeFilePath(fullPath);
 
@@ -267,7 +267,7 @@ namespace FluentStorage.Storage {
 		public override async Task SetObject(string fullPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken = default) {
 			if (dataStream is null)
 				throw new ArgumentNullException(nameof(dataStream));
-			ArgValidator.AssertFullPath(fullPath);
+			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
 
 			fullPath = StoragePath.Normalize(fullPath);
 
@@ -282,7 +282,7 @@ namespace FluentStorage.Storage {
 		/// Opens file and returns a readable file stream
 		/// </summary>
 		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
-			ArgValidator.AssertFullPath(fullPath);
+			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
 
 			fullPath = StoragePath.Normalize(fullPath);
 
@@ -298,7 +298,7 @@ namespace FluentStorage.Storage {
 		/// Opens file and returns a writeable file stream
 		/// </summary>
 		public override async Task<Stream> OpenWrite(string fullPath, bool overwrite, CancellationToken cancellationToken = default) {
-			ArgValidator.AssertFullPath(fullPath);
+			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
 
 			fullPath = StoragePath.Normalize(fullPath);
 
@@ -311,7 +311,7 @@ namespace FluentStorage.Storage {
 		}
 
 		public override async Task<Stream> OpenRange(string fullPath,long offset,long length,CancellationToken cancellationToken = default) {
-			ArgValidator.AssertFullPath(fullPath);
+			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
 
 			fullPath = StoragePath.Normalize(fullPath);
 
@@ -332,7 +332,7 @@ namespace FluentStorage.Storage {
 		}
 		public override async Task<long> GetObjectLength(string fullPath, long defaultValue = -1, CancellationToken cancellationToken = default) {
 			try {
-				ArgValidator.AssertFullPath(fullPath);
+				if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
 
 				fullPath = StoragePath.Normalize(fullPath);
 
@@ -406,7 +406,7 @@ namespace FluentStorage.Storage {
 			var result = new List<bool>();
 
 			if (fullPath != null) {
-				ArgValidator.AssertFullPath(fullPath);
+				if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
 				return _fileSystem.File.Exists(NormalizeFilePath(StoragePath.Normalize(fullPath), false));
 			}
 			return false;
@@ -415,13 +415,13 @@ namespace FluentStorage.Storage {
 		public override async Task<StoreObject> GetObjectInfo(string path, CancellationToken cancellationToken = default) {
 			return (await GetObjectsInfo(new List<string> { path }, cancellationToken).ConfigureAwait(false)).FirstOrDefault();
 		}
-		public override async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> ids, CancellationToken cancellationToken = default) {
+		public override async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> paths, CancellationToken cancellationToken = default) {
 			var result = new List<StoreObject>();
 
-			foreach (string blobId in ids) {
-				ArgValidator.AssertFullPath(blobId);
+			foreach (string path in paths) {
+				if (path == null) throw new ArgumentNullException(nameof(path));
 
-				string filePath = NormalizeFilePath(blobId, false);
+				string filePath = NormalizeFilePath(path, false);
 
 				if (!_fileSystem.File.Exists(filePath)) {
 					result.Add(null);
@@ -479,7 +479,7 @@ namespace FluentStorage.Storage {
 		/// Creates a new folder.
 		/// </summary>
 		public override async Task CreateDirectory(string folderPath, bool force, CancellationToken cancellationToken = default) {
-			ArgValidator.AssertFullPath(folderPath);
+			if (folderPath == null) throw new ArgumentNullException(nameof(folderPath));
 
 			folderPath = StoragePath.Normalize(folderPath);
 
@@ -498,7 +498,7 @@ namespace FluentStorage.Storage {
 		/// Deletes a folder.
 		/// </summary>
 		public override async Task DeleteDirectory(string folderPath, bool recursive, CancellationToken cancellationToken = default) {
-			ArgValidator.AssertFullPath(folderPath);
+			if (folderPath == null) throw new ArgumentNullException(nameof(folderPath));
 
 			folderPath = StoragePath.Normalize(folderPath);
 
@@ -514,7 +514,7 @@ namespace FluentStorage.Storage {
 		/// Returns true if the specified directory exists.
 		/// </summary>
 		public override async Task<bool> DirectoryExists(string folderPath, CancellationToken cancellationToken = default) {
-			ArgValidator.AssertFullPath(folderPath);
+			if (folderPath == null) throw new ArgumentNullException(nameof(folderPath));
 
 			folderPath = StoragePath.Normalize(folderPath);
 
@@ -528,8 +528,8 @@ namespace FluentStorage.Storage {
 		/// Moves a directory.
 		/// </summary>
 		public override async Task MoveDirectory(string sourceFolderPath, string destinationFolderPath, CancellationToken cancellationToken = default) {
-			ArgValidator.AssertFullPath(sourceFolderPath);
-			ArgValidator.AssertFullPath(destinationFolderPath);
+			if (sourceFolderPath == null) throw new ArgumentNullException(nameof(sourceFolderPath));
+			if (destinationFolderPath == null) throw new ArgumentNullException(nameof(sourceFolderPath));
 
 			sourceFolderPath = StoragePath.Normalize(sourceFolderPath);
 			destinationFolderPath = StoragePath.Normalize(destinationFolderPath);

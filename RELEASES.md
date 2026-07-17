@@ -2,7 +2,7 @@
 
 #### FluentStorage 8.0.5
  - **FluentStorage**
-   - IStore: Improve interface signatures of object versioning APIs, tagging APIs and storage tier APIs
+   - IStore: Implement new object versioning APIs, tagging APIs and storage tier APIs
    - IStore: Change `IsFileSystem`, `IsSeekable` to async to align with other feature check APIs
    - IStore: Add `IsVersioned`, `IsTagged` and `IsTiered` to check if providers support new features
    - Assertions: Remove `AssertFullPath` and handle it inline in all APIs

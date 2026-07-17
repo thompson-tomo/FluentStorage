@@ -383,7 +383,8 @@ namespace FluentStorage.Azure.Blobs.Utils {
 		}
 
 		private void DecomposePath(string path, out string filesystemName, out string relativePath, bool requireRelativePath = true) {
-			ArgValidator.AssertFullPath(path);
+			if (path == null) throw new ArgumentNullException(nameof(path));
+
 			string[] parts = StoragePath.Split(path);
 
 			if (requireRelativePath && parts.Length < 2) {

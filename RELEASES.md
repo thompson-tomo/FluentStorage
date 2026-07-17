@@ -2,9 +2,10 @@
 
 #### FluentStorage 8.0.6
  - **FluentStorage**
-   - Paths: `StoragePath.Normalize` has been completely rewritten to offer a unified path system across all disk and cloud stores
-   - Paths: `StoragePath.Combine`, `StoragePath.Split`, `StoragePath.GetParent`, is completely rewritten for performance
-   - Paths: Removed from `StoragePath`: `ComparePath`, `RemoveRootFolder`, `GetRootFolder`, `Rename`
+   - **Paths: A new [unified path system](https://github.com/robinrodricks/FluentStorage/wiki/Unified-Path-System) has been introduced across all providers!**
+   - Paths: `StoragePath.Normalize` has been completely rewritten to enable the unified path system
+   - Paths: `StoragePath.Combine`, `.Split` and `.GetParent` are completely rewritten for performance
+   - Paths: `StoragePath.ComparePath`, `.RemoveRootFolder`, `.GetRootFolder` and `.Rename` have been removed
    - DiskStore: `GetObjects` will now return all objects in the main directory recursively by default
    - Move all sinks into `FluentStorage.Sinks` NS
    - Move `DelegatedStream` and `NonCloseableStream` into `FluentStorage.Storage.Sinks` NS

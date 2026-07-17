@@ -17,7 +17,7 @@
 
 FluentStorage is a fully managed polycloud .NET cloud storage library, optimized for speed. It helps you interface with multiple cloud providers from a [single unified API](#polycloud-api), allowing you to switch cloud providers or support multiple cloud providers without any logic changes.
 
-It provides a [single unified API](#polycloud-api) for [Object storage](https://github.com/robinrodricks/FluentStorage/wiki/Object-Storage) and [Queue messaging](https://github.com/robinrodricks/FluentStorage/wiki/Message-Storage) across all [cloud storage providers](#storage-providers) like AWS S3, AWS SQS, GCP Storage, FTP, FTPS, SFTP, Local Disk, Azure Blob, Azure Files, Azure Queue, Azure Service Bus, Azure Data Lake, Azure Key Vault, Cloudflare R2, DigitalOcean Spaces, MinIO, Wasabi, Backblaze B2, Hetzner, Vultr, Alibaba OSS. Each provider has its own [Nuget package](#packages) with zero configuration required.
+It provides a [single unified API](#polycloud-api) for [Object storage](https://github.com/robinrodricks/FluentStorage/wiki/Object-Storage) and [Queue messaging](https://github.com/robinrodricks/FluentStorage/wiki/Message-Storage) across all [cloud storage providers](#storage-providers) like AWS S3, AWS SQS, GCP Storage, FTP, FTPS, SFTP, Local Disk, Azure Blob, Azure Files, Azure Queue, Azure Service Bus, Azure Data Lake, Azure Key Vault, Cloudflare R2, DigitalOcean Spaces, MinIO, Wasabi, Backblaze B2, Hetzner, Vultr, MongoDB GridFS, Alibaba OSS. Each provider has its own [Nuget package](#packages) with zero configuration required.
 
 It provides extensive Object manipulation commands, File uploads/downloads, File streaming/seeking, Directory listing, File permissions/CHMOD, UTF-8 support and more. Its API is fully asynchronous and has identical behavior across all providers. It also implements [in-memory and local disk providers](https://github.com/robinrodricks/FluentStorage/wiki/Standard-Storage), so you can test on a local machine or access attached NAS/EBS drives.
 
@@ -46,12 +46,13 @@ FluentStorage supports the following cloud storage providers:
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/backblaze.png" width="32"></img>|  [Backblaze B2](https://github.com/robinrodricks/FluentStorage/wiki/Backblaze-B2-Storage)  	| `BackblazeB2Storage` | `S3Store` |`AmazonS3Client`  |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/hetzner.png" width="32"></img>|  [Hetzner](https://github.com/robinrodricks/FluentStorage/wiki/Hetzner-Storage)  				| `HetznerStorage` | `S3Store` |`AmazonS3Client`  |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/vultr.png" width="32"></img>|  [Vultr](https://github.com/robinrodricks/FluentStorage/wiki/Vultr-Storage)        				| `VultrStorage` | `S3Store` |`AmazonS3Client`  |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/mongo.png" width="32"></img>| [MongoDB GridFS](https://github.com/robinrodricks/FluentStorage/wiki/MongoDB-GridFS-Storage)      | `MongoGridStorage` | `MongoGridStore` |`MongoClient`  |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/alibaba.png" width="32"></img>|  [Alibaba OSS](https://github.com/robinrodricks/FluentStorage/wiki/Alibaba-OSS-Storage)         | `AlibabaStorage` | `AlibabaStore` |`OssClient`  |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/ftp.png" width="32"></img>|  [FTP](https://github.com/robinrodricks/FluentStorage/wiki/FTP-Storage)        						| `FtpStorage` | `FtpStore` |  `AsyncFtpClient` |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/sftp.png" width="32"></img>|  [SFTP](https://github.com/robinrodricks/FluentStorage/wiki/SFTP-Storage)        					| `SftpStorage` | `SftpStore` | `SftpClient` |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/local.png" width="32"></img>|  [Local Disk](https://github.com/robinrodricks/FluentStorage/wiki/Standard-Storage)        		| `StorageFactory` | `DiskStore` | `IFileSystem` |
 
-To add support for a new provider, search for `[ADD STORAGE PROVIDER]` across all code files and make the required changes.
+To add support for a new S3-compatible provider, search for `[ADD STORAGE PROVIDER]` across all code files.
 
 ## Polycloud API
 
@@ -67,6 +68,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 <th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/aws.png" width="32"></img> <br><b>AWS S3</b></th>
 <th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/gcp.png" width="32"></img> <br><b>GCP</b></th>
 <th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/minio.png" width="32"></img> <br><b>MinIO</b></th>
+<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/mongo.png" width="32"></img> <br><b>Mongo</b></th>
 <th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/alibaba.png" width="32"></img> <br><b>Alibaba</b></th>
 <th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/ftp.png" width="32"></img> <br><b>FTP</b></th>
 <th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/sftp.png" width="32"></img> <br><b>SFTP</b></th>
@@ -81,11 +83,11 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>&nbsp;&nbsp; GetClient</td>
-<td>✔️</td><td>✔️</td><td>✔️<br></td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; GetServer</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 <tr>
@@ -93,11 +95,11 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>&nbsp;&nbsp; ListDirectory</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; ListObjects</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 <tr>
@@ -105,35 +107,35 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>&nbsp;&nbsp; GetObject</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; SetObject</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; GetBytes</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; SetBytes</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; DownloadObject</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; UploadObject</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; OpenRead</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; OpenWrite</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 
@@ -144,6 +146,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 <th><b>AWS S3</b></th>
 <th><b>GCP</b></th>
 <th><b>MinIO</b></th>
+<th><b>Mongo</b></th>
 <th><b>Alibaba</b></th>
 <th><b>FTP</b></th>
 <th><b>SFTP</b></th>
@@ -155,11 +158,11 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>&nbsp;&nbsp; OpenRange</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; OpenSeekable</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 <tr>
@@ -167,19 +170,19 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>&nbsp;&nbsp; ObjectExists</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; MoveObject</td>
-<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; DeleteObject</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; DeleteObjects</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 <tr>
@@ -187,31 +190,31 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>&nbsp;&nbsp; GetObjectLength</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; GetObjectInfo</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; GetObjectsInfo</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; SetObjectInfo</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; SetObjectsInfo</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; GetFilePermissions</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; SetFilePermissions</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td>
 </tr>
 
 
@@ -222,6 +225,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 <th><b>AWS S3</b></th>
 <th><b>GCP</b></th>
 <th><b>MinIO</b></th>
+<th><b>Mongo</b></th>
 <th><b>Alibaba</b></th>
 <th><b>FTP</b></th>
 <th><b>SFTP</b></th>
@@ -233,19 +237,19 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>&nbsp;&nbsp; DirectoryExists</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; CreateDirectory</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; DeleteDirectory</td>
-<td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; MoveDirectory</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 <tr>
@@ -253,19 +257,19 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>&nbsp;&nbsp; GetUploadUrl</td>
-<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
+<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; GetDownloadUrl</td>
-<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
+<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; GetPresignedUrl</td>
-<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
+<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp; GetObjectSas</td>
-<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
+<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>✔️</td><td>❌</td><td>❌</td><td>❌</td>
 </tr>
 
 </tbody>
@@ -339,6 +343,7 @@ Stable binaries are released on NuGet, and contain everything you need to use Cl
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure-key-vault.png" width="32"></img>| **[FluentStorage.Azure.KeyVault](https://www.nuget.org/packages/FluentStorage.Azure.KeyVault)**      	|     [![Version](https://img.shields.io/nuget/vpre/FluentStorage.Azure.KeyVault.svg)](https://www.nuget.org/packages/FluentStorage.Azure.KeyVault) 		|  [![Downloads](https://img.shields.io/nuget/dt/FluentStorage.Azure.KeyVault.svg)](https://www.nuget.org/packages/FluentStorage.Azure.KeyVault) | [KeyVault](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Key-Vault) |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure-queue-storage.png" width="32"></img>| **[FluentStorage.Azure.Queues](https://www.nuget.org/packages/FluentStorage.Azure.Queues)**      	|     [![Version](https://img.shields.io/nuget/vpre/FluentStorage.Azure.Queues.svg)](https://www.nuget.org/packages/FluentStorage.Azure.Queues) 		|  [![Downloads](https://img.shields.io/nuget/dt/FluentStorage.Azure.Queues.svg)](https://www.nuget.org/packages/FluentStorage.Azure.Queues) | [Queue](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Queue-Storage) |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/minio.png" width="32"></img>| **[FluentStorage.Minio](https://www.nuget.org/packages/FluentStorage.Minio)**      	|     [![Version](https://img.shields.io/nuget/vpre/FluentStorage.Minio.svg)](https://www.nuget.org/packages/FluentStorage.Minio) 		|  [![Downloads](https://img.shields.io/nuget/dt/FluentStorage.Minio.svg)](https://www.nuget.org/packages/FluentStorage.Minio) | [Minio](https://github.com/robinrodricks/FluentStorage/wiki/Minio-OSS-Storage) |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/mongo.png" width="32"></img>| **[FluentStorage.Mongo](https://www.nuget.org/packages/FluentStorage.Mongo)**      	|     [![Version](https://img.shields.io/nuget/vpre/FluentStorage.Mongo.svg)](https://www.nuget.org/packages/FluentStorage.Mongo) 		|  [![Downloads](https://img.shields.io/nuget/dt/FluentStorage.Mongo.svg)](https://www.nuget.org/packages/FluentStorage.Mongo) | [Mongo](https://github.com/robinrodricks/FluentStorage/wiki/MongoDB-GridFS-Storage) |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/alibaba.png" width="32"></img>| **[FluentStorage.Alibaba](https://www.nuget.org/packages/FluentStorage.Alibaba)**      	|     [![Version](https://img.shields.io/nuget/vpre/FluentStorage.Alibaba.svg)](https://www.nuget.org/packages/FluentStorage.Alibaba) 		|  [![Downloads](https://img.shields.io/nuget/dt/FluentStorage.Alibaba.svg)](https://www.nuget.org/packages/FluentStorage.Alibaba) | [Alibaba](https://github.com/robinrodricks/FluentStorage/wiki/Alibaba-OSS-Storage) |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/ftp.png" width="32"></img>| **[FluentStorage.FTP](https://www.nuget.org/packages/FluentStorage.FTP)**      	|     [![Version](https://img.shields.io/nuget/vpre/FluentStorage.FTP.svg)](https://www.nuget.org/packages/FluentStorage.FTP) 		|  [![Downloads](https://img.shields.io/nuget/dt/FluentStorage.FTP.svg)](https://www.nuget.org/packages/FluentStorage.FTP) | [FTP](https://github.com/robinrodricks/FluentStorage/wiki/FTP-Storage) |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/sftp.png" width="32"></img>| **[FluentStorage.SFTP](https://www.nuget.org/packages/FluentStorage.SFTP)**      	|     [![Version](https://img.shields.io/nuget/vpre/FluentStorage.SFTP.svg)](https://www.nuget.org/packages/FluentStorage.SFTP) 		|  [![Downloads](https://img.shields.io/nuget/dt/FluentStorage.SFTP.svg)](https://www.nuget.org/packages/FluentStorage.SFTP) | [SFTP](https://github.com/robinrodricks/FluentStorage/wiki/SFTP-Storage) |
@@ -416,6 +421,7 @@ Check the [Wiki](https://github.com/robinrodricks/FluentStorage/wiki).
 In 2026, we added:
 
 * **Version 8** with a massive redesign of the [entire API and behaviour](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide)
+* **MongoDB GridFS** provider using native MongoDB Driver
 * **MinIO** provider using native Minio SDK
 * **Alibaba OSS** provider using native Aliyun SDK
 * **Cloudflare R2** provider using S3-compatible SDK

@@ -22,7 +22,7 @@ namespace FluentStorage.Mongo.Storage {
 	/// Manages a single MongoDB GridFS bucket using the native MongoDB Driver.
 	/// </summary>
 	public class MongoGridStore : StoreBase {
-		private IMongoClient _client;
+		private MongoClient _client;
 		private IMongoDatabase _database;
 		private string _bucketName;
 
@@ -32,7 +32,7 @@ namespace FluentStorage.Mongo.Storage {
 		// Constructors
 		// ------------------------------------------------------------------
 
-		public MongoGridStore(IMongoClient client, IMongoDatabase database, string bucketName = "fs") {
+		public MongoGridStore(MongoClient client, IMongoDatabase database, string bucketName = "fs") {
 			if (client == null) throw new ArgumentNullException(nameof(client));
 			if (database == null) throw new ArgumentNullException(nameof(database));
 			if (string.IsNullOrWhiteSpace(bucketName)) throw new ArgumentNullException(nameof(bucketName));

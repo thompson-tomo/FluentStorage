@@ -28,7 +28,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates a MongoDB GridFS storage provider using a MongoDB client and database instance.
 		/// </summary>
-		public static IStore FromClient(IMongoClient client, IMongoDatabase database, string bucketName = "fs") {
+		public static IStore FromClient(MongoClient client, IMongoDatabase database, string bucketName = "fs") {
 			return new MongoGridStore(client, database, bucketName);
 		}
 

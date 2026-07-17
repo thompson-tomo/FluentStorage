@@ -119,23 +119,7 @@ namespace FluentStorage.Mongo.Storage {
 		// ------------------------------------------------------------------
 
 		public override async Task<object> GetClient() {
-			return await Task.FromResult<object>(_client).ConfigureAwait(false);
-		}
-
-		// ------------------------------------------------------------------
-		// Path helpers
-		// ------------------------------------------------------------------
-
-		private static string NormalizePath(string path) {
-			if (string.IsNullOrEmpty(path)) return string.Empty;
-			return path.Replace('\\', '/').Trim('/');
-		}
-
-		private static (string folderPath, string name) SplitPath(string fullPath) {
-			string normalized = NormalizePath(fullPath);
-			int idx = normalized.LastIndexOf('/');
-			if (idx < 0) return (string.Empty, normalized);
-			return (normalized.Substring(0, idx), normalized.Substring(idx + 1));
+			return _client;
 		}
 
 		// ------------------------------------------------------------------
@@ -534,6 +518,22 @@ namespace FluentStorage.Mongo.Storage {
 			}
 
 			return result;
+		}
+
+		// ------------------------------------------------------------------
+		// Path helpers
+		// ------------------------------------------------------------------
+
+		private static string NormalizePath(string path) {
+			if (string.IsNullOrEmpty(path)) return string.Empty;
+			return path.Replace('\\', '/').Trim('/');
+		}
+
+		private static (string folderPath, string name) SplitPath(string fullPath) {
+			string normalized = NormalizePath(fullPath);
+			int idx = normalized.LastIndexOf('/');
+			if (idx < 0) return (string.Empty, normalized);
+			return (normalized.Substring(0, idx), normalized.Substring(idx + 1));
 		}
 	}
 }

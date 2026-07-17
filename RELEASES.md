@@ -7,8 +7,9 @@
    - New: MongoDB GridFS storage provider using native MongoDB driver. Introduces the factory API `MongoGridStorage` and store class `MongoGridStore`.
 
 #### FluentStorage 8.0.4
- - `DiskStore`: Fix `ListObjects` and add `GetServer` & `MoveObject` APIs
+ - Disk storage: Fix `ListObjects` and add `GetServer` & `MoveObject` APIs
  - Streams: Add `NonSeekableStream` to the core package
+ - Rename core classes: `StoreObject`, `MemoryMessenger`, `DiskStore`, `MemoryStore`
 
 #### FluentStorage 8.0.3
  - Add APIs to all providers: `GetObjectLength` and integrate it with streaming/seeking implementation

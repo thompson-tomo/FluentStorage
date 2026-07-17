@@ -13,6 +13,14 @@
    - Remove `RandomGenerator` and move it into testing project
  - **FluentStorage.SFTP**
    - Paths: New SFTP path normalization system that works with updated `StoragePath` normalization
+ - **FluentStorage.GCP**
+   - Paths: All APIs updated to use the new `StoragePath` normalization to support unified paths
+ - **FluentStorage.Minio**
+   - Paths: All APIs updated to use the new `StoragePath` normalization to support unified paths
+ - **FluentStorage.Mongo**
+   - Paths: All APIs updated to use the new `StoragePath` normalization to support unified paths
+ - **FluentStorage.Alibaba**
+   - Paths: All APIs updated to use the new `StoragePath` normalization to support unified paths
  - **FluentStorage.Tests**
    - Merge all tests into a single project, cleanly seperating unit and integration tests
    - New tests for path normalization (`StoragePath.Normalize`), path combination (`StoragePath.Combine1`) and path splitting (`StoragePath.Split`)

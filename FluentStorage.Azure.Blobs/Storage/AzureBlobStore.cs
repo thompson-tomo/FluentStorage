@@ -667,5 +667,97 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			return true;
 		}
 
+		/// <summary>
+		/// Returns all versions of the specified blob.
+		/// </summary>
+		public override async Task<IReadOnlyList<StorageObjectVersion>> ListObjectVersions(string objectPath, CancellationToken cancellationToken = default) {
+			ArgValidator.AssertFullPath(objectPath);
+
+			(BlobContainerClient container, string path) = await GetPartsAsync(objectPath, false).ConfigureAwait(false);
+
+			var result = new List<StorageObjectVersion>();
+
+			await foreach (BlobItem blob in container.GetBlobsAsync(
+				BlobTraits.None,
+				BlobStates.Version,
+				prefix: path,
+				cancellationToken: cancellationToken).ConfigureAwait(false)) {
+
+				if (!string.Equals(blob.Name, path, StringComparison.Ordinal))
+					continue;
+
+				result.Add(new StorageObjectVersion {
+					VersionId = blob.VersionId ?? "",
+					IsCurrent = blob.IsLatestVersion ?? false,
+					DateCreated = blob.Properties.LastModified?.UtcDateTime ?? DateTime.MinValue,
+					Length = blob.Properties.ContentLength ?? 0,
+					ETag = blob.Properties.ETag?.ToString()
+				});
+			}
+
+			return result;
+		}
+
+
+		/// <summary>
+		/// Returns information about the specified blob version.
+		/// </summary>
+		public override async Task<StorageObjectVersion> GetObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
+			ArgValidator.AssertFullPath(objectPath);
+
+			if (string.IsNullOrWhiteSpace(versionId))
+				throw new ArgumentNullException(nameof(versionId));
+
+			(BlobContainerClient container, string path) = await GetPartsAsync(objectPath, false).ConfigureAwait(false);
+
+			BlobBaseClient client = container.GetBlobBaseClient(path).WithVersion(versionId);
+
+			BlobProperties properties = (await client.GetPropertiesAsync(cancellationToken: cancellationToken).ConfigureAwait(false)).Value;
+
+			return new StorageObjectVersion {
+				VersionId = versionId,
+				IsCurrent = false,
+				DateCreated = properties.LastModified.UtcDateTime,
+				Length = properties.ContentLength,
+				ETag = properties.ETag.ToString()
+			};
+		}
+
+
+		/// <summary>
+		/// Restores the specified blob version as the current blob.
+		/// </summary>
+		public override async Task RestoreObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
+			ArgValidator.AssertFullPath(objectPath);
+
+			if (string.IsNullOrWhiteSpace(versionId))
+				throw new ArgumentNullException(nameof(versionId));
+
+			(BlobContainerClient container, string path) = await GetPartsAsync(objectPath, false).ConfigureAwait(false);
+
+			BlockBlobClient destination = container.GetBlockBlobClient(path);
+
+			Uri source = destination.WithVersion(versionId).Uri;
+
+			await destination.SyncCopyFromUriAsync(source, cancellationToken: cancellationToken).ConfigureAwait(false);
+		}
+
+
+		/// <summary>
+		/// Permanently deletes the specified blob version.
+		/// </summary>
+		public override async Task DeleteObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
+			ArgValidator.AssertFullPath(objectPath);
+
+			if (string.IsNullOrWhiteSpace(versionId))
+				throw new ArgumentNullException(nameof(versionId));
+
+			(BlobContainerClient container, string path) = await GetPartsAsync(objectPath, false).ConfigureAwait(false);
+
+			BlobBaseClient client = container.GetBlobBaseClient(path).WithVersion(versionId);
+
+			await client.DeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+		}
+
 	}
 }

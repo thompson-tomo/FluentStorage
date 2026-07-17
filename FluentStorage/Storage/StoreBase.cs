@@ -569,7 +569,7 @@ namespace FluentStorage.Storage {
 			throw new NotSupportedException();
 		}
 
-		public virtual async Task<StorageObjectVersion?> GetObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
+		public virtual async Task<StorageObjectVersion> GetObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 

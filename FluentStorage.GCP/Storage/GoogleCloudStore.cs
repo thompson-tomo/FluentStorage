@@ -1,4 +1,5 @@
 ﻿using FluentStorage.Enums;
+using FluentStorage.Exceptions;
 using FluentStorage.Model;
 using FluentStorage.Storage;
 using FluentStorage.Streaming;
@@ -328,7 +329,7 @@ namespace FluentStorage.GCP.Storage {
 		/// <summary>
 		/// Enumerate all objects under the prefix and delete it.
 		/// </summary>
-		public override async Task DeleteDirectory(string folderPath,bool recursive, CancellationToken cancellationToken = default) {
+		public override async Task DeleteDirectory(string folderPath, bool recursive, CancellationToken cancellationToken = default) {
 
 			ArgValidator.AssertFullPath(folderPath);
 
@@ -336,9 +337,8 @@ namespace FluentStorage.GCP.Storage {
 
 			if (recursive) {
 
-				await foreach (Google.Apis.Storage.v1.Data.Object obj in
-					_client.ListObjectsAsync(_bucketName, folderPath)
-						.WithCancellation(cancellationToken)) {
+				await foreach (var obj in
+					_client.ListObjectsAsync(_bucketName, folderPath).WithCancellation(cancellationToken)) {
 
 					await _client.DeleteObjectAsync(obj, cancellationToken: cancellationToken);
 				}
@@ -347,10 +347,7 @@ namespace FluentStorage.GCP.Storage {
 
 				bool hasFiles = false;
 
-				await foreach (Google.Apis.Storage.v1.Data.Object obj in
-					_client.ListObjectsAsync(
-						_bucketName,
-						folderPath,
+				await foreach (var obj in _client.ListObjectsAsync(_bucketName,folderPath,
 						new ListObjectsOptions {Delimiter = "/"})
 						.WithCancellation(cancellationToken)) {
 
@@ -359,14 +356,99 @@ namespace FluentStorage.GCP.Storage {
 				}
 
 				if (hasFiles)
-					throw new IOException("Directory is not empty.");
+					throw new StorageException("Directory is not empty and recursive deletion is disabled! Enable recursive deletion and try again.");
 
-				await foreach (Google.Apis.Storage.v1.Data.Object obj in
-					_client.ListObjectsAsync(_bucketName, folderPath).WithCancellation(cancellationToken)) {
+				await foreach (var obj in _client.ListObjectsAsync(_bucketName, folderPath).WithCancellation(cancellationToken)) {
 
 					await _client.DeleteObjectAsync(obj, cancellationToken: cancellationToken);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Returns all available generations of the specified object.
+		/// </summary>
+		public override async Task<IReadOnlyList<StorageObjectVersion>> ListObjectVersions(string objectPath, CancellationToken cancellationToken = default) {
+			ArgValidator.AssertFullPath(objectPath);
+
+			var result = new List<StorageObjectVersion>();
+
+			var options = new ListObjectsOptions {
+				Versions = true
+			};
+
+			foreach (var obj in _client.ListObjects(_bucketName, objectPath, options)) {
+				if (!string.Equals(obj.Name, objectPath, StringComparison.Ordinal))
+					continue;
+
+				result.Add(new StorageObjectVersion {
+					VersionId = obj.Generation.ToString(),
+					IsCurrent = obj.TimeDeletedDateTimeOffset == null,
+					DateCreated = obj.TimeCreatedDateTimeOffset.GetValueOrDefault().DateTime,
+					Length = (long)(obj.Size ?? 0),
+					ETag = obj.ETag
+				});
+			}
+
+			return result;
+		}
+
+
+		/// <summary>
+		/// Returns information about the specified object generation.
+		/// </summary>
+		public override async Task<StorageObjectVersion> GetObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
+			ArgValidator.AssertFullPath(objectPath);
+
+			if (string.IsNullOrWhiteSpace(versionId))throw new ArgumentNullException(nameof(versionId));
+
+			var obj = await _client.GetObjectAsync(_bucketName,objectPath,
+				new GetObjectOptions {
+					Generation = long.Parse(versionId)
+				},
+				cancellationToken).ConfigureAwait(false);
+
+			return new StorageObjectVersion {
+				VersionId = obj.Generation.ToString(),
+				IsCurrent = obj.TimeDeletedDateTimeOffset == null,
+				DateCreated = obj.TimeCreatedDateTimeOffset.GetValueOrDefault().DateTime,
+				Length = (long)(obj.Size ?? 0),
+				ETag = obj.ETag
+			};
+		}
+
+
+		/// <summary>
+		/// Restores the specified generation as the current object.
+		/// </summary>
+		public override async Task RestoreObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
+			ArgValidator.AssertFullPath(objectPath);
+
+			if (string.IsNullOrWhiteSpace(versionId))
+				throw new ArgumentNullException(nameof(versionId));
+
+			await _client.CopyObjectAsync(_bucketName,objectPath,_bucketName,objectPath,
+				new CopyObjectOptions {
+					SourceGeneration = long.Parse(versionId)
+				},
+				cancellationToken).ConfigureAwait(false);
+		}
+
+
+		/// <summary>
+		/// Permanently deletes the specified object generation.
+		/// </summary>
+		public override async Task DeleteObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
+			ArgValidator.AssertFullPath(objectPath);
+
+			if (string.IsNullOrWhiteSpace(versionId))
+				throw new ArgumentNullException(nameof(versionId));
+
+			await _client.DeleteObjectAsync(_bucketName,objectPath,
+				new DeleteObjectOptions {
+					Generation = long.Parse(versionId)
+				},
+				cancellationToken).ConfigureAwait(false);
 		}
 
 	}

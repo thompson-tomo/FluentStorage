@@ -9,11 +9,11 @@ namespace FluentStorage.Model {
 		/// <summary>The provider-specific version identifier.</summary>
 		public string VersionId { get; set; } = "";
 
-		/// <summary>True if this is the current version.</summary>
+		/// <summary>True if this is the latest/current version.</summary>
 		public bool IsCurrent { get; set; }
 
 		/// <summary>The date and time this version was created.</summary>
-		public DateTimeOffset CreatedUtc { get; set; }
+		public DateTime DateCreated { get; set; }
 
 		/// <summary>The length of the object in bytes.</summary>
 		public long Length { get; set; }

@@ -669,5 +669,121 @@ namespace FluentStorage.AWS.Storage {
 			return true;
 		}
 
+		/// <summary>
+		/// Returns all available versions of the specified object.
+		/// </summary>
+		public override async Task<IReadOnlyList<StorageObjectVersion>> ListObjectVersions(string objectPath, CancellationToken cancellationToken = default) {
+			ArgValidator.AssertFullPath(objectPath);
+
+			AmazonS3Client client = await Client().ConfigureAwait(false);
+
+			var result = new List<StorageObjectVersion>();
+
+			string? keyMarker = null;
+			string? versionMarker = null;
+
+			ListVersionsResponse response;
+
+			do {
+				response = await client.ListVersionsAsync(new ListVersionsRequest {
+					BucketName = _bucketName,
+					Prefix = objectPath,
+					KeyMarker = keyMarker,
+					VersionIdMarker = versionMarker
+				}, cancellationToken).ConfigureAwait(false);
+
+				foreach (S3ObjectVersion version in response.Versions) {
+					if (!string.Equals(version.Key, objectPath, StringComparison.Ordinal))
+						continue;
+
+					result.Add(new StorageObjectVersion {
+						VersionId = version.VersionId,
+						IsCurrent = version.IsLatest ?? false,
+						DateCreated = version.LastModified ?? DateTime.MinValue,
+						Length = version.Size ?? 0,
+						ETag = version.ETag
+					});
+				}
+
+				keyMarker = response.NextKeyMarker;
+				versionMarker = response.NextVersionIdMarker;
+
+			} while (response.IsTruncated.HasValue && response.IsTruncated.Value == true);
+
+			return result;
+		}
+
+
+		/// <summary>
+		/// Returns information about a specific object version.
+		/// </summary>
+		public override async Task<StorageObjectVersion> GetObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
+			ArgValidator.AssertFullPath(objectPath);
+
+			if (string.IsNullOrWhiteSpace(versionId))
+				throw new ArgumentNullException(nameof(versionId));
+
+			AmazonS3Client client = await Client().ConfigureAwait(false);
+
+			try {
+				var response = await client.GetObjectMetadataAsync(new GetObjectMetadataRequest {
+					BucketName = _bucketName,
+					Key = objectPath,
+					VersionId = versionId
+				}, cancellationToken).ConfigureAwait(false);
+
+				return new StorageObjectVersion {
+					VersionId = versionId,
+					IsCurrent = false,
+					DateCreated = response.LastModified ?? DateTime.MinValue,
+					Length = response.ContentLength,
+					ETag = response.ETag
+				};
+			}
+			catch (AmazonS3Exception ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound) {
+				return null;
+			}
+		}
+
+
+		/// <summary>
+		/// Restores the specified version as the current object version.
+		/// </summary>
+		public override async Task RestoreObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
+			ArgValidator.AssertFullPath(objectPath);
+
+			if (string.IsNullOrWhiteSpace(versionId))
+				throw new ArgumentNullException(nameof(versionId));
+
+			AmazonS3Client client = await Client().ConfigureAwait(false);
+
+			await client.CopyObjectAsync(new CopyObjectRequest {
+				SourceBucket = _bucketName,
+				SourceKey = objectPath,
+				SourceVersionId = versionId,
+				DestinationBucket = _bucketName,
+				DestinationKey = objectPath
+			}, cancellationToken).ConfigureAwait(false);
+		}
+
+
+		/// <summary>
+		/// Permanently deletes the specified object version.
+		/// </summary>
+		public override async Task DeleteObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
+			ArgValidator.AssertFullPath(objectPath);
+
+			if (string.IsNullOrWhiteSpace(versionId))
+				throw new ArgumentNullException(nameof(versionId));
+
+			AmazonS3Client client = await Client().ConfigureAwait(false);
+
+			await client.DeleteObjectAsync(new DeleteObjectRequest {
+				BucketName = _bucketName,
+				Key = objectPath,
+				VersionId = versionId
+			}, cancellationToken).ConfigureAwait(false);
+		}
+
 	}
 }

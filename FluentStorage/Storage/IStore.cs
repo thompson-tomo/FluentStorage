@@ -380,7 +380,7 @@ namespace FluentStorage.Storage {
 		/// Returns information about a specific version of an object.
 		/// Returns null if the version does not exist.
 		/// </summary>
-		Task<StorageObjectVersion?> GetObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default);
+		Task<StorageObjectVersion> GetObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Restores the specified version as the current version of the object.

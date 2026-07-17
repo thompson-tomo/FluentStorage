@@ -49,7 +49,7 @@ namespace FluentStorage.GCP.Storage {
 		   string path, StorageListOptions options, CancellationToken cancellationToken = default) {
 
 			ObjectsResource.ListRequest request = _client.Service.Objects.List(_bucketName);
-			request.Prefix = StoragePath.IsRootPath(path) ? null : (NormalisePath(path) + "/");
+			request.Prefix = StoragePath.IsRootPath(path) ? null : (StoragePath.Normalize(path) + "/");
 			request.Delimiter = "/";
 			request.MaxResults = options.PageSize ?? StorageListOptions.PAGE_SIZE;
 			
@@ -81,7 +81,7 @@ namespace FluentStorage.GCP.Storage {
 		}
 
 		public override async Task SetObjectInfo(StoreObject blob, CancellationToken cancellationToken = default) {
-			GObject item = await _client.GetObjectAsync(_bucketName, NormalisePath(blob.FullPath), cancellationToken: cancellationToken).ConfigureAwait(false);
+			GObject item = await _client.GetObjectAsync(_bucketName, StoragePath.Normalize(blob.FullPath), cancellationToken: cancellationToken).ConfigureAwait(false);
 
 			if (item.Metadata == null) {
 				item.Metadata = new Dictionary<string, string>();
@@ -100,7 +100,7 @@ namespace FluentStorage.GCP.Storage {
 		}
 
 		public override async Task<StoreObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken = default) {
-			fullPath = NormalisePath(fullPath);
+			fullPath = StoragePath.Normalize(fullPath);
 
 			try {
 				GObject obj = await _client.GetObjectAsync(_bucketName, fullPath,
@@ -118,7 +118,7 @@ namespace FluentStorage.GCP.Storage {
 
 		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken = default) {
 			try {
-				await _client.DeleteObjectAsync(_bucketName, NormalisePath(fullPath), cancellationToken: cancellationToken).ConfigureAwait(false);
+				await _client.DeleteObjectAsync(_bucketName, StoragePath.Normalize(fullPath), cancellationToken: cancellationToken).ConfigureAwait(false);
 			}
 			catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.NotFound) {
 				//when not found, just ignore
@@ -132,7 +132,7 @@ namespace FluentStorage.GCP.Storage {
 					}
 					
 					try {
-						await _client.DeleteObjectAsync(_bucketName, NormalisePath(blob.FullPath), cancellationToken: cancellationToken).ConfigureAwait(false);
+						await _client.DeleteObjectAsync(_bucketName, StoragePath.Normalize(blob.FullPath), cancellationToken: cancellationToken).ConfigureAwait(false);
 					}
 					catch (GoogleApiException exc) when (exc.HttpStatusCode == HttpStatusCode.NotFound) {
 
@@ -146,7 +146,7 @@ namespace FluentStorage.GCP.Storage {
 
 			try {
 				await _client.GetObjectAsync(
-				   _bucketName, NormalisePath(fullPath),
+				   _bucketName, StoragePath.Normalize(fullPath),
 				   null,
 				   cancellationToken).ConfigureAwait(false);
 
@@ -163,7 +163,7 @@ namespace FluentStorage.GCP.Storage {
 			if (append)
 				throw new NotSupportedException();
 			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
-			fullPath = NormalisePath(fullPath);
+			fullPath = StoragePath.Normalize(fullPath);
 
 			await _client.UploadObjectAsync(_bucketName, fullPath, null, dataStream, cancellationToken: cancellationToken).ConfigureAwait(false);
 		}
@@ -173,7 +173,7 @@ namespace FluentStorage.GCP.Storage {
 		/// </summary>
 		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
 			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
-			fullPath = NormalisePath(fullPath);
+			fullPath = StoragePath.Normalize(fullPath);
 
 			// no read streaming support in this crappy SDK
 
@@ -198,7 +198,7 @@ namespace FluentStorage.GCP.Storage {
 			// exit if file exists and overwriting is disabled
 			if (!overwrite && await ObjectExists(fullPath, cancellationToken)) return null;
 
-			fullPath = NormalisePath(fullPath);
+			fullPath = StoragePath.Normalize(fullPath);
 
 			MemoryStream stream = new();
 
@@ -218,7 +218,7 @@ namespace FluentStorage.GCP.Storage {
 		public override async Task<Stream> OpenRange(string path,long offset,long length,CancellationToken cancellationToken = default) {
 			if (path == null) throw new ArgumentNullException(nameof(path));
 
-			path = NormalisePath(path);
+			path = StoragePath.Normalize(path);
 
 			var stream = new MemoryStream();
 
@@ -249,15 +249,6 @@ namespace FluentStorage.GCP.Storage {
 		}
 
 		/// <summary>
-		/// GCP requires no trailing root
-		/// </summary>
-		private static string NormalisePath(string path) {
-			if (string.IsNullOrEmpty(path))
-				return path;
-			return path[0] == '/' ? path.Substring(1) : path;
-		}
-
-		/// <summary>
 		/// Generates a pre-signed URL for the specified object.
 		/// The URL grants temporary access to the object and expries after the specified duration. MIME type is auto computed.
 		/// </summary>
@@ -265,7 +256,7 @@ namespace FluentStorage.GCP.Storage {
 			int expiresInSeconds = 86000) {
 
 			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
-			fullPath = NormalisePath(fullPath);
+			fullPath = StoragePath.Normalize(fullPath);
 
 			UrlSigner.RequestTemplate template = UrlSigner.RequestTemplate
 				.FromBucket(_bucketName)
@@ -306,8 +297,8 @@ namespace FluentStorage.GCP.Storage {
 			if (string.IsNullOrWhiteSpace(oldPath)) throw new ArgumentNullException(nameof(oldPath));
 			if (string.IsNullOrWhiteSpace(newPath)) throw new ArgumentNullException(nameof(newPath));
 
-			oldPath = NormalisePath(oldPath);
-			newPath = NormalisePath(newPath);
+			oldPath = StoragePath.Normalize(oldPath);
+			newPath = StoragePath.Normalize(newPath);
 
 			// exit if overwriting not wanted and the object exists
 			if (!overwrite) {
@@ -335,7 +326,7 @@ namespace FluentStorage.GCP.Storage {
 
 			if (folderPath == null) throw new ArgumentNullException(nameof(folderPath));
 
-			folderPath = StoragePath.IsRootPath(folderPath) ? "" : NormalisePath(folderPath) + "/";
+			folderPath = StoragePath.IsRootPath(folderPath) ? "" : StoragePath.Normalize(folderPath) + "/";
 
 			if (recursive) {
 
@@ -373,7 +364,7 @@ namespace FluentStorage.GCP.Storage {
 		public override async Task<List<StorageObjectVersion>> ListObjectVersions(string objectPath, CancellationToken cancellationToken = default) {
 
 			if (objectPath == null) throw new ArgumentNullException(nameof(objectPath));
-			objectPath = NormalisePath(objectPath); 
+			objectPath = StoragePath.Normalize(objectPath); 
 
 			var result = new List<StorageObjectVersion>();
 
@@ -417,7 +408,7 @@ namespace FluentStorage.GCP.Storage {
 		public override async Task<StorageObjectVersion> GetObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
 
 			if (objectPath == null) throw new ArgumentNullException(nameof(objectPath));
-			objectPath = NormalisePath(objectPath); 
+			objectPath = StoragePath.Normalize(objectPath); 
 
 			if (string.IsNullOrWhiteSpace(versionId))throw new ArgumentNullException(nameof(versionId));
 
@@ -444,7 +435,7 @@ namespace FluentStorage.GCP.Storage {
 		public override async Task<bool> RestoreObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
 
 			if (objectPath == null) throw new ArgumentNullException(nameof(objectPath));
-			objectPath = NormalisePath(objectPath); 
+			objectPath = StoragePath.Normalize(objectPath); 
 
 			if (string.IsNullOrWhiteSpace(versionId))throw new ArgumentNullException(nameof(versionId));
 
@@ -471,7 +462,7 @@ namespace FluentStorage.GCP.Storage {
 		public override async Task<bool> DeleteObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
 
 			if (objectPath == null) throw new ArgumentNullException(nameof(objectPath));
-			objectPath = NormalisePath(objectPath); 
+			objectPath = StoragePath.Normalize(objectPath); 
 
 			if (string.IsNullOrWhiteSpace(versionId))throw new ArgumentNullException(nameof(versionId));
 

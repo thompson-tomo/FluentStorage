@@ -32,6 +32,9 @@ namespace FluentStorage.Storage {
 		public virtual bool IsSeekable() {
 			return false;
 		}
+		public virtual bool IsVersioned() {
+			return false;
+		}
 		public virtual async Task<object> GetClient() {
 			return null;
 		}

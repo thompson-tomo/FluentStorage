@@ -36,6 +36,11 @@ namespace FluentStorage.Storage {
 		/// </summary>
 		bool IsSeekable();
 
+		/// <summary>
+		/// Returns true if the given object storage supports file versioning.
+		/// </summary>
+		bool IsVersioned();
+
 		// ---------------------------------------------------------------------
 		// Listing
 		// ---------------------------------------------------------------------

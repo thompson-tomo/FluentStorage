@@ -491,5 +491,9 @@ namespace FluentStorage.GCP.Storage {
 			}
 		}
 
+		public override bool IsVersioned() {
+			return true;
+		}
+
 	}
 }

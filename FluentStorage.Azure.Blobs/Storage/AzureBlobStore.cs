@@ -800,5 +800,9 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			}
 		}
 
+		public override bool IsVersioned() {
+			return true;
+		}
+
 	}
 }

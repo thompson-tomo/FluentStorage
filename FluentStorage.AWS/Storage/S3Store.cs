@@ -852,5 +852,9 @@ namespace FluentStorage.AWS.Storage {
 			}
 		}
 
+		public override bool IsVersioned() {
+			return true;
+		}
+
 	}
 }

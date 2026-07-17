@@ -1,5 +1,12 @@
 ﻿# Release Notes
 
+#### FluentStorage 8.0.6
+ - **FluentStorage**
+   - Move all sinks into `FluentStorage.Sinks` NS
+   - Move `DelegatedStream` and `NonCloseableStream` into `FluentStorage.Storage.Sinks` NS
+   - Rename `SinkedBlobStorage` to `SinkedStore`
+   - Remove `RandomGenerator` and move it into testing project
+
 #### FluentStorage 8.0.5
  - **FluentStorage**
    - IStore: Implement new object versioning APIs, tagging APIs and storage tier APIs

@@ -1,12 +1,9 @@
 ﻿using FluentStorage.Storage;
-using FluentStorage.Storage.Sinks;
-using FluentStorage.Storage.Sinks.Impl;
+using FluentStorage.Sinks;
 using FluentStorage.Queue;
 using FluentStorage.Queue.Large;
 using System;
-using System.Collections.Generic;
 using System.IO.Compression;
-using System.Text;
 
 namespace FluentStorage {
 	public static class Extensions {
@@ -36,7 +33,7 @@ namespace FluentStorage {
 		/// <returns></returns>
 		public static IStore WithSinks(this IStore blobStorage,
 		   params ITransformSink[] sinks) {
-			return new SinkedBlobStorage(blobStorage, sinks);
+			return new SinkedStore(blobStorage, sinks);
 		}
 
 		/// <summary>

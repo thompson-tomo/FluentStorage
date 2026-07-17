@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Threading;
 using FluentStorage.Streaming;
 using FluentStorage.Utils.Extensions;
-using FluentStorage.Utils.IO;
 using FluentStorage.Enums;
 using FluentStorage.Utils.Validation;
 using FluentStorage.Model;

@@ -106,7 +106,7 @@ namespace FluentStorage.Alibaba.Storage {
 			if (dataStream == null) throw new ArgumentNullException(nameof(dataStream));
 
 			var client = await Client().ConfigureAwait(false);
-			var key = NormalizeKey(fullPath);
+			var key = StoragePath.Normalize(fullPath);
 
 			if (string.IsNullOrWhiteSpace(contentType))
 				contentType = MimeUtility.GetMimeMapping(fullPath);
@@ -149,7 +149,7 @@ namespace FluentStorage.Alibaba.Storage {
 			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
 
 			var client = await Client().ConfigureAwait(false);
-			var key = NormalizeKey(fullPath);
+			var key = StoragePath.Normalize(fullPath);
 
 			var ossObject = await Task.Run(() => client.GetObject(_bucketName, key), cancellationToken).ConfigureAwait(false);
 			return ossObject.Content;
@@ -159,7 +159,7 @@ namespace FluentStorage.Alibaba.Storage {
 			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
 
 			var client = await Client().ConfigureAwait(false);
-			var key = NormalizeKey(fullPath);
+			var key = StoragePath.Normalize(fullPath);
 
 			if (!overwrite) {
 				var exists = await Task.Run(() => client.DoesObjectExist(_bucketName, key), cancellationToken).ConfigureAwait(false);
@@ -186,7 +186,7 @@ namespace FluentStorage.Alibaba.Storage {
 			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
 
 			var client = await Client().ConfigureAwait(false);
-			var key = NormalizeKey(fullPath);
+			var key = StoragePath.Normalize(fullPath);
 
 			var request = new GetObjectRequest(_bucketName, key);
 
@@ -212,7 +212,7 @@ namespace FluentStorage.Alibaba.Storage {
 					return defaultValue;
 
 				var client = await Client().ConfigureAwait(false);
-				var key = NormalizeKey(fullPath);
+				var key = StoragePath.Normalize(fullPath);
 
 				ObjectMetadata metadata = client.GetObjectMetadata(_bucketName, key);
 
@@ -230,7 +230,7 @@ namespace FluentStorage.Alibaba.Storage {
 		public override async Task DeleteObjects(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			if (fullPaths == null) throw new ArgumentNullException(nameof(fullPaths));
 
-			var keys = fullPaths.Select(NormalizeKey).ToList();
+			var keys = fullPaths.Select(StoragePath.Normalize).ToList();
 			if (keys.Count == 0)
 				return;
 
@@ -249,7 +249,7 @@ namespace FluentStorage.Alibaba.Storage {
 			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
 
 			var client = await Client().ConfigureAwait(false);
-			var key = NormalizeKey(fullPath);
+			var key = StoragePath.Normalize(fullPath);
 
 			await Task.Run(() => client.DeleteObject(_bucketName, key), cancellationToken).ConfigureAwait(false);
 		}
@@ -281,7 +281,7 @@ namespace FluentStorage.Alibaba.Storage {
 			var results = new List<bool>();
 
 			foreach (var path in fullPaths) {
-				var key = NormalizeKey(path);
+				var key = StoragePath.Normalize(path);
 				var exists = await Task.Run(() => client.DoesObjectExist(_bucketName, key), cancellationToken).ConfigureAwait(false);
 				results.Add(exists);
 			}
@@ -293,7 +293,7 @@ namespace FluentStorage.Alibaba.Storage {
 			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
 
 			var client = await Client().ConfigureAwait(false);
-			var key = NormalizeKey(fullPath);
+			var key = StoragePath.Normalize(fullPath);
 
 			return await Task.Run(() => client.DoesObjectExist(_bucketName, key), cancellationToken).ConfigureAwait(false);
 		}
@@ -320,7 +320,7 @@ namespace FluentStorage.Alibaba.Storage {
 			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
 
 			var client = await Client().ConfigureAwait(false);
-			var key = NormalizeKey(fullPath);
+			var key = StoragePath.Normalize(fullPath);
 
 			ObjectMetadata meta;
 			try {
@@ -356,7 +356,7 @@ namespace FluentStorage.Alibaba.Storage {
 			if (obj == null) throw new ArgumentNullException(nameof(obj));
 
 			var client = await Client().ConfigureAwait(false);
-			var key = NormalizeKey(CombinePath(obj.FolderPath, obj.Name));
+			var key = StoragePath.Normalize(CombinePath(obj.FolderPath, obj.Name));
 
 			var metadata = new ObjectMetadata();
 			foreach (var kv in obj.Metadata)
@@ -388,7 +388,7 @@ namespace FluentStorage.Alibaba.Storage {
 			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
 
 			var client = await Client().ConfigureAwait(false);
-			var key = NormalizeKey(fullPath);
+			var key = StoragePath.Normalize(fullPath);
 
 			var request = new GeneratePresignedUriRequest(_bucketName, key, forDownload ? SignHttpMethod.Get : SignHttpMethod.Put) {
 				Expiration = DateTime.Now.AddSeconds(expiresInSeconds)
@@ -435,8 +435,8 @@ namespace FluentStorage.Alibaba.Storage {
 			if (string.IsNullOrWhiteSpace(newPath)) throw new ArgumentNullException(nameof(newPath));
 
 			var client = await Client().ConfigureAwait(false);
-			var oldKey = NormalizeKey(oldPath);
-			var newKey = NormalizeKey(newPath);
+			var oldKey = StoragePath.Normalize(oldPath);
+			var newKey = StoragePath.Normalize(newPath);
 
 			if (!overwrite) {
 				var exists = await Task.Run(() => client.DoesObjectExist(_bucketName, newKey), cancellationToken).ConfigureAwait(false);
@@ -463,7 +463,7 @@ namespace FluentStorage.Alibaba.Storage {
 			var client = await Client().ConfigureAwait(false);
 			var results = new List<StoreObject>();
 
-			var rootPrefix = NormalizeKey(options.FolderPath ?? string.Empty);
+			var rootPrefix = StoragePath.Normalize(options.FolderPath ?? string.Empty);
 			if (rootPrefix.Length > 0 && !rootPrefix.EndsWith("/"))
 				rootPrefix += "/";
 
@@ -592,13 +592,6 @@ namespace FluentStorage.Alibaba.Storage {
 		// Helpers
 		// ------------------------------------------------------------------
 
-		private static string NormalizeKey(string path) {
-			if (string.IsNullOrEmpty(path))
-				return string.Empty;
-
-			return path.Replace('\\', '/').TrimStart('/');
-		}
-
 		private static string GetFolderPath(string key) {
 			var idx = key.LastIndexOf('/');
 			return idx >= 0 ? key.Substring(0, idx + 1) : string.Empty;
@@ -636,7 +629,7 @@ namespace FluentStorage.Alibaba.Storage {
 
 			var client = await Client().ConfigureAwait(false);
 
-			string key = NormalizeKey(objectPath);
+			string key = StoragePath.Normalize(objectPath);
 
 			try {
 				var result = client.GetObjectTagging(_bucketName, key);
@@ -662,7 +655,7 @@ namespace FluentStorage.Alibaba.Storage {
 
 			var client = await Client().ConfigureAwait(false);
 
-			string key = NormalizeKey(objectPath);
+			string key = StoragePath.Normalize(objectPath);
 
 			try {
 				var tagData = tags?.Select(x => new Tag {Key = x.Key,Value = x.Value}).ToList() ?? new List<Tag>();
@@ -688,7 +681,7 @@ namespace FluentStorage.Alibaba.Storage {
 
 			var client = await Client().ConfigureAwait(false);
 
-			string key = NormalizeKey(objectPath);
+			string key = StoragePath.Normalize(objectPath);
 
 			try {
 				client.DeleteObjectTagging(_bucketName, key);

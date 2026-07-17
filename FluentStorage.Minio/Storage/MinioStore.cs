@@ -187,11 +187,6 @@ namespace FluentStorage.Minio.Storage {
 
 
 
-		private static string NormalizeKey(string fullPath) {
-			if (fullPath == null) return null;
-			return fullPath.Replace('\\', '/').TrimStart('/');
-		}
-
 		private static (string folder, string name) SplitPath(string key) {
 			key = key.TrimEnd('/');
 			int idx = key.LastIndexOf('/');
@@ -204,7 +199,7 @@ namespace FluentStorage.Minio.Storage {
 
 		private static string NormalizeFolderPrefix(string folderPath) {
 			if (string.IsNullOrEmpty(folderPath)) return string.Empty;
-			return NormalizeKey(folderPath).TrimEnd('/') + "/";
+			return StoragePath.Normalize(folderPath).TrimEnd('/') + "/";
 		}
 
 
@@ -303,7 +298,7 @@ namespace FluentStorage.Minio.Storage {
 			if (dataStream == null) throw new ArgumentNullException(nameof(dataStream));
 
 			var client = await Client(cancellationToken).ConfigureAwait(false);
-			string key = NormalizeKey(fullPath);
+			string key = StoragePath.Normalize(fullPath);
 
 			if (string.IsNullOrWhiteSpace(contentType))
 				contentType = MimeUtility.GetMimeMapping(fullPath);
@@ -356,7 +351,7 @@ namespace FluentStorage.Minio.Storage {
 			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
 
 			var client = await Client(cancellationToken).ConfigureAwait(false);
-			string key = NormalizeKey(fullPath);
+			string key = StoragePath.Normalize(fullPath);
 
 			var ms = new MemoryStream();
 
@@ -394,7 +389,7 @@ namespace FluentStorage.Minio.Storage {
 			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
 
 			var client = await Client(cancellationToken).ConfigureAwait(false);
-			string key = NormalizeKey(fullPath);
+			string key = StoragePath.Normalize(fullPath);
 
 			var stream = new MemoryStream();
 
@@ -419,7 +414,7 @@ namespace FluentStorage.Minio.Storage {
 				if (string.IsNullOrWhiteSpace(fullPath)) return defaultValue;
 
 				var client = await Client(cancellationToken).ConfigureAwait(false);
-				string key = NormalizeKey(fullPath);
+				string key = StoragePath.Normalize(fullPath);
 
 				var args = new StatObjectArgs().WithBucket(_bucketName).WithObject(key);
 
@@ -437,7 +432,7 @@ namespace FluentStorage.Minio.Storage {
 			if (fullPaths == null) throw new ArgumentNullException(nameof(fullPaths));
 
 			var client = await Client(cancellationToken).ConfigureAwait(false);
-			List<string> keys = fullPaths.Where(p => !string.IsNullOrWhiteSpace(p)).Select(NormalizeKey).ToList();
+			List<string> keys = fullPaths.Where(p => !string.IsNullOrWhiteSpace(p)).Select(StoragePath.Normalize).ToList();
 			if (keys.Count == 0) return;
 
 			var removeArgs = new RemoveObjectsArgs()
@@ -454,7 +449,7 @@ namespace FluentStorage.Minio.Storage {
 
 			var removeArgs = new RemoveObjectArgs()
 				.WithBucket(_bucketName)
-				.WithObject(NormalizeKey(fullPath));
+				.WithObject(StoragePath.Normalize(fullPath));
 
 			await client.RemoveObjectAsync(removeArgs, cancellationToken).ConfigureAwait(false);
 		}
@@ -493,7 +488,7 @@ namespace FluentStorage.Minio.Storage {
 			try {
 				var statArgs = new StatObjectArgs()
 					.WithBucket(_bucketName)
-					.WithObject(NormalizeKey(fullPath));
+					.WithObject(StoragePath.Normalize(fullPath));
 
 				await client.StatObjectAsync(statArgs, cancellationToken).ConfigureAwait(false);
 				return true;
@@ -521,7 +516,7 @@ namespace FluentStorage.Minio.Storage {
 			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
 
 			var client = await Client(cancellationToken).ConfigureAwait(false);
-			string key = NormalizeKey(fullPath);
+			string key = StoragePath.Normalize(fullPath);
 
 			var statArgs = new StatObjectArgs()
 				.WithBucket(_bucketName)
@@ -563,7 +558,7 @@ namespace FluentStorage.Minio.Storage {
 			if (obj == null) throw new ArgumentNullException(nameof(obj));
 
 			var client = await Client(cancellationToken).ConfigureAwait(false);
-			string key = NormalizeKey(CombineFullPath(obj));
+			string key = StoragePath.Normalize(CombineFullPath(obj));
 
 			// MinIO/S3 has no in-place metadata-update API. The standard technique is a
 			// self-copy with the metadata-replace directive set.
@@ -596,7 +591,7 @@ namespace FluentStorage.Minio.Storage {
 			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
 
 			var client = await Client().ConfigureAwait(false);
-			string key = NormalizeKey(fullPath);
+			string key = StoragePath.Normalize(fullPath);
 
 			string url;
 
@@ -657,8 +652,8 @@ namespace FluentStorage.Minio.Storage {
 			if (!overwrite && await ObjectExists(newPath, cancellationToken).ConfigureAwait(false))
 				return false;
 
-			string sourceKey = NormalizeKey(oldPath);
-			string destKey = NormalizeKey(newPath);
+			string sourceKey = StoragePath.Normalize(oldPath);
+			string destKey = StoragePath.Normalize(newPath);
 
 			var copySource = new CopySourceObjectArgs()
 				.WithBucket(_bucketName)
@@ -690,7 +685,7 @@ namespace FluentStorage.Minio.Storage {
 
 			var client = await Client(cancellationToken).ConfigureAwait(false);
 
-			string key = NormalizeKey(objectPath);
+			string key = StoragePath.Normalize(objectPath);
 
 			try {
 				var response = await client.GetObjectTagsAsync(new GetObjectTagsArgs()
@@ -717,7 +712,7 @@ namespace FluentStorage.Minio.Storage {
 
 			var client = await Client(cancellationToken).ConfigureAwait(false);
 
-			string key = NormalizeKey(objectPath);
+			string key = StoragePath.Normalize(objectPath);
 
 			try {
 				var tagData = new Tagging(tags ?? new Dictionary<string, string>(), true);
@@ -745,7 +740,7 @@ namespace FluentStorage.Minio.Storage {
 
 			var client = await Client(cancellationToken).ConfigureAwait(false);
 
-			string key = NormalizeKey(objectPath);
+			string key = StoragePath.Normalize(objectPath);
 
 			try {
 				await client.RemoveObjectTagsAsync(new RemoveObjectTagsArgs()
@@ -771,7 +766,7 @@ namespace FluentStorage.Minio.Storage {
 			if (string.IsNullOrWhiteSpace(objectPath))throw new ArgumentNullException(nameof(objectPath));
 
 			var client = await Client(cancellationToken).ConfigureAwait(false);
-			string key = NormalizeKey(objectPath);
+			string key = StoragePath.Normalize(objectPath);
 
 			try {
 				ObjectStat response = await client.StatObjectAsync(new StatObjectArgs()
@@ -802,7 +797,7 @@ namespace FluentStorage.Minio.Storage {
 				throw new StorageException($"MinIO does not support the tier \"{tier}\". Use a supported tier and try again.");
 
 			var client = await Client(cancellationToken).ConfigureAwait(false);
-			string key = NormalizeKey(objectPath);
+			string key = StoragePath.Normalize(objectPath);
 
 			try {
 				await client.CopyObjectAsync(new CopyObjectArgs()

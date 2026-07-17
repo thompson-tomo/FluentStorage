@@ -205,7 +205,7 @@ namespace FluentStorage.Mongo.Storage {
 			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
 			if (dataStream == null) throw new ArgumentNullException(nameof(dataStream));
 
-			string path = NormalizePath(fullPath);
+			string path = StoragePath.Normalize(fullPath);
 			contentType ??= MimeUtility.GetMimeMapping(fullPath);
 
 
@@ -252,7 +252,7 @@ namespace FluentStorage.Mongo.Storage {
 		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
 			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
 
-			string path = NormalizePath(fullPath);
+			string path = StoragePath.Normalize(fullPath);
 
 			return await _bucket.OpenDownloadStreamByNameAsync(path, cancellationToken: cancellationToken).ConfigureAwait(false);
 		}
@@ -260,7 +260,7 @@ namespace FluentStorage.Mongo.Storage {
 		public override async Task<Stream> OpenWrite(string fullPath, bool overwrite, CancellationToken cancellationToken = default) {
 			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
 
-			string path = NormalizePath(fullPath);
+			string path = StoragePath.Normalize(fullPath);
 
 			if (!overwrite) {
 				bool exists = await ObjectExists(path, cancellationToken).ConfigureAwait(false);
@@ -286,7 +286,7 @@ namespace FluentStorage.Mongo.Storage {
 			if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
 			if (length < 0) throw new ArgumentOutOfRangeException(nameof(length));
 
-			string normalized = NormalizePath(path);
+			string normalized = StoragePath.Normalize(path);
 
 			var opt = new GridFSDownloadByNameOptions();
 			opt.Seekable = true;
@@ -306,7 +306,7 @@ namespace FluentStorage.Mongo.Storage {
 			if (string.IsNullOrWhiteSpace(path)) return defaultValue;
 
 			try {
-				GridFSFileInfo info = await FindLatestAsync(_bucket, NormalizePath(path), cancellationToken).ConfigureAwait(false);
+				GridFSFileInfo info = await FindLatestAsync(_bucket, StoragePath.Normalize(path), cancellationToken).ConfigureAwait(false);
 				return info?.Length ?? defaultValue;
 			}
 			catch {
@@ -325,14 +325,14 @@ namespace FluentStorage.Mongo.Storage {
 
 			foreach (string path in fullPaths) {
 				if (string.IsNullOrWhiteSpace(path)) continue;
-				await DeleteAllRevisionsAsync(_bucket, NormalizePath(path), cancellationToken).ConfigureAwait(false);
+				await DeleteAllRevisionsAsync(_bucket, StoragePath.Normalize(path), cancellationToken).ConfigureAwait(false);
 			}
 		}
 
 		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken = default) {
 			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
 
-			await DeleteAllRevisionsAsync(_bucket, NormalizePath(fullPath), cancellationToken).ConfigureAwait(false);
+			await DeleteAllRevisionsAsync(_bucket, StoragePath.Normalize(fullPath), cancellationToken).ConfigureAwait(false);
 		}
 
 		private static async Task DeleteAllRevisionsAsync(GridFSBucket gridBucket, string path, CancellationToken cancellationToken) {
@@ -362,7 +362,7 @@ namespace FluentStorage.Mongo.Storage {
 
 			foreach (StoreObject item in items.Where(i => i.Type == StorageObjectType.File)) {
 				string fullPath = string.IsNullOrEmpty(item.FolderPath) ? item.Name : $"{item.FolderPath}/{item.Name}";
-				await DeleteAllRevisionsAsync(_bucket, NormalizePath(fullPath), cancellationToken).ConfigureAwait(false);
+				await DeleteAllRevisionsAsync(_bucket, StoragePath.Normalize(fullPath), cancellationToken).ConfigureAwait(false);
 			}
 		}
 
@@ -383,7 +383,7 @@ namespace FluentStorage.Mongo.Storage {
 		public override async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken = default) {
 			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
 
-			GridFSFileInfo info = await FindLatestAsync(_bucket, NormalizePath(fullPath), cancellationToken).ConfigureAwait(false);
+			GridFSFileInfo info = await FindLatestAsync(_bucket, StoragePath.Normalize(fullPath), cancellationToken).ConfigureAwait(false);
 			return info != null;
 		}
 
@@ -401,7 +401,7 @@ namespace FluentStorage.Mongo.Storage {
 		public override async Task<StoreObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken = default) {
 			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
 
-			string path = NormalizePath(fullPath);
+			string path = StoragePath.Normalize(fullPath);
 
 			GridFSFileInfo info = await FindLatestAsync(_bucket, path, cancellationToken).ConfigureAwait(false);
 			if (info == null) return null;
@@ -427,7 +427,7 @@ namespace FluentStorage.Mongo.Storage {
 				if (obj == null) continue;
 
 				string fullPath = string.IsNullOrEmpty(obj.FolderPath) ? obj.Name : $"{obj.FolderPath}/{obj.Name}";
-				string path = NormalizePath(fullPath);
+				string path = StoragePath.Normalize(fullPath);
 
 				var metadataDoc = new BsonDocument();
 				foreach (KeyValuePair<string, string> kv in obj.Metadata) {
@@ -487,8 +487,8 @@ namespace FluentStorage.Mongo.Storage {
 			if (string.IsNullOrWhiteSpace(oldPath)) throw new ArgumentNullException(nameof(oldPath));
 			if (string.IsNullOrWhiteSpace(newPath)) throw new ArgumentNullException(nameof(newPath));
 
-			string from = NormalizePath(oldPath);
-			string to = NormalizePath(newPath);
+			string from = StoragePath.Normalize(oldPath);
+			string to = StoragePath.Normalize(newPath);
 
 
 			GridFSFileInfo source = await FindLatestAsync(_bucket, from, cancellationToken).ConfigureAwait(false);
@@ -513,7 +513,7 @@ namespace FluentStorage.Mongo.Storage {
 			options ??= new StorageListOptions();
 
 
-			string prefix = NormalizePath(options.FolderPath);
+			string prefix = StoragePath.Normalize(options.FolderPath);
 			string prefixWithSlash = string.IsNullOrEmpty(prefix) ? string.Empty : prefix + "/";
 
 			// build the search criteria
@@ -595,13 +595,8 @@ namespace FluentStorage.Mongo.Storage {
 		// Path helpers
 		// ------------------------------------------------------------------
 
-		private static string NormalizePath(string path) {
-			if (string.IsNullOrEmpty(path)) return string.Empty;
-			return path.Replace('\\', '/').Trim('/');
-		}
-
 		private static (string folderPath, string name) SplitPath(string fullPath) {
-			string normalized = NormalizePath(fullPath);
+			string normalized = StoragePath.Normalize(fullPath);
 			int idx = normalized.LastIndexOf('/');
 			if (idx < 0) return (string.Empty, normalized);
 			return (normalized.Substring(0, idx), normalized.Substring(idx + 1));

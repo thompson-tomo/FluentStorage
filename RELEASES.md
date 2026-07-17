@@ -2,14 +2,14 @@
 
 #### FluentStorage 8.0.6
  - **FluentStorage**
+   - Paths: `StoragePath.Normalize` has been completely rewritten to offer a unified path system across all disk and cloud stores
+   - Paths: `StoragePath.Combine`, `StoragePath.Split`, `StoragePath.GetParent`, is completely rewritten for performance
+   - Paths: Removed from `StoragePath`: `ComparePath`, `RemoveRootFolder`, `GetRootFolder`, `Rename`
+   - DiskStore: `GetObjects` will now return all objects in the main directory recursively by default
    - Move all sinks into `FluentStorage.Sinks` NS
    - Move `DelegatedStream` and `NonCloseableStream` into `FluentStorage.Storage.Sinks` NS
    - Rename `SinkedBlobStorage` to `SinkedStore`
    - Remove `RandomGenerator` and move it into testing project
-   - DiskStore: `GetObjects` will now return all objects in the main directory recursively by default
-   - Paths: `StoragePath.Normalize` has been completely rewritten to offer a unified path system across all disk and cloud stores
-   - Paths: `StoragePath.Combine`, `StoragePath.Split`, `StoragePath.GetParent`, is completely rewritten for performance
-   - Paths: Removed from `StoragePath`: `ComparePath`, `RemoveRootFolder`, `GetRootFolder`, `Rename`
  - **FluentStorage.SFTP**
    - Paths: New SFTP path normalization system that works with updated `StoragePath` normalization
  - **FluentStorage.Tests**

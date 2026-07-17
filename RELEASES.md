@@ -1,10 +1,10 @@
 ﻿# Release Notes
 
 #### FluentStorage 8.0.5
- - New: MongoDB GridFS storage provider using native MongoDB driver. Introduces the factory API `MongoGridStorage` and store class `MongoGridStore`.
- - Move factory classes from `FluentStorage.AWS.Factory` to `FluentStorage` NS
- - Move factory classes from `FluentStorage.Alibaba.Factory` to `FluentStorage` NS
- - Move factory classes from `FluentStorage.Minio.Factory` to `FluentStorage` NS
+ - **FluentStorage**
+   - Move factory classes from `FluentStorage.AWS.Factory`, `FluentStorage.Alibaba.Factory` and `FluentStorage.Minio.Factory` to root NS
+ - **FluentStorage.Mongo**
+   - New: MongoDB GridFS storage provider using native MongoDB driver. Introduces the factory API `MongoGridStorage` and store class `MongoGridStore`.
 
 #### FluentStorage 8.0.4
  - `DiskStore`: Fix `ListObjects` and add `GetServer` & `MoveObject` APIs

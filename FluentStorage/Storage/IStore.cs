@@ -170,6 +170,7 @@ namespace FluentStorage.Storage {
 
 		/// <summary>
 		/// Opens a readable stream beginning at the specified byte offset.
+		/// The returned stream is not guaranteed to stop at the requird length, and might read till the end of the file.
 		/// It is your responsibility to dispose this stream.
 		/// </summary>
 		/// <param name="path">Full path of the object.</param>

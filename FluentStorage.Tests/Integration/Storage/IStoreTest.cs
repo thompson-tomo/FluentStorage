@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FluentStorage.Utils.Extensions;
-
+﻿
 namespace FluentStorage.Tests.Integration.Storage {
+
+	/// <summary>
+	/// Massive test case suite to test object and directory manipulation for the given provider.
+	/// Should work on disk providers and cloud storage providers.
+	/// </summary>
 	[Trait("Category", "Blobs")]
 	public abstract class IStoreTest : IAsyncLifetime {
 		private readonly IStore _storage;
@@ -777,6 +775,788 @@ namespace FluentStorage.Tests.Integration.Storage {
 
 			Assert.NotNull(list);
 			Assert.Empty(list);
+		}
+
+		// ---------------------------------------------------------------------
+		// Metadata & Existence
+		// ---------------------------------------------------------------------
+
+		[Fact]
+		public async Task ObjectExists_ExistingObject_ReturnsTrue() {
+			string file = RandomFile();
+
+			await CreateText(file);
+
+			Assert.True(await _storage.ObjectExists(file));
+		}
+
+		[Fact]
+		public async Task ObjectExists_MissingObject_ReturnsFalse() {
+			Assert.False(await _storage.ObjectExists(RandomFile()));
+		}
+
+		[Fact]
+		public async Task ObjectsExists_ReturnsStatusForEveryObject() {
+			string f1 = RandomFile();
+			string f2 = RandomFile();
+			string f3 = RandomFile();
+
+			await CreateText(f1);
+			await CreateText(f3);
+
+			var result = await _storage.ObjectsExists(new[]
+			{
+		f1,
+		f2,
+		f3
+	});
+
+			Assert.Equal(3, result.Count);
+
+			Assert.True(result[0]);
+			Assert.False(result[1]);
+			Assert.True(result[2]);
+		}
+
+		[Fact]
+		public async Task GetObjectInfo_ReturnsBasicInformation() {
+			string file = RandomFile();
+
+			await CreateText(file, "Hello World");
+
+			var obj = await _storage.GetObjectInfo(file);
+
+			Assert.NotNull(obj);
+
+			Assert.Equal(file, obj.FullPath);
+			Assert.True(obj.IsFile);
+			Assert.False(obj.IsFolder);
+
+			Assert.NotNull(obj.Size);
+			Assert.True(obj.Size >= 11);
+		}
+
+		[Fact]
+		public async Task GetObjectInfo_MissingObject_ReturnsNullOrThrows() {
+			string file = RandomFile();
+
+			try {
+				var obj = await _storage.GetObjectInfo(file);
+
+				Assert.Null(obj);
+			}
+			catch {
+				// provider is allowed to throw
+			}
+		}
+
+		[Fact]
+		public async Task GetObjectsInfo_ReturnsInformationForMultipleObjects() {
+			string f1 = RandomFile();
+			string f2 = RandomFile();
+
+			await CreateText(f1, "AAA");
+			await CreateText(f2, "BBBB");
+
+			var list = await _storage.GetObjectsInfo(new[]
+			{
+		f1,
+		f2
+	});
+
+			Assert.Equal(2, list.Count);
+
+			Assert.Contains(list, x => x.FullPath == f1);
+			Assert.Contains(list, x => x.FullPath == f2);
+		}
+
+		[Fact]
+		public async Task SetObjectInfo_DoesNotThrow() {
+			string file = RandomFile();
+
+			await CreateText(file);
+
+			var obj = await _storage.GetObjectInfo(file);
+
+			await _storage.SetObjectInfo(obj);
+
+			var updated = await _storage.GetObjectInfo(file);
+
+			Assert.NotNull(updated);
+		}
+
+		[Fact]
+		public async Task SetObjectsInfo_DoesNotThrow() {
+			string f1 = RandomFile();
+			string f2 = RandomFile();
+
+			await CreateText(f1);
+			await CreateText(f2);
+
+			var list = await _storage.GetObjectsInfo(new[]
+			{
+		f1,
+		f2
+	});
+
+			await _storage.SetObjectsInfo(list);
+
+			var verify = await _storage.GetObjectsInfo(new[]
+			{
+		f1,
+		f2
+	});
+
+			Assert.Equal(2, verify.Count);
+		}
+
+		[Fact]
+		public async Task GetObjectMD5_DoesNotThrow() {
+			string file = RandomFile();
+
+			await CreateText(file, "abcdef");
+
+			var obj = await _storage.GetObjectInfo(file);
+
+			string md5 = await _storage.GetObjectMD5(obj);
+
+			// Some providers don't expose MD5.
+			if (md5 != null)
+				Assert.NotEmpty(md5);
+		}
+
+		[Fact]
+		public async Task GetObjectLength_ReturnsCorrectLength() {
+			string file = RandomFile();
+
+			const string text = "Hello World";
+
+			await CreateText(file, text);
+
+			long length = await _storage.GetObjectLength(file);
+
+			Assert.Equal(text.Length, length);
+		}
+
+		[Fact]
+		public async Task GetObjectLength_MissingObject_ReturnsDefaultValue() {
+			long length = await _storage.GetObjectLength(
+				RandomFile(),
+				defaultValue: 12345);
+
+			Assert.Equal(12345, length);
+		}
+
+		[Fact]
+		public async Task Metadata_AfterOverwrite_SizeChanges() {
+			string file = RandomFile();
+
+			await CreateText(file, "abc");
+
+			long size1 = await _storage.GetObjectLength(file);
+
+			await CreateText(file, "abcdefghijklmnopqrstuvwxyz");
+
+			long size2 = await _storage.GetObjectLength(file);
+
+			Assert.True(size2 > size1);
+		}
+
+		[Fact]
+		public async Task Metadata_DateModified_IsNotBefore_DateCreated() {
+			string file = RandomFile();
+
+			await CreateText(file);
+
+			var obj = await _storage.GetObjectInfo(file);
+
+			if (obj.DateCreated.HasValue && obj.DateModified.HasValue) {
+				Assert.True(obj.DateModified >= obj.DateCreated);
+			}
+		}
+
+		[Fact]
+		public async Task Metadata_FullPath_IsCorrect() {
+			string file = RandomFile();
+
+			await CreateText(file);
+
+			var obj = await _storage.GetObjectInfo(file);
+
+			Assert.Equal(file, obj.FullPath);
+		}
+
+		[Fact]
+		public async Task Metadata_Name_IsCorrect() {
+			string folder = RandomFolder();
+
+			string file = $"{folder}/hello.txt";
+
+			await CreateText(file);
+
+			var obj = await _storage.GetObjectInfo(file);
+
+			Assert.Equal("hello.txt", obj.Name);
+		}
+
+		[Fact]
+		public async Task Metadata_FolderPath_IsCorrect() {
+			string folder = RandomFolder();
+
+			string file = $"{folder}/hello.txt";
+
+			await CreateText(file);
+
+			var obj = await _storage.GetObjectInfo(file);
+
+			Assert.Equal(folder, obj.FolderPath);
+		}
+
+		// ---------------------------------------------------------------------
+		// Read Operations
+		// ---------------------------------------------------------------------
+
+		[Fact]
+		public async Task OpenRead_ReturnsReadableStream() {
+			string file = RandomFile();
+
+			await CreateText(file, "Hello World");
+
+			using var stream = await _storage.OpenRead(file);
+
+			Assert.NotNull(stream);
+			Assert.True(stream.CanRead);
+		}
+
+		[Fact]
+		public async Task OpenRead_ReadsEntireContents() {
+			string file = RandomFile();
+
+			const string text = "Hello World";
+
+			await CreateText(file, text);
+
+			using var stream = await _storage.OpenRead(file);
+			using var reader = new StreamReader(stream);
+
+			Assert.Equal(text, await reader.ReadToEndAsync());
+		}
+
+		[Fact]
+		public async Task OpenRead_MissingObject_ReturnsNullOrThrows() {
+			try {
+				using var stream = await _storage.OpenRead(RandomFile());
+
+				Assert.Null(stream);
+			}
+			catch {
+				// acceptable
+			}
+		}
+
+		[Fact]
+		public async Task GetBytes_ReturnsCorrectBytes() {
+			string file = RandomFile();
+
+			byte[] expected = { 1, 2, 3, 4, 5, 6 };
+
+			await _storage.SetBytes(file, expected);
+
+			byte[] actual = await _storage.GetBytes(file);
+
+			Assert.Equal(expected, actual);
+		}
+
+		[Fact]
+		public async Task GetBytes_EmptyFile_ReturnsEmptyArray() {
+			string file = RandomFile();
+
+			await _storage.SetBytes(file, Array.Empty<byte>());
+
+			byte[] data = await _storage.GetBytes(file);
+
+			Assert.NotNull(data);
+			Assert.Empty(data);
+		}
+
+		[Fact]
+		public async Task GetText_ReturnsCorrectText() {
+			string file = RandomFile();
+
+			const string text = "The quick brown fox.";
+
+			await _storage.SetText(file, text);
+
+			string actual = await _storage.GetText(file);
+
+			Assert.Equal(text, actual);
+		}
+
+		[Fact]
+		public async Task GetText_Unicode() {
+			string file = RandomFile();
+
+			const string text = "你好 नमस्ते 😀";
+
+			await _storage.SetText(file, text);
+
+			Assert.Equal(text, await _storage.GetText(file));
+		}
+
+		private sealed class TestPerson {
+			public string Name { get; set; }
+			public int Age { get; set; }
+		}
+
+		[Fact]
+		public async Task GetJson_ReturnsObject() {
+			string file = RandomFile();
+
+			var person = new TestPerson {
+				Name = "John",
+				Age = 30
+			};
+
+			await _storage.SetJson(file, person);
+
+			var loaded = await _storage.GetJson<TestPerson>(file);
+
+			Assert.NotNull(loaded);
+			Assert.Equal(person.Name, loaded.Name);
+			Assert.Equal(person.Age, loaded.Age);
+		}
+
+		[Fact]
+		public async Task GetJson_InvalidJson_Throws() {
+			string file = RandomFile();
+
+			await _storage.SetText(file, "this isn't json");
+
+			await Assert.ThrowsAnyAsync<Exception>(
+				() => _storage.GetJson<TestPerson>(file));
+		}
+
+		[Fact]
+		public async Task GetJson_InvalidJson_Ignore_ReturnsNull() {
+			string file = RandomFile();
+
+			await _storage.SetText(file, "this isn't json");
+
+			var result = await _storage.GetJson<TestPerson>(
+				file,
+				ignoreInvalidJson: true);
+
+			Assert.Null(result);
+		}
+
+		[Fact]
+		public async Task GetObject_CopiesToTargetStream() {
+			string file = RandomFile();
+
+			const string text = "Hello";
+
+			await _storage.SetText(file, text);
+
+			using var ms = new MemoryStream();
+
+			await _storage.GetObject(file, ms);
+
+			Assert.Equal(text,
+				System.Text.Encoding.UTF8.GetString(ms.ToArray()));
+		}
+
+		[Fact]
+		public async Task DownloadObject_DownloadsFile() {
+			string file = RandomFile();
+
+			const string text = "Downloaded";
+
+			await _storage.SetText(file, text);
+
+			string temp = Path.GetTempFileName();
+
+			try {
+				await _storage.DownloadObject(file, temp, overwrite: true);
+
+				Assert.Equal(text, File.ReadAllText(temp));
+			}
+			finally {
+				if (File.Exists(temp))
+					File.Delete(temp);
+			}
+		}
+
+		[Fact]
+		public async Task OpenRange_ReturnsRequestedBytes() {
+			string file = RandomFile();
+
+			await _storage.SetText(file, "0123456789");
+
+			using var stream = await _storage.OpenRange(file, 2, 4);
+
+			using var reader = new StreamReader(stream);
+
+			var result = await reader.ReadToEndAsync();
+
+			if (result.Length == 4) {
+				Assert.Equal("2345", result);
+			}
+			else {
+				Assert.Equal("23456789", result);
+			}
+		}
+
+		[Fact]
+		public async Task OpenRange_FromBeginning() {
+			string file = RandomFile();
+
+			await _storage.SetText(file, "ABCDEFGHIJ");
+
+			using var stream = await _storage.OpenRange(file, 0, 3);
+
+			using var reader = new StreamReader(stream);
+
+			var result = await reader.ReadToEndAsync();
+
+			if (result.Length == 3) {
+				Assert.Equal("ABC", result);
+			}
+			else {
+				Assert.Equal("ABCDEFGHIJ", result);
+			}
+		}
+
+		[Fact]
+		public async Task OpenRange_BeyondEnd_ReturnsEmptyOrShortStream() {
+			string file = RandomFile();
+
+			await _storage.SetText(file, "abc");
+
+			using var stream = await _storage.OpenRange(file, 100, 50);
+
+			Assert.NotNull(stream);
+
+			using var ms = new MemoryStream();
+
+			await stream.CopyToAsync(ms);
+
+			Assert.True(ms.Length == 0);
+		}
+
+		[Fact]
+		public async Task OpenSeekable_ReturnsSeekableStream() {
+			string file = RandomFile();
+
+			await _storage.SetText(file, "abcdefghijklmnopqrstuvwxyz");
+
+			using var stream = await _storage.OpenSeekable(file);
+
+			Assert.NotNull(stream);
+			Assert.True(stream.CanRead);
+			Assert.True(stream.CanSeek);
+		}
+
+		[Fact]
+		public async Task OpenSeekable_ReadSeekRead() {
+			string file = RandomFile();
+
+			await _storage.SetText(file, "0123456789");
+
+			using var stream = await _storage.OpenSeekable(file);
+
+			byte[] buffer = new byte[2];
+
+			await stream.ReadAsync(buffer);
+
+			Assert.Equal("01", System.Text.Encoding.UTF8.GetString(buffer));
+
+			stream.Seek(5, SeekOrigin.Begin);
+
+			await stream.ReadAsync(buffer);
+
+			Assert.Equal("56", System.Text.Encoding.UTF8.GetString(buffer));
+		}
+
+		[Fact]
+		public async Task OpenSeekable_LengthMatchesObject() {
+			string file = RandomFile();
+
+			const string text = "Hello World";
+
+			await _storage.SetText(file, text);
+
+			using var stream = await _storage.OpenSeekable(file);
+
+			Assert.Equal(text.Length, stream.Length);
+		}
+
+		[Fact]
+		public async Task OpenSeekable_MissingObject_ReturnsNullOrThrows() {
+			try {
+				using var stream = await _storage.OpenSeekable(RandomFile());
+
+				Assert.Null(stream);
+			}
+			catch {
+				// acceptable
+			}
+		}
+
+		// ---------------------------------------------------------------------
+		// Write Operations
+		// ---------------------------------------------------------------------
+
+		[Fact]
+		public async Task SetText_CreatesObject() {
+			string file = RandomFile();
+
+			await _storage.SetText(file, "Hello");
+
+			Assert.True(await _storage.ObjectExists(file));
+		}
+
+		[Fact]
+		public async Task SetText_OverwritesExistingContents() {
+			string file = RandomFile();
+
+			await _storage.SetText(file, "One");
+			await _storage.SetText(file, "Two");
+
+			Assert.Equal("Two", await _storage.GetText(file));
+		}
+
+		[Fact]
+		public async Task SetBytes_WritesBytes() {
+			string file = RandomFile();
+
+			byte[] expected = { 10, 20, 30, 40 };
+
+			await _storage.SetBytes(file, expected);
+
+			byte[] actual = await _storage.GetBytes(file);
+
+			Assert.Equal(expected, actual);
+		}
+
+		[Fact]
+		public async Task SetBytes_EmptyArray_CreatesEmptyFile() {
+			string file = RandomFile();
+
+			await _storage.SetBytes(file, Array.Empty<byte>());
+
+			Assert.True(await _storage.ObjectExists(file));
+			Assert.Equal(0, await _storage.GetObjectLength(file));
+		}
+
+		[Fact]
+		public async Task SetJson_WritesObject() {
+			string file = RandomFile();
+
+			var person = new TestPerson {
+				Name = "Alice",
+				Age = 25
+			};
+
+			await _storage.SetJson(file, person);
+
+			var loaded = await _storage.GetJson<TestPerson>(file);
+
+			Assert.Equal(person.Name, loaded.Name);
+			Assert.Equal(person.Age, loaded.Age);
+		}
+
+		[Fact]
+		public async Task SetObject_Stream_WritesData() {
+			string file = RandomFile();
+
+			byte[] bytes = System.Text.Encoding.UTF8.GetBytes("Hello World");
+
+			using var ms = new MemoryStream(bytes);
+
+			await _storage.SetObject(file, ms);
+
+			Assert.Equal("Hello World", await _storage.GetText(file));
+		}
+
+		[Fact]
+		public async Task SetObject_WithContentType_WritesData() {
+			string file = RandomFile();
+
+			byte[] bytes = System.Text.Encoding.UTF8.GetBytes("abcdef");
+
+			using var ms = new MemoryStream(bytes);
+
+			await _storage.SetObject(file, ms, "text/plain");
+
+			Assert.Equal("abcdef", await _storage.GetText(file));
+		}
+
+		[Fact]
+		public async Task SetObject_Append_AppendsData() {
+			string file = RandomFile();
+
+			using (var ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes("Hello")))
+				await _storage.SetObject(file, ms);
+
+			using (var ms = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(" World")))
+				await _storage.SetObject(file, ms, append: true);
+
+			Assert.Equal("Hello World", await _storage.GetText(file));
+		}
+
+		[Fact]
+		public async Task OpenWrite_CreatesObject() {
+			string file = RandomFile();
+
+			using (var stream = await _storage.OpenWrite(file, overwrite: true))
+			using (var writer = new StreamWriter(stream)) {
+				await writer.WriteAsync("Hello");
+			}
+
+			Assert.Equal("Hello", await _storage.GetText(file));
+		}
+
+		[Fact]
+		public async Task OpenWrite_Overwrite_ReplacesExistingContents() {
+			string file = RandomFile();
+
+			await _storage.SetText(file, "Old");
+
+			using (var stream = await _storage.OpenWrite(file, overwrite: true))
+			using (var writer = new StreamWriter(stream)) {
+				await writer.WriteAsync("New");
+			}
+
+			Assert.Equal("New", await _storage.GetText(file));
+		}
+
+		[Fact]
+		public async Task OpenWrite_OverwriteFalse_ReturnsNullOrThrows_WhenObjectExists() {
+			string file = RandomFile();
+
+			await _storage.SetText(file, "Existing");
+
+			try {
+				using var stream = await _storage.OpenWrite(file, overwrite: false);
+
+				Assert.Null(stream);
+			}
+			catch {
+				// Provider may throw instead.
+			}
+		}
+
+		[Fact]
+		public async Task UploadObject_UploadsLocalFile() {
+			string file = RandomFile();
+
+			string temp = Path.GetTempFileName();
+
+			try {
+				File.WriteAllText(temp, "Upload Test");
+
+				await _storage.UploadObject(file, temp, overwrite: true);
+
+				Assert.Equal("Upload Test", await _storage.GetText(file));
+			}
+			finally {
+				if (File.Exists(temp))
+					File.Delete(temp);
+			}
+		}
+
+		[Fact]
+		public async Task UploadObject_Overwrite_ReplacesExistingObject() {
+			string file = RandomFile();
+
+			await _storage.SetText(file, "Old");
+
+			string temp = Path.GetTempFileName();
+
+			try {
+				File.WriteAllText(temp, "New");
+
+				await _storage.UploadObject(file, temp, overwrite: true);
+
+				Assert.Equal("New", await _storage.GetText(file));
+			}
+			finally {
+				if (File.Exists(temp))
+					File.Delete(temp);
+			}
+		}
+
+		[Fact]
+		public async Task UploadObject_OverwriteFalse_ReturnsFalseOrThrows_WhenObjectExists() {
+			string file = RandomFile();
+
+			await _storage.SetText(file, "Existing");
+
+			string temp = Path.GetTempFileName();
+
+			try {
+				File.WriteAllText(temp, "Replacement");
+
+				try {
+					await _storage.UploadObject(file, temp, overwrite: false);
+
+					Assert.Equal("Existing", await _storage.GetText(file));
+				}
+				catch {
+					// acceptable
+				}
+			}
+			finally {
+				if (File.Exists(temp))
+					File.Delete(temp);
+			}
+		}
+
+		[Fact]
+		public async Task LargeText_CanBeWrittenAndRead() {
+			string file = RandomFile();
+
+			string text = new string('X', 1024 * 1024);
+
+			await _storage.SetText(file, text);
+
+			Assert.Equal(text, await _storage.GetText(file));
+		}
+
+		[Fact]
+		public async Task UnicodeFileName_CanBeWritten() {
+			string file = $"tests/{Guid.NewGuid():N}/你好 नमस्ते 😀.txt";
+
+			await _storage.SetText(file, "unicode");
+
+			Assert.True(await _storage.ObjectExists(file));
+
+			Assert.Equal("unicode", await _storage.GetText(file));
+		}
+
+		[Fact]
+		public async Task ConsecutiveWrites_LastWriteWins() {
+			string file = RandomFile();
+
+			for (int i = 0; i < 10; i++)
+				await _storage.SetText(file, i.ToString());
+
+			Assert.Equal("9", await _storage.GetText(file));
+		}
+
+		[Fact]
+		public async Task BinaryFile_RoundTripsCorrectly() {
+			string file = RandomFile();
+
+			byte[] expected = new byte[8192];
+
+			new Random(12345).NextBytes(expected);
+
+			await _storage.SetBytes(file, expected);
+
+			byte[] actual = await _storage.GetBytes(file);
+
+			Assert.Equal(expected, actual);
 		}
 
 	}

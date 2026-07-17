@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using FluentStorage.Enums;
+﻿using FluentStorage.Enums;
 using FluentStorage.Exceptions;
 using FluentStorage.Model;
 using FluentStorage.Storage;
@@ -14,7 +8,15 @@ using Minio;
 using Minio.Credentials;
 using Minio.DataModel;
 using Minio.DataModel.Args;
+using Minio.DataModel.Tags;
 using Minio.Exceptions;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FluentStorage.Minio.Storage {
 
@@ -406,7 +408,7 @@ namespace FluentStorage.Minio.Storage {
 			return stream;
 		}
 
-		public override bool IsSeekable() {
+		public override async Task<bool> IsSeekable() {
 			return true;
 		}
 
@@ -673,6 +675,90 @@ namespace FluentStorage.Minio.Storage {
 
 			await client.RemoveObjectAsync(removeArgs, cancellationToken).ConfigureAwait(false);
 
+			return true;
+		}
+
+
+		/// <summary>
+		/// Returns all tags associated with the specified object.
+		/// Returns an empty collection if no tags exist.
+		/// </summary>
+		public override async Task<Dictionary<string, string>> GetObjectTags(string objectPath, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))throw new ArgumentNullException(nameof(objectPath));
+
+			var client = await Client(cancellationToken).ConfigureAwait(false);
+
+			string key = NormalizeKey(objectPath);
+
+			try {
+				var response = await client.GetObjectTagsAsync(new GetObjectTagsArgs()
+					.WithBucket(_bucketName)
+					.WithObject(key), cancellationToken).ConfigureAwait(false);
+
+				return response.Tags?
+					.ToDictionary(x => x.Key, x => x.Value)
+					?? new Dictionary<string, string>();
+			}
+			catch (ErrorResponseException ex) when (ex.Response.Code == "NoSuchKey") {
+				// Returns null if the object cannot be found.
+				return null;
+			}
+		}
+
+
+		/// <summary>
+		/// Replaces all tags associated with the specified object.
+		/// Existing tags are removed before the new tags are applied.
+		/// </summary>
+		public override async Task<bool> SetObjectTags(string objectPath, Dictionary<string, string> tags, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))throw new ArgumentNullException(nameof(objectPath));
+
+			var client = await Client(cancellationToken).ConfigureAwait(false);
+
+			string key = NormalizeKey(objectPath);
+
+			try {
+				var tagData = new Tagging(tags ?? new Dictionary<string, string>(), true);
+
+				await client.SetObjectTagsAsync(new SetObjectTagsArgs()
+					.WithBucket(_bucketName)
+					.WithObject(key)
+					.WithTagging(tagData), cancellationToken).ConfigureAwait(false);
+
+				return true;
+			}
+			catch (ErrorResponseException ex) when (ex.Response.Code == "NoSuchKey") {
+				// Returns true if succeeded, or false if the object cannot be found.
+				return false;
+			}
+		}
+
+
+		/// <summary>
+		/// Removes all tags from the specified object.
+		/// Does nothing if the object has no tags.
+		/// </summary>
+		public override async Task<bool> DeleteObjectTags(string objectPath, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))throw new ArgumentNullException(nameof(objectPath));
+
+			var client = await Client(cancellationToken).ConfigureAwait(false);
+
+			string key = NormalizeKey(objectPath);
+
+			try {
+				await client.RemoveObjectTagsAsync(new RemoveObjectTagsArgs()
+					.WithBucket(_bucketName)
+					.WithObject(key), cancellationToken).ConfigureAwait(false);
+
+				return true;
+			}
+			catch (ErrorResponseException ex) when (ex.Response.Code == "NoSuchKey") {
+				// Returns true if succeeded, or false if the object cannot be found.
+				return false;
+			}
+		}
+
+		public override async Task<bool> IsTagged() {
 			return true;
 		}
 

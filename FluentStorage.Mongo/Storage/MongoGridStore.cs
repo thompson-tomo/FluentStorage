@@ -298,7 +298,7 @@ namespace FluentStorage.Mongo.Storage {
 			return downloadStream;
 		}
 
-		public override bool IsSeekable() {
+		public override async Task<bool> IsSeekable() {
 			return true;
 		}
 

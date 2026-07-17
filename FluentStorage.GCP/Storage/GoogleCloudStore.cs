@@ -231,7 +231,7 @@ namespace FluentStorage.GCP.Storage {
 			return stream;
 		}
 
-		public override bool IsSeekable() {
+		public override async Task<bool> IsSeekable() {
 			return true;
 		}
 		public override async Task<long> GetObjectLength(string fullPath, long defaultValue = -1, CancellationToken cancellationToken = default) {
@@ -315,7 +315,7 @@ namespace FluentStorage.GCP.Storage {
 
 					return false;
 				}
-				catch (Google.GoogleApiException ex)
+				catch (GoogleApiException ex)
 					when (ex.HttpStatusCode == HttpStatusCode.NotFound) {
 				}
 			}
@@ -499,6 +499,79 @@ namespace FluentStorage.GCP.Storage {
 			var bucket = await _client.GetBucketAsync(_bucketName).ConfigureAwait(false);
 
 			return bucket.Versioning?.Enabled == true;
+		}
+
+		/// <summary>
+		/// Returns all Custom Metadata associated with the specified object.
+		/// Returns an empty collection if no tags exist.
+		/// </summary>
+		public override async Task<Dictionary<string, string>> GetObjectTags(string objectPath, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))
+				throw new ArgumentNullException(nameof(objectPath));
+
+			try {
+				var storageObject = await _client.GetObjectAsync(_bucketName, objectPath, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+				return storageObject.Metadata?
+					.ToDictionary(x => x.Key, x => x.Value)
+					?? new Dictionary<string, string>();
+			}
+			catch (GoogleApiException ex) when (ex.Error.Code == 404) {
+				// Returns null if the object cannot be found.
+				return null;
+			}
+		}
+
+
+		/// <summary>
+		/// Replaces all Custom Metadata associated with the specified object.
+		/// Existing tags are removed before the new tags are applied.
+		/// </summary>
+		public override async Task<bool> SetObjectTags(string objectPath, Dictionary<string, string> tags, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))
+				throw new ArgumentNullException(nameof(objectPath));
+
+			try {
+				var storageObject = await _client.GetObjectAsync(_bucketName, objectPath, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+				storageObject.Metadata = tags ?? new Dictionary<string, string>();
+
+				await _client.UpdateObjectAsync(storageObject, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+				return true;
+			}
+			catch (GoogleApiException ex) when (ex.Error.Code == 404) {
+				// Returns true if succeeded, or false if the object cannot be found.
+				return false;
+			}
+		}
+
+
+		/// <summary>
+		/// Removes all Custom Metadata from the specified object.
+		/// Does nothing if the object has no tags.
+		/// </summary>
+		public override async Task<bool> DeleteObjectTags(string objectPath, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))
+				throw new ArgumentNullException(nameof(objectPath));
+
+			try {
+				var storageObject = await _client.GetObjectAsync(_bucketName, objectPath, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+				storageObject.Metadata = null;
+
+				await _client.UpdateObjectAsync(storageObject, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+				return true;
+			}
+			catch (GoogleApiException ex) when (ex.Error.Code == 404) {
+				// Returns true if succeeded, or false if the object cannot be found.
+				return false;
+			}
+		}
+
+		public override async Task<bool> IsTagged() {
+			return true;
 		}
 
 	}

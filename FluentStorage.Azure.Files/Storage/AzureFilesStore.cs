@@ -179,7 +179,7 @@ namespace FluentStorage.Azure.Files.Storage {
 			}
 		}
 
-		public override bool IsSeekable() {
+		public override async Task<bool> IsSeekable() {
 			return true;
 		}
 

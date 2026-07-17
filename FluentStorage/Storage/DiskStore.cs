@@ -39,7 +39,7 @@ namespace FluentStorage.Storage {
 			_directoryFullName = _fileSystem.Path.GetFullPath(directoryFullName);
 		}
 
-		public override bool IsFileSystem() {
+		public override async Task<bool> IsFileSystem() {
 			return true;
 		}
 
@@ -327,7 +327,7 @@ namespace FluentStorage.Storage {
 			return stream;
 		}
 
-		public override bool IsSeekable() {
+		public override async Task<bool> IsSeekable() {
 			return true;
 		}
 		public override async Task<long> GetObjectLength(string fullPath, long defaultValue = -1, CancellationToken cancellationToken = default) {

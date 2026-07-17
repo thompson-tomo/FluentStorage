@@ -167,7 +167,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			return response.Value.Content;
 		}
 
-		public override bool IsSeekable() {
+		public override async Task<bool> IsSeekable() {
 			return true;
 		}
 
@@ -668,7 +668,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		}
 
 		/// <summary>
-		/// Returns all available versions of the specified object.
+		/// Returns all available versions of the blob.
 		/// </summary>
 		public override async Task<List<StorageObjectVersion>> ListObjectVersions(string objectPath, CancellationToken cancellationToken = default) {
 
@@ -708,7 +708,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		}
 
 		/// <summary>
-		/// Returns information about a specific version of an object.
+		/// Returns information about a specific version of a blob.
 		/// </summary>
 		public override async Task<StorageObjectVersion> GetObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
 
@@ -742,7 +742,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		}
 
 		/// <summary>
-		/// Restores the specified version as the current version of the object.
+		/// Restores the specified version as the current version of the blob.
 		/// </summary>
 		public override async Task<bool> RestoreObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
 
@@ -772,8 +772,8 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		}
 
 		/// <summary>
-		/// Permanently deletes the specified object version.
-		/// Does not delete other versions of the object.
+		/// Permanently deletes the specified blob version.
+		/// Does not delete other versions of the blob.
 		/// </summary>
 		public override async Task<bool> DeleteObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
 
@@ -804,6 +804,83 @@ namespace FluentStorage.Azure.Blobs.Storage {
 		/// Current Azure SDK does not expose way to check if container supports versioning.
 		/// </summary>
 		public override async Task<bool> IsVersioned() {
+			return true;
+		}
+
+
+		/// <summary>
+		/// Returns all tags associated with the specified blob.
+		/// Returns an empty collection if no tags exist.
+		/// </summary>
+		public override async Task<Dictionary<string, string>> GetObjectTags(string objectPath, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))throw new ArgumentNullException(nameof(objectPath));
+
+			(BlobContainerClient container, string path) = await GetPartsAsync(objectPath, false).ConfigureAwait(false);
+
+			BlockBlobClient client = container.GetBlockBlobClient(path);
+
+			try {
+				var response = await client.GetTagsAsync(null, cancellationToken).ConfigureAwait(false);
+
+				return response.Value.Tags?.ToDictionary(x => x.Key, x => x.Value)
+					?? new Dictionary<string, string>();
+			}
+			catch (RequestFailedException ex) when (ex.ErrorCode == "BlobNotFound") {
+
+				// Returns null if the object cannot be found.
+				return null;
+			}
+		}
+
+
+		/// <summary>
+		/// Replaces all tags associated with the specified blob.
+		/// Existing tags are removed before the new tags are applied.
+		/// </summary>
+		public override async Task<bool> SetObjectTags(string objectPath, Dictionary<string, string> tags, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))throw new ArgumentNullException(nameof(objectPath));
+
+			(BlobContainerClient container, string path) = await GetPartsAsync(objectPath, false).ConfigureAwait(false);
+
+			BlockBlobClient client = container.GetBlockBlobClient(path);
+
+			try {
+				await client.SetTagsAsync(tags ?? new Dictionary<string, string>(), null, cancellationToken).ConfigureAwait(false);
+
+				return true;
+			}
+			catch (RequestFailedException ex) when (ex.ErrorCode == "BlobNotFound") {
+
+				// Returns true if succeeded, or false if the object cannot be found.
+				return false;
+			}
+		}
+
+
+		/// <summary>
+		/// Removes all tags from the specified blob.
+		/// Does nothing if the blob has no tags.
+		/// </summary>
+		public override async Task<bool> DeleteObjectTags(string objectPath, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))throw new ArgumentNullException(nameof(objectPath));
+
+			(BlobContainerClient container, string path) = await GetPartsAsync(objectPath, false).ConfigureAwait(false);
+
+			BlockBlobClient client = container.GetBlockBlobClient(path);
+
+			try {
+				await client.SetTagsAsync(new Dictionary<string, string>(), null, cancellationToken).ConfigureAwait(false);
+
+				return true;
+			}
+			catch (RequestFailedException ex) when (ex.ErrorCode == "BlobNotFound") {
+
+				// Returns true if succeeded, or false if the object cannot be found.
+				return false;
+			}
+		}
+
+		public override async Task<bool> IsTagged() {
 			return true;
 		}
 

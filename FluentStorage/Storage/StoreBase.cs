@@ -26,13 +26,16 @@ namespace FluentStorage.Storage {
 
 		}
 
-		public virtual bool IsFileSystem() {
+		public virtual async Task<bool> IsFileSystem() {
 			return false;
 		}
-		public virtual bool IsSeekable() {
+		public virtual async Task<bool> IsSeekable() {
 			return false;
 		}
 		public virtual async Task<bool> IsVersioned() {
+			return false;
+		}
+		public virtual async Task<bool> IsTagged() {
 			return false;
 		}
 		public virtual async Task<object> GetClient() {
@@ -589,15 +592,15 @@ namespace FluentStorage.Storage {
 		// Object Tags
 		// ---------------------------------------------------------------------
 
-		public virtual async Task<IDictionary<string, string>> GetObjectTags(string objectPath, CancellationToken cancellationToken = default) {
+		public virtual async Task<Dictionary<string, string>> GetObjectTags(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		public virtual async Task SetObjectTags(string objectPath, IDictionary<string, string> tags, CancellationToken cancellationToken = default) {
+		public virtual async Task<bool> SetObjectTags(string objectPath, Dictionary<string, string> tags, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		public virtual async Task DeleteObjectTags(string objectPath, CancellationToken cancellationToken = default) {
+		public virtual async Task<bool> DeleteObjectTags(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 

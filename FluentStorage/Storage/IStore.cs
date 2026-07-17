@@ -29,17 +29,22 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Returns true if the given object storage is backed by a file system (Disk/FTP/FTPS).
 		/// </summary>
-		bool IsFileSystem();
+		Task<bool> IsFileSystem();
 
 		/// <summary>
 		/// Returns true if the given object storage supports seeking and streaming.
 		/// </summary>
-		bool IsSeekable();
+		Task<bool> IsSeekable();
 
 		/// <summary>
 		/// Returns true if the given object storage supports file versioning, and if versioning is enabled at the bucket level.
 		/// </summary>
 		Task<bool> IsVersioned();
+
+		/// <summary>
+		/// Returns true if the given object storage supports object tags.
+		/// </summary>
+		Task<bool> IsTagged();
 
 		// ---------------------------------------------------------------------
 		// Listing
@@ -410,20 +415,23 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Returns all tags associated with the specified object.
 		/// Returns an empty collection if no tags exist.
+		/// Returns null if the object cannot be found.
 		/// </summary>
-		Task<IDictionary<string, string>> GetObjectTags(string objectPath, CancellationToken cancellationToken = default);
+		Task<Dictionary<string, string>> GetObjectTags(string objectPath, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Replaces all tags associated with the specified object.
 		/// Existing tags are removed before the new tags are applied.
+		/// Returns true if succeeded, or false if the object cannot be found.
 		/// </summary>
-		Task SetObjectTags(string objectPath, IDictionary<string, string> tags, CancellationToken cancellationToken = default);
+		Task<bool> SetObjectTags(string objectPath, Dictionary<string, string> tags, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Removes all tags from the specified object.
 		/// Does nothing if the object has no tags.
+		/// Returns true if succeeded, or false if the object cannot be found.
 		/// </summary>
-		Task DeleteObjectTags(string objectPath, CancellationToken cancellationToken = default);
+		Task<bool> DeleteObjectTags(string objectPath, CancellationToken cancellationToken = default);
 
 
 		// ---------------------------------------------------------------------

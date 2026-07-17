@@ -127,7 +127,7 @@ namespace FluentStorage.SFTP {
 			_disposeClient = disposeClient;
 		}
 
-		public override bool IsFileSystem() {
+		public override async Task<bool> IsFileSystem() {
 			return true;
 		}
 
@@ -371,7 +371,7 @@ namespace FluentStorage.SFTP {
 			return stream;
 		}
 
-		public override bool IsSeekable() {
+		public override async Task<bool> IsSeekable() {
 			return true;
 		}
 		public override async Task<long> GetObjectLength(string fullPath, long defaultValue = -1, CancellationToken cancellationToken = default) {

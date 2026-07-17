@@ -35,7 +35,7 @@ namespace FluentStorage.FTP.Storage {
 			_dispose = dispose;
 		}
 
-		public override bool IsFileSystem() {
+		public override async Task<bool> IsFileSystem() {
 			return true;
 		}
 		/// <summary>
@@ -213,7 +213,7 @@ namespace FluentStorage.FTP.Storage {
 			return stream;
 		}
 
-		public override bool IsSeekable() {
+		public override async Task<bool> IsSeekable() {
 			return true;
 		}
 

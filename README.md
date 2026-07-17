@@ -257,6 +257,26 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 
 <tr>
+<td colspan="11"><b>File tagging</b></td>
+</tr>
+<tr>
+<td>&nbsp; IsTagged</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td>
+</tr>
+<tr>
+<td>&nbsp; GetObjectTags</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td>
+</tr>
+<tr>
+<td>&nbsp; SetObjectTags</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td>
+</tr>
+<tr>
+<td>&nbsp; DeleteObjectTags</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td>
+</tr>
+
+<tr>
 <td colspan="11"><b>Directory manipulation</b></td>
 </tr>
 <tr>

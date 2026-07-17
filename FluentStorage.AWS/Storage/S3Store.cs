@@ -406,7 +406,7 @@ namespace FluentStorage.AWS.Storage {
 			return response.ResponseStream;
 		}
 
-		public override bool IsSeekable() {
+		public override async Task<bool> IsSeekable() {
 			return true;
 		}
 
@@ -863,6 +863,95 @@ namespace FluentStorage.AWS.Storage {
 			}).ConfigureAwait(false);
 
 			return response.VersioningConfig.Status == VersionStatus.Enabled;
+		}
+
+		/// <summary>
+		/// Returns all tags associated with the specified object.
+		/// Returns an empty collection if no tags exist.
+		/// </summary>
+		public override async Task<Dictionary<string, string>> GetObjectTags(string objectPath, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))
+				throw new ArgumentNullException(nameof(objectPath));
+
+			AmazonS3Client client = await Client().ConfigureAwait(false);
+
+			try {
+				var response = await client.GetObjectTaggingAsync(new GetObjectTaggingRequest {
+					BucketName = _bucketName,
+					Key = objectPath
+				}, cancellationToken).ConfigureAwait(false);
+
+				Dictionary<string, string> tags = response.Tagging?
+					.ToDictionary(x => x.Key, x => x.Value)
+					?? new Dictionary<string, string>();
+
+				return tags;
+			}
+			catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound) {
+				// Returns null if the object cannot be found.
+				return null;
+			}
+		}
+
+
+		/// <summary>
+		/// Replaces all tags associated with the specified object.
+		/// Existing tags are removed before the new tags are applied.
+		/// </summary>
+		public override async Task<bool> SetObjectTags(string objectPath, Dictionary<string, string> tags, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))
+				throw new ArgumentNullException(nameof(objectPath));
+
+			AmazonS3Client client = await Client().ConfigureAwait(false);
+
+			try {
+				await client.PutObjectTaggingAsync(new PutObjectTaggingRequest {
+					BucketName = _bucketName,
+					Key = objectPath,
+					Tagging = new Tagging {
+						TagSet = tags?.Select(x => new Tag {
+							Key = x.Key,
+							Value = x.Value
+						}).ToList() ?? new List<Tag>()
+					}
+				}, cancellationToken).ConfigureAwait(false);
+
+				return true;
+			}
+			catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound) {
+
+				// Returns true if succeeded, or false if the object cannot be found.
+				return false;
+			}
+		}
+
+
+		/// <summary>
+		/// Removes all tags from the specified object.
+		/// Does nothing if the object has no tags.
+		/// </summary>
+		public override async Task<bool> DeleteObjectTags(string objectPath, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))
+				throw new ArgumentNullException(nameof(objectPath));
+
+			AmazonS3Client client = await Client().ConfigureAwait(false);
+
+			try {
+				await client.DeleteObjectTaggingAsync(new DeleteObjectTaggingRequest {
+					BucketName = _bucketName,
+					Key = objectPath
+				}, cancellationToken).ConfigureAwait(false);
+
+				return true;
+			}
+			catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound) {
+				// Returns true if succeeded, or false if the object cannot be found.
+				return false;
+			}
+		}
+
+		public override async Task<bool> IsTagged() {
+			return true;
 		}
 
 	}

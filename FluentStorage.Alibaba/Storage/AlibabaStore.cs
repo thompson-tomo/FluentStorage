@@ -201,7 +201,7 @@ namespace FluentStorage.Alibaba.Storage {
 			return stream;
 		}
 
-		public override bool IsSeekable() {
+		public override async Task<bool> IsSeekable() {
 			return true;
 		}
 
@@ -619,6 +619,89 @@ namespace FluentStorage.Alibaba.Storage {
 		private static IEnumerable<List<T>> Batch<T>(List<T> source, int size) {
 			for (var i = 0; i < source.Count; i += size)
 				yield return source.GetRange(i, Math.Min(size, source.Count - i));
+		}
+
+		// ------------------------------------------------------------------
+		// Tagging
+		// ------------------------------------------------------------------
+
+		/// <summary>
+		/// Returns all tags associated with the specified object.
+		/// Returns an empty collection if no tags exist.
+		/// </summary>
+		public override async Task<Dictionary<string, string>> GetObjectTags(string objectPath, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))
+				throw new ArgumentNullException(nameof(objectPath));
+
+			var client = await Client().ConfigureAwait(false);
+
+			string key = NormalizeKey(objectPath);
+
+			try {
+				var result = client.GetObjectTagging(_bucketName, key);
+
+				return result.Tags?
+					.ToDictionary(x => x.Key, x => x.Value)
+					?? new Dictionary<string, string>();
+			}
+			catch (OssException ex) when (ex.ErrorCode == "NoSuchKey") {
+				// Returns null if the object cannot be found.
+				return null;
+			}
+		}
+
+
+		/// <summary>
+		/// Replaces all tags associated with the specified object.
+		/// Existing tags are removed before the new tags are applied.
+		/// </summary>
+		public override async Task<bool> SetObjectTags(string objectPath, Dictionary<string, string> tags, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))
+				throw new ArgumentNullException(nameof(objectPath));
+
+			var client = await Client().ConfigureAwait(false);
+
+			string key = NormalizeKey(objectPath);
+
+			try {
+				var tagData = tags?.Select(x => new Tag {Key = x.Key,Value = x.Value}).ToList() ?? new List<Tag>();
+
+				client.SetObjectTagging(new SetObjectTaggingRequest(_bucketName, key, tagData));
+
+				return true;
+			}
+			catch (OssException ex) when (ex.ErrorCode == "NoSuchKey") {
+				// Returns true if succeeded, or false if the object cannot be found.
+				return false;
+			}
+		}
+
+
+		/// <summary>
+		/// Removes all tags from the specified object.
+		/// Does nothing if the object has no tags.
+		/// </summary>
+		public override async Task<bool> DeleteObjectTags(string objectPath, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(objectPath))
+				throw new ArgumentNullException(nameof(objectPath));
+
+			var client = await Client().ConfigureAwait(false);
+
+			string key = NormalizeKey(objectPath);
+
+			try {
+				client.DeleteObjectTagging(_bucketName, key);
+
+				return true;
+			}
+			catch (OssException ex) when (ex.ErrorCode == "NoSuchKey") {
+				// Returns true if succeeded, or false if the object cannot be found.
+				return false;
+			}
+		}
+
+		public override async Task<bool> IsTagged() {
+			return true;
 		}
 	}
 }

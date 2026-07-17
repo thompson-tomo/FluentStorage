@@ -613,7 +613,7 @@ namespace FluentStorage.Storage {
 			throw new NotSupportedException();
 		}
 
-		public virtual async Task SetObjectStorageTier(string objectPath, StorageTier tier, CancellationToken cancellationToken = default) {
+		public virtual async Task<bool> SetObjectStorageTier(string objectPath, StorageTier tier, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
@@ -622,15 +622,15 @@ namespace FluentStorage.Storage {
 		// Retention Policy
 		// ---------------------------------------------------------------------
 
-		public virtual async Task<StorageRetentionPolicy?> GetObjectRetentionPolicy(string objectPath, CancellationToken cancellationToken = default) {
+		public virtual async Task<StorageRetentionPolicy> GetObjectRetentionPolicy(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		public virtual async Task SetObjectRetentionPolicy(string objectPath, StorageRetentionPolicy policy, CancellationToken cancellationToken = default) {
+		public virtual async Task<bool> SetObjectRetentionPolicy(string objectPath, StorageRetentionPolicy policy, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		public virtual async Task ClearObjectRetentionPolicy(string objectPath, CancellationToken cancellationToken = default) {
+		public virtual async Task<bool> ClearObjectRetentionPolicy(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
@@ -639,15 +639,15 @@ namespace FluentStorage.Storage {
 		// Object Lock
 		// ---------------------------------------------------------------------
 
-		public virtual async Task<StorageObjectLock?> GetObjectLock(string objectPath, CancellationToken cancellationToken = default) {
+		public virtual async Task<StorageObjectLock> GetObjectLock(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		public virtual async Task SetObjectLock(string objectPath, StorageObjectLock objectLock, CancellationToken cancellationToken = default) {
+		public virtual async Task<bool> SetObjectLock(string objectPath, StorageObjectLock objectLock, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		public virtual async Task ClearObjectLock(string objectPath, CancellationToken cancellationToken = default) {
+		public virtual async Task<bool> ClearObjectLock(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 

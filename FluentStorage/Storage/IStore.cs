@@ -441,14 +441,16 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Returns the storage tier or storage class of the specified object.
 		/// Returns the provider's default tier if not explicitly assigned.
+		/// Returns Unknown if the object cannot be found.
 		/// </summary>
 		Task<StorageTier> GetObjectStorageTier(string objectPath, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Changes the storage tier or storage class of the specified object.
 		/// The operation may complete asynchronously depending on the provider.
+		/// Returns true if succeeded, or false if the object cannot be found.
 		/// </summary>
-		Task SetObjectStorageTier(string objectPath, StorageTier tier, CancellationToken cancellationToken = default);
+		Task<bool> SetObjectStorageTier(string objectPath, StorageTier tier, CancellationToken cancellationToken = default);
 
 
 		// ---------------------------------------------------------------------
@@ -457,21 +459,23 @@ namespace FluentStorage.Storage {
 
 		/// <summary>
 		/// Returns the retention policy applied to the specified object.
-		/// Returns null if no retention policy is configured.
+		/// Returns null if no retention policy is configured, or the object cannot be found.
 		/// </summary>
-		Task<StorageRetentionPolicy?> GetObjectRetentionPolicy(string objectPath, CancellationToken cancellationToken = default);
+		Task<StorageRetentionPolicy> GetObjectRetentionPolicy(string objectPath, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Applies or updates the retention policy for the specified object.
 		/// Existing retention settings are replaced.
+		/// Returns true if succeeded, or false if the object cannot be found.
 		/// </summary>
-		Task SetObjectRetentionPolicy(string objectPath, StorageRetentionPolicy policy, CancellationToken cancellationToken = default);
+		Task<bool> SetObjectRetentionPolicy(string objectPath, StorageRetentionPolicy policy, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Removes the retention policy from the specified object.
 		/// The provider may prevent removal while the object is protected.
+		/// Returns true if succeeded, or false if the object cannot be found.
 		/// </summary>
-		Task ClearObjectRetentionPolicy(string objectPath, CancellationToken cancellationToken = default);
+		Task<bool> ClearObjectRetentionPolicy(string objectPath, CancellationToken cancellationToken = default);
 
 
 		// ---------------------------------------------------------------------
@@ -480,20 +484,22 @@ namespace FluentStorage.Storage {
 
 		/// <summary>
 		/// Returns the object lock configuration for the specified object.
-		/// Returns null if object locking is not enabled.
+		/// Returns null if object locking is not enabled, or the object cannot be found.
+		/// Returns true if succeeded, or false if the object cannot be found.
 		/// </summary>
-		Task<StorageObjectLock?> GetObjectLock(string objectPath, CancellationToken cancellationToken = default);
+		Task<StorageObjectLock> GetObjectLock(string objectPath, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Applies or updates the object lock configuration for the specified object.
-		/// Provider-specific restrictions may apply.
+		/// Returns true if succeeded, or false if the object cannot be found.
 		/// </summary>
-		Task SetObjectLock(string objectPath, StorageObjectLock objectLock, CancellationToken cancellationToken = default);
+		Task<bool> SetObjectLock(string objectPath, StorageObjectLock objectLock, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Removes the object lock from the specified object.
 		/// The provider may prevent removal while the object is protected.
+		/// Returns true if succeeded, or false if the object cannot be found.
 		/// </summary>
-		Task ClearObjectLock(string objectPath, CancellationToken cancellationToken = default);
+		Task<bool> ClearObjectLock(string objectPath, CancellationToken cancellationToken = default);
 	}
 }

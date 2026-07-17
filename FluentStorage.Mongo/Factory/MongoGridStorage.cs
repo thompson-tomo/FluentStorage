@@ -3,7 +3,7 @@ using FluentStorage.Storage;
 using MongoDB.Driver;
 using System.Security.Cryptography.X509Certificates;
 
-namespace FluentStorage.Mongo.Factory {
+namespace FluentStorage {
 
 	/// <summary>
 	/// Factory methods for creating MongoDB GridFS stores.

@@ -3,7 +3,7 @@ using Aliyun.OSS.Common;
 using FluentStorage.Alibaba.Storage;
 using FluentStorage.Storage;
 
-namespace FluentStorage.Alibaba.Factory {
+namespace FluentStorage {
 
 	/// <summary>
 	/// Factory methods for creating Alibaba Cloud OSS stores.

@@ -2,7 +2,7 @@
 using FluentStorage.Storage;
 using Minio;
 
-namespace FluentStorage.Minio.Factory {
+namespace FluentStorage {
 
 	/// <summary>
 	/// Factory methods for creating MinIO stores.

@@ -1,7 +1,7 @@
 ﻿using FluentStorage.AWS.Storage;
 using FluentStorage.Storage;
 
-namespace FluentStorage.AWS.Factory {
+namespace FluentStorage {
 	/// <summary>
 	/// Vultr Object Storage factory to create instances of `IStore` using this provider.
 	/// </summary>

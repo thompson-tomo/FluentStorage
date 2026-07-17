@@ -2,7 +2,7 @@
 using FluentStorage.AWS.Messaging;
 using FluentStorage.Queue;
 
-namespace FluentStorage.AWS.Factory {
+namespace FluentStorage {
 	/// <summary>
 	/// Amazon Web Services SQS factory to create instances of `IQueue` using this provider.
 	/// </summary>

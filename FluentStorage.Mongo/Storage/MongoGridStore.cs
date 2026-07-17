@@ -11,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -223,6 +222,10 @@ namespace FluentStorage.Mongo.Storage {
 			});
 		}
 
+		// ------------------------------------------------------------------
+		// Seeking/Streaming
+		// ------------------------------------------------------------------
+
 		public override async Task<Stream> OpenRange(string path, long offset, long length, CancellationToken cancellationToken = default) {
 			if (string.IsNullOrWhiteSpace(path)) throw new ArgumentNullException(nameof(path));
 			if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
@@ -242,6 +245,19 @@ namespace FluentStorage.Mongo.Storage {
 
 		public override bool IsSeekable() {
 			return true;
+		}
+
+		public override async Task<long> GetObjectLength(string path, long defaultValue = -1, CancellationToken cancellationToken = default) {
+			if (string.IsNullOrWhiteSpace(path)) return defaultValue;
+
+			try {
+				GridFSFileInfo info = await FindLatestAsync(_bucket, NormalizePath(path), cancellationToken).ConfigureAwait(false);
+				return info?.Length ?? defaultValue;
+			}
+			catch {
+				// Per spec: absorb all exceptions here and fall back to defaultValue.
+				return defaultValue;
+			}
 		}
 
 		// ------------------------------------------------------------------
@@ -435,23 +451,6 @@ namespace FluentStorage.Mongo.Storage {
 		}
 
 		// ------------------------------------------------------------------
-		// Length
-		// ------------------------------------------------------------------
-
-		public override async Task<long> GetObjectLength(string path, long defaultValue = -1, CancellationToken cancellationToken = default) {
-			if (string.IsNullOrWhiteSpace(path)) return defaultValue;
-
-			try {
-				GridFSFileInfo info = await FindLatestAsync(_bucket, NormalizePath(path), cancellationToken).ConfigureAwait(false);
-				return info?.Length ?? defaultValue;
-			}
-			catch {
-				// Per spec: absorb all exceptions here and fall back to defaultValue.
-				return defaultValue;
-			}
-		}
-
-		// ------------------------------------------------------------------
 		// Listing
 		// ------------------------------------------------------------------
 
@@ -462,6 +461,7 @@ namespace FluentStorage.Mongo.Storage {
 			string prefix = NormalizePath(options.FolderPath);
 			string prefixWithSlash = string.IsNullOrEmpty(prefix) ? string.Empty : prefix + "/";
 
+			// build the search criteria
 			FilterDefinition<GridFSFileInfo> filter = Builders<GridFSFileInfo>.Filter.Empty;
 			if (!string.IsNullOrEmpty(prefixWithSlash)) {
 				filter = Builders<GridFSFileInfo>.Filter.Regex(
@@ -472,6 +472,7 @@ namespace FluentStorage.Mongo.Storage {
 			var findOptions = new GridFSFindOptions();
 			if (options.PageSize.HasValue) findOptions.BatchSize = options.PageSize;
 
+			// collect all files that meet the search criteria
 			List<GridFSFileInfo> allFiles;
 			using (IAsyncCursor<GridFSFileInfo> cursor = await _bucket.FindAsync(filter, findOptions, cancellationToken).ConfigureAwait(false)) {
 				allFiles = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
@@ -487,7 +488,9 @@ namespace FluentStorage.Mongo.Storage {
 			var result = new List<StoreObject>();
 			var seenFolders = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+			// per latest file
 			foreach (GridFSFileInfo info in latestPerFile) {
+
 				string filename = info.Filename;
 				if (!string.IsNullOrEmpty(prefixWithSlash) &&
 					!filename.StartsWith(prefixWithSlash, StringComparison.OrdinalIgnoreCase)) {
@@ -502,6 +505,7 @@ namespace FluentStorage.Mongo.Storage {
 
 				int slashIdx = relative.IndexOf('/');
 
+				// skip this if it is inside a "subfolder" and recursion is disabled
 				if (!options.Recurse && slashIdx >= 0) {
 
 					// Emit a synthetic folder entry, once, for this immediate subfolder.

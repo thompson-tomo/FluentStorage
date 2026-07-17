@@ -24,6 +24,14 @@ namespace FluentStorage.Alibaba.Storage {
 		private volatile bool _bucketChecked;
 		private readonly SemaphoreSlim _bucketCheckLock = new SemaphoreSlim(1, 1);
 
+		public AlibabaStore(OssClient client, string bucketName) {
+			if (client == null) throw new ArgumentNullException(nameof(client));
+			if (string.IsNullOrWhiteSpace(bucketName)) throw new ArgumentNullException(nameof(bucketName));
+
+			_bucketName = bucketName;
+			_client = client;
+		}
+
 		public AlibabaStore(string endpoint, string bucketName, string accessKeyId, string accessKeySecret) {
 			if (string.IsNullOrWhiteSpace(endpoint)) throw new ArgumentNullException(nameof(endpoint));
 			if (string.IsNullOrWhiteSpace(bucketName)) throw new ArgumentNullException(nameof(bucketName));

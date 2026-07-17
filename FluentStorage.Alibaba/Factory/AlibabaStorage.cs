@@ -1,9 +1,7 @@
-﻿using Aliyun.OSS.Common;
+﻿using Aliyun.OSS;
+using Aliyun.OSS.Common;
 using FluentStorage.Alibaba.Storage;
 using FluentStorage.Storage;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace FluentStorage.Alibaba.Factory {
 
@@ -17,11 +15,7 @@ namespace FluentStorage.Alibaba.Factory {
 		/// </summary>
 		public static IStore FromCredentials(string endpoint,string bucketName,string accessKeyId,string accessKeySecret) {
 
-			return new AlibabaStore(
-				endpoint,
-				bucketName,
-				accessKeyId,
-				accessKeySecret);
+			return new AlibabaStore(endpoint,bucketName,accessKeyId,accessKeySecret);
 		}
 
 		/// <summary>
@@ -30,12 +24,7 @@ namespace FluentStorage.Alibaba.Factory {
 		public static IStore FromCredentials(string endpoint, string bucketName, string accessKeyId,
 			string accessKeySecret, ClientConfiguration configuration) {
 
-			return new AlibabaStore(
-				endpoint,
-				bucketName,
-				accessKeyId,
-				accessKeySecret,
-				configuration);
+			return new AlibabaStore(endpoint,bucketName,accessKeyId,accessKeySecret,configuration);
 		}
 
 		/// <summary>
@@ -44,12 +33,15 @@ namespace FluentStorage.Alibaba.Factory {
 		public static IStore FromSts(string endpoint,string bucketName,string accessKeyId,
 			string accessKeySecret,string securityToken) {
 
-			return new AlibabaStore(
-				endpoint,
-				bucketName,
-				accessKeyId,
-				accessKeySecret,
-				securityToken);
+			return new AlibabaStore(endpoint,bucketName,accessKeyId,accessKeySecret,securityToken);
+		}
+
+		/// <summary>
+		/// Creates a Alibaba OSS storage provider using an existing Aliyun Client.
+		/// </summary>
+		public static IStore FromClient(OssClient client, string bucketName) {
+
+			return new AlibabaStore(client, bucketName);
 		}
 	}
 }

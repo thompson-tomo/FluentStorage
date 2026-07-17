@@ -68,7 +68,6 @@ namespace FluentStorage.SFTP {
 		/// Initializes a new instance of the <see cref="T:FluentStorage.SFTP.SshNetSftpBlobStorage" /> class.
 		/// </summary>
 		/// <param name="connectionInfo">The connection info.</param>
-		/// <exception cref="T:System.ArgumentNullException"><paramref name="connectionInfo" /> is <b>null</b>.</exception>
 		public SftpStore(ConnectionInfo connectionInfo)
 		  : this(new SftpClient(connectionInfo), true) {
 		}
@@ -81,9 +80,6 @@ namespace FluentStorage.SFTP {
 		/// <param name="username">Authentication username.</param>
 		/// <param name="password">Authentication password.</param>
 		/// <param name="path">Starting root directory or null.</param>
-		/// <exception cref="T:System.ArgumentNullException"><paramref name="password" /> is <b>null</b>.</exception>
-		/// <exception cref="T:System.ArgumentException"><paramref name="host" /> is invalid. <para>-or-</para> <paramref name="username" /> is <b>null</b> or contains only whitespace characters.</exception>
-		/// <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="port" /> is not within <see cref="F:System.Net.IPEndPoint.MinPort" /> and <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
 		public SftpStore(string host, int port, string username, string password, string path)
 		  : this(new SftpClient(host, port, username, password), true) {
 			RootDirectory = path;
@@ -95,8 +91,6 @@ namespace FluentStorage.SFTP {
 		/// <param name="host">Connection host.</param>
 		/// <param name="username">Authentication username.</param>
 		/// <param name="password">Authentication password.</param>
-		/// <exception cref="T:System.ArgumentNullException"><paramref name="password" /> is <b>null</b>.</exception>
-		/// <exception cref="T:System.ArgumentException"><paramref name="host" /> is invalid. <para>-or-</para> <paramref name="username" /> is <b>null</b> contains only whitespace characters.</exception>
 		public SftpStore(string host, string username, string password)
 		  : this(new SftpClient(host, username, password), true) {
 		}
@@ -108,9 +102,6 @@ namespace FluentStorage.SFTP {
 		/// <param name="port">Connection port.</param>
 		/// <param name="username">Authentication username.</param>
 		/// <param name="keyFiles">Authentication private key file(s) .</param>
-		/// <exception cref="T:System.ArgumentNullException"><paramref name="keyFiles" /> is <b>null</b>.</exception>
-		/// <exception cref="T:System.ArgumentException"><paramref name="host" /> is invalid. <para>-or-</para> <paramref name="username" /> is nu<b>null</b>ll or contains only whitespace characters.</exception>
-		/// <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="port" /> is not within <see cref="F:System.Net.IPEndPoint.MinPort" /> and <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
 		public SftpStore(string host, int port, string username, params PrivateKeyFile[] keyFiles)
 		  : this(new SftpClient(host, port, username, keyFiles), true) {
 		}
@@ -121,8 +112,6 @@ namespace FluentStorage.SFTP {
 		/// <param name="host">Connection host.</param>
 		/// <param name="username">Authentication username.</param>
 		/// <param name="keyFiles">Authentication private key file(s) .</param>
-		/// <exception cref="T:System.ArgumentNullException"><paramref name="keyFiles" /> is <b>null</b>.</exception>
-		/// <exception cref="T:System.ArgumentException"><paramref name="host" /> is invalid. <para>-or-</para> <paramref name="username" /> is <b>null</b> or contains only whitespace characters.</exception>
 		public SftpStore(string host, string username, params PrivateKeyFile[] keyFiles)
 		  : this(new SftpClient(host, username, keyFiles), true) {
 		}
@@ -131,8 +120,7 @@ namespace FluentStorage.SFTP {
 		/// Initializes a new instance of the <see cref="T:FluentStorage.SFTP.SshNetSftpBlobStorage" /> class.
 		/// </summary>
 		/// <param name="sftpClient">The SFTP client.</param>
-		/// <param name="disposeClient">if set to <see langword="true" /> [dispose client].</param>
-		/// <exception cref="System.ArgumentNullException">sftpClient</exception>
+		/// <param name="disposeClient">if set to true [dispose client].</param>
 		public SftpStore(SftpClient sftpClient, bool disposeClient = false) {
 			_client = sftpClient ?? throw new ArgumentNullException(nameof(sftpClient));
 			_client.HostKeyReceived += (sender, args) => { };
@@ -370,7 +358,7 @@ namespace FluentStorage.SFTP {
 			}
 		}
 
-		public override async Task<Stream> OpenRange(string fullPath,long offset,long length, CancellationToken cancellationToken = default) {
+		public override async Task<Stream> OpenRange(string fullPath, long offset, long length, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 
 			fullPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
@@ -530,7 +518,7 @@ namespace FluentStorage.SFTP {
 		/// <summary>
 		/// Releases unmanaged and - optionally - managed resources.
 		/// </summary>
-		/// <param name="disposing"><see langword="true" /> to release both managed and unmanaged resources; <see langword="false" /> to release only unmanaged resources.</param>
+		/// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
 		protected virtual void Dispose(bool disposing) {
 			if (_disposed) {
 				return;
@@ -547,7 +535,6 @@ namespace FluentStorage.SFTP {
 		/// <summary>
 		/// Throws an <see cref="T:System.ObjectDisposedException" /> if this object has been disposed.
 		/// </summary>
-		/// <exception cref="T:System.ObjectDisposedException">The current instance is disposed.</exception>
 		protected void ThrowIfDisposed() {
 			if (_disposed) {
 				throw new ObjectDisposedException(GetType().FullName);

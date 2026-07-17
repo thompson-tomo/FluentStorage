@@ -26,13 +26,6 @@ namespace FluentStorage.Minio.Factory {
 		}
 
 		/// <summary>
-		/// Wraps a preconfigured MinIO Client into a storage provider.
-		/// </summary>
-		public static IStore FromClient(IMinioClient existingClient, string bucketName) {
-			return new MinioStore(existingClient, bucketName);
-		}
-
-		/// <summary>
 		/// Creates a MinIO storage provider using auto-resolved EC2/ECS/EKS IAM credentials.
 		/// </summary>
 		public static IStore FromIamRole(string endpoint, string bucketName,
@@ -50,6 +43,13 @@ namespace FluentStorage.Minio.Factory {
 			string region = null, string stsEndpoint = null) {
 			return new MinioStore(endpoint,accessKey,secretKey,roleArn,bucketName,roleSessionName,
 				externalId,policy,durationInSeconds,useSsl,region,stsEndpoint);
+		}
+
+		/// <summary>
+		/// Wraps a preconfigured MinIO Client into a storage provider.
+		/// </summary>
+		public static IStore FromClient(IMinioClient existingClient, string bucketName) {
+			return new MinioStore(existingClient, bucketName);
 		}
 
 	}

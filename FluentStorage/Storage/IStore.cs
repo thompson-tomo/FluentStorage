@@ -460,7 +460,7 @@ namespace FluentStorage.Storage {
 		// ---------------------------------------------------------------------
 		// Retention Policy
 		// ---------------------------------------------------------------------
-
+		/*
 		/// <summary>
 		/// Returns the retention policy applied to the specified object.
 		/// Returns null if no retention policy is configured, or the object cannot be found.
@@ -480,13 +480,13 @@ namespace FluentStorage.Storage {
 		/// Returns true if succeeded, or false if the object cannot be found.
 		/// </summary>
 		Task<bool> ClearObjectRetentionPolicy(string objectPath, CancellationToken cancellationToken = default);
-
+		*/
 
 		// ---------------------------------------------------------------------
 		// Object Lock
 		// ---------------------------------------------------------------------
 
-		/// <summary>
+		/*/// <summary>
 		/// Returns the object lock configuration for the specified object.
 		/// Returns null if object locking is not enabled, or the object cannot be found.
 		/// Returns true if succeeded, or false if the object cannot be found.
@@ -504,6 +504,6 @@ namespace FluentStorage.Storage {
 		/// The provider may prevent removal while the object is protected.
 		/// Returns true if succeeded, or false if the object cannot be found.
 		/// </summary>
-		Task<bool> ClearObjectLock(string objectPath, CancellationToken cancellationToken = default);
+		Task<bool> ClearObjectLock(string objectPath, CancellationToken cancellationToken = default);*/
 	}
 }

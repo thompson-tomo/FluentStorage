@@ -625,7 +625,7 @@ namespace FluentStorage.Storage {
 		// Retention Policy
 		// ---------------------------------------------------------------------
 
-		public virtual async Task<StorageRetentionPolicy> GetObjectRetentionPolicy(string objectPath, CancellationToken cancellationToken = default) {
+		/*public virtual async Task<StorageRetentionPolicy> GetObjectRetentionPolicy(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
@@ -635,14 +635,14 @@ namespace FluentStorage.Storage {
 
 		public virtual async Task<bool> ClearObjectRetentionPolicy(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
-		}
+		}*/
 
 
 		// ---------------------------------------------------------------------
 		// Object Lock
 		// ---------------------------------------------------------------------
 
-		public virtual async Task<StorageObjectLock> GetObjectLock(string objectPath, CancellationToken cancellationToken = default) {
+		/*public virtual async Task<StorageObjectLock> GetObjectLock(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
@@ -652,7 +652,7 @@ namespace FluentStorage.Storage {
 
 		public virtual async Task<bool> ClearObjectLock(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
-		}
+		}*/
 
 	}
 }

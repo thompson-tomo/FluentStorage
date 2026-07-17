@@ -4,6 +4,7 @@
  - **FluentStorage**
    - IStore: Improve interface signatures of object versioning APIs, tagging APIs and storage tier APIs
    - IStore: Change `IsFileSystem`, `IsSeekable` to async to align with other feature check APIs
+   - IStore: Add `IsVersioned`, `IsTagged` and `IsTiered` to check if providers support new features
    - Assertions: Remove `AssertFullPath` and handle it inline in all APIs
  - **FluentStorage.AWS**
    - Add versioning APIs: `IsVersioned`, `ListObjectVersions`, `GetObjectVersion`, `RestoreObjectVersion`, `DeleteObjectVersion`

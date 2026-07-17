@@ -42,7 +42,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 
 			//check we can connect and list containers
 			IStore sasInstance = AzureBlobStorage.FromSas(sas);
-			List<StoreObject> containers = await sasInstance.ListDirectory(StoragePath.RootFolderPath);
+			List<StoreObject> containers = await sasInstance.ListDirectory("/");
 			Assert.True(containers.Count > 0);
 		}
 

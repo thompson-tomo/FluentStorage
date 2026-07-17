@@ -227,7 +227,7 @@ namespace FluentStorage.Azure.Blobs.Utils {
 			string[] parts = StoragePath.Split(path);
 
 			string fs = parts[0];
-			string relativePath = StoragePath.Normalize(StoragePath.Combine(parts.Skip(1)), true);
+			string relativePath = StoragePath.Normalize(StoragePath.Combine(parts.Skip(1)));
 
 			var list = new List<Gen2Path>();
 
@@ -393,7 +393,7 @@ namespace FluentStorage.Azure.Blobs.Utils {
 
 			filesystemName = parts[0];
 
-			relativePath = StoragePath.Normalize(StoragePath.Combine(parts.Skip(1)), true);
+			relativePath = StoragePath.Normalize(StoragePath.Combine(parts.Skip(1)));
 		}
 
 	}

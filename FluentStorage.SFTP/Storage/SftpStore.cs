@@ -82,7 +82,7 @@ namespace FluentStorage.SFTP {
 		/// <param name="path">Starting root directory or null.</param>
 		public SftpStore(string host, int port, string username, string password, string path)
 		  : this(new SftpClient(host, port, username, password), true) {
-			RootDirectory = path;
+			RootDirectory = StoragePath.Normalize(path);
 		}
 
 		/// <summary>
@@ -131,6 +131,10 @@ namespace FluentStorage.SFTP {
 			return true;
 		}
 
+		private string NormalizeSftpPath(string path) {
+			return "/" + StoragePath.Combine(RootDirectory, StoragePath.Normalize(path));
+		}
+
 		/// <summary>
 		/// Deletes a list of objects by their full path.
 		/// </summary>
@@ -157,7 +161,7 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
-			fullPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
+			fullPath = NormalizeSftpPath(fullPath);
 
 			client.Delete(fullPath);
 		}
@@ -192,7 +196,7 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
-			fullPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
+			fullPath = NormalizeSftpPath(fullPath);
 
 			bool fullPathExists = client.Exists(fullPath);
 
@@ -208,7 +212,7 @@ namespace FluentStorage.SFTP {
 			SftpClient client = Client();
 
 			var results = new List<StoreObject>();
-			var fullPathsWithRoot = fullPaths.Select(fullPath => StoragePath.Combine(RootDirectory, fullPath));
+			var fullPathsWithRoot = fullPaths.Select(fullPath => NormalizeSftpPath(fullPath));
 			foreach (IGrouping<string, string> fullPathGrouping in fullPathsWithRoot.GroupBy(StoragePath.GetParent)) {
 				string fullPath = fullPathGrouping.SingleOrDefault();
 
@@ -266,7 +270,7 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
-			var folder = StoragePath.Combine(RootDirectory, StoragePath.Normalize(options.FolderPath));
+			var folder = NormalizeSftpPath(options.FolderPath);
 
 			var blobCollection = await ListDirectoryAsync(client, folder, options, cancellationToken);
 
@@ -341,7 +345,7 @@ namespace FluentStorage.SFTP {
 		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 
-			fullPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
+			fullPath = NormalizeSftpPath(fullPath);
 
 			SftpClient client = Client();
 
@@ -361,7 +365,7 @@ namespace FluentStorage.SFTP {
 		public override async Task<Stream> OpenRange(string fullPath, long offset, long length, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 
-			fullPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
+			fullPath = NormalizeSftpPath(fullPath);
 
 			SftpClient client = Client();
 
@@ -378,7 +382,7 @@ namespace FluentStorage.SFTP {
 			try {
 				ThrowIfDisposed();
 
-				fullPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
+				fullPath = NormalizeSftpPath(fullPath);
 
 				SftpClient client = Client();
 
@@ -401,8 +405,8 @@ namespace FluentStorage.SFTP {
 			if (string.IsNullOrWhiteSpace(oldPath)) throw new ArgumentNullException(nameof(oldPath));
 			if (string.IsNullOrWhiteSpace(newPath)) throw new ArgumentNullException(nameof(newPath));
 
-			oldPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(oldPath));
-			newPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(newPath));
+			oldPath = NormalizeSftpPath(oldPath);
+			newPath = NormalizeSftpPath(newPath);
 
 			SftpClient client = Client();
 
@@ -430,7 +434,7 @@ namespace FluentStorage.SFTP {
 			ThrowIfDisposed();
 
 			SftpClient client = Client();
-			var fullPathWithRoot = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
+			var fullPathWithRoot = NormalizeSftpPath(fullPath);
 			var fileMode = append ? FileMode.Append : FileMode.OpenOrCreate;
 
 			// First, for speed, let's try to write the file assuming the directory requested already exists.
@@ -448,25 +452,36 @@ namespace FluentStorage.SFTP {
 				// If the folder did not exist, continue below.
 			}
 
-			// Create any non-existing directories. We'll need to recursively check each part and
-			// create if it does not exist.
+			// get dir parts
 			var parts = StoragePath.Split(fullPath).ToList();
 			parts.RemoveAt(parts.Count - 1);
 
+			// retry multiple times
 			await _retryPolicy.ExecuteAsync(async () => {
-				var fullFolder = RootDirectory;
-				foreach (var folder in parts) {
-					fullFolder = StoragePath.Combine(fullFolder, folder);
-					if (!client.Exists(fullFolder))
-						client.CreateDirectory(fullFolder);
+
+				string currentFolder = string.Empty;
+
+				// Create any non-existing directories.
+				// // recursively check each part and create if it does not exist
+				foreach (string folder in parts) {
+					currentFolder = StoragePath.Combine(currentFolder, folder);
+
+					string sftpFolder = NormalizeSftpPath(currentFolder);
+
+					if (!client.Exists(sftpFolder)) {
+						client.CreateDirectory(sftpFolder);
+					}
 				}
 
-				using (Stream dest = client.Open(fullPathWithRoot, fileMode, FileAccess.Write)) {
+				// opne a write stream to this file
+				using (Stream dest = client.Open(NormalizeSftpPath(fullPath), fileMode, FileAccess.Write)) {
 					await dataStream.CopyToAsync(dest).ConfigureAwait(false);
-					if (append == false && SetLengthOnNewStream) {
+
+					if (!append && SetLengthOnNewStream) {
 						dest.SetLength(dataStream.Length);
 					}
 				}
+
 			}).ConfigureAwait(false);
 		}
 
@@ -585,7 +600,7 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
-			folderPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(folderPath));
+			folderPath = NormalizeSftpPath(folderPath);
 
 			client.CreateDirectory(folderPath);
 		}
@@ -599,7 +614,7 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
-			folderPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(folderPath));
+			folderPath = NormalizeSftpPath(folderPath);
 
 			if (await DirectoryExists(folderPath, cancellationToken)) {
 				if (recursive) {
@@ -640,7 +655,7 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
-			folderPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(folderPath));
+			folderPath = NormalizeSftpPath(folderPath);
 
 			return client.Exists(folderPath) && client.GetAttributes(folderPath).IsDirectory;
 		}
@@ -654,8 +669,8 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
-			sourceFolderPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(sourceFolderPath));
-			destinationFolderPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(destinationFolderPath));
+			sourceFolderPath = NormalizeSftpPath(sourceFolderPath);
+			destinationFolderPath = NormalizeSftpPath(destinationFolderPath);
 
 			client.RenameFile(sourceFolderPath, destinationFolderPath);
 		}
@@ -671,7 +686,7 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
-			filePath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(filePath));
+			filePath = NormalizeSftpPath(filePath);
 
 			var attributes = client.GetAttributes(filePath);
 
@@ -693,7 +708,7 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
-			filePath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(filePath));
+			filePath = NormalizeSftpPath(filePath);
 
 			client.ChangePermissions(filePath, (short)permissions);
 		}
@@ -711,7 +726,7 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
-			fullPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
+			fullPath = NormalizeSftpPath(fullPath);
 
 			client.DownloadFile(fullPath, File.Create(filePath));
 		}
@@ -729,7 +744,7 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
-			fullPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
+			fullPath = NormalizeSftpPath(fullPath);
 
 			using FileStream stream = File.OpenRead(filePath);
 
@@ -746,7 +761,7 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
-			fullPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
+			fullPath = NormalizeSftpPath(fullPath);
 
 			using MemoryStream stream = new();
 
@@ -771,7 +786,7 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
-			fullPath = StoragePath.Combine(RootDirectory, StoragePath.Normalize(fullPath));
+			fullPath = NormalizeSftpPath(fullPath);
 
 			using Stream stream = append
 				? client.Open(fullPath, FileMode.Append, FileAccess.Write)

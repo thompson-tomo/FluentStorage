@@ -303,8 +303,8 @@ namespace FluentStorage.Model {
 			string path = StoragePath.Normalize(fullPath);
 
 			if (StoragePath.IsRootPath(path)) {
-				Name = StoragePath.RootFolderPath;
-				FolderPath = StoragePath.RootFolderPath;
+				Name = "";
+				FolderPath = "";
 			}
 			else {
 				string[] parts = StoragePath.Split(path);

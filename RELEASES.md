@@ -6,7 +6,16 @@
    - Move `DelegatedStream` and `NonCloseableStream` into `FluentStorage.Storage.Sinks` NS
    - Rename `SinkedBlobStorage` to `SinkedStore`
    - Remove `RandomGenerator` and move it into testing project
-
+   - DiskStore: `GetObjects` will now return all objects in the main directory recursively by default
+   - Paths: `StoragePath.Normalize` has been completely rewritten to offer a unified path system across all disk and cloud stores
+   - Paths: `StoragePath.Combine`, `StoragePath.Split`, `StoragePath.GetParent`, is completely rewritten for performance
+   - Paths: Removed from `StoragePath`: `ComparePath`, `RemoveRootFolder`, `GetRootFolder`, `Rename`
+ - **FluentStorage.SFTP**
+   - Paths: New SFTP path normalization system that works with updated `StoragePath` normalization
+ - **FluentStorage.Tests**
+   - Merge all tests into a single project, cleanly seperating unit and integration tests
+   - New tests for path normalization (`StoragePath.Normalize`), path combination (`StoragePath.Combine1`) and path splitting (`StoragePath.Split`)
+   
 #### FluentStorage 8.0.5
  - **FluentStorage**
    - IStore: Implement new object versioning APIs, tagging APIs and storage tier APIs

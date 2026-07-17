@@ -297,7 +297,7 @@ namespace FluentStorage.AWS.Storage {
 
 			// Compute the full object path.
 			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
-			fullPath = StoragePath.Normalize(fullPath, true);
+			fullPath = StoragePath.Normalize(fullPath);
 
 			// Auto compute a MIME type (content type) if not given
 			if (contentType == null) {
@@ -344,7 +344,7 @@ namespace FluentStorage.AWS.Storage {
 		public override async Task<Stream> OpenRead(string fullPath, CancellationToken cancellationToken = default) {
 			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
 
-			fullPath = StoragePath.Normalize(fullPath, true);
+			fullPath = StoragePath.Normalize(fullPath);
 			GetObjectResponse response = await GetObjectAsync(fullPath).ConfigureAwait(false);
 			if (response == null)
 				return null;
@@ -362,7 +362,7 @@ namespace FluentStorage.AWS.Storage {
 			// exit if file exists and overwriting is disabled
 			if (!overwrite && await ObjectExists(fullPath, cancellationToken)) return null;
 
-			fullPath = StoragePath.Normalize(fullPath, true);
+			fullPath = StoragePath.Normalize(fullPath);
 
 			MemoryStream stream = new();
 
@@ -447,7 +447,7 @@ namespace FluentStorage.AWS.Storage {
 
 			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
 
-			fullPath = StoragePath.Normalize(fullPath, true);
+			fullPath = StoragePath.Normalize(fullPath);
 
 			await client.DeleteObjectAsync(_bucketName, fullPath, cancellationToken).ConfigureAwait(false);
 			using (var browser = new S3DirectoryBrowser(client, _bucketName)) {
@@ -473,7 +473,7 @@ namespace FluentStorage.AWS.Storage {
 
 			try {
 				AmazonS3Client client = await Client().ConfigureAwait(false);
-				fullPath = StoragePath.Normalize(fullPath, true);
+				fullPath = StoragePath.Normalize(fullPath);
 				await client.GetObjectMetadataAsync(_bucketName, fullPath, cancellationToken).ConfigureAwait(false);
 				return true;
 			}
@@ -500,7 +500,7 @@ namespace FluentStorage.AWS.Storage {
 		/// </summary>
 		public override async Task<StoreObject> GetObjectInfo(string fullPath, CancellationToken cancellationToken = default) {
 			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
-			fullPath = StoragePath.Normalize(fullPath, true);
+			fullPath = StoragePath.Normalize(fullPath);
 
 			AmazonS3Client client = await Client().ConfigureAwait(false);
 
@@ -538,7 +538,7 @@ namespace FluentStorage.AWS.Storage {
 					   client,
 					   blob,
 					   _bucketName,
-					   StoragePath.Normalize(blob.FullPath, true)).ConfigureAwait(false);
+					   StoragePath.Normalize(blob.FullPath)).ConfigureAwait(false);
 				}
 			}
 		}
@@ -589,7 +589,7 @@ namespace FluentStorage.AWS.Storage {
 			var request = new GetPreSignedUrlRequest() {
 				BucketName = _bucketName,
 				Expires = DateTime.UtcNow.AddSeconds(expiresInSeconds),
-				Key = StoragePath.Normalize(fullPath, true),
+				Key = StoragePath.Normalize(fullPath),
 				Protocol = https ? Protocol.HTTPS : Protocol.HTTP,
 				Verb = forDownload ? HttpVerb.GET : HttpVerb.PUT,
 			};
@@ -633,7 +633,7 @@ namespace FluentStorage.AWS.Storage {
 
 			await client.PutObjectAclAsync(new PutObjectAclRequest {
 				BucketName = _bucketName,
-				Key = StoragePath.Normalize(fullPath, true),
+				Key = StoragePath.Normalize(fullPath),
 				ACL = s3CannedAcl
 			});
 		}

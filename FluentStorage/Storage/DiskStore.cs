@@ -150,7 +150,7 @@ namespace FluentStorage.Storage {
 		public override async Task<List<StoreObject>> ListObjects(StorageListOptions options, CancellationToken cancellationToken = default) {
 
 			// Apply default options
-			if (options == null) options = new StorageListOptions();
+			if (options == null) options = new StorageListOptions() { Recurse = true };
 
 			// Validate search prefix
 			ArgValidator.AssertPrefix(options.FilePrefix);
@@ -191,10 +191,12 @@ namespace FluentStorage.Storage {
 			);
 
 			// apply filters and result limits
-			result = result
-				.Where(i => options.BrowseFilter == null || options.BrowseFilter(i))
-				.Take(options.MaxResults ?? int.MaxValue)
-				.ToList();
+			if (options.BrowseFilter != null) {
+				result = result.Where(i => options.BrowseFilter(i)).ToList();
+			}
+			if (options.MaxResults != null) {
+				result = result.Take(options.MaxResults.Value).ToList();
+			}
 
 			return result;
 		}

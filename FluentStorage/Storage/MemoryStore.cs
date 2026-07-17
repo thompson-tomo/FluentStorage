@@ -33,7 +33,8 @@ namespace FluentStorage.Storage {
 				}
 			}
 			else {
-				query = query.Where(p => StoragePath.ComparePath(p.Value.blob.FolderPath, options.FolderPath));
+				var fPath = StoragePath.Normalize(options.FolderPath);
+				query = query.Where(p => p.Value.blob.FolderPath == fPath);
 			}
 
 			//prefix

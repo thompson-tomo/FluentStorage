@@ -11,8 +11,8 @@
 		}
 
 		[Theory]
-		[InlineData("/", null, "/")]
-		[InlineData("/f0/f1", "f2", "/f2/f0")]
+		[InlineData("/", null, "")]
+		[InlineData("/f0/f1", "f2", "f2/f0")]
 		public void Prepend_path(string path, string prefix, string expected) {
 			var blob = new StoreObject(path, StorageObjectType.Folder);
 			blob.PrependPath(prefix);

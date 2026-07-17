@@ -394,6 +394,37 @@ Stable binaries are released on NuGet, and contain everything you need to use Cl
 
 
 
+
+## Concept Mapping
+
+This table shows the API and the provider-specific concept it maps to:
+
+| Concept              | AWS S3                    | Azure Blob                       | GCP                |
+| -------------------- | -------------------------------------- | -------------------------------- | ------------------ |
+| **Versioning API**   | Object Versions                        | Blob Versions                    | Object Generations |
+| **Tagging API**      | Object Tags                            | Blob Index Tags <br> / Blob Tags  | Custom Metadata    |
+| **Metadata API**     | Object Metadata                        | Blob Metadata                    | Object Metadata    |
+| **Storage Tier**     | Storage Class                           | Access Tier                     | Storage Class      |
+| **Retention API**    | Object Lock Retention                  | Immutability Policy              | Retention Policy   |
+| **Locking API**      | Object Lock Configuration <br> / Legal Hold | Legal Hold <br> + Immutability Policy | Object Holds       |
+
+## Storage Tier Mapping
+
+This table shows the FluentStorage `StorageTier` enum and the provider-specific tier it maps to:
+
+
+| Concept                   | AWS S3              | Azure Blob        |    GCP           |
+| ------------------------- | ---------------------- | -------------- | ------------------ |
+| `StorageTier.Standard`    | `STANDARD`            | `Hot`          | `STANDARD`         |
+| `StorageTier.Intelligent` | `INTELLIGENT_TIERING` | `AutoTiering`  | `AUTOCLASS`        |
+| `StorageTier.Nearline`    | `STANDARD_IA`         | `Cool`         | `NEARLINE`         |
+| `StorageTier.Cold`        | `GLACIER_IR`          | `Cold`         | `COLDLINE`         |
+| `StorageTier.Archive`     | `GLACIER`             | `Archive`      | `ARCHIVE`          |
+| `StorageTier.DeepArchive` | `DEEP_ARCHIVE`        | `Archive`      | `ARCHIVE`          |
+
+
+
+
 ## Platform Support
 
 FluentStorage works on .NET and .NET Standard/.NET Core.
@@ -437,20 +468,6 @@ Thus was born the idea for FluentStorage.
 You can use a single, consistent API to interact with multiple cloud providers, where each provider is supported through its own special Nuget package.
 
 ![Arch](https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/arch-with.png)
-
-
-
-## Benefits
-
-1. Easy to write code that is not tied to a specific cloud provider.
-
-2. Easily switch between different providers without having to rewrite any part of their application or service.
-
-3. Easily migrate to using a new storage technology for some part of your cloud application (S3 buckets, Azure Blobs, FTP, etc.)
-
-4. Natively implement polycloud (support for multiple public clouds)
-
-
 
 
 

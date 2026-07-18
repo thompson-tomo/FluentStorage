@@ -105,7 +105,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 
 <tr>
-<td colspan="11"><b>File upload/download</b></td>
+<td colspan="11"><b>File upload &#x2F; download</b></td>
 </tr>
 <tr>
 <td>&nbsp; GetObject</td>
@@ -141,7 +141,15 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 
 <tr>
-<td colspan="11"><b>Folder upload/download</b></td>
+<td colspan="11"><b>Folder upload &#x2F; download</b></td>
+</tr>
+<tr>
+<td>&nbsp; DownloadDirectory</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+</tr>
+<tr>
+<td>&nbsp; UploadDirectory</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 
@@ -160,7 +168,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 
 <tr>
-<td colspan="11"><b>File streaming/seeking</b></td>
+<td colspan="11"><b>File streaming &#x2F; seeking</b></td>
 </tr>
 <tr>
 <td>&nbsp; OpenRange</td>

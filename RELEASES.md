@@ -1,5 +1,11 @@
 ﻿# Release Notes
 
+#### FluentStorage 8.0.7
+ - **FluentStorage**
+   - Transfer: Add new APIs to `DownloadDirectory` and `UploadDirectory`, with default implementation for all stores
+ - **FluentStorage.FTP**
+   - Transfer: Special handling using native FluentFTP APIs for `DownloadDirectory` and `UploadDirectory`
+
 #### FluentStorage 8.0.6
  - **FluentStorage**
    - **Paths: A new [unified path system](https://github.com/robinrodricks/FluentStorage/wiki/Unified-Path-System) has been introduced across all providers!**

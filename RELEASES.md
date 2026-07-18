@@ -1,5 +1,9 @@
 ﻿# Release Notes
 
+#### FluentStorage 8.0.8
+ - **FluentStorage**
+   - `OpenSeekable`: Return null if the stream cannot be created or the object length cannot be determined
+
 #### FluentStorage 8.0.7
  - **FluentStorage**
    - Transfer: Add new APIs to `DownloadDirectory` and `UploadDirectory`, with default implementation for all stores

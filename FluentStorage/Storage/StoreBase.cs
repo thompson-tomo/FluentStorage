@@ -57,14 +57,23 @@ namespace FluentStorage.Storage {
 		}
 
 		public virtual async Task<SeekableStream> OpenSeekable(string path, int bufferSize = 65536, CancellationToken cancellationToken = default) {
-			if (!await IsSeekable()) throw new NotSupportedException();
-			if (!await ObjectExists(path)) return null;
+			try {
+				if (!await IsSeekable()) return null;
+				if (!await ObjectExists(path, cancellationToken)) return null;
 
-			var length = await GetObjectLength(path, -1, cancellationToken);
+				var length = await GetObjectLength(path, -1, cancellationToken);
 
-			long? objectLength = length != -1 ? length : null;
+				// FIX #151: do not return a SeekableStream if the object length cannot be determined
+				// because all streaming players require knowing the length of the object
+				if (length == -1) return null;
 
-			return new SeekableStream(this, path, bufferSize, objectLength);
+				return new SeekableStream(this, path, bufferSize, length);
+			}
+			catch (Exception ex) {
+
+				// silently absorb any wierd exceptions and just return null in case the stream cannot be created
+				return null;
+			}
 		}
 
 		public virtual async Task<long> GetObjectLength(string fullPath, long defaultValue = -1, CancellationToken cancellationToken = default) {

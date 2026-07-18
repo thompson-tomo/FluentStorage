@@ -140,6 +140,10 @@ This table shows the API supported by `IStore` across various cloud and server p
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
+<tr>
+<td colspan="11"><b>Folder upload/download</b></td>
+</tr>
+
 
 <tr>
 <th>API</th>

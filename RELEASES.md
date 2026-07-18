@@ -7,6 +7,7 @@
 #### FluentStorage 8.0.7
  - **FluentStorage**
    - Transfer: Add new APIs to `DownloadDirectory` and `UploadDirectory`, with default implementation for all stores
+   - Paths: Added `StoragePath.GetRelativeDiskPath` and `StoragePath.GetRelativeCloudPath` to compute relative paths
  - **FluentStorage.FTP**
    - Transfer: Special handling using native FluentFTP APIs for `DownloadDirectory` and `UploadDirectory`
 

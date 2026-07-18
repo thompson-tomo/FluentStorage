@@ -535,7 +535,7 @@ namespace FluentStorage.Storage {
 				cancellationToken.ThrowIfCancellationRequested();
 
 				var obj = objects[i];
-				string rel = StoragePath.GetRelativePath(remoteFolder, obj.FullPath);
+				string rel = StoragePath.GetRelativeCloudPath(remoteFolder, obj.FullPath);
 
 				// for some reason the object is not within the root folder, so skip it
 				if (rel.Length == 0) {

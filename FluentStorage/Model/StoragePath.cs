@@ -195,7 +195,7 @@ namespace FluentStorage {
 		/// </summary>
 		/// <param name="basePath">The base storage path.</param>
 		/// <param name="fullPath">The full storage path to make relative.</param>
-		public static string GetRelativePath(string basePath, string fullPath) {
+		public static string GetRelativeCloudPath(string basePath, string fullPath) {
 			basePath = Normalize(basePath);
 			fullPath = Normalize(fullPath);
 

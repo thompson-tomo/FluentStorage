@@ -141,7 +141,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 
 <tr>
-<td colspan="11"><b>Folder upload &#x2F; download</b></td>
+<td colspan="11"><b>Directory upload &#x2F; download</b></td>
 </tr>
 <tr>
 <td>&nbsp; DownloadDirectory</td>

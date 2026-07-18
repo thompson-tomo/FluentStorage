@@ -1,6 +1,8 @@
 ﻿using FluentFTP;
 using FluentFTP.Exceptions;
 using FluentStorage.Enums;
+using FluentStorage.Exceptions;
+using FluentStorage.FTP.Utils;
 using FluentStorage.Model;
 using FluentStorage.Storage;
 
@@ -426,6 +428,97 @@ namespace FluentStorage.FTP.Storage {
 
 			return await client.MoveFile(oldPath, newPath,
 				overwrite ? FtpRemoteExists.Overwrite : FtpRemoteExists.Skip, cancellationToken).ConfigureAwait(false);
+		}
+
+		/// <summary>
+		/// Upload a local disk folder onto the FTP server.
+		/// </summary>
+		public override async Task UploadDirectory(string localFolder,string remoteFolder,StorageExistsMode existsMode = StorageExistsMode.Skip,
+			Action<StorageProgress>? progress = null,CancellationToken cancellationToken = default) {
+
+			if (string.IsNullOrWhiteSpace(localFolder)) throw new ArgumentNullException(nameof(localFolder));
+			if (string.IsNullOrWhiteSpace(remoteFolder)) throw new ArgumentNullException(nameof(remoteFolder));
+
+			// exit if local folder doesnt exist
+			if (!Directory.Exists(localFolder)) return;
+
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
+
+			remoteFolder = StoragePath.Normalize(remoteFolder);
+
+			// manually support the "Throw" mode which FluentFTP does not 
+			if (existsMode == StorageExistsMode.Throw) {
+				foreach (string file in Directory.EnumerateFiles(localFolder, "*", SearchOption.AllDirectories)) {
+					cancellationToken.ThrowIfCancellationRequested();
+
+					string relative = StoragePath.Normalize(StoragePath.GetRelativeDiskPath(localFolder, file));
+					string remoteFile = StoragePath.Combine(remoteFolder, relative);
+
+					if (await ObjectExists(remoteFile, cancellationToken).ConfigureAwait(false))
+						throw new IOException($"Object '{remoteFile}' already exists.");
+				}
+			}
+
+
+			// add a progress handler to FluentFTP call if its given
+			IProgress<FtpProgress>? ftpProgress = null;
+			if (progress != null) {
+				ftpProgress = new Progress<FtpProgress>(p =>{progress(FtpFolderUtils.ConvertProgress(p));});
+			}
+
+			// use FluentFTP `UploadDirectory` to handle the entire operation
+			await client.UploadDirectory(localFolder,remoteFolder,FtpFolderSyncMode.Update,
+				FtpFolderUtils.UploadFolderMap[existsMode],FtpVerify.None,null, ftpProgress, cancellationToken);
+
+		}
+
+		/// <summary>
+		/// Download a folder from the FTP server to disk.
+		/// </summary>
+		public override async Task DownloadDirectory(string remoteFolder,string localFolder,StorageExistsMode existsMode = StorageExistsMode.Skip,
+			Action<StorageProgress>? progress = null,CancellationToken cancellationToken = default) {
+
+			if (string.IsNullOrWhiteSpace(localFolder)) throw new ArgumentNullException(nameof(localFolder));
+			if (string.IsNullOrWhiteSpace(remoteFolder)) throw new ArgumentNullException(nameof(remoteFolder));
+
+			remoteFolder = StoragePath.Normalize(remoteFolder);
+
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
+
+			// too inefficient to support the "Throw" mode
+			if (existsMode == StorageExistsMode.Throw) {
+				throw new StorageException("FluentFTP does not support throwing errors during folder download, so FluentStorage cannot support this feature. Open a ticket if you need it.");
+			}
+
+
+			/*if (existsMode == StorageExistsMode.Throw) {
+				List<StoreObject> objects = await ListDirectory(remoteFolder, true, cancellationToken).ConfigureAwait(false);
+
+				foreach (StoreObject obj in objects) {
+					cancellationToken.ThrowIfCancellationRequested();
+
+					if (obj.Type != StorageObjectType.File)
+						continue;
+
+					string relative = StoragePath.GetRelativePath(remoteFolder, obj.Path);
+					string localFile = Path.Combine(localFolder, relative);
+
+					if (File.Exists(localFile))
+						throw new IOException($"File '{localFile}' already exists.");
+				}
+			}*/
+
+			Directory.CreateDirectory(localFolder);
+
+			// add a progress handler to FluentFTP call if its given
+			IProgress<FtpProgress>? ftpProgress = null;
+			if (progress != null) {
+				ftpProgress = new Progress<FtpProgress>(p => { progress(FtpFolderUtils.ConvertProgress(p)); });
+			}
+
+			// use FluentFTP `DownloadDirectory` to handle the entire operation
+			await client.DownloadDirectory(localFolder,remoteFolder,FtpFolderSyncMode.Update,
+				FtpFolderUtils.DownloadFolderMap[existsMode],FtpVerify.None,null, ftpProgress, cancellationToken);
 		}
 
 	}

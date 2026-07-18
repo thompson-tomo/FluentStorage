@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -164,5 +165,48 @@ namespace FluentStorage {
 		public static bool IsRootPath(string path) {
 			return string.IsNullOrEmpty(path) || path == "\\" || path == "/";
 		}
+
+		/// <summary>
+		/// Return the relative path of the given absolute disk path. Uses native .NET API if available.
+		/// </summary>
+		/// <param name="basePath">The base storage path.</param>
+		/// <param name="fullPath">The full storage path to make relative.</param>
+		public static string GetRelativeDiskPath(string basePath, string fullPath) {
+#if NETCOREAPP2_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+			return Path.GetRelativePath(basePath, fullPath);
+#else
+			basePath = Path.GetFullPath(basePath);
+			fullPath = Path.GetFullPath(fullPath);
+
+			if (!basePath.EndsWith(Path.DirectorySeparatorChar.ToString()) &&
+				!basePath.EndsWith(Path.AltDirectorySeparatorChar.ToString())) {
+				basePath += Path.DirectorySeparatorChar;
+			}
+
+			if (!fullPath.StartsWith(basePath, StringComparison.OrdinalIgnoreCase))
+				throw new ArgumentException($"'{fullPath}' is not under '{basePath}'.");
+
+			return fullPath.Substring(basePath.Length);
+#endif
+		}
+
+		/// <summary>
+		/// Returns the relative path of the given cloud object path.
+		/// </summary>
+		/// <param name="basePath">The base storage path.</param>
+		/// <param name="fullPath">The full storage path to make relative.</param>
+		public static string GetRelativePath(string basePath, string fullPath) {
+			basePath = Normalize(basePath);
+			fullPath = Normalize(fullPath);
+
+			if (!basePath.EndsWith("/"))
+				basePath += "/";
+
+			if (!fullPath.StartsWith(basePath, StringComparison.OrdinalIgnoreCase))
+				return "";// throw new ArgumentException($"'{fullPath}' is not contained within '{basePath}'.");
+
+			return fullPath.Substring(basePath.Length);
+		}
+
 	}
 }

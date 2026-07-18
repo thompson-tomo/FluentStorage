@@ -480,6 +480,240 @@ namespace FluentStorage.Storage {
 
 
 		/// <summary>
+		/// Gets information about the connected FTP/SFTP server.
+		/// </summary>
+		public virtual async Task<Dictionary<string, object>> GetServer(CancellationToken cancellationToken = default) {
+			throw new NotImplementedException();
+		}
+
+		// ---------------------------------------------------------------------
+		// Directory
+		// ---------------------------------------------------------------------
+
+		/// <summary>
+		/// Downloads all files from a remote folder to a local folder recursively.
+		/// Missing local directories are created automatically.
+		/// Will call the given `progress` callback per file upon success or failure.
+		/// Absorbs all errors internally, and does not abort the entire process if a single file failed to transfer.
+		/// </summary>
+		public virtual async Task DownloadDirectory(string remoteFolder,string localFolder,StorageExistsMode existsMode = StorageExistsMode.Skip,
+			Action<StorageProgress>? progress = null,CancellationToken cancellationToken = default) {
+
+			if (string.IsNullOrWhiteSpace(localFolder)) throw new ArgumentNullException(nameof(localFolder));
+			if (string.IsNullOrWhiteSpace(remoteFolder)) throw new ArgumentNullException(nameof(remoteFolder));
+
+			remoteFolder = StoragePath.Normalize(remoteFolder);
+			Directory.CreateDirectory(localFolder);
+
+			// per file found on remote store
+			var objects = (await ListDirectory(remoteFolder, true, cancellationToken).ConfigureAwait(false))
+				.Where(x => x.Type == StorageObjectType.File)
+				.ToList();
+
+			// exit if nothing to transfer
+			if (objects.Count == 0)
+				return;
+
+			// declare a small utility to call the progress handler with error suppression
+			void Report(StorageProgress p) {
+				try { progress?.Invoke(p); } catch { }
+			}
+
+			int ok = 0, skipped = 0, failed = 0;
+			long bytes = 0;
+
+			for (int i = 0; i < objects.Count; i++) {
+				cancellationToken.ThrowIfCancellationRequested();
+
+				var obj = objects[i];
+				string rel = StoragePath.GetRelativePath(remoteFolder, obj.FullPath);
+
+				// for some reason the object is not within the root folder, so skip it
+				if (rel.Length == 0) {
+					continue;
+				}
+
+				// calc the local path
+				string localFile = Path.Combine(localFolder, rel);
+
+				try {
+					Directory.CreateDirectory(Path.GetDirectoryName(localFile)!);
+
+					switch (existsMode) {
+						case StorageExistsMode.Skip:
+							if (File.Exists(localFile)) {
+								skipped++;
+								Report(new StorageProgress {
+									LocalPath = localFile,
+									RemotePath = obj.Path,
+									FileIndex = i + 1,
+									FileCount = objects.Count,
+									Progress = 100
+								});
+								continue;
+							}
+							break;
+						case StorageExistsMode.Throw:
+							if (File.Exists(localFile))
+								throw new IOException($"File '{localFile}' already exists.");
+							break;
+					}
+
+					await DownloadObject(obj.FullPath, localFile,
+						existsMode == StorageExistsMode.Overwrite,
+						/*p => {
+							p.LocalPath = localFile;
+							p.RemotePath = obj.Path;
+							p.FileIndex = i + 1;
+							p.FileCount = objects.Count;
+							Report(p);
+						},*/
+						cancellationToken).ConfigureAwait(false);
+
+					ok++;
+					if (File.Exists(localFile))
+						bytes += new FileInfo(localFile).Length;
+				}
+				catch (OperationCanceledException) { throw; }
+				catch (Exception ex) {
+
+					// report failed transfers but do not crash entire process
+					failed++;
+					Report(new StorageProgress {
+						LocalPath = localFile,
+						RemotePath = obj.FullPath,
+						FileIndex = i + 1,
+						FileCount = objects.Count,
+						Progress = -1,
+						TransferredBytes = 0,
+						TransferSpeed = 0,
+						ETA = TimeSpan.Zero,
+						Error = ex
+					});
+				}
+			}
+		}
+
+		/// <summary>
+		/// Uploads all files from a local folder to a remote folder recursively.
+		/// For file system providers, missing remote directories are created automatically.
+		/// For object storage providers, files are uploaded as objects using their relative paths.
+		/// Will call the given `progress` callback per file upon success or failure.
+		/// Absorbs all errors internally, and does not abort the entire process if a single file failed to transfer.
+		/// </summary>
+		public virtual async Task UploadDirectory(string localFolder, string remoteFolder, StorageExistsMode existsMode = StorageExistsMode.Skip,
+			Action<StorageProgress>? progress = null, CancellationToken cancellationToken = default) {
+			remoteFolder = StoragePath.Normalize(remoteFolder);
+
+			if (string.IsNullOrWhiteSpace(localFolder)) throw new ArgumentNullException(nameof(localFolder));
+			if (string.IsNullOrWhiteSpace(remoteFolder)) throw new ArgumentNullException(nameof(remoteFolder));
+
+			// exit if local folder does not exist
+			if (!Directory.Exists(localFolder))
+				return;
+
+			bool isFileSystem = await IsFileSystem().ConfigureAwait(false);
+
+			// get all the local files in this folder
+			var files = Directory.GetFiles(localFolder, "*", SearchOption.AllDirectories);
+
+			// exit if nothing to transfer
+			if (files.Length == 0)
+				return;
+
+			var createdDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+			if (isFileSystem) {
+				await CreateDirectory(remoteFolder, true, cancellationToken).ConfigureAwait(false);
+				createdDirectories.Add(remoteFolder);
+			}
+
+			// declare a small utility to call the progress handler with error suppression
+			void Report(StorageProgress p) {
+				try { progress?.Invoke(p); } catch { }
+			}
+
+			int ok = 0, skipped = 0, failed = 0;
+			long bytes = 0;
+
+			// per file found in local folder
+			for (int i = 0; i < files.Length; i++) {
+				cancellationToken.ThrowIfCancellationRequested();
+
+				string localFile = files[i];
+				long length = new FileInfo(localFile).Length;
+				string rel = StoragePath.Normalize(StoragePath.GetRelativeDiskPath(localFolder, localFile));
+
+				// calc the remote path
+				string objectPath = StoragePath.Normalize(StoragePath.Combine(remoteFolder, rel));
+
+				try {
+
+					// only create parent folders once per run (avoid duplicate calls)
+					if (isFileSystem) {
+						string? dir = StoragePath.GetParent(objectPath);
+						if (!string.IsNullOrEmpty(dir) && createdDirectories.Add(dir))
+							await CreateDirectory(dir, true, cancellationToken).ConfigureAwait(false);
+					}
+
+					switch (existsMode) {
+						case StorageExistsMode.Skip:
+							if (await ObjectExists(objectPath, cancellationToken).ConfigureAwait(false)) {
+								skipped++;
+								Report(new StorageProgress {
+									LocalPath = localFile,
+									RemotePath = objectPath,
+									FileIndex = i + 1,
+									FileCount = files.Length,
+									Progress = 100,
+									TransferredBytes = length
+								});
+								continue;
+							}
+							break;
+						case StorageExistsMode.Throw:
+							if (await ObjectExists(objectPath, cancellationToken).ConfigureAwait(false))
+								throw new StorageException($"UploadDirectory: Object '{objectPath}' already exists.");
+							break;
+					}
+
+					await UploadObject(objectPath, localFile,
+						existsMode == StorageExistsMode.Overwrite,
+						/*p => {
+							p.LocalPath = localFile;
+							p.RemotePath = objectPath;
+							p.FileIndex = i + 1;
+							p.FileCount = files.Length;
+							if (p.Progress < 0) { p.Progress = 100; p.TransferredBytes = length; }
+							Report(p);
+						},*/
+						cancellationToken).ConfigureAwait(false);
+
+					ok++;
+					bytes += length;
+				}
+				catch (OperationCanceledException) { throw; }
+				catch (Exception ex) {
+
+					// report failed transfers but do not crash entire process
+					failed++;
+					Report(new StorageProgress {
+						LocalPath = localFile,
+						RemotePath = objectPath,
+						FileIndex = i + 1,
+						FileCount = files.Length,
+						Progress = -1,
+						TransferredBytes = 0,
+						TransferSpeed = 0,
+						ETA = TimeSpan.Zero,
+						Error = ex
+					});
+				}
+			}
+		}
+
+
+		/// <summary>
 		/// Creates a new folder in this file system. Does nothing in cloud storage buckets.
 		/// </summary>
 		/// <param name="folderPath">Path to the new folder.</param>
@@ -492,14 +726,6 @@ namespace FluentStorage.Storage {
 		/// </summary>
 		/// <param name="folderPath">Path to the new folder.</param>
 		public virtual async Task DeleteDirectory(string folderPath, bool recursive, CancellationToken cancellationToken = default) {
-			throw new NotImplementedException();
-		}
-
-
-		/// <summary>
-		/// Gets information about the connected FTP/SFTP server.
-		/// </summary>
-		public virtual async Task<Dictionary<string, object>> GetServer(CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
 		}
 
@@ -524,6 +750,10 @@ namespace FluentStorage.Storage {
 			throw new NotImplementedException();
 		}*/
 
+		// ---------------------------------------------------------------------
+		// Permissions
+		// ---------------------------------------------------------------------
+
 		/// <summary>
 		/// Gets the CHMOD permissions of a file.
 		/// </summary>
@@ -538,6 +768,9 @@ namespace FluentStorage.Storage {
 			throw new NotImplementedException();
 		}
 
+		// ---------------------------------------------------------------------
+		// Presigned URL
+		// ---------------------------------------------------------------------
 
 		/// <summary>
 		/// Get a pre-signed URL to upload an object to this bucket.

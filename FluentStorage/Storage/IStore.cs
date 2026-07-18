@@ -220,6 +220,24 @@ namespace FluentStorage.Storage {
 		/// <param name="cancellationToken">Cancellation token.</param>
 		Task DownloadObject(string objectPath, string filePath, bool overwrite, CancellationToken cancellationToken = default);
 
+		/// <summary>
+		/// Downloads all files from a remote folder to a local folder recursively.
+		/// Missing local directories are created automatically.
+		/// Will call the given `progress` callback per file upon success or failure.
+		/// Absorbs all errors internally, and does not abort the entire process if a single file failed to transfer.
+		/// </summary>
+		/// <param name="remoteFolder">Remote folder or virtual folder to download.</param>
+		/// <param name="localFolder">Destination local folder.</param>
+		/// <param name="existsMode">How to handle files that already exist at the destination.</param>
+		/// <param name="progress">Callback to report the progress of each file transfer.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		Task DownloadDirectory(
+			string remoteFolder,
+			string localFolder,
+			StorageExistsMode existsMode = StorageExistsMode.Skip,
+			Action<StorageProgress>? progress = null,
+			CancellationToken cancellationToken = default);
+
 
 		// ---------------------------------------------------------------------
 		// Write
@@ -267,6 +285,21 @@ namespace FluentStorage.Storage {
 		/// <param name="filePath">Source file path.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		Task UploadObject(string objectPath, string filePath, bool overwrite, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Uploads all files from a local folder to a remote folder recursively.
+		/// For file system providers, missing remote directories are created automatically.
+		/// For object storage providers, files are uploaded as objects using their relative paths.
+		/// Will call the given `progress` callback per file upon success or failure.
+		/// Absorbs all errors internally, and does not abort the entire process if a single file failed to transfer.
+		/// </summary>
+		/// <param name="localFolder">Local folder to upload.</param>
+		/// <param name="remoteFolder">Destination remote folder or virtual folder.</param>
+		/// <param name="existsMode">How to handle files that already exist at the destination.</param>
+		/// <param name="progress">Callback to report the progress of each file transfer.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		Task UploadDirectory(string localFolder,string remoteFolder,StorageExistsMode existsMode = StorageExistsMode.Skip,
+			Action<StorageProgress>? progress = null,CancellationToken cancellationToken = default);
 
 
 		// ---------------------------------------------------------------------

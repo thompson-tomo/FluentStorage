@@ -23,7 +23,9 @@
    - Paths: All APIs updated to use the new `StoragePath` normalization to support unified paths
  - **FluentStorage.Tests**
    - Merge all tests into a single project, cleanly seperating unit and integration tests
-   - New tests for path normalization (`StoragePath.Normalize`), path combination (`StoragePath.Combine1`) and path splitting (`StoragePath.Split`)
+   - New tests for path normalization (`StoragePath.Normalize`), path combination (`StoragePath.Combine`) and path splitting (`StoragePath.Split`)
+   - New tests for `SeekableStream` used for streaming
+   - New tests for `IStore` operations and fixes made to local disk implementation
    
 #### FluentStorage 8.0.5
  - **FluentStorage**

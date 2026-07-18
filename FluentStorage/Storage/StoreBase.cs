@@ -545,7 +545,7 @@ namespace FluentStorage.Storage {
 								skipped++;
 								Report(new StorageProgress {
 									LocalPath = localFile,
-									RemotePath = obj.Path,
+									RemotePath = obj.FullPath,
 									FileIndex = i + 1,
 									FileCount = objects.Count,
 									Progress = 100

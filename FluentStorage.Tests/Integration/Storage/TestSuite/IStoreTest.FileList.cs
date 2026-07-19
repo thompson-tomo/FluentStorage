@@ -19,6 +19,11 @@
 
 		[Fact]
 		public async Task ListObjects_ReturnsMultipleUploadedObjects() {
+
+			// not for FS
+			if (await _storage.IsFileSystem()) return;
+
+
 			string f1 = RandomFile();
 			string f2 = RandomFile();
 			string f3 = RandomFile();

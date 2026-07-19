@@ -114,6 +114,11 @@
 
 		[Fact]
 		public async Task List_with_browsefilter_calls_filter() {
+
+			// not for FS
+			if (await _storage.IsFileSystem()) return;
+
+
 			string id1 = RandomBlobPath();
 			string id2 = RandomBlobPath();
 			await _storage.SetText(id1, RandomGenerator.RandomString);

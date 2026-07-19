@@ -630,11 +630,11 @@ namespace FluentStorage.Storage {
 			if (files.Length == 0)
 				return;
 
-			var createdDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+			//var createdDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
 			if (isFileSystem) {
 				await CreateDirectory(remoteFolder, true, cancellationToken).ConfigureAwait(false);
-				createdDirectories.Add(remoteFolder);
+				//createdDirectories.Add(remoteFolder);
 			}
 
 			// declare a small utility to call the progress handler with error suppression
@@ -658,12 +658,12 @@ namespace FluentStorage.Storage {
 
 				try {
 
-					// only create parent folders once per run (avoid duplicate calls)
-					if (isFileSystem) {
+					// only create parent folders once per run (avoid duplicate calls) - NOT REQUIRED AS ITS HANDLED BY THE PROVIDER
+					/*if (isFileSystem) {
 						string? dir = StoragePath.GetParent(objectPath);
 						if (!string.IsNullOrEmpty(dir) && createdDirectories.Add(dir))
 							await CreateDirectory(dir, true, cancellationToken).ConfigureAwait(false);
-					}
+					}*/
 
 					switch (existsMode) {
 						case StorageExistsMode.Skip:

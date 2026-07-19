@@ -1,6 +1,8 @@
 ﻿# Release Notes
 
 #### FluentStorage 8.0.9
+ - **FluentStorage**
+   - Fix: `UploadDirectory` is more efficient for filesystem-based storage providers
  - **FluentStorage.Tests**
    - Add support for loading test config from YAML file `fluentstorage.yaml`
    - Add `fluentstorage.yaml.template` based on required test config schema
@@ -10,11 +12,20 @@
    - Split `IStoreTest` into multiple partial classes and improve test codebase organization
    - New tests for directory upload, directory download, roundtrip
  - **FluentStorage.FTP**
-   - Any file uploads/writes will automatically create the directory structure as required
-   - `CreateDirectory`: No error is thrown if the folder already exists
+   - Fix: Any file uploads/writes will automatically create the directory structure as required
+   - Fix: `CreateDirectory`: No error is thrown if the folder already exists
+   - Fix: `SetBytes` now correctly uploads zero-byte file data
  - **FluentStorage.SFTP**
-   - Any file uploads/writes will automatically create the directory structure as required
-   - `CreateDirectory`: No error is thrown if the folder already exists
+   - Fix: All API now uses Async API of `SftpClient` rather than the old sync API
+   - Fix: `DownloadObject` and `UploadObject` had invalid file existance checks
+   - Fix: `DownloadObject` now correctly downloads file data (fix stream disposing issue)
+   - Fix: `SetBytes` and `UploadObject` will automatically create the directory structure as required
+   - Fix: `SetBytes` now correctly uploads zero-byte file data
+   - Fix: `CreateDirectory`: No error is thrown if the folder already exists
+   - Fix: `GetObjectInfo` and `GetObjectsInfo` correctly computes SFTP remote paths
+   - Fix: `MaxResults` and `BrowseFilter` filtering is more efficient during directory listing
+   - Fix: `ListDirectory` and `ListObjects` will return a blank list if nothing is found instead of throwing an error
+   - Fix: `ListDirectory` and `ListObjects` will correctly enumerate files inside subdirectories
  - **FluentStorage.Azure.Queues**
    - Remove all usage of Newtonsoft.Json
    - Cleanup JSON conversion and move all static utilities into `FluentStorage.Azure.Queues.Utils` NS

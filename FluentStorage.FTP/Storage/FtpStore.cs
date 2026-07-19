@@ -411,8 +411,8 @@ namespace FluentStorage.FTP.Storage {
 		/// <param name="cancellationToken">Cancellation token.</param>
 		public override async Task SetBytes(string fullPath, byte[] data, bool append = false, CancellationToken cancellationToken = default) {
 
-			// exit if invalid data
-			if (data == null || data.Length == 0) return;
+			// exit if invalid data (FIX: allow writing zero byte files)
+			if (data == null) return;
 
 			AsyncFtpClient client = await Client().ConfigureAwait(false);
 

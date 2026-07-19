@@ -9,6 +9,12 @@
    - Remove unused `LogMagic` and `Config.Net` packages, and add `YamlDotNet`
    - Split `IStoreTest` into multiple partial classes and improve test codebase organization
    - New tests for directory upload, directory download, roundtrip
+ - **FluentStorage.FTP**
+   - Any file uploads/writes will automatically create the directory structure as required
+   - `CreateDirectory`: No error is thrown if the folder already exists
+ - **FluentStorage.SFTP**
+   - Any file uploads/writes will automatically create the directory structure as required
+   - `CreateDirectory`: No error is thrown if the folder already exists
  - **FluentStorage.Azure.Queues**
    - Remove all usage of Newtonsoft.Json
    - Cleanup JSON conversion and move all static utilities into `FluentStorage.Azure.Queues.Utils` NS

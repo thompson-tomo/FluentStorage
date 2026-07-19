@@ -602,7 +602,12 @@ namespace FluentStorage.SFTP {
 
 			folderPath = NormalizeSftpPath(folderPath);
 
-			client.CreateDirectory(folderPath);
+			try {
+				client.CreateDirectory(folderPath);
+			}
+			catch (Exception ex) {
+				// FIX: no error is thrown if the folder already exists
+			}
 		}
 
 		/// <summary>
@@ -787,6 +792,12 @@ namespace FluentStorage.SFTP {
 			SftpClient client = Client();
 
 			fullPath = NormalizeSftpPath(fullPath);
+
+			// FIX: Any file uploads/writes will automatically create the directory structure as required
+			var parentPath = StoragePath.GetParent(fullPath);
+			if (parentPath != null) {
+				await CreateDirectory(parentPath, false);
+			}
 
 			using Stream stream = append
 				? client.Open(fullPath, FileMode.Append, FileAccess.Write)

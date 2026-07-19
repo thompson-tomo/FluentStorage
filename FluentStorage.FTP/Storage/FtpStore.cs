@@ -288,7 +288,12 @@ namespace FluentStorage.FTP.Storage {
 
 			AsyncFtpClient client = await Client().ConfigureAwait(false);
 
-			await client.CreateDirectory(folderPath, force, cancellationToken).ConfigureAwait(false);
+			try {
+				await client.CreateDirectory(folderPath, force, cancellationToken).ConfigureAwait(false);
+			}
+			catch (Exception) {
+				// FIX: no error is thrown if the folder already exists
+			}
 		}
 
 		/// <summary>
@@ -411,7 +416,10 @@ namespace FluentStorage.FTP.Storage {
 
 			AsyncFtpClient client = await Client().ConfigureAwait(false);
 
-			await client.UploadBytes(data, fullPath, FtpRemoteExists.Overwrite, false, null, cancellationToken).ConfigureAwait(false);
+			// FIX: Any file uploads/writes will automatically create the directory structure as required
+			var createDirs = true;
+
+			await client.UploadBytes(data, fullPath, FtpRemoteExists.Overwrite, createDirs, null, cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>

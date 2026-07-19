@@ -11,6 +11,7 @@
    - Remove unused `LogMagic` and `Config.Net` packages, and add `YamlDotNet`
    - Split `IStoreTest` into multiple partial classes and improve test codebase organization
    - New tests for directory upload, directory download, roundtrip
+   - Fix: Disable tests that are malfunctioning with FTP/SFTP
  - **FluentStorage.FTP**
    - Fix: Any file uploads/writes will automatically create the directory structure as required
    - Fix: `CreateDirectory`: No error is thrown if the folder already exists

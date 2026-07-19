@@ -17,12 +17,12 @@ using FluentStorage.Model;
 using FluentStorage.Tests.Integration.Config;
 
 namespace FluentStorage.Tests.Integration.Azure {
-	[Trait("Category", "Blobs")]
+	
 	public class LeakyAzureBlobStorageTest {
 		private readonly IAzureBlobStore _native;
 
 		public LeakyAzureBlobStorageTest() {
-			ITestConfig settings = TestConfigLoader.Config;
+			TestConfig settings = TestConfigLoader.Config;
 
 			IStore storage = AzureBlobStorage.FromSharedKey(
 			   settings.AzureStorageName, settings.AzureStorageKey);

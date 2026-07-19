@@ -1,6 +1,17 @@
-﻿namespace FluentStorage.Tests.Integration.Storage {
-	public class GcpFixture : IStoreFixture {
-		protected override IStore CreateStorage(ITestConfig settings) {
+﻿using FluentStorage.Tests.Integration.Storage.Fixture;
+
+namespace FluentStorage.Tests.Integration.Storage {
+	public class GcpFixture : StoreFixture {
+		protected override IStore CreateStorage(TestConfig settings) {
+
+			// make sure required config properties are filled
+			if (string.IsNullOrEmpty(TestConfigLoader.Config.GcpBucketName)) {
+				throw new Exception("Required setting `GcpBucketName` is blank!");
+			}
+			if (string.IsNullOrEmpty(TestConfigLoader.Config.GcpJsonKey)) {
+				throw new Exception("Required setting `GcpJsonKey` is blank!");
+			}
+
 			return GoogleCloudStorage.FromJson(
 			   settings.GcpBucketName,
 			   settings.GcpJsonKey,

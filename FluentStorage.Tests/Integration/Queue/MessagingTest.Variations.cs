@@ -11,7 +11,7 @@ namespace FluentStorage.Tests.Integration.Queue {
 
 
 	public class AzureStorageQueueFixture : MessagingFixture {
-		protected override IQueue CreateMessenger(ITestConfig settings) =>
+		protected override IQueue CreateMessenger(TestConfig settings) =>
 		   AzureQueueStorage.FromCredentials(settings.AzureStorageName, settings.AzureStorageKey);
 	}
 
@@ -23,7 +23,7 @@ namespace FluentStorage.Tests.Integration.Queue {
 
 
 	public class InMemoryFixture : MessagingFixture {
-		protected override IQueue CreateMessenger(ITestConfig settings) {
+		protected override IQueue CreateMessenger(TestConfig settings) {
 			return QueueFactory.InMemory("test");
 		}
 	}
@@ -36,7 +36,7 @@ namespace FluentStorage.Tests.Integration.Queue {
 
 
 	public class DiskFixture : MessagingFixture {
-		protected override IQueue CreateMessenger(ITestConfig settings) {
+		protected override IQueue CreateMessenger(TestConfig settings) {
 			return QueueFactory.Disk(_testDir);
 		}
 	}
@@ -49,7 +49,7 @@ namespace FluentStorage.Tests.Integration.Queue {
 
 
 	public class AwsSQSFixture : MessagingFixture {
-		protected override IQueue CreateMessenger(ITestConfig settings) {
+		protected override IQueue CreateMessenger(TestConfig settings) {
 			return AwsSqsStorage.PublisherFromCredentials(
 			   settings.AwsAccessKeyId,
 			   settings.AwsSecretAccessKey,
@@ -66,7 +66,7 @@ namespace FluentStorage.Tests.Integration.Queue {
 
 
 	public class AzureServiceBusFixture : MessagingFixture {
-		protected override IQueue CreateMessenger(ITestConfig settings) {
+		protected override IQueue CreateMessenger(TestConfig settings) {
 			return AzureServiceBus.FromConnectionString(settings.AzureServiceBusConnectionString);
 
 		}

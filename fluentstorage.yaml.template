@@ -1,47 +1,54 @@
 # ---------------------------------------------------------------------
+# Local Disk
+# ---------------------------------------------------------------------
+
+LocalDiskPath: "C:\\Temp\\FluentStorage"
+
+# ---------------------------------------------------------------------
 # Azure Blob/Files/DataLake
 # ---------------------------------------------------------------------
 
-azureClientId:
-azureClientSecret:
-azureTenantId:
-azureStorageName:
-azureStorageKey:
-azureDataLakeStorageName:
-azureDataLakeStorageKey:
-azureDataLakeOperatorObjectId:
-azureServiceBusConnectionString:
-azureKeyVaultUri:
+AzureClientId:
+AzureClientSecret:
+AzureTenantId:
+AzureStorageName:
+AzureStorageKey:
+AzureDataLakeStorageName:
+AzureDataLakeStorageKey:
+AzureDataLakeOperatorObjectId:
+AzureServiceBusConnectionString:
+AzureKeyVaultUri:
 
 # ---------------------------------------------------------------------
 # AWS S3
 # ---------------------------------------------------------------------
 
-awsAccessKeyId:
-awsSecretAccessKey:
-awsBucketName:
-awsBucketRegion:
+AwsAccessKeyId:
+AwsSecretAccessKey:
+AwsBucketName:
+AwsBucketRegion:
 
 # ---------------------------------------------------------------------
 # GCP Storage
 # ---------------------------------------------------------------------
 
-gcpBucketName:
-gcpJsonKey:
+GcpBucketName:
+GcpJsonKey:
 
 # ---------------------------------------------------------------------
 # FTP
 # ---------------------------------------------------------------------
 
-ftpHost:
-ftpUsername:
-ftpPassword:
+FtpHost:
+FtpUsername:
+FtpPassword:
 
 # ---------------------------------------------------------------------
 # SFTP
 # ---------------------------------------------------------------------
 
-sftpHost:
-sftpPort: 22
-sftpUser:
-sftpPassphrase:
+SftpHost:
+SftpPort: 22
+SftpUser:
+SftpPassphrase:
+SftpPrivateKeyPath: ".ssh\\id_ed25519"

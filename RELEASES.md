@@ -2,10 +2,11 @@
 
 #### FluentStorage 8.0.9
  - **FluentStorage.Tests**
-   - Add `YamlDotNet` and move all test config into `fluentstorage.yaml` file loaded at startup
+   - Add support for loading test config from YAML file `fluentstorage.yaml`
    - Add `fluentstorage.yaml.template` based on required test config schema
    - Add tests for FTP and SFTP using new config system
-   - Remove unused `LogMagic` and `Config.Net` packags
+   - Add provider-specific assertions to ensure that required test config settings are filled
+   - Remove unused `LogMagic` and `Config.Net` packages, and add `YamlDotNet`
    - Split `IStoreTest` into multiple partial classes and improve test codebase organization
    - New tests for directory upload, directory download, roundtrip
 

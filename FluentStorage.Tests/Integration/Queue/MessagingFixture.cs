@@ -1,13 +1,6 @@
-﻿using FluentStorage.Queue;
-using System;
-using Config.Net;
-using System.IO;
-using System.Reflection;
-using FluentStorage.Tests.Integration.Config;
-
-namespace FluentStorage.Tests.Integration.Queue {
+﻿namespace FluentStorage.Tests.Integration.Queue {
 	public abstract class MessagingFixture : IDisposable {
-		private static readonly ITestConfig _settings = TestConfigLoader.Config;
+		private static readonly TestConfig _settings = TestConfigLoader.Config;
 		public readonly IQueue Messenger;
 		private readonly string _fixtureName;
 		protected readonly string _testDir;
@@ -21,7 +14,7 @@ namespace FluentStorage.Tests.Integration.Queue {
 			Messenger = CreateMessenger(_settings);
 		}
 
-		protected abstract IQueue CreateMessenger(ITestConfig settings);
+		protected abstract IQueue CreateMessenger(TestConfig settings);
 
 		public void Dispose() {
 			if (Messenger != null)

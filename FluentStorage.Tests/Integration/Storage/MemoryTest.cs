@@ -1,6 +1,8 @@
-﻿namespace FluentStorage.Tests.Integration.Storage {
-	public class MemoryFixture : IStoreFixture {
-		protected override IStore CreateStorage(ITestConfig settings) {
+﻿using FluentStorage.Tests.Integration.Storage.Fixture;
+
+namespace FluentStorage.Tests.Integration.Storage {
+	public class MemoryFixture : StoreFixture {
+		protected override IStore CreateStorage(TestConfig settings) {
 			return StorageFactory.InMemory();
 		}
 	}

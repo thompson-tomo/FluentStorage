@@ -10,7 +10,7 @@ using FluentStorage.Azure.Blobs.Storage;
 using FluentStorage.Azure.Blobs;
 
 namespace FluentStorage.Tests.Unit.Utils {
-	[Trait("Category", "Blobs")]
+	
 	public class AzureRegionTest {
 		private const string Account = "testaccount";
 

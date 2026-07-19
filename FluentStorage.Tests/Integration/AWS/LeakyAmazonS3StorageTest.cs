@@ -9,9 +9,9 @@ using FluentStorage.Tests.Integration.Config;
 using Xunit;
 
 namespace FluentStorage.Tests.Integration.AWS {
-	[Trait("Category", "Blobs")]
+	
 	public class LeakyAmazonS3StorageTest {
-		private readonly ITestConfig _settings;
+		private readonly TestConfig _settings;
 		private readonly IS3Storage _storage;
 
 		public LeakyAmazonS3StorageTest() {

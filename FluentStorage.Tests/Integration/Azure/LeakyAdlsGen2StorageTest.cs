@@ -11,9 +11,9 @@ using FluentStorage.Model;
 using FluentStorage.Tests.Integration.Config;
 
 namespace FluentStorage.Tests.Integration.Azure {
-	[Trait("Category", "Blobs")]
+	
 	public class LeakyAdlsGen2StorageTest : IAsyncLifetime {
-		private readonly ITestConfig _settings;
+		private readonly TestConfig _settings;
 		private readonly IAzureDataLakeStore _storage;
 		private static readonly string Filesystem = nameof(LeakyAdlsGen2StorageTest).ToLower();
 

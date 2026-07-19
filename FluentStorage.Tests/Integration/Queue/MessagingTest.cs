@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading;
 
 namespace FluentStorage.Tests.Integration.Queue {
-	[Trait("Category", "Messenger")]
+
 	public abstract class MessagingTest : IAsyncLifetime {
 		private readonly MessagingFixture _fixture;
 		private readonly string _channelPrefix;

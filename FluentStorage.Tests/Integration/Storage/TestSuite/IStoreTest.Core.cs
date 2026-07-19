@@ -1,16 +1,18 @@
-﻿namespace FluentStorage.Tests.Integration.Storage {
+﻿using FluentStorage.Tests.Integration.Storage.Fixture;
+
+namespace FluentStorage.Tests.Integration.Storage {
 
 	/// <summary>
 	/// Massive test case suite to test object and directory manipulation for the given provider.
 	/// Should work on disk providers and cloud storage providers.
 	/// </summary>
-	[Trait("Category", "Blobs")]
+	
 	public partial class IStoreTest : IAsyncLifetime {
 		private readonly IStore _storage;
 		private readonly string _blobPrefix;
-		private readonly IStoreFixture _fixture;
+		private readonly StoreFixture _fixture;
 
-		public IStoreTest(IStoreFixture fixture) {
+		public IStoreTest(StoreFixture fixture) {
 			_storage = fixture.Storage;
 			_blobPrefix = fixture.BlobPrefix;
 			_fixture = fixture;

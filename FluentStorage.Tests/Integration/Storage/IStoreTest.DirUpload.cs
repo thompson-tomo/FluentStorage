@@ -208,8 +208,7 @@
 			string local = RandomLocalFolder();
 			string remote = RandomRemoteFolder();
 
-			var tree = new[]
-			{
+			var tree = new[]{
 				new LocalFile("0.bin", 0),
 				new LocalFile("1.bin", 1),
 				new LocalFile("10.bin", 10),

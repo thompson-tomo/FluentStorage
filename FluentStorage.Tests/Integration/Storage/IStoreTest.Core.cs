@@ -32,14 +32,11 @@
 			await _storage.SetText(path, text ?? Guid.NewGuid().ToString());
 		}
 
-		private static string RandomName()
-			=> Guid.NewGuid().ToString("N");
+		private static string RandomName()=> Guid.NewGuid().ToString("N");
 
-		private static string RandomFolder()
-			=> $"tests/{Guid.NewGuid():N}";
+		private static string RandomFolder()=> $"tests/{Guid.NewGuid():N}";
 
-		private static string RandomFile()
-			=> $"tests/{Guid.NewGuid():N}.txt";
+		private static string RandomFile()=> $"tests/{Guid.NewGuid():N}.txt";
 
 		private async Task<string> GetRandomStreamIdAsync(string prefix = null) {
 			string id = RandomBlobPath();
@@ -55,10 +52,7 @@
 		private static string RandomRemoteFolder() => $"tests/{Guid.NewGuid():N}";
 
 		private static string RandomLocalFolder() {
-			string path = Path.Combine(
-				Path.GetTempPath(),
-				"StorageTests",
-				Guid.NewGuid().ToString("N"));
+			string path = Path.Combine(Path.GetTempPath(),"StorageTests",Guid.NewGuid().ToString("N"));
 
 			Directory.CreateDirectory(path);
 

@@ -364,7 +364,7 @@
 		}
 
 		[Fact]
-		public async Task Rename_File_Renames() {
+		public async Task MoveObject_File_Renames() {
 			string prefix = RandomBlobPath();
 			string file = StoragePath.Combine(prefix, "1");
 
@@ -382,18 +382,18 @@
 		}
 
 		[Fact]
-		public async Task Rename_OldPathNull_ThowsArgumentNull() {
+		public async Task MoveObject_OldPathNull_ThowsArgumentNull() {
 			await Assert.ThrowsAsync<ArgumentNullException>(() => _storage.MoveObject(null, "test/1", true));
 		}
 
 		[Fact]
-		public async Task Rename_NewPathNull_ThowsArgumentNull() {
+		public async Task MoveObject_NewPathNull_ThowsArgumentNull() {
 			await Assert.ThrowsAsync<ArgumentNullException>(() => _storage.MoveObject("test/1", null, true));
 		}
 
 
 		[Fact]
-		public async Task Rename_Folder_Renames() {
+		public async Task MoveObject_Folder_Renames() {
 			string prefix = RandomBlobPath();
 			string file1 = StoragePath.Combine(prefix, "old", "1.txt");
 			string file11 = StoragePath.Combine(prefix, "old", "1", "1.txt");

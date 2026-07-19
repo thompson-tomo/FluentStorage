@@ -1,0 +1,47 @@
+# ---------------------------------------------------------------------
+# Azure Blob/Files/DataLake
+# ---------------------------------------------------------------------
+
+azureClientId:
+azureClientSecret:
+azureTenantId:
+azureStorageName:
+azureStorageKey:
+azureDataLakeStorageName:
+azureDataLakeStorageKey:
+azureDataLakeOperatorObjectId:
+azureServiceBusConnectionString:
+azureKeyVaultUri:
+
+# ---------------------------------------------------------------------
+# AWS S3
+# ---------------------------------------------------------------------
+
+awsAccessKeyId:
+awsSecretAccessKey:
+awsBucketName:
+awsBucketRegion:
+
+# ---------------------------------------------------------------------
+# GCP Storage
+# ---------------------------------------------------------------------
+
+gcpBucketName:
+gcpJsonKey:
+
+# ---------------------------------------------------------------------
+# FTP
+# ---------------------------------------------------------------------
+
+ftpHost:
+ftpUsername:
+ftpPassword:
+
+# ---------------------------------------------------------------------
+# SFTP
+# ---------------------------------------------------------------------
+
+sftpHost:
+sftpPort: 22
+sftpUser:
+sftpPassphrase:

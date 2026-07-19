@@ -7,7 +7,7 @@ using FluentStorage.Tests.Integration.Config;
 
 namespace FluentStorage.Tests.Integration.Queue {
 	public abstract class MessagingFixture : IDisposable {
-		private static readonly ITestConfig _settings = TestConfigLoader.Instance;
+		private static readonly ITestConfig _settings = TestConfigLoader.Config;
 		public readonly IQueue Messenger;
 		private readonly string _fixtureName;
 		protected readonly string _testDir;

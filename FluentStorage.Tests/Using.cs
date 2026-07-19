@@ -19,6 +19,7 @@ global using FluentStorage.Enums;
 global using FluentStorage.Model;
 global using FluentStorage.Utils.Extensions;
 global using FluentStorage.ConnectionStrings;
+global using FluentStorage.Tests.Integration.Config;
 global using FluentStorage.Tests.Unit.Utils;
 global using FluentAssertions;
 global using Moq;

@@ -15,10 +15,10 @@ namespace FluentStorage.Tests.Integration.AWS {
 		private readonly IS3Storage _storage;
 
 		public LeakyAmazonS3StorageTest() {
-			_settings = TestConfigLoader.Instance;
+			_settings = TestConfigLoader.Config;
 
 			_storage = (IS3Storage)AwsS3Storage.FromCredentials(
-			   _settings.AwsAccessKeyId, _settings.AwsSecretAccessKey, null, _settings.AwsTestBucketName, _settings.AwsTestBucketRegion);
+			   _settings.AwsAccessKeyId, _settings.AwsSecretAccessKey, null, _settings.AwsBucketName, _settings.AwsBucketRegion);
 		}
 	}
 }

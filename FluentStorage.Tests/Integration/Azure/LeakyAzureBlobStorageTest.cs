@@ -22,7 +22,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 		private readonly IAzureBlobStore _native;
 
 		public LeakyAzureBlobStorageTest() {
-			ITestConfig settings = TestConfigLoader.Instance;
+			ITestConfig settings = TestConfigLoader.Config;
 
 			IStore storage = AzureBlobStorage.FromSharedKey(
 			   settings.AzureStorageName, settings.AzureStorageKey);

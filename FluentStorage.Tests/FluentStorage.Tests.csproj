@@ -13,13 +13,12 @@
         <ProjectReference Include="..\FluentStorage.Azure.Blobs\FluentStorage.Azure.Blobs.csproj" />
         <ProjectReference Include="..\FluentStorage.Azure.Files\FluentStorage.Azure.Files.csproj" />
         <ProjectReference Include="..\FluentStorage.FTP\FluentStorage.FTP.csproj" />
+        <ProjectReference Include="..\FluentStorage.SFTP\FluentStorage.SFTP.csproj" />
         <ProjectReference Include="..\FluentStorage.GCP\FluentStorage.GCP.csproj" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
         <PackageReference Include="FluentAssertions" Version="6.11.0" />
-        <PackageReference Include="LogMagic" Version="2.17.5" />
-        <PackageReference Include="Config.Net" Version="4.14.20" />
         <PackageReference Include="Moq" Version="4.18.4" />
         <PackageReference Include="xunit" Version="2.5.0" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
@@ -28,6 +27,7 @@
         </PackageReference>
         <PackageReference Include="Testcontainers" Version="3.2.0" />
         <PackageReference Include="Bogus" Version="34.0.2" />
+        <PackageReference Include="YamlDotNet" Version="18.1.0" />
     </ItemGroup>
     <ItemGroup>
         <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />

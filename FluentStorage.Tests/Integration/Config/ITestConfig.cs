@@ -1,79 +1,76 @@
-﻿using System;
-using System.Net;
-using Config.Net;
-
-namespace FluentStorage.Tests.Integration.Config {
+﻿namespace FluentStorage.Tests.Integration.Config {
 	public interface ITestConfig {
 
-
-		[Option(DefaultValue = "8")]
-		string DevOpsVariableSetId { get; }
-
-		string DevOpsPat { get; }
-
-		string ClientId { get; }
-
-		string ClientSecret { get; }
-
-		string TenantId { get; }
+		// ---------------------------------------------------------------------
+		// Azure Blob/Files/DataLake
+		// ---------------------------------------------------------------------
 
 
+		string AzureClientId { get; }
+
+		string AzureClientSecret { get; }
+
+		string AzureTenantId { get; }
 		string AzureStorageName { get; }
 
 		string AzureStorageKey { get; }
 
-		string AzureGen2StorageName { get; }
+		string AzureDataLakeStorageName { get; }
 
-		string AzureGen2StorageKey { get; }
+		string AzureDataLakeStorageKey { get; }
 
-		string OperatorObjectId { get; }
+		string AzureDataLakeOperatorObjectId { get; }
 
 		string AzureServiceBusConnectionString { get; }
-
-		string AzureStorageNativeConnectionString { get; }
-
-		string AzureGen1StorageName { get; }
 
 		Uri AzureKeyVaultUri { get; }
 
 
 
-		[Option(Alias = "Aws.AccessKeyId")]
+		// ---------------------------------------------------------------------
+		// AWS S3
+		// ---------------------------------------------------------------------
+
 		string AwsAccessKeyId { get; }
 
-		[Option(Alias = "Aws.SecretAccessKey")]
 		string AwsSecretAccessKey { get; }
 
-		[Option(Alias = "Aws.TestBucketName")]
-		string AwsTestBucketName { get; }
+		string AwsBucketName { get; }
 
-		[Option(Alias = "Aws.TestBucketRegion", DefaultValue = "eu-west-1")]
-		string AwsTestBucketRegion { get; }
+		string AwsBucketRegion { get; }
 
 
 
-		[Option(Alias = "Gcp.Storage.BucketName")]
-		string GcpStorageBucketName { get; }
+		// ---------------------------------------------------------------------
+		// GCP Storage
+		// ---------------------------------------------------------------------
 
-		[Option(Alias = "Gcp.Storage.JsonKey")]
-		string GcpStorageJsonCreds { get; }
+		string GcpBucketName { get; }
 
-
-
-
-		[Option(Alias = "Mssql.ConnectionString")]
-		string MssqlConnectionString { get; }
+		string GcpJsonKey { get; }
 
 
 
-		[Option(Alias = "Ftp.Hostname")]
-		string FtpHostName { get; }
+		// ---------------------------------------------------------------------
+		// FTP
+		// ---------------------------------------------------------------------
 
-		[Option(Alias = "Ftp.Username")]
+		string FtpHost { get; }
+
 		string FtpUsername { get; }
 
-		[Option(Alias = "Ftp.Password")]
 		string FtpPassword { get; }
+
+
+
+		// ---------------------------------------------------------------------
+		// SFTP
+		// ---------------------------------------------------------------------
+
+		string SftpHost { get; }
+		int SftpPort { get; }
+		string SftpUser { get; }
+		string SftpPassphrase { get; }
 
 	}
 

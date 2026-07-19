@@ -199,3 +199,6 @@ out/
 build/
 
 *.lock.json
+
+# Config files
+*.yaml

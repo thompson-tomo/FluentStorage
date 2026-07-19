@@ -18,19 +18,19 @@ namespace FluentStorage.Tests.Integration.Azure {
 		private static readonly string Filesystem = nameof(LeakyAdlsGen2StorageTest).ToLower();
 
 		public LeakyAdlsGen2StorageTest() {
-			_settings = TestConfigLoader.Instance;
+			_settings = TestConfigLoader.Config;
 			_storage = AzureDataLakeStorage.FromAzureAd(
-			   _settings.AzureGen2StorageName,
-			   _settings.TenantId,
-			   _settings.ClientId,
-			   _settings.ClientSecret);
+			   _settings.AzureDataLakeStorageName,
+			   _settings.AzureTenantId,
+			   _settings.AzureClientId,
+			   _settings.AzureClientSecret);
 		}
 
 		[Fact]
 		public async Task Authenticate_with_shared_key() {
 			IAzureDataLakeStore authInstance =
-			   AzureDataLakeStorage.FromSharedKey(_settings.AzureGen2StorageName,
-				  _settings.AzureGen2StorageKey);
+			   AzureDataLakeStorage.FromSharedKey(_settings.AzureDataLakeStorageName,
+				  _settings.AzureDataLakeStorageKey);
 
 			//trigger any operation
 			await authInstance.ListObjects();
@@ -41,10 +41,10 @@ namespace FluentStorage.Tests.Integration.Azure {
 			//needs to have "Storage Blob Data Owner"
 
 			IStore authInstance = AzureDataLakeStorage.FromAzureAd(
-			   _settings.AzureGen2StorageName,
-			   _settings.TenantId,
-			   _settings.ClientId,
-			   _settings.ClientSecret);
+			   _settings.AzureDataLakeStorageName,
+			   _settings.AzureTenantId,
+			   _settings.AzureClientId,
+			   _settings.AzureClientSecret);
 
 			//trigger any operation
 			await authInstance.ListObjects();
@@ -88,7 +88,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 		[Fact]
 		public async Task Acl_assign_permisssions_to_file_for_user() {
 			string path = StoragePath.Combine(Filesystem, Guid.NewGuid().ToString());
-			string userId = _settings.OperatorObjectId;
+			string userId = _settings.AzureDataLakeOperatorObjectId;
 
 			//write something
 			await _storage.SetText(path, "perm?");
@@ -112,7 +112,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 		[Fact]
 		public async Task Acl_get_with_upn() {
 			string path = StoragePath.Combine(Filesystem, Guid.NewGuid().ToString());
-			string userId = _settings.OperatorObjectId;
+			string userId = _settings.AzureDataLakeOperatorObjectId;
 
 			//write something
 			await _storage.SetText(path, "perm?");
@@ -134,7 +134,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 		public async Task Acl_assign_non_default_permisssions_to_directory_for_user() {
 			string directoryPath = StoragePath.Combine(Filesystem, "aclnondefault");
 			string filePath = StoragePath.Combine(directoryPath, Guid.NewGuid().ToString());
-			string userId = _settings.OperatorObjectId;
+			string userId = _settings.AzureDataLakeOperatorObjectId;
 
 			//write something
 			await _storage.SetText(filePath, "perm?");
@@ -159,7 +159,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 		public async Task Acl_assign_default_permisssions_to_directory_for_user() {
 			string directoryPath = StoragePath.Combine(Filesystem, "acldefault");
 			string filePath = StoragePath.Combine(directoryPath, Guid.NewGuid().ToString());
-			string userId = _settings.OperatorObjectId;
+			string userId = _settings.AzureDataLakeOperatorObjectId;
 
 			//write something
 			await _storage.SetText(filePath, "perm?");
@@ -183,7 +183,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 		[Fact]
 		public async Task Acl_assign_non_default_permisssions_to_filesystem_for_user() {
 			string filesystem = "aclnondefault";
-			string userId = _settings.OperatorObjectId;
+			string userId = _settings.AzureDataLakeOperatorObjectId;
 
 			//create filesystem
 			await _storage.CreateFilesystem(filesystem);
@@ -211,7 +211,7 @@ namespace FluentStorage.Tests.Integration.Azure {
 		[Fact]
 		public async Task Acl_assign_default_permisssions_to_filesystem_for_user() {
 			string filesystem = "acldefault";
-			string userId = _settings.OperatorObjectId;
+			string userId = _settings.AzureDataLakeOperatorObjectId;
 
 			//create filesystem
 			await _storage.CreateFilesystem(filesystem);

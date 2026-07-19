@@ -2,7 +2,7 @@
 
 namespace FluentStorage.Tests.Integration.Storage {
 	public abstract class IStoreFixture : IDisposable {
-		private static readonly ITestConfig _settings = TestConfigLoader.Instance;
+		private static readonly ITestConfig _settings = TestConfigLoader.Config;
 
 		private string _testDir;
 		private bool _initialised;
@@ -17,7 +17,10 @@ namespace FluentStorage.Tests.Integration.Storage {
 		public IStore Storage { get; private set; }
 		public string BlobPrefix { get; }
 
-		public string TestDir {
+		/// <summary>
+		/// Directory used by the "Local Disk" storage provider for testing.
+		/// </summary>
+		public string LocalTestDir {
 			get {
 				if (_testDir == null) {
 					string buildDir = @"C:\Temp\FluentStorage\";

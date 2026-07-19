@@ -311,12 +311,12 @@
 		}
 
 		[Fact]
-		public async Task Exists_non_existing_blob_returns_false() {
+		public async Task ObjectExists_non_existing_blob_returns_false() {
 			Assert.False(await _storage.ObjectExists(RandomBlobPath()));
 		}
 
 		[Fact]
-		public async Task Exists_existing_blob_returns_true() {
+		public async Task ObjectExists_existing_blob_returns_true() {
 			string id = RandomBlobPath();
 			await _storage.SetText(id, "test");
 

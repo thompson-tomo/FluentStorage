@@ -385,12 +385,7 @@
 			string local = RandomLocalFolder();
 			string remote = RandomRemoteFolder();
 
-			var tree = new[]
-			{
-		new LocalFile("a.txt", 10),
-		new LocalFile("b.txt", 20),
-		new LocalFile("c.txt", 30)
-	};
+			var tree = new[]{new LocalFile("a.txt", 10),new LocalFile("b.txt", 20),new LocalFile("c.txt", 30)};
 
 			await UploadTree(tree, local, remote);
 
@@ -403,12 +398,7 @@
 			string download = RandomLocalFolder();
 			string remote = RandomRemoteFolder();
 
-			var tree = new[]
-			{
-		new LocalFile("a.txt", 10),
-		new LocalFile("b.txt", 20),
-		new LocalFile("c.txt", 30)
-	};
+			var tree = new[]{new LocalFile("a.txt", 10),new LocalFile("b.txt", 20),new LocalFile("c.txt", 30)};
 
 			await UploadTree(tree, upload, remote);
 			await DownloadTree(remote, download);

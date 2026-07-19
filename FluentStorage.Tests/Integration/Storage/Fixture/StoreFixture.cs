@@ -17,15 +17,14 @@
 			if (_initialised)
 				return;
 
-			//drop all blobs in test storage
-
-			List<StoreObject> topLevel = (await Storage.ListDirectory(BlobPrefix, false)).ToList();
-
-			try {
-				await Storage.DeleteObjects(topLevel.Select(f => f.FullPath));
-			}
-			catch {
-				//absolutely doesn't matter if it fails, this is only a perf improvement on tests
+			// drop all blobs in test storage
+			// FIX: do not run on SFTP and other sensitive providers
+			if (BlobPrefix != null) {
+				List<StoreObject> topLevel = (await Storage.ListDirectory(BlobPrefix, false)).ToList();
+				try {
+					await Storage.DeleteObjects(topLevel.Select(f => f.FullPath));
+				}
+				catch {}
 			}
 
 			_initialised = true;

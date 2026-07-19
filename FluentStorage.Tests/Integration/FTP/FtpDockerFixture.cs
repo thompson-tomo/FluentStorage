@@ -2,11 +2,9 @@
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Configurations;
 using DotNet.Testcontainers.Containers;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace FluentStorage.Tests.Integration.Ftp {
-	public class FtpFixture : IAsyncLifetime {
+	public class FtpDockerFixture : IAsyncLifetime {
 
 		public IContainer FtpContainer { get; }
 
@@ -25,7 +23,7 @@ namespace FluentStorage.Tests.Integration.Ftp {
 
 		public int GetPort() => FtpContainer.GetMappedPublicPort(21);
 
-		public FtpFixture() {
+		public FtpDockerFixture() {
 			_userName = Faker.Internet.UserName();
 			_password = Faker.Internet.Password();
 			int passivePortEnd = PassivePortStart + (MaxUsersCount);

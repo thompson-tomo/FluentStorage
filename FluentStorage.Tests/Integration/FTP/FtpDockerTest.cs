@@ -1,21 +1,20 @@
 ﻿using Bogus;
-using FluentAssertions;
 using FluentFTP;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit.Abstractions;
 
 namespace FluentStorage.Tests.Integration.Ftp {
-	public class FtpTest : IClassFixture<FtpFixture>, IAsyncLifetime {
+	/// <summary>
+	/// This test uses Testcontainers to create a PureFTP based docker server, and run our FTP tests against it.
+	/// </summary>
+	public class FtpDockerTest : IClassFixture<FtpDockerFixture>, IAsyncLifetime {
 
 		private IStore _storage;
-		private FtpFixture Fixture { get; }
+		private FtpDockerFixture Fixture { get; }
 
 		private static readonly Faker Faker = new();
 
 		private readonly ITestOutputHelper _outputHelper;
 
-		public FtpTest(ITestOutputHelper outputHelper, FtpFixture ftpFixture) {
+		public FtpDockerTest(ITestOutputHelper outputHelper, FtpDockerFixture ftpFixture) {
 			_outputHelper = outputHelper;
 			Fixture = ftpFixture;
 			FtpStorage.Use();

@@ -9,6 +9,7 @@ using Microsoft.Azure.Storage.Auth;
 using Microsoft.Azure.Storage.Queue;
 using FluentStorage.Queue;
 using WSE = Microsoft.Azure.Storage.StorageException;
+using FluentStorage.Azure.Queues.Utils;
 
 namespace FluentStorage.Azure.Queues.Messenger {
 	public class AzureQueueMessenger : IQueue {
@@ -143,9 +144,9 @@ namespace FluentStorage.Azure.Queues.Messenger {
 			CloudQueue queue = await GetQueueAsync(channelName).ConfigureAwait(false);
 
 			await Task.WhenAll(messages.Select(async m => {
-				CloudQueueMessage nativeMessage = Converter.ToCloudQueueMessage(m);
+				CloudQueueMessage nativeMessage = QueueConverter.ToCloudQueueMessage(m);
 				await queue.AddMessageAsync(nativeMessage, cancellationToken).ConfigureAwait(false);
-				m.Id = Converter.CreateId(nativeMessage);
+				m.Id = QueueConverter.CreateId(nativeMessage);
 			})).ConfigureAwait(false);
 		}
 
@@ -161,7 +162,7 @@ namespace FluentStorage.Azure.Queues.Messenger {
 
 			IEnumerable<CloudQueueMessage> batch = await queue.PeekMessagesAsync(count).ConfigureAwait(false);
 
-			return batch.Select(Converter.ToQueueMessage).ToList();
+			return batch.Select(QueueConverter.ToQueueMessage).ToList();
 
 		}
 
@@ -181,7 +182,7 @@ namespace FluentStorage.Azure.Queues.Messenger {
 			if (batch == null)
 				return new List<QueueMessage>();
 
-			List<QueueMessage> result = batch.Select(Converter.ToQueueMessage).ToList();
+			List<QueueMessage> result = batch.Select(QueueConverter.ToQueueMessage).ToList();
 			return result;
 		}
 

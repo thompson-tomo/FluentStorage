@@ -1,5 +1,4 @@
 ﻿using Microsoft.Azure.Storage.Queue;
-
 using FluentStorage.Queue;
 using System;
 using System.IO;
@@ -7,8 +6,8 @@ using System.Linq;
 using System.Text;
 using FluentStorage.Utils.Extensions;
 
-namespace FluentStorage.Azure.Queues {
-	internal static class Converter {
+namespace FluentStorage.Azure.Queues.Utils {
+	internal static class QueueConverter {
 		private const string PropEndWord = "PROPEND";
 		private static readonly Guid CustomFlag = new Guid("820e7dc0-46a3-4177-a241-cdac97275ca9");
 		private static readonly byte[] CustomFlagBytes = CustomFlag.ToByteArray();
@@ -27,7 +26,7 @@ namespace FluentStorage.Azure.Queues {
 			//note that Azure Storage doesn't have properties on message, therefore I can do a simulation instead
 
 			var clazz = new JsonProps {
-				Properties = message.Properties.Select(p => new JsonProp { Name = p.Key, Value = p.Value }).ToArray()
+				props = message.Properties.Select(p => new JsonProp { name = p.Key, value = p.Value }).ToArray()
 			};
 			byte[] propBytes = Encoding.UTF8.GetBytes(clazz.ToJsonString());
 
@@ -78,8 +77,8 @@ namespace FluentStorage.Azure.Queues {
 					byte[] leftovers = ms.ToByteArray();
 
 					result = new QueueMessage(CreateId(message), leftovers);
-					foreach (JsonProp prop in props.Properties) {
-						result.Properties[prop.Name] = prop.Value;
+					foreach (JsonProp prop in props.props) {
+						result.Properties[prop.name] = prop.value;
 					}
 				}
 			}

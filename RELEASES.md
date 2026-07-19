@@ -9,6 +9,9 @@
    - Remove unused `LogMagic` and `Config.Net` packages, and add `YamlDotNet`
    - Split `IStoreTest` into multiple partial classes and improve test codebase organization
    - New tests for directory upload, directory download, roundtrip
+ - **FluentStorage.Azure.Queues**
+   - Remove all usage of Newtonsoft.Json
+   - Cleanup JSON conversion and move all static utilities into `FluentStorage.Azure.Queues.Utils` NS
 
 #### FluentStorage 8.0.8
  - **FluentStorage**

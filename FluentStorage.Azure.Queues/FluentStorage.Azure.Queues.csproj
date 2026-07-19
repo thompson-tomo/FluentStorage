@@ -26,10 +26,6 @@
    </PropertyGroup>
 
    <ItemGroup>
-      <Compile Include="..\JsonExtensions.cs" Link="JsonExtensions.cs" />
-   </ItemGroup>
-
-   <ItemGroup>
       <ProjectReference Include="..\FluentStorage\FluentStorage.csproj" />
       <PackageReference Include="Microsoft.Azure.Storage.Queue" Version="11.2.3" />
    </ItemGroup>

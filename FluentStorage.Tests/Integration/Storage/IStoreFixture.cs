@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using Config.Net;
-using FluentStorage.Model;
-using FluentStorage.Storage;
-using FluentStorage.Tests.Integration.Config;
+﻿using FluentStorage.Tests.Integration.Config;
 
 namespace FluentStorage.Tests.Integration.Storage {
 	public abstract class IStoreFixture : IDisposable {

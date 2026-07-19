@@ -1,5 +1,10 @@
 ﻿# Release Notes
 
+#### FluentStorage 8.0.9
+ - **FluentStorage.Tests**
+   - Split `IStoreTest` into multiple partial classes and improve test codebase organization
+   - New tests for directory upload, directory download, roundtrip
+
 #### FluentStorage 8.0.8
  - **FluentStorage**
    - `OpenSeekable`: Return null if the stream cannot be created or the object length cannot be determined

@@ -2,8 +2,8 @@
 using FluentStorage.Tests.Unit.Core;
 
 namespace FluentStorage.Tests.Integration.Storage {
-	public class AzureBlobStorageFixture : IStoreFixture {
-		public AzureBlobStorageFixture() : base("lakeyv12") {
+	public class AzureBlobFixture : IStoreFixture {
+		public AzureBlobFixture() : base("lakeyv12") {
 		}
 
 		protected override IStore CreateStorage(ITestConfig settings) {
@@ -12,14 +12,14 @@ namespace FluentStorage.Tests.Integration.Storage {
 		}
 	}
 
-	public class AzureBlobStorageTest : IStoreTest, IClassFixture<AzureBlobStorageFixture> {
-		public AzureBlobStorageTest(AzureBlobStorageFixture fixture) : base(fixture) {
+	public class AzureBlobStorageTest : IStoreTest, IClassFixture<AzureBlobFixture> {
+		public AzureBlobStorageTest(AzureBlobFixture fixture) : base(fixture) {
 		}
 	}
 
 #if DEBUG
-	public class AzureEmulatedBlobStorageFixture : IStoreFixture {
-		public AzureEmulatedBlobStorageFixture() : base("itest") {
+	public class AzureEmulatedBlobFixture : IStoreFixture {
+		public AzureEmulatedBlobFixture() : base("itest") {
 
 		}
 
@@ -28,8 +28,8 @@ namespace FluentStorage.Tests.Integration.Storage {
 		}
 	}
 
-	public class AzureEmulatedBlobStorageTest : IStoreTest, IClassFixture<AzureEmulatedBlobStorageFixture> {
-		public AzureEmulatedBlobStorageTest(AzureEmulatedBlobStorageFixture fixture) : base(fixture) {
+	public class AzureEmulatedBlobStorageTest : IStoreTest, IClassFixture<AzureEmulatedBlobFixture> {
+		public AzureEmulatedBlobStorageTest(AzureEmulatedBlobFixture fixture) : base(fixture) {
 
 		}
 	}
@@ -70,14 +70,14 @@ namespace FluentStorage.Tests.Integration.Storage {
 		}
 	}
 
-	public class DiskDirectoryStorageFixture : IStoreFixture {
+	public class LocalDiskTestFixture : IStoreFixture {
 		protected override IStore CreateStorage(ITestConfig settings) {
 			return StorageFactory.Disk(TestDir);
 		}
 	}
 
-	public class DiskDirectoryTest : IStoreTest, IClassFixture<DiskDirectoryStorageFixture> {
-		public DiskDirectoryTest(DiskDirectoryStorageFixture fixture) : base(fixture) {
+	public class LocalDiskTest : IStoreTest, IClassFixture<LocalDiskTestFixture> {
+		public LocalDiskTest(LocalDiskTestFixture fixture) : base(fixture) {
 		}
 	}
 

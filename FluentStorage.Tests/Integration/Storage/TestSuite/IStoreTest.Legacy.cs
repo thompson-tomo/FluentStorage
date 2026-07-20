@@ -69,6 +69,7 @@
 
 				List<StoreObject> items = (await _storage.ListDirectory(folderPath, true))
 					.Where(f => f.Type == StorageObjectType.File).ToList();
+
 				Assert.Equal(3, items.Count); //1.txt + sub (folder) + 2.txt + 3.txt
 
 			}

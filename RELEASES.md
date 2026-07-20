@@ -40,6 +40,7 @@
    - Fix: `OpenRead`: Opening non-existant objects will no longer throw exceptions
    - Fix: `OpenRange`: Opening non-existant objects will no longer throw exceptions
    - Fix: `OpenWrite` will return null if the object already exists, instead of throwing exceptions
+   - Fix: Credential connection uses `SCRAM-SHA-256` by default
  - **FluentStorage.Tests**
    - New: Add provider-specific config settings for Alibaba OSS, Backblaze B2, Cloudflare R2, DigitalOcean Spaces, Hetzner, Minio S3, Minio Native, Vultr, Wasabi, Mongo GridFS
    - New: Add integration test suites for Alibaba OSS, Backblaze B2, Cloudflare R2, DigitalOcean Spaces, Hetzner, Minio S3, Minio Native, Vultr, Wasabi, Mongo GridFS

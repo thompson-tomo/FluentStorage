@@ -10,17 +10,17 @@ namespace FluentStorage.Tests.Integration.Storage {
 			if (string.IsNullOrEmpty(TestConfigLoader.Config.AlibabaBucket))
 				throw new Exception("Required setting `AlibabaBucketName` is blank!");
 
-			if (string.IsNullOrEmpty(TestConfigLoader.Config.AlibabaAccessKeyId))
+			if (string.IsNullOrEmpty(TestConfigLoader.Config.AlibabaAccessKey))
 				throw new Exception("Required setting `AlibabaAccessKeyId` is blank!");
 
-			if (string.IsNullOrEmpty(TestConfigLoader.Config.AlibabaAccessKeySecret))
+			if (string.IsNullOrEmpty(TestConfigLoader.Config.AlibabaSecretKey))
 				throw new Exception("Required setting `AlibabaAccessKeySecret` is blank!");
 
 			return AlibabaStorage.FromCredentials(
 				settings.AlibabaEndpoint,
 				settings.AlibabaBucket,
-				settings.AlibabaAccessKeyId,
-				settings.AlibabaAccessKeySecret);
+				settings.AlibabaAccessKey,
+				settings.AlibabaSecretKey);
 		}
 	}
 

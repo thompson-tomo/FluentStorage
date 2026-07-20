@@ -5,10 +5,10 @@ namespace FluentStorage.Tests.Integration.Storage {
 		protected override IStore CreateStorage(TestConfig settings) {
 
 			// make sure required config properties are filled
-			if (string.IsNullOrEmpty(TestConfigLoader.Config.AwsAccessKeyId)) {
+			if (string.IsNullOrEmpty(TestConfigLoader.Config.AwsAccessKey)) {
 				throw new Exception("Required setting `AwsAccessKeyId` is blank!");
 			}
-			if (string.IsNullOrEmpty(TestConfigLoader.Config.AwsSecretAccessKey)) {
+			if (string.IsNullOrEmpty(TestConfigLoader.Config.AwsSecretKey)) {
 				throw new Exception("Required setting `AwsSecretAccessKey` is blank!");
 			}
 			if (string.IsNullOrEmpty(TestConfigLoader.Config.AwsBucket)) {
@@ -19,8 +19,8 @@ namespace FluentStorage.Tests.Integration.Storage {
 			}
 
 			return AwsS3Storage.FromCredentials(
-					 settings.AwsAccessKeyId,
-					 settings.AwsSecretAccessKey,
+					 settings.AwsAccessKey,
+					 settings.AwsSecretKey,
 					 null,
 					 settings.AwsBucket,
 					 settings.AwsBucketRegion);

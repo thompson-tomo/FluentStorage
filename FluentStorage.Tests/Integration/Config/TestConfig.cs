@@ -41,9 +41,9 @@ namespace FluentStorage.Tests.Integration.Config {
 		// AWS S3
 		// ---------------------------------------------------------------------
 
-		public string AwsAccessKeyId { get; set; }
+		public string AwsAccessKey { get; set; }
 
-		public string AwsSecretAccessKey { get; set; }
+		public string AwsSecretKey { get; set; }
 
 		public string AwsBucket { get; set; }
 
@@ -84,26 +84,14 @@ namespace FluentStorage.Tests.Integration.Config {
 		public string SftpPrivateKeyPath { get; set; }
 
 
-		// ---------------------------------------------------------------------
-		// Alibaba OSS
-		// ---------------------------------------------------------------------
-
-		public string AlibabaEndpoint { get; set; }
-
-		public string AlibabaBucket { get; set; }
-
-		public string AlibabaAccessKeyId { get; set; }
-
-		public string AlibabaAccessKeySecret { get; set; }
-
 
 		// ---------------------------------------------------------------------
 		// Backblaze B2
 		// ---------------------------------------------------------------------
 
-		public string B2AccessKeyId { get; set; }
+		public string B2AccessKey { get; set; }
 
-		public string B2SecretAccessKey { get; set; }
+		public string B2SecretKey { get; set; }
 
 		public string B2Bucket { get; set; }
 
@@ -114,9 +102,9 @@ namespace FluentStorage.Tests.Integration.Config {
 		// Cloudflare R2
 		// ---------------------------------------------------------------------
 
-		public string CloudflareAccessKeyId { get; set; }
+		public string CloudflareAccessKey { get; set; }
 
-		public string CloudflareSecretAccessKey { get; set; }
+		public string CloudflareSecretKey { get; set; }
 
 		public string CloudflareBucket { get; set; }
 
@@ -127,22 +115,22 @@ namespace FluentStorage.Tests.Integration.Config {
 		// DigitalOcean Spaces
 		// ---------------------------------------------------------------------
 
-		public string DigitalOceanAccessKeyId { get; set; }
+		public string DoAccessKey { get; set; }
 
-		public string DigitalOceanSecretAccessKey { get; set; }
+		public string DoSecretKey { get; set; }
 
-		public string DigitalOceanBucket { get; set; }
+		public string DoBucket { get; set; }
 
-		public string DigitalOceanRegion { get; set; }
+		public string DoRegion { get; set; }
 
 
 		// ---------------------------------------------------------------------
 		// Hetzner Object Storage
 		// ---------------------------------------------------------------------
 
-		public string HetznerAccessKeyId { get; set; }
+		public string HetznerAccessKey { get; set; }
 
-		public string HetznerSecretAccessKey { get; set; }
+		public string HetznerSecretKey { get; set; }
 
 		public string HetznerBucket { get; set; }
 
@@ -153,9 +141,9 @@ namespace FluentStorage.Tests.Integration.Config {
 		// MinIO (S3 SDK)
 		// ---------------------------------------------------------------------
 
-		public string MinioS3AccessKeyId { get; set; }
+		public string MinioS3AccessKey { get; set; }
 
-		public string MinioS3SecretAccessKey { get; set; }
+		public string MinioS3SecretKey { get; set; }
 
 		public string MinioS3Bucket { get; set; }
 
@@ -168,9 +156,9 @@ namespace FluentStorage.Tests.Integration.Config {
 		// Vultr Object Storage
 		// ---------------------------------------------------------------------
 
-		public string VultrAccessKeyId { get; set; }
+		public string VultrAccessKey { get; set; }
 
-		public string VultrSecretAccessKey { get; set; }
+		public string VultrSecretKey { get; set; }
 
 		public string VultrBucket { get; set; }
 
@@ -181,9 +169,9 @@ namespace FluentStorage.Tests.Integration.Config {
 		// Wasabi
 		// ---------------------------------------------------------------------
 
-		public string WasabiAccessKeyId { get; set; }
+		public string WasabiAccessKey { get; set; }
 
-		public string WasabiSecretAccessKey { get; set; }
+		public string WasabiSecretKey { get; set; }
 
 		public string WasabiBucket { get; set; }
 
@@ -226,6 +214,19 @@ namespace FluentStorage.Tests.Integration.Config {
 		public bool MinioSsl { get; set; }
 
 		public string MinioRegion { get; set; }
+
+
+		// ---------------------------------------------------------------------
+		// Alibaba OSS
+		// ---------------------------------------------------------------------
+
+		public string AlibabaEndpoint { get; set; }
+
+		public string AlibabaBucket { get; set; }
+
+		public string AlibabaAccessKey { get; set; }
+
+		public string AlibabaSecretKey { get; set; }
 
 
 		public TestConfig() {

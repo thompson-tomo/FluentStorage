@@ -4,10 +4,10 @@ namespace FluentStorage.Tests.Integration.Storage {
 	public class B2Fixture : StoreFixture {
 		protected override IStore CreateStorage(TestConfig settings) {
 
-			if (string.IsNullOrEmpty(TestConfigLoader.Config.B2AccessKeyId))
+			if (string.IsNullOrEmpty(TestConfigLoader.Config.B2AccessKey))
 				throw new Exception("Required setting `B2AccessKeyId` is blank!");
 
-			if (string.IsNullOrEmpty(TestConfigLoader.Config.B2SecretAccessKey))
+			if (string.IsNullOrEmpty(TestConfigLoader.Config.B2SecretKey))
 				throw new Exception("Required setting `B2SecretAccessKey` is blank!");
 
 			if (string.IsNullOrEmpty(TestConfigLoader.Config.B2Bucket))
@@ -17,8 +17,8 @@ namespace FluentStorage.Tests.Integration.Storage {
 				throw new Exception("Required setting `B2Region` is blank!");
 
 			return BackblazeB2Storage.FromCredentials(
-				settings.B2AccessKeyId,
-				settings.B2SecretAccessKey,
+				settings.B2AccessKey,
+				settings.B2SecretKey,
 				settings.B2Bucket,
 				settings.B2Region);
 		}

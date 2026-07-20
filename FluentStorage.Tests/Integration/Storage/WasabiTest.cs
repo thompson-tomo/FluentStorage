@@ -4,10 +4,10 @@ namespace FluentStorage.Tests.Integration.Storage {
 	public class WasabiFixture : StoreFixture {
 		protected override IStore CreateStorage(TestConfig settings) {
 
-			if (string.IsNullOrEmpty(TestConfigLoader.Config.WasabiAccessKeyId))
+			if (string.IsNullOrEmpty(TestConfigLoader.Config.WasabiAccessKey))
 				throw new Exception("Required setting `WasabiAccessKeyId` is blank!");
 
-			if (string.IsNullOrEmpty(TestConfigLoader.Config.WasabiSecretAccessKey))
+			if (string.IsNullOrEmpty(TestConfigLoader.Config.WasabiSecretKey))
 				throw new Exception("Required setting `WasabiSecretAccessKey` is blank!");
 
 			if (string.IsNullOrEmpty(TestConfigLoader.Config.WasabiBucket))
@@ -17,8 +17,8 @@ namespace FluentStorage.Tests.Integration.Storage {
 				throw new Exception("Required setting `WasabiServiceUrl` is blank!");
 
 			return WasabiStorage.FromCredentials(
-				settings.WasabiAccessKeyId,
-				settings.WasabiSecretAccessKey,
+				settings.WasabiAccessKey,
+				settings.WasabiSecretKey,
 				settings.WasabiBucket,
 				settings.WasabiServiceUrl);
 		}

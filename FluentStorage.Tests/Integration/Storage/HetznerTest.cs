@@ -5,10 +5,10 @@ namespace FluentStorage.Tests.Integration.Storage {
 	public class HetznerFixture : StoreFixture {
 		protected override IStore CreateStorage(TestConfig settings) {
 
-			if (string.IsNullOrEmpty(TestConfigLoader.Config.HetznerAccessKeyId))
+			if (string.IsNullOrEmpty(TestConfigLoader.Config.HetznerAccessKey))
 				throw new Exception("Required setting `HetznerAccessKeyId` is blank!");
 
-			if (string.IsNullOrEmpty(TestConfigLoader.Config.HetznerSecretAccessKey))
+			if (string.IsNullOrEmpty(TestConfigLoader.Config.HetznerSecretKey))
 				throw new Exception("Required setting `HetznerSecretAccessKey` is blank!");
 
 			if (string.IsNullOrEmpty(TestConfigLoader.Config.HetznerBucket))
@@ -18,8 +18,8 @@ namespace FluentStorage.Tests.Integration.Storage {
 				throw new Exception("Required setting `HetznerRegion` is blank!");
 
 			return HetznerStorage.FromCredentials(
-				settings.HetznerAccessKeyId,
-				settings.HetznerSecretAccessKey,
+				settings.HetznerAccessKey,
+				settings.HetznerSecretKey,
 				settings.HetznerBucket,
 				settings.HetznerRegion);
 		}

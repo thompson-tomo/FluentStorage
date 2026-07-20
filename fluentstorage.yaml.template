@@ -1,12 +1,12 @@
-# ---------------------------------------------------------------------
+# ---------------------------------------------
 # Local Disk
-# ---------------------------------------------------------------------
+# ---------------------------------------------
 
 LocalDiskPath: "C:\\Temp\\FluentStorage"
 
-# ---------------------------------------------------------------------
+# ---------------------------------------------
 # Azure Blob/Files/DataLake
-# ---------------------------------------------------------------------
+# ---------------------------------------------
 
 AzureClientId:
 AzureClientSecret:
@@ -19,36 +19,133 @@ AzureDataLakeOperatorObjectId:
 AzureServiceBusConnectionString:
 AzureKeyVaultUri:
 
-# ---------------------------------------------------------------------
+# ---------------------------------------------
 # AWS S3
-# ---------------------------------------------------------------------
+# ---------------------------------------------
 
-AwsAccessKeyId:
-AwsSecretAccessKey:
-AwsBucketName:
+AwsAccessKey:
+AwsSecretKey:
+AwsBucket:
 AwsBucketRegion:
 
-# ---------------------------------------------------------------------
+# ---------------------------------------------
 # GCP Storage
-# ---------------------------------------------------------------------
+# ---------------------------------------------
 
-GcpBucketName:
+GcpBucket:
 GcpJsonKey:
 
-# ---------------------------------------------------------------------
+# ---------------------------------------------
 # FTP
-# ---------------------------------------------------------------------
+# ---------------------------------------------
 
 FtpHost:
 FtpUsername:
 FtpPassword:
 
-# ---------------------------------------------------------------------
+# ---------------------------------------------
 # SFTP
-# ---------------------------------------------------------------------
+# ---------------------------------------------
 
 SftpHost:
 SftpPort: 22
 SftpUser:
 SftpPassphrase:
 SftpPrivateKeyPath: ".ssh\\id_ed25519"
+
+# ---------------------------------------------
+# Backblaze B2
+# ---------------------------------------------
+
+B2AccessKey:
+B2SecretKey:
+B2Bucket:
+B2Region:
+
+# ---------------------------------------------
+# Cloudflare R2
+# ---------------------------------------------
+
+CloudflareAccessKey:
+CloudflareSecretKey:
+CloudflareBucket:
+CloudflareAccountId:
+
+# ---------------------------------------------
+# DigitalOcean Spaces
+# ---------------------------------------------
+
+DoAccessKey:
+DoSecretKey:
+DoBucket:
+DoRegion:
+
+# ---------------------------------------------
+# Hetzner Object Storage
+# ---------------------------------------------
+
+HetznerAccessKey:
+HetznerSecretKey:
+HetznerBucket:
+HetznerRegion:
+
+# ---------------------------------------------
+# MinIO (S3)
+# ---------------------------------------------
+
+MinioS3AccessKey:
+MinioS3SecretKey:
+MinioS3Bucket:
+MinioS3AwsRegion:
+MinioS3ServerUrl:
+
+# ---------------------------------------------
+# MinIO (Native)
+# ---------------------------------------------
+
+MinioEndpoint:
+MinioAccessKey:
+MinioSecretKey:
+MinioBucket:
+MinioSsl: false
+MinioRegion:
+
+# ---------------------------------------------
+# Vultr
+# ---------------------------------------------
+
+VultrAccessKey:
+VultrSecretKey:
+VultrBucket:
+VultrHostName:
+
+# ---------------------------------------------
+# Wasabi
+# ---------------------------------------------
+
+WasabiAccessKey:
+WasabiSecretKey:
+WasabiBucket:
+WasabiServiceUrl:
+
+# ---------------------------------------------
+# MongoDB GridFS
+# ---------------------------------------------
+
+MongoHost:
+MongoPort: 27017
+MongoUsername:
+MongoPassword:
+MongoDatabase:
+MongoBucket:
+MongoAuthDatabase:
+MongoSsl: false
+
+# ---------------------------------------------
+# Alibaba OSS
+# ---------------------------------------------
+
+AlibabaEndpoint:
+AlibabaBucket:
+AlibabaAccessKey:
+AlibabaSecretKey:

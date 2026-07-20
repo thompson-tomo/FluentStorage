@@ -180,15 +180,17 @@ namespace FluentStorage.Storage {
 			var result = new List<StoreObject>();
 
 			// add folders
-			result.AddRange(directoryIds.Select(id =>
-				ToBlobItem(id, StorageObjectType.Folder, options.IncludeAttributes))
-			);
+			foreach (string id in directoryIds) {
+				result.Add(ToBlobItem(id, StorageObjectType.Folder, options.IncludeAttributes));
+			}
 
-			// add files (except ATTR files)
-			result.AddRange(fileIds
-					.Where(fid => !fid.EndsWith(AttributesFileExtension))
-					.Select(id => ToBlobItem(id, StorageObjectType.File, options.IncludeAttributes))
-			);
+			// add all files (except ATTR files)
+			foreach (string id in fileIds) {
+				if (id.EndsWith(AttributesFileExtension))
+					continue;
+
+				result.Add(ToBlobItem(id, StorageObjectType.File, options.IncludeAttributes));
+			}
 
 			// apply filters and result limits
 			if (options.BrowseFilter != null) {
@@ -367,7 +369,6 @@ namespace FluentStorage.Storage {
 		/// Deletes an object by its full path.
 		/// </summary>
 		/// <param name="fullPath">The full path.</param>
-		/// <param name="client">The sftp client to use.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <returns></returns>
 		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken = default) {

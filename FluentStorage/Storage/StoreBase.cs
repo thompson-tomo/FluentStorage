@@ -727,15 +727,25 @@ namespace FluentStorage.Storage {
 		/// </summary>
 		/// <param name="folderPath">Path to the new folder.</param>
 		public virtual async Task CreateDirectory(string folderPath, bool force, CancellationToken cancellationToken = default) {
-			throw new NotImplementedException();
+			// FIX: do not throw any exception here, as all the cloud stores do not required directory creation
+			//		and this is implemented specially for filesystem-based stores like disk/FTP/SFTP
 		}
 
 		/// <summary>
-		/// Deletes a folder in this file system. Does nothing in cloud storage buckets.
+		/// Deletes a folder in this file system. Deletes all objects under the given virtual folder in cloud storage buckets.
 		/// </summary>
-		/// <param name="folderPath">Path to the new folder.</param>
+		/// <param name="folderPath">Path to the folder or virtual folder.</param>
+		/// <param name="recursive">Whether to delete all child objects.</param>
 		public virtual async Task DeleteDirectory(string folderPath, bool recursive, CancellationToken cancellationToken = default) {
-			throw new NotImplementedException();
+
+			// list all objects in the folder
+			var objects = await ListDirectory(folderPath, recursive, cancellationToken);
+
+			// delete all listed objects
+			if (objects.Count > 0) {
+				await DeleteObjects(objects, cancellationToken);
+			}
+
 		}
 
 		/// <summary>

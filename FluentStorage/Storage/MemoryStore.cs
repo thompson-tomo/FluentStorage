@@ -16,13 +16,13 @@ namespace FluentStorage.Storage {
 			public StoreObject blob;
 			public byte[] data;
 		}
-
-		private readonly Dictionary<string, Tag> _pathToTag = new Dictionary<string, Tag>();
+		private readonly Dictionary<string, Tag> _files = new Dictionary<string, Tag>();
+		private readonly HashSet<string> _directories = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "" };
 
 		public override async Task<List<StoreObject>> ListObjects(StorageListOptions options, CancellationToken cancellationToken = default) {
 			if (options == null) options = new StorageListOptions();
 
-			IEnumerable<KeyValuePair<string, Tag>> query = _pathToTag;
+			IEnumerable<KeyValuePair<string, Tag>> query = _files;
 
 			//limit by folder path
 			if (options.Recurse) {
@@ -69,7 +69,7 @@ namespace FluentStorage.Storage {
 					Write(fullPath, sourceStream);
 				}
 				else {
-					Tag tag = _pathToTag[fullPath];
+					Tag tag = _files[fullPath];
 					byte[] data = tag.data.Concat(sourceStream.ToByteArray()).ToArray();
 					Write(fullPath, new MemoryStream(data));
 				}
@@ -84,9 +84,45 @@ namespace FluentStorage.Storage {
 			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
 			fullPath = StoragePath.Normalize(fullPath);
 
-			if (!_pathToTag.TryGetValue(fullPath, out Tag tag) || tag.data == null) return null;
+			// return null if the object is not found
+			if (!_files.TryGetValue(fullPath, out Tag tag) || tag.data == null) return null;
 
 			return new NonCloseableStream(new MemoryStream(tag.data));
+		}
+		public override async Task<Stream> OpenWrite(string fullPath, bool overwrite, CancellationToken cancellationToken = default) {
+			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
+			fullPath = StoragePath.Normalize(fullPath);
+
+			// return null if the object is exists and overwriting is not wanted
+			if (!overwrite && await ObjectExists(fullPath, cancellationToken).ConfigureAwait(false))
+				return null;
+
+			MemoryStream stream = new MemoryStream();
+
+			return new FixedStream(stream, null, async s => {
+				s.Position = 0;
+				await SetObject(fullPath, s, append: false, cancellationToken: cancellationToken).ConfigureAwait(false);
+			});
+		}
+		public override async Task<Stream> OpenRange(string fullPath, long offset, long length, CancellationToken cancellationToken = default) {
+			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
+			if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
+			if (length < 0) throw new ArgumentOutOfRangeException(nameof(length));
+
+			fullPath = StoragePath.Normalize(fullPath);
+
+			// return null if the object is not found
+			if (!_files.TryGetValue(fullPath, out Tag tag) || tag.data == null)
+				return null;
+
+			var stream = new MemoryStream(tag.data, false);
+			stream.Position = offset;
+
+			return stream;
+		}
+
+		public override async Task<bool> IsSeekable() {
+			return true;
 		}
 
 		/// <summary>
@@ -108,28 +144,17 @@ namespace FluentStorage.Storage {
 		/// <returns></returns>
 		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken = default) {
 			if (fullPath == null) return;
-
-			// delete "file"
 			StoreObject pb = fullPath;
-			if (_pathToTag.ContainsKey(pb)) {
-				_pathToTag.Remove(pb);
+			if (_files.ContainsKey(pb)) {
+				_files.Remove(pb);
 			}
-
-			string prefix = StoragePath.Normalize(fullPath) + StoragePath.PathSeparatorString;
-
-			// delete all "files "under this "folder"
-			List<StoreObject> candidates = _pathToTag.Where(p => p.Value.blob.FullPath.StartsWith(prefix)).Select(p => p.Value.blob).ToList();
-			foreach (StoreObject candidate in candidates) {
-				_pathToTag.Remove(candidate);
-			}
-
 		}
 
 		public override async Task<List<bool>> ObjectsExists(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			var result = new List<bool>();
 
 			foreach (string fullPath in fullPaths) {
-				result.Add(_pathToTag.ContainsKey(StoragePath.Normalize(fullPath)));
+				result.Add(_files.ContainsKey(StoragePath.Normalize(fullPath)));
 			}
 
 			return result;
@@ -144,7 +169,7 @@ namespace FluentStorage.Storage {
 			var result = new List<StoreObject>();
 
 			foreach (string fullPath in fullPaths) {
-				if (!_pathToTag.TryGetValue(StoragePath.Normalize(fullPath), out Tag tag)) {
+				if (!_files.TryGetValue(StoragePath.Normalize(fullPath), out Tag tag)) {
 					result.Add(null);
 				}
 				else {
@@ -164,7 +189,7 @@ namespace FluentStorage.Storage {
 				return;
 
 			foreach (StoreObject blob in blobs) {
-				if (_pathToTag.TryGetValue(blob, out Tag tag)) {
+				if (_files.TryGetValue(blob, out Tag tag)) {
 					tag.blob.Metadata.Clear();
 					tag.blob.Metadata.AddRange(blob.Metadata);
 				}
@@ -179,7 +204,7 @@ namespace FluentStorage.Storage {
 				ms.Position = 0;
 			byte[] data = sourceStream.ToByteArray();
 
-			if (!_pathToTag.TryGetValue(fullPath, out Tag tag)) {
+			if (!_files.TryGetValue(fullPath, out Tag tag)) {
 				tag = new Tag {
 					data = data,
 					blob = new StoreObject(fullPath) {
@@ -195,17 +220,19 @@ namespace FluentStorage.Storage {
 				tag.blob.DateModified = DateTime.UtcNow;
 				tag.blob.MD5 = data.MD5().ToHexString();
 			}
-			_pathToTag[fullPath] = tag;
+			_files[fullPath] = tag;
 
 			AddVirtualFolderHierarchy(tag.blob);
 		}
 
 		private void AddVirtualFolderHierarchy(StoreObject fileBlob) {
-			string path = fileBlob.FolderPath;
+			string path = StoragePath.Normalize(fileBlob.FolderPath);
 
-			while (!StoragePath.IsRootPath(path)) {
-				var vf = new StoreObject(path, StorageObjectType.Folder);
-				_pathToTag[path] = new Tag { blob = vf };
+			while (true) {
+				_directories.Add(path);
+
+				if (StoragePath.IsRootPath(path))
+					break;
 
 				path = StoragePath.GetParent(path);
 			}
@@ -214,7 +241,133 @@ namespace FluentStorage.Storage {
 		public override async Task<bool> ObjectExists(string fullPath, CancellationToken cancellationToken = default) {
 			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
 
-			return _pathToTag.ContainsKey(fullPath);
+			return _files.ContainsKey(StoragePath.Normalize(fullPath));
+		}
+
+
+		public override async Task<long> GetObjectLength(string fullPath, long defaultValue = -1, CancellationToken cancellationToken = default) {
+			if (fullPath == null)
+				return defaultValue;
+
+			fullPath = StoragePath.Normalize(fullPath);
+
+			return _files.TryGetValue(fullPath, out Tag tag) && tag.data != null
+				? tag.data.LongLength
+				: defaultValue;
+		}
+
+		public override async Task CreateDirectory(string folderPath, bool force, CancellationToken cancellationToken = default) {
+			if (folderPath == null) throw new ArgumentNullException(nameof(folderPath));
+
+			folderPath = StoragePath.Normalize(folderPath);
+
+			while (true) {
+				_directories.Add(folderPath);
+
+				if (StoragePath.IsRootPath(folderPath))
+					break;
+
+				folderPath = StoragePath.GetParent(folderPath);
+			}
+		}
+
+		public override async Task<bool> DirectoryExists(string folderPath, CancellationToken cancellationToken = default) {
+			if (folderPath == null) throw new ArgumentNullException(nameof(folderPath));
+
+			return _directories.Contains(StoragePath.Normalize(folderPath));
+		}
+
+		public override async Task DeleteDirectory(string folderPath, bool recursive, CancellationToken cancellationToken = default) {
+			if (folderPath == null) throw new ArgumentNullException(nameof(folderPath));
+
+			folderPath = StoragePath.Normalize(folderPath);
+
+			if (!_directories.Contains(folderPath))
+				return;
+
+			string prefix = folderPath.Length == 0 ? "" : folderPath + "/";
+
+			if (recursive) {
+
+				foreach (string file in _files.Keys.Where(x => x.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)).ToList())
+					_files.Remove(file);
+
+				foreach (string dir in _directories.Where(x => x.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)).ToList())
+					_directories.Remove(dir);
+			}
+			else {
+
+				if (_files.Keys.Any(x => StoragePath.GetParent(x) == folderPath))
+					return;
+
+				if (_directories.Any(x => StoragePath.GetParent(x) == folderPath))
+					return;
+			}
+
+			_directories.Remove(folderPath);
+		}
+
+		public override async Task MoveDirectory(string sourceFolderPath, string destinationFolderPath, CancellationToken cancellationToken = default) {
+			if (sourceFolderPath == null) throw new ArgumentNullException(nameof(sourceFolderPath));
+			if (destinationFolderPath == null) throw new ArgumentNullException(nameof(destinationFolderPath));
+
+			sourceFolderPath = StoragePath.Normalize(sourceFolderPath);
+			destinationFolderPath = StoragePath.Normalize(destinationFolderPath);
+
+			string prefix = sourceFolderPath.Length == 0 ? "" : sourceFolderPath + "/";
+
+			foreach (string oldPath in _files.Keys.Where(x => x.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)).ToList()) {
+
+				string relative = oldPath.Substring(prefix.Length);
+				string newPath = StoragePath.Combine(destinationFolderPath, relative);
+
+				Tag tag = _files[oldPath];
+				tag.blob.SetFullPath(newPath);
+
+				_files.Remove(oldPath);
+				_files[newPath] = tag;
+			}
+
+			foreach (string dir in _directories.Where(x => x.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)).ToList()) {
+				_directories.Remove(dir);
+
+				string relative = dir.Substring(prefix.Length);
+				_directories.Add(StoragePath.Combine(destinationFolderPath, relative));
+			}
+
+			_directories.Add(destinationFolderPath);
+		}
+
+		public override async Task<bool> MoveObject(string oldPath, string newPath, bool overwrite, CancellationToken cancellationToken = default) {
+			if (oldPath == null) throw new ArgumentNullException(nameof(oldPath));
+			if (newPath == null) throw new ArgumentNullException(nameof(newPath));
+
+			oldPath = StoragePath.Normalize(oldPath);
+			newPath = StoragePath.Normalize(newPath);
+
+			// source must exist
+			if (!_files.TryGetValue(oldPath, out Tag tag) || tag.data == null)
+				return false;
+
+			// destination exists and overwrite disabled
+			if (!overwrite && _files.ContainsKey(newPath))
+				return false;
+
+			// remove destination if overwriting
+			if (overwrite && _files.ContainsKey(newPath))
+				_files.Remove(newPath);
+
+			// move the object
+			tag.blob.SetFullPath(newPath);
+			tag.blob.DateModified = DateTime.UtcNow;
+
+			_files.Remove(oldPath);
+			_files[newPath] = tag;
+
+			// ensure destination folder hierarchy exists
+			AddVirtualFolderHierarchy(tag.blob);
+
+			return true;
 		}
 
 	}

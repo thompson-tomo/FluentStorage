@@ -255,7 +255,15 @@ namespace FluentStorage.Mongo.Storage {
 
 			string path = StoragePath.Normalize(fullPath);
 
-			return await _bucket.OpenDownloadStreamByNameAsync(path, cancellationToken: cancellationToken).ConfigureAwait(false);
+			try {
+
+				return await _bucket.OpenDownloadStreamByNameAsync(path, cancellationToken: cancellationToken).ConfigureAwait(false);
+			}
+			catch (GridFSFileNotFoundException) {
+
+				// return null if the object does not exist
+				return null;
+			}
 		}
 
 		public override async Task<Stream> OpenWrite(string fullPath, bool overwrite, CancellationToken cancellationToken = default) {
@@ -263,11 +271,9 @@ namespace FluentStorage.Mongo.Storage {
 
 			string path = StoragePath.Normalize(fullPath);
 
-			if (!overwrite) {
-				bool exists = await ObjectExists(path, cancellationToken).ConfigureAwait(false);
-				if (exists) {
-					throw new StorageException($"Object '{path}' already exists and overwrite is disabled.");
-				}
+			if (!overwrite && await ObjectExists(path, cancellationToken).ConfigureAwait(false)){
+				//throw new StorageException($"Object '{path}' already exists and overwrite is disabled.");
+				return null;
 			}
 
 			var stream = new MemoryStream();
@@ -289,14 +295,22 @@ namespace FluentStorage.Mongo.Storage {
 
 			string normalized = StoragePath.Normalize(path);
 
-			var opt = new GridFSDownloadByNameOptions();
-			opt.Seekable = true;
-			var downloadStream = await _bucket.OpenDownloadStreamByNameAsync(normalized, opt, cancellationToken).ConfigureAwait(false);
+			try {
 
-			// we hope this stream is seekable, else the entire seeking/streaming functionality will be broken,
-			// more testing and feedback is required
-			downloadStream.Seek(offset, SeekOrigin.Begin);
-			return downloadStream;
+				var opt = new GridFSDownloadByNameOptions();
+				opt.Seekable = true;
+				var downloadStream = await _bucket.OpenDownloadStreamByNameAsync(normalized, opt, cancellationToken).ConfigureAwait(false);
+
+				// we hope this stream is seekable, else the entire seeking/streaming functionality will be broken,
+				// more testing and feedback is required
+				downloadStream.Seek(offset, SeekOrigin.Begin);
+				return downloadStream;
+			}
+			catch (GridFSFileNotFoundException) {
+
+				// return null if the object does not exist
+				return null;
+			}
 		}
 
 		public override async Task<bool> IsSeekable() {

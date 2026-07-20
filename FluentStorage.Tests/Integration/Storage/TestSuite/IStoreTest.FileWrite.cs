@@ -108,9 +108,10 @@
 		public async Task OpenWrite_CreatesObject() {
 			string file = RandomFile();
 
-			using (var stream = await _storage.OpenWrite(file, overwrite: true))
-			using (var writer = new StreamWriter(stream)) {
-				await writer.WriteAsync("Hello");
+			using (var stream = await _storage.OpenWrite(file, overwrite: true)) {
+				using (var writer = new StreamWriter(stream)) {
+					await writer.WriteAsync("Hello");
+				}
 			}
 
 			Assert.Equal("Hello", await _storage.GetText(file));
@@ -122,9 +123,10 @@
 
 			await _storage.SetText(file, "Old");
 
-			using (var stream = await _storage.OpenWrite(file, overwrite: true))
-			using (var writer = new StreamWriter(stream)) {
-				await writer.WriteAsync("New");
+			using (var stream = await _storage.OpenWrite(file, overwrite: true)) {
+				using (var writer = new StreamWriter(stream)) {
+					await writer.WriteAsync("New");
+				}
 			}
 
 			Assert.Equal("New", await _storage.GetText(file));

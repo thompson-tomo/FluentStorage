@@ -388,12 +388,14 @@ namespace FluentStorage.AWS.Storage {
 		/// * 206 Partial Content for valid ranges.
 		/// * 416 Requested Range Not Satisfiable if offset is beyond the end of the object.
 		/// </summary>
-		public override async Task<Stream> OpenRange(string path,long offset,long length,CancellationToken cancellationToken = default) {
+		public override async Task<Stream> OpenRange(string fullPath,long offset,long length,CancellationToken cancellationToken = default) {
 			AmazonS3Client client = await Client().ConfigureAwait(false);
+
+			fullPath = StoragePath.Normalize(fullPath);
 
 			var request = new GetObjectRequest {
 				BucketName = BucketName,
-				Key = path
+				Key = fullPath
 			};
 
 			// Request the desired byte range.
@@ -413,6 +415,8 @@ namespace FluentStorage.AWS.Storage {
 		public override async Task<long> GetObjectLength(string fullPath, long defaultValue = -1, CancellationToken cancellationToken = default) {
 			try {
 				AmazonS3Client client = await Client().ConfigureAwait(false);
+
+				fullPath = StoragePath.Normalize(fullPath);
 
 				var response = await client.GetObjectMetadataAsync(new GetObjectMetadataRequest {
 					BucketName = BucketName,
@@ -439,8 +443,7 @@ namespace FluentStorage.AWS.Storage {
 		}
 
 		/// <summary>
-		/// Deletes an object and recursively removes any virtual directory placeholder objects
-		/// beneath its path.
+		/// Deletes an object.
 		/// </summary>
 		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken = default) {
 			AmazonS3Client client = await Client().ConfigureAwait(false);
@@ -450,9 +453,9 @@ namespace FluentStorage.AWS.Storage {
 			fullPath = StoragePath.Normalize(fullPath);
 
 			await client.DeleteObjectAsync(_bucketName, fullPath, cancellationToken).ConfigureAwait(false);
-			using (var browser = new S3DirectoryBrowser(client, _bucketName)) {
+			/*using (var browser = new S3DirectoryBrowser(client, _bucketName)) {
 				await browser.DeleteRecursiveAsync(fullPath, cancellationToken).ConfigureAwait(false);
-			}
+			}*/
 		}
 
 		/// <summary>
@@ -649,6 +652,9 @@ namespace FluentStorage.AWS.Storage {
 			if (string.IsNullOrWhiteSpace(oldPath)) throw new ArgumentNullException(nameof(oldPath));
 			if (string.IsNullOrWhiteSpace(newPath)) throw new ArgumentNullException(nameof(newPath));
 
+			oldPath = StoragePath.Normalize(oldPath);
+			newPath = StoragePath.Normalize(newPath);
+
 			if (!await ObjectExists(oldPath, cancellationToken).ConfigureAwait(false))
 				return false;
 
@@ -675,6 +681,8 @@ namespace FluentStorage.AWS.Storage {
 		public override async Task<List<StorageObjectVersion>> ListObjectVersions(string objectPath, CancellationToken cancellationToken = default) {
 
 			if (objectPath == null) throw new ArgumentNullException(nameof(objectPath));
+
+			objectPath = StoragePath.Normalize(objectPath);
 
 			AmazonS3Client client = await Client().ConfigureAwait(false);
 
@@ -739,6 +747,8 @@ namespace FluentStorage.AWS.Storage {
 			if (objectPath == null) throw new ArgumentNullException(nameof(objectPath));
 			if (string.IsNullOrWhiteSpace(versionId))throw new ArgumentNullException(nameof(versionId));
 
+			objectPath = StoragePath.Normalize(objectPath);
+
 			AmazonS3Client client = await Client().ConfigureAwait(false);
 
 			string keyMarker = null;
@@ -794,6 +804,8 @@ namespace FluentStorage.AWS.Storage {
 			if (objectPath == null) throw new ArgumentNullException(nameof(objectPath));
 			if (string.IsNullOrWhiteSpace(versionId))throw new ArgumentNullException(nameof(versionId));
 
+			objectPath = StoragePath.Normalize(objectPath);
+
 			AmazonS3Client client = await Client().ConfigureAwait(false);
 
 			if (!await ObjectExists(objectPath, cancellationToken).ConfigureAwait(false))
@@ -829,6 +841,8 @@ namespace FluentStorage.AWS.Storage {
 
 			if (objectPath == null) throw new ArgumentNullException(nameof(objectPath));
 			if (string.IsNullOrWhiteSpace(versionId))throw new ArgumentNullException(nameof(versionId));
+
+			objectPath = StoragePath.Normalize(objectPath);
 
 			AmazonS3Client client = await Client().ConfigureAwait(false);
 
@@ -873,6 +887,8 @@ namespace FluentStorage.AWS.Storage {
 			if (string.IsNullOrWhiteSpace(objectPath))
 				throw new ArgumentNullException(nameof(objectPath));
 
+			objectPath = StoragePath.Normalize(objectPath);
+
 			AmazonS3Client client = await Client().ConfigureAwait(false);
 
 			try {
@@ -901,6 +917,8 @@ namespace FluentStorage.AWS.Storage {
 		public override async Task<bool> SetObjectTags(string objectPath, Dictionary<string, string> tags, CancellationToken cancellationToken = default) {
 			if (string.IsNullOrWhiteSpace(objectPath))
 				throw new ArgumentNullException(nameof(objectPath));
+
+			objectPath = StoragePath.Normalize(objectPath);
 
 			AmazonS3Client client = await Client().ConfigureAwait(false);
 
@@ -934,6 +952,8 @@ namespace FluentStorage.AWS.Storage {
 			if (string.IsNullOrWhiteSpace(objectPath))
 				throw new ArgumentNullException(nameof(objectPath));
 
+			objectPath = StoragePath.Normalize(objectPath);
+
 			AmazonS3Client client = await Client().ConfigureAwait(false);
 
 			try {
@@ -961,6 +981,8 @@ namespace FluentStorage.AWS.Storage {
 		public override async Task<StorageTier> GetObjectTier(string objectPath, CancellationToken cancellationToken = default) {
 			if (string.IsNullOrWhiteSpace(objectPath))
 				throw new ArgumentNullException(nameof(objectPath));
+
+			objectPath = StoragePath.Normalize(objectPath);
 
 			AmazonS3Client client = await Client().ConfigureAwait(false);
 
@@ -990,6 +1012,8 @@ namespace FluentStorage.AWS.Storage {
 
 			if (!AwsTier.FromFluentTier.TryGetValue(tier, out S3StorageClass storageClass))
 				throw new StorageException($"AWS S3 does not support the tier \"{tier}\". Use a supported tier and try again.");
+
+			objectPath = StoragePath.Normalize(objectPath);
 
 			AmazonS3Client client = await Client().ConfigureAwait(false);
 

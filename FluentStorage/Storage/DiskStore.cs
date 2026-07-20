@@ -379,9 +379,9 @@ namespace FluentStorage.Storage {
 			if (_fileSystem.File.Exists(path)) {
 				_fileSystem.File.Delete(path);
 			}
-			else if (_fileSystem.Directory.Exists(path)) {
+			/*else if (_fileSystem.Directory.Exists(path)) {
 				_fileSystem.Directory.Delete(path, true);
-			}
+			}*/
 		}
 
 		/// <summary>

@@ -246,11 +246,11 @@ namespace FluentStorage.Azure.Files.Storage {
 				await file.DeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 			}
 			catch (RequestFailedException ex) when (ex.ErrorCode == "ResourceNotFound") {
-				ShareDirectoryClient dir = await GetDirectoryReferenceAsync(fullPath, false, cancellationToken).ConfigureAwait(false);
+				/*ShareDirectoryClient dir = await GetDirectoryReferenceAsync(fullPath, false, cancellationToken).ConfigureAwait(false);
 				if (dir != null && await dir.ExistsAsync(cancellationToken).ConfigureAwait(false)) {
 					await DeleteDirectoryAsync(dir, cancellationToken).ConfigureAwait(false);
 					await dir.DeleteIfExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
-				}
+				}*/
 			}
 		}
 

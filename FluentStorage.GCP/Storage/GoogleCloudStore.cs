@@ -123,7 +123,7 @@ namespace FluentStorage.GCP.Storage {
 			}
 			catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.NotFound) {
 				//when not found, just ignore
-
+				/*
 				//try delete everything recursively
 				List<StoreObject?> childObjects = await ListPath(fullPath, new StorageListOptions { Recurse = true }, cancellationToken).ConfigureAwait(false);
 
@@ -138,7 +138,7 @@ namespace FluentStorage.GCP.Storage {
 					catch (GoogleApiException exc) when (exc.HttpStatusCode == HttpStatusCode.NotFound) {
 
 					}
-				}
+				}*/
 			}
 		}
 
@@ -178,15 +178,15 @@ namespace FluentStorage.GCP.Storage {
 
 			// no read streaming support in this crappy SDK
 
-			var ms = new MemoryStream();
 			try {
+				var ms = new MemoryStream();
 				await _client.DownloadObjectAsync(_bucketName, fullPath, ms, cancellationToken: cancellationToken).ConfigureAwait(false);
+				ms.Position = 0;
+				return ms;
 			}
 			catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.NotFound) {
 				return null;
 			}
-			ms.Position = 0;
-			return ms;
 		}
 
 		/// <summary>
@@ -222,15 +222,20 @@ namespace FluentStorage.GCP.Storage {
 			path = StoragePath.Normalize(path);
 
 			var stream = new MemoryStream();
+			try {
 
-			var options = new DownloadObjectOptions {
-				Range = new RangeHeaderValue(offset, offset + length - 1)
-			};
+				var options = new DownloadObjectOptions {
+					Range = new RangeHeaderValue(offset, offset + length - 1)
+				};
 
-			await _client.DownloadObjectAsync(_bucketName,path,stream,options,cancellationToken).ConfigureAwait(false);
+				await _client.DownloadObjectAsync(_bucketName, path, stream, options, cancellationToken).ConfigureAwait(false);
 
-			stream.Position = 0;
-			return stream;
+				stream.Position = 0;
+				return stream;
+			}
+			catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.NotFound) {
+				return null;
+			}
 		}
 
 		public override async Task<bool> IsSeekable() {
@@ -239,6 +244,8 @@ namespace FluentStorage.GCP.Storage {
 		public override async Task<long> GetObjectLength(string fullPath, long defaultValue = -1, CancellationToken cancellationToken = default) {
 			try {
 				if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
+
+				fullPath = StoragePath.Normalize(fullPath);
 
 				var obj = await _client.GetObjectAsync(_bucketName, fullPath, null, cancellationToken) .ConfigureAwait(false);
 
@@ -381,7 +388,7 @@ namespace FluentStorage.GCP.Storage {
 					if (!string.Equals(obj.Name, objectPath, StringComparison.Ordinal))
 						continue;
 
-					result.Add(VersionToObject(obj, obj.TimeCreatedDateTimeOffset == null));
+					result.Add(VersionToObject(obj));
 				}
 
 				return result;
@@ -393,10 +400,10 @@ namespace FluentStorage.GCP.Storage {
 			}
 		}
 
-		private static StorageObjectVersion VersionToObject(GObject obj, bool current) {
+		private static StorageObjectVersion VersionToObject(GObject obj) {
 			return new StorageObjectVersion {
 				VersionId = obj.Generation?.ToString() ?? "",
-				IsCurrent = current,
+				IsCurrent = false,
 				DateCreated = obj.TimeCreatedDateTimeOffset?.UtcDateTime ?? DateTime.MinValue,
 				Length = (long?)obj.Size ?? 0,
 				ETag = obj.ETag
@@ -421,7 +428,7 @@ namespace FluentStorage.GCP.Storage {
 					},
 					cancellationToken).ConfigureAwait(false);
 
-				return VersionToObject(obj, false);
+				return VersionToObject(obj);
 			}
 			catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.NotFound) {
 
@@ -499,8 +506,9 @@ namespace FluentStorage.GCP.Storage {
 		/// Returns an empty collection if no tags exist.
 		/// </summary>
 		public override async Task<Dictionary<string, string>> GetObjectTags(string objectPath, CancellationToken cancellationToken = default) {
-			if (string.IsNullOrWhiteSpace(objectPath))
-				throw new ArgumentNullException(nameof(objectPath));
+			if (string.IsNullOrWhiteSpace(objectPath))throw new ArgumentNullException(nameof(objectPath));
+
+			objectPath = StoragePath.Normalize(objectPath);
 
 			try {
 				var storageObject = await _client.GetObjectAsync(_bucketName, objectPath, cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -509,7 +517,7 @@ namespace FluentStorage.GCP.Storage {
 					.ToDictionary(x => x.Key, x => x.Value)
 					?? new Dictionary<string, string>();
 			}
-			catch (GoogleApiException ex) when (ex.Error.Code == 404) {
+			catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.NotFound) {
 				// Returns null if the object cannot be found.
 				return null;
 			}
@@ -521,8 +529,9 @@ namespace FluentStorage.GCP.Storage {
 		/// Existing tags are removed before the new tags are applied.
 		/// </summary>
 		public override async Task<bool> SetObjectTags(string objectPath, Dictionary<string, string> tags, CancellationToken cancellationToken = default) {
-			if (string.IsNullOrWhiteSpace(objectPath))
-				throw new ArgumentNullException(nameof(objectPath));
+			if (string.IsNullOrWhiteSpace(objectPath))throw new ArgumentNullException(nameof(objectPath));
+
+			objectPath = StoragePath.Normalize(objectPath);
 
 			try {
 				var storageObject = await _client.GetObjectAsync(_bucketName, objectPath, cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -533,7 +542,7 @@ namespace FluentStorage.GCP.Storage {
 
 				return true;
 			}
-			catch (GoogleApiException ex) when (ex.Error.Code == 404) {
+			catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.NotFound) {
 				// Returns true if succeeded, or false if the object cannot be found.
 				return false;
 			}
@@ -545,8 +554,9 @@ namespace FluentStorage.GCP.Storage {
 		/// Does nothing if the object has no tags.
 		/// </summary>
 		public override async Task<bool> DeleteObjectTags(string objectPath, CancellationToken cancellationToken = default) {
-			if (string.IsNullOrWhiteSpace(objectPath))
-				throw new ArgumentNullException(nameof(objectPath));
+			if (string.IsNullOrWhiteSpace(objectPath))throw new ArgumentNullException(nameof(objectPath));
+
+			objectPath = StoragePath.Normalize(objectPath);
 
 			try {
 				var storageObject = await _client.GetObjectAsync(_bucketName, objectPath, cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -557,7 +567,7 @@ namespace FluentStorage.GCP.Storage {
 
 				return true;
 			}
-			catch (GoogleApiException ex) when (ex.Error.Code == 404) {
+			catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.NotFound) {
 				// Returns true if succeeded, or false if the object cannot be found.
 				return false;
 			}
@@ -571,8 +581,9 @@ namespace FluentStorage.GCP.Storage {
 		/// Returns the storage tier or storage class of the specified object.
 		/// </summary>
 		public override async Task<StorageTier> GetObjectTier(string objectPath, CancellationToken cancellationToken = default) {
-			if (string.IsNullOrWhiteSpace(objectPath))
-				throw new ArgumentNullException(nameof(objectPath));
+			if (string.IsNullOrWhiteSpace(objectPath))throw new ArgumentNullException(nameof(objectPath));
+
+			objectPath = StoragePath.Normalize(objectPath);
 
 			try {
 				var obj = await _client.GetObjectAsync(_bucketName, objectPath, cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -580,7 +591,7 @@ namespace FluentStorage.GCP.Storage {
 				return GoogleTier.ToFluentTier.TryGetValue(obj.StorageClass, out StorageTier tier)
 					? tier : StorageTier.Unknown;
 			}
-			catch (GoogleApiException ex) when (ex.Error.Code == 404) {
+			catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.NotFound) {
 				// Returns NotFound if the object cannot be found.
 				return StorageTier.NotFound;
 			}
@@ -591,11 +602,12 @@ namespace FluentStorage.GCP.Storage {
 		/// Changes the storage tier or storage class of the specified object.
 		/// </summary>
 		public override async Task<bool> SetObjectTier(string objectPath, StorageTier tier, CancellationToken cancellationToken = default) {
-			if (string.IsNullOrWhiteSpace(objectPath))
-				throw new ArgumentNullException(nameof(objectPath));
+			if (string.IsNullOrWhiteSpace(objectPath))throw new ArgumentNullException(nameof(objectPath));
 
 			if (!GoogleTier.FromFluentTier.TryGetValue(tier, out string storageClass))
 				throw new StorageException($"Google Cloud Storage does not support the tier \"{tier}\". Use a supported tier and try again.");
+
+			objectPath = StoragePath.Normalize(objectPath);
 
 			try {
 				var obj = await _client.GetObjectAsync(_bucketName, objectPath, cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -606,7 +618,7 @@ namespace FluentStorage.GCP.Storage {
 
 				return true;
 			}
-			catch (GoogleApiException ex) when (ex.Error.Code == 404) {
+			catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.NotFound) {
 				// Returns true if succeeded, or false if the object cannot be found.
 				return false;
 			}
@@ -617,7 +629,7 @@ namespace FluentStorage.GCP.Storage {
 		}
 
 		/// <summary>
-		/// Fastest possible implemention to check if a virtual directory exists in a Alibaba OSS store.
+		/// Fastest possible implemention to check if a virtual directory exists in a GCP bucket.
 		/// List at most one object with a directory prefix by setting `PageSize=1`
 		/// </summary>
 		public override async Task<bool> DirectoryExists(string fullPath, CancellationToken cancellationToken = default) {

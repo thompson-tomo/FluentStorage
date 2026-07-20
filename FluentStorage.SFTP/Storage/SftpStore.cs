@@ -623,14 +623,12 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
-			folderPath = NormalizeSftpPath(folderPath);
-
 			if (await DirectoryExists(folderPath, cancellationToken)) {
 				if (recursive) {
-					await DeleteDirectoryRecursive(client, folderPath, cancellationToken);
+					await DeleteDirectoryRecursive(client, NormalizeSftpPath(folderPath), cancellationToken);
 				}
 				else {
-					await client.DeleteDirectoryAsync(folderPath, cancellationToken);
+					await client.DeleteDirectoryAsync(NormalizeSftpPath(folderPath), cancellationToken);
 				}
 			}
 		}

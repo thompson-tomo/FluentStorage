@@ -4,19 +4,42 @@
  - **FluentStorage**
    - Fix: `CreateDirectory` will not throw exceptions by default, allowing it to be called on cloud stores
    - Fix: `DeleteDirectory` has a default implementation for all cloud stores, to delete all objects in a virtual folder
+   - Change: `DiskStore`: `DeleteObject` will no longer delete objects in a virtual directory
+   - Change: `MemoryStore`: `DeleteObject` will no longer delete objects in a virtual directory
+   - Fix: `MemoryStore`: `ObjectExists` normalizes the input path
+   - New: `MemoryStore`: Implement all missing API: `OpenRange`, `OpenWrite`, `IsSeekable`, `GetObjectLength`, `CreateDirectory`, `DirectoryExists`, `DeleteDirectory`, `MoveDirectory`, `MoveObject`
  - **FluentStorage.AWS**
    - New: Implement fast `DirectoryExists` virtual directory check by using a `ListObjectsV2` query with `MaxKeys` set
    - Fix: Fix access modifiers for `DigitalOceanSpacesStorage` factory API
+   - Fix: All API now calls `StoragePath.Normalize` to support the unified path system
+   - Change: `DeleteObject` will no longer delete objects in a virtual directory
  - **FluentStorage.Azure.Blobs**
    - New: Implement fast `DirectoryExists` virtual directory check by using a `GetBlobsAsync` query
+ - **FluentStorage.Azure.Files**
+   - Change: `DeleteObject` will no longer delete objects in a virtual directory
  - **FluentStorage.GCP**
    - New: Implement fast `DirectoryExists` virtual directory check by using a `ExecuteAsync` query with `PageSize` set
+   - Fix: All API now calls `StoragePath.Normalize` to support the unified path system
+   - Fix: `OpenRange` will not throw when the object is missing (consistant with other API)
+   - Change: `DeleteObject` will no longer delete objects in a virtual directory
+ - **FluentStorage.FTP**
+   - Fix: All API now calls `StoragePath.Normalize` to support the unified path system
+   - Change: `DeleteObject` will no longer delete objects in a virtual directory
+ - **FluentStorage.SFTP**
+   - Fix: `DeleteDirectory` no longer normalizes paths multiple times
  - **FluentStorage.Alibaba**
    - New: Implement fast `DirectoryExists` virtual directory check by using a `ListObjects` query with `MaxKeys` set
  - **FluentStorage.Minio**
    - New: Implement fast `DirectoryExists` virtual directory check by using a `ListObjectsArgs` query
+   - Fix: `OpenRead`: Opening non-existant objects will no longer throw exceptions
+   - Fix: `OpenRange`: Opening non-existant objects will no longer throw exceptions
+   - Fix: `OpenWrite` will return null if the object already exists, instead of throwing exceptions
+   - Fix: Consistantly catch object not found exceptions using `ObjectNotFoundException`
  - **FluentStorage.Mongo**
    - New: Implement fast `DirectoryExists` virtual directory check by querying for a single file whose filename begins with the directory prefix
+   - Fix: `OpenRead`: Opening non-existant objects will no longer throw exceptions
+   - Fix: `OpenRange`: Opening non-existant objects will no longer throw exceptions
+   - Fix: `OpenWrite` will return null if the object already exists, instead of throwing exceptions
  - **FluentStorage.Tests**
    - New: Add provider-specific config settings for Alibaba OSS, Backblaze B2, Cloudflare R2, DigitalOcean Spaces, Hetzner, Minio S3, Minio Native, Vultr, Wasabi, Mongo GridFS
    - New: Add integration test suites for Alibaba OSS, Backblaze B2, Cloudflare R2, DigitalOcean Spaces, Hetzner, Minio S3, Minio Native, Vultr, Wasabi, Mongo GridFS

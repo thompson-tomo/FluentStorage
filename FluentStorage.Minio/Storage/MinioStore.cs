@@ -353,19 +353,25 @@ namespace FluentStorage.Minio.Storage {
 			var client = await Client(cancellationToken).ConfigureAwait(false);
 			string key = StoragePath.Normalize(fullPath);
 
-			var ms = new MemoryStream();
+			try {
+				var ms = new MemoryStream();
 
-			var getArgs = new GetObjectArgs()
-				.WithBucket(_bucketName)
-				.WithObject(key)
-				.WithCallbackStream(async (stream, ct) => {
-					await stream.CopyToAsync(ms, 81920, ct).ConfigureAwait(false);
-				});
+				var getArgs = new GetObjectArgs()
+					.WithBucket(_bucketName)
+					.WithObject(key)
+					.WithCallbackStream(async (stream, ct) => {
+						await stream.CopyToAsync(ms, 81920, ct).ConfigureAwait(false);
+					});
 
-			await client.GetObjectAsync(getArgs, cancellationToken).ConfigureAwait(false);
+				await client.GetObjectAsync(getArgs, cancellationToken).ConfigureAwait(false);
 
-			ms.Position = 0;
-			return ms;
+				ms.Position = 0;
+				return ms;
+			}
+			catch (ObjectNotFoundException) {
+				// if not found, just return null and don't throw anything
+				return null;
+			}
 		}
 
 		public override async Task<Stream> OpenWrite(string fullPath, bool overwrite,
@@ -373,7 +379,8 @@ namespace FluentStorage.Minio.Storage {
 			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
 
 			if (!overwrite && await ObjectExists(fullPath, cancellationToken).ConfigureAwait(false))
-				throw new StorageException($"Object '{fullPath}' already exists and overwrite is disabled.");
+				return null;
+				//throw new StorageException($"Object '{fullPath}' already exists and overwrite is disabled.");
 
 			var buffer = new MemoryStream();
 
@@ -385,24 +392,31 @@ namespace FluentStorage.Minio.Storage {
 			});
 		}
 
-		public override async Task<Stream> OpenRange(string fullPath,long offset,long length,CancellationToken cancellationToken = default) {
+		public override async Task<Stream> OpenRange(string fullPath, long offset, long length, CancellationToken cancellationToken = default) {
 			if (string.IsNullOrWhiteSpace(fullPath)) throw new ArgumentNullException(nameof(fullPath));
 
 			var client = await Client(cancellationToken).ConfigureAwait(false);
 			string key = StoragePath.Normalize(fullPath);
 
-			var stream = new MemoryStream();
+			try {
 
-			var args = new GetObjectArgs().WithBucket(_bucketName).WithObject(key).WithOffsetAndLength(offset, length);
+				var stream = new MemoryStream();
 
-			await client.GetObjectAsync(
-				args.WithCallbackStream(async s => {
-					await s.CopyToAsync(stream, (int)length, cancellationToken).ConfigureAwait(false);
-				}),
-				cancellationToken).ConfigureAwait(false);
+				var args = new GetObjectArgs().WithBucket(_bucketName).WithObject(key).WithOffsetAndLength(offset, length);
 
-			stream.Position = 0;
-			return stream;
+				await client.GetObjectAsync(
+					args.WithCallbackStream(async s => {
+						await s.CopyToAsync(stream, (int)length, cancellationToken).ConfigureAwait(false);
+					}),
+					cancellationToken).ConfigureAwait(false);
+
+				stream.Position = 0;
+				return stream;
+			}
+			catch (ObjectNotFoundException) {
+				// if not found, just return null and don't throw anything
+				return null;
+			}
 		}
 
 		public override async Task<bool> IsSeekable() {
@@ -471,11 +485,12 @@ namespace FluentStorage.Minio.Storage {
 			if (filePaths.Count > 0)
 				await DeleteObjects(filePaths, cancellationToken).ConfigureAwait(false);
 
-			if (recursive) {
+			// TODO: enable if required
+			/*if (recursive) {
 				foreach (StoreObject folder in items.Where(i => i.Type == StorageObjectType.Folder)) {
 					await DeleteDirectory(CombineFullPath(folder), true, cancellationToken).ConfigureAwait(false);
 				}
-			}
+			}*/
 		}
 
 
@@ -696,7 +711,7 @@ namespace FluentStorage.Minio.Storage {
 					.ToDictionary(x => x.Key, x => x.Value)
 					?? new Dictionary<string, string>();
 			}
-			catch (ErrorResponseException ex) when (ex.Response.Code == "NoSuchKey") {
+			catch (ObjectNotFoundException) {
 				// Returns null if the object cannot be found.
 				return null;
 			}
@@ -724,7 +739,7 @@ namespace FluentStorage.Minio.Storage {
 
 				return true;
 			}
-			catch (ErrorResponseException ex) when (ex.Response.Code == "NoSuchKey") {
+			catch (ObjectNotFoundException) {
 				// Returns true if succeeded, or false if the object cannot be found.
 				return false;
 			}
@@ -749,7 +764,7 @@ namespace FluentStorage.Minio.Storage {
 
 				return true;
 			}
-			catch (ErrorResponseException ex) when (ex.Response.Code == "NoSuchKey") {
+			catch (ObjectNotFoundException) {
 				// Returns true if succeeded, or false if the object cannot be found.
 				return false;
 			}
@@ -780,7 +795,7 @@ namespace FluentStorage.Minio.Storage {
 					? tier
 					: StorageTier.Unknown;
 			}
-			catch (MinioException ex) when (ex.Message.ToLower().Contains("not found")) {
+			catch (ObjectNotFoundException) {
 				// Returns NotFound if the object cannot be found.
 				return StorageTier.NotFound;
 			}
@@ -813,7 +828,7 @@ namespace FluentStorage.Minio.Storage {
 
 				return true;
 			}
-			catch (MinioException ex) when (ex.Message.ToLower().Contains("not found")) {
+			catch (ObjectNotFoundException) {
 				// Returns true if succeeded, or false if the object cannot be found.
 				return false;
 			}

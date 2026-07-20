@@ -1015,5 +1015,31 @@ namespace FluentStorage.AWS.Storage {
 			return true;
 		}
 
+		/// <summary>
+		/// Fastest possible implemention to check if a virtual directory exists in an S3 bucket.
+		/// ListObjectsV2 request with `MaxKeys = 1`, so S3 will stop after finding the first matching object.
+		/// </summary>
+		public override async Task<bool> DirectoryExists(string fullPath, CancellationToken cancellationToken = default) {
+			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
+			fullPath = StoragePath.Normalize(fullPath);
+
+			// do not check root directory
+			if (fullPath.Length == 0) return false;
+
+			AmazonS3Client client = await Client().ConfigureAwait(false);
+
+			// Virtual directories must end with '/'
+			if (fullPath.Length > 0 && !fullPath.EndsWith("/"))
+				fullPath += "/";
+
+			ListObjectsV2Response response = await client.ListObjectsV2Async(new ListObjectsV2Request {
+				BucketName = BucketName,
+				Prefix = fullPath,
+				MaxKeys = 1
+			}, cancellationToken).ConfigureAwait(false);
+
+			return response.S3Objects.Count > 0;
+		}
+
 	}
 }

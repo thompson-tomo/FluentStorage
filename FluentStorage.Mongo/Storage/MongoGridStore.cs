@@ -11,10 +11,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Security.Cryptography.X509Certificates;
 
 namespace FluentStorage.Mongo.Storage {
 
@@ -601,5 +602,37 @@ namespace FluentStorage.Mongo.Storage {
 			if (idx < 0) return (string.Empty, normalized);
 			return (normalized.Substring(0, idx), normalized.Substring(idx + 1));
 		}
+
+		// ------------------------------------------------------------------
+		// Dir exists
+		// ------------------------------------------------------------------
+
+		/// <summary>
+		/// Fastest possible implemention to check if a virtual directory exists in a Mongo GridFS store.
+		/// Query for a single file whose filename begins with the directory prefix.
+		/// </summary>
+		public override async Task<bool> DirectoryExists(string fullPath, CancellationToken cancellationToken = default) {
+			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
+			fullPath = StoragePath.Normalize(fullPath);
+
+			// do not check root directory
+			if (fullPath.Length == 0) return false;
+
+			if (!fullPath.EndsWith("/"))
+				fullPath += "/";
+
+			// craete filter for the virtual dir path
+			FilterDefinition<GridFSFileInfo> filter = Builders<GridFSFileInfo>.Filter
+				.Regex(x => x.Filename, new BsonRegularExpression("^" + Regex.Escape(fullPath)));
+
+			// only 1 result wanted
+			GridFSFindOptions options = new GridFSFindOptions {Limit = 1};
+
+			// run find query
+			using IAsyncCursor<GridFSFileInfo> cursor = await _bucket
+				.FindAsync(filter, options, cancellationToken).ConfigureAwait(false);
+			return await cursor.MoveNextAsync(cancellationToken).ConfigureAwait(false) && cursor.Current.Any();
+		}
+
 	}
 }

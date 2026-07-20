@@ -698,5 +698,28 @@ namespace FluentStorage.Alibaba.Storage {
 			return true;
 		}
 
+		/// <summary>
+		/// Fastest possible implemention to check if a virtual directory exists in a Alibaba OSS store.
+		/// Perform a `ListObjects` with the directory prefix and `MaxKeys = 1`.
+		/// </summary>
+		public override async Task<bool> DirectoryExists(string fullPath, CancellationToken cancellationToken = default) {
+			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
+			fullPath = StoragePath.Normalize(fullPath);
+
+			// do not check root directory
+			if (fullPath.Length == 0) return false;
+
+			OssClient client = await Client().ConfigureAwait(false);
+
+			if (!fullPath.EndsWith("/"))
+				fullPath += "/";
+
+			ObjectListing result = client.ListObjects(new ListObjectsRequest(_bucketName) {
+				Prefix = fullPath, MaxKeys = 1
+			});
+
+			return result.ObjectSummaries.Count() > 0;
+		}
+
 	}
 }

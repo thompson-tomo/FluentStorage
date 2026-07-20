@@ -1,5 +1,20 @@
 ﻿# Release Notes
 
+#### FluentStorage 8.0.10
+ - **FluentStorage**
+   - Fix: `CreateDirectory` will not throw exceptions by default, allowing it to be called on cloud stores
+   - Fix: `DeleteDirectory` has a default implementation for all cloud stores, to delete all objects in a virtual folder
+ - **FluentStorage.AWS**
+   - New: Implement fast `DirectoryExists` virtual directory check by using a `ListObjectsV2` query with `MaxKeys` set
+ - **FluentStorage.Azure.Blobs**
+   - New: Implement fast `DirectoryExists` virtual directory check by using a `GetBlobsAsync` query
+ - **FluentStorage.Alibaba**
+   - New: Implement fast `DirectoryExists` virtual directory check by using a `ListObjects` query with `MaxKeys` set
+ - **FluentStorage.Minio**
+   - New: Implement fast `DirectoryExists` virtual directory check by using a `ListObjectsArgs` query
+ - **FluentStorage.Mongo**
+   - New: Implement fast `DirectoryExists` virtual directory check by querying for a single file whose filename begins with the directory prefix
+
 #### FluentStorage 8.0.9
  - **FluentStorage**
    - Fix: `UploadDirectory` is more efficient for filesystem-based storage providers

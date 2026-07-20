@@ -154,7 +154,6 @@ namespace FluentStorage.SFTP {
 		/// Deletes an object by its full path.
 		/// </summary>
 		/// <param name="fullPath">The full path.</param>
-		/// <param name="client">The sftp client to use.</param>
 		/// <param name="cancellationToken">The cancellation token.</param>
 		/// <returns></returns>
 		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken = default) {

@@ -835,5 +835,28 @@ namespace FluentStorage.Minio.Storage {
 			return false;
 		}
 
+		/// <summary>
+		/// Fastest possible implemention to check if a virtual directory exists in a MinIO store.
+		/// </summary>
+		public override async Task<bool> DirectoryExists(string fullPath, CancellationToken cancellationToken = default) {
+			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
+			fullPath = StoragePath.Normalize(fullPath);
+
+			// do not check root directory
+			if (fullPath.Length == 0) return false;
+
+			IMinioClient client = await Client().ConfigureAwait(false);
+
+			if (!fullPath.EndsWith("/"))
+				fullPath += "/";
+
+			await foreach (Item _ in client.ListObjectsEnumAsync(
+				new ListObjectsArgs().WithBucket(_bucketName).WithPrefix(fullPath),cancellationToken).ConfigureAwait(false)) {
+				return true;
+			}
+
+			return false;
+		}
+
 	}
 }

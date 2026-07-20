@@ -16,6 +16,7 @@ using MimeMapping;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -937,6 +938,26 @@ namespace FluentStorage.Azure.Blobs.Storage {
 
 		public override async Task<bool> IsTiered() {
 			return true;
+		}
+
+		/// <summary>
+		/// Fastest possible implemention to check if a virtual directory exists in a Azure Blob store.
+		/// </summary>
+		public override async Task<bool> DirectoryExists(string fullPath, CancellationToken cancellationToken = default) {
+			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
+			fullPath = StoragePath.Normalize(fullPath);
+
+			// do not check root directory
+			if (fullPath.Length == 0) return false;
+
+			(BlobContainerClient container, string path) = await GetPartsAsync(fullPath, false).ConfigureAwait(false);
+
+			await foreach (BlobItem blob in container.GetBlobsAsync(
+				prefix: fullPath,
+				cancellationToken: cancellationToken)) {
+				return true;
+			}
+			return false;
 		}
 
 	}

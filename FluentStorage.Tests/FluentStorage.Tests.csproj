@@ -7,11 +7,15 @@
     <ItemGroup>
         <ProjectReference Include="..\FluentStorage\FluentStorage.csproj" />
         <ProjectReference Include="..\FluentStorage.AWS\FluentStorage.AWS.csproj" />
+        <ProjectReference Include="..\FluentStorage.Azure\FluentStorage.Azure.csproj" />
         <ProjectReference Include="..\FluentStorage.Azure.KeyVault\FluentStorage.Azure.KeyVault.csproj" />
         <ProjectReference Include="..\FluentStorage.Azure.Queues\FluentStorage.Azure.Queues.csproj" />
         <ProjectReference Include="..\FluentStorage.Azure.ServiceBus\FluentStorage.Azure.ServiceBus.csproj" />
         <ProjectReference Include="..\FluentStorage.Azure.Blobs\FluentStorage.Azure.Blobs.csproj" />
         <ProjectReference Include="..\FluentStorage.Azure.Files\FluentStorage.Azure.Files.csproj" />
+        <ProjectReference Include="..\FluentStorage.Alibaba\FluentStorage.Alibaba.csproj" />
+        <ProjectReference Include="..\FluentStorage.Minio\FluentStorage.Minio.csproj" />
+        <ProjectReference Include="..\FluentStorage.Mongo\FluentStorage.Mongo.csproj" />
         <ProjectReference Include="..\FluentStorage.FTP\FluentStorage.FTP.csproj" />
         <ProjectReference Include="..\FluentStorage.SFTP\FluentStorage.SFTP.csproj" />
         <ProjectReference Include="..\FluentStorage.GCP\FluentStorage.GCP.csproj" />

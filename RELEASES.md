@@ -6,6 +6,7 @@
    - Fix: `DeleteDirectory` has a default implementation for all cloud stores, to delete all objects in a virtual folder
  - **FluentStorage.AWS**
    - New: Implement fast `DirectoryExists` virtual directory check by using a `ListObjectsV2` query with `MaxKeys` set
+   - Fix: Fix access modifiers for `DigitalOceanSpacesStorage` factory API
  - **FluentStorage.Azure.Blobs**
    - New: Implement fast `DirectoryExists` virtual directory check by using a `GetBlobsAsync` query
  - **FluentStorage.GCP**
@@ -16,6 +17,9 @@
    - New: Implement fast `DirectoryExists` virtual directory check by using a `ListObjectsArgs` query
  - **FluentStorage.Mongo**
    - New: Implement fast `DirectoryExists` virtual directory check by querying for a single file whose filename begins with the directory prefix
+ - **FluentStorage.Tests**
+   - New: Add provider-specific config settings for Alibaba OSS, Backblaze B2, Cloudflare R2, DigitalOcean Spaces, Hetzner, Minio S3, Minio Native, Vultr, Wasabi, Mongo GridFS
+   - New: Add integration test suites for Alibaba OSS, Backblaze B2, Cloudflare R2, DigitalOcean Spaces, Hetzner, Minio S3, Minio Native, Vultr, Wasabi, Mongo GridFS
 
 #### FluentStorage 8.0.9
  - **FluentStorage**

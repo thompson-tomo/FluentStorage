@@ -5,7 +5,7 @@ namespace FluentStorage.Tests.Integration.Storage {
 		protected override IStore CreateStorage(TestConfig settings) {
 
 			// make sure required config properties are filled
-			if (string.IsNullOrEmpty(TestConfigLoader.Config.GcpBucketName)) {
+			if (string.IsNullOrEmpty(TestConfigLoader.Config.GcpBucket)) {
 				throw new Exception("Required setting `GcpBucketName` is blank!");
 			}
 			if (string.IsNullOrEmpty(TestConfigLoader.Config.GcpJsonKey)) {
@@ -13,7 +13,7 @@ namespace FluentStorage.Tests.Integration.Storage {
 			}
 
 			return GoogleCloudStorage.FromJson(
-			   settings.GcpBucketName,
+			   settings.GcpBucket,
 			   settings.GcpJsonKey,
 			   true);
 		}

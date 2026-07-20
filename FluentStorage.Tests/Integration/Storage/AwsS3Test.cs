@@ -11,7 +11,7 @@ namespace FluentStorage.Tests.Integration.Storage {
 			if (string.IsNullOrEmpty(TestConfigLoader.Config.AwsSecretAccessKey)) {
 				throw new Exception("Required setting `AwsSecretAccessKey` is blank!");
 			}
-			if (string.IsNullOrEmpty(TestConfigLoader.Config.AwsBucketName)) {
+			if (string.IsNullOrEmpty(TestConfigLoader.Config.AwsBucket)) {
 				throw new Exception("Required setting `AwsBucketName` is blank!");
 			}
 			if (string.IsNullOrEmpty(TestConfigLoader.Config.AwsBucketRegion)) {
@@ -22,7 +22,7 @@ namespace FluentStorage.Tests.Integration.Storage {
 					 settings.AwsAccessKeyId,
 					 settings.AwsSecretAccessKey,
 					 null,
-					 settings.AwsBucketName,
+					 settings.AwsBucket,
 					 settings.AwsBucketRegion);
 		}
 	}

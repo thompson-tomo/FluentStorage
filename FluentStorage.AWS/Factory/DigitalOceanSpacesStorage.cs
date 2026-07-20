@@ -5,7 +5,7 @@ namespace FluentStorage {
 	/// <summary>
 	/// DigitalOcean Spaces factory to create instances of `IStore` using this provider.
 	/// </summary>
-	internal class DigitalOceanSpacesStorage {
+	public static class DigitalOceanSpacesStorage {
 
 		/// <summary>
 		/// Creates an DigitalOcean Spaces storage provider (S3-compatible).

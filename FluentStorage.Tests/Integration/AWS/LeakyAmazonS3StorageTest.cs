@@ -18,7 +18,7 @@ namespace FluentStorage.Tests.Integration.AWS {
 			_settings = TestConfigLoader.Config;
 
 			_storage = (IS3Storage)AwsS3Storage.FromCredentials(
-			   _settings.AwsAccessKeyId, _settings.AwsSecretAccessKey, null, _settings.AwsBucketName, _settings.AwsBucketRegion);
+			   _settings.AwsAccessKeyId, _settings.AwsSecretAccessKey, null, _settings.AwsBucket, _settings.AwsBucketRegion);
 		}
 	}
 }

@@ -1,5 +1,7 @@
 ﻿# Release Notes
 
+**Please read the [Migration Guide](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide) to help you migrate from older versions to FluentStorage 8!**
+ 
 #### FluentStorage 8.0.10
  - **FluentStorage**
    - Fix: `CreateDirectory` will not throw exceptions by default, allowing it to be called on cloud stores
@@ -159,7 +161,6 @@
  - Fix some issues with the original v8 release.
 
 #### FluentStorage 8.0.0
- - **Please read the [Migration Guide](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide) to help you migrate from older versions to FluentStorage 8!**
  - **FluentStorage**
    - All [cloud storage API](https://github.com/robinrodricks/FluentStorage#polycloud-api) methods have been redesigned to improve productivity and ease of use.
    - All extension-method factory API has been removed: For example `StorageFactory.Blobs` and `StorageFactory.Messages` no longer exist.

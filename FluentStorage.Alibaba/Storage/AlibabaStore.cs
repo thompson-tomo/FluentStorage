@@ -707,7 +707,7 @@ namespace FluentStorage.Alibaba.Storage {
 			fullPath = StoragePath.Normalize(fullPath);
 
 			// do not check root directory
-			if (fullPath.Length == 0) return false;
+			if (fullPath.Length == 0) return true;
 
 			OssClient client = await Client().ConfigureAwait(false);
 

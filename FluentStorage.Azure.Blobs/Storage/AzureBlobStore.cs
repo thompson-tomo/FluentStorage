@@ -948,7 +948,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 			fullPath = StoragePath.Normalize(fullPath);
 
 			// do not check root directory
-			if (fullPath.Length == 0) return false;
+			if (fullPath.Length == 0) return true;
 
 			(BlobContainerClient container, string path) = await GetPartsAsync(fullPath, false).ConfigureAwait(false);
 

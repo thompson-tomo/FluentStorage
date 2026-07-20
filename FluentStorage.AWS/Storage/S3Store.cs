@@ -1024,7 +1024,7 @@ namespace FluentStorage.AWS.Storage {
 			fullPath = StoragePath.Normalize(fullPath);
 
 			// do not check root directory
-			if (fullPath.Length == 0) return false;
+			if (fullPath.Length == 0) return true;
 
 			AmazonS3Client client = await Client().ConfigureAwait(false);
 

@@ -843,7 +843,7 @@ namespace FluentStorage.Minio.Storage {
 			fullPath = StoragePath.Normalize(fullPath);
 
 			// do not check root directory
-			if (fullPath.Length == 0) return false;
+			if (fullPath.Length == 0) return true;
 
 			IMinioClient client = await Client().ConfigureAwait(false);
 

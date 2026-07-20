@@ -43,6 +43,7 @@
  - **FluentStorage.Tests**
    - New: Add provider-specific config settings for Alibaba OSS, Backblaze B2, Cloudflare R2, DigitalOcean Spaces, Hetzner, Minio S3, Minio Native, Vultr, Wasabi, Mongo GridFS
    - New: Add integration test suites for Alibaba OSS, Backblaze B2, Cloudflare R2, DigitalOcean Spaces, Hetzner, Minio S3, Minio Native, Vultr, Wasabi, Mongo GridFS
+   - New: Update `fluentstorage.yaml.template` with new provider-specific settings
 
 #### FluentStorage 8.0.9
  - **FluentStorage**

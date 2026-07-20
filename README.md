@@ -353,11 +353,11 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>&nbsp; DirectoryExists</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; CreateDirectory</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; DeleteDirectory</td>

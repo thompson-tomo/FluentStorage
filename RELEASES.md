@@ -8,6 +8,8 @@
    - New: Implement fast `DirectoryExists` virtual directory check by using a `ListObjectsV2` query with `MaxKeys` set
  - **FluentStorage.Azure.Blobs**
    - New: Implement fast `DirectoryExists` virtual directory check by using a `GetBlobsAsync` query
+ - **FluentStorage.GCP**
+   - New: Implement fast `DirectoryExists` virtual directory check by using a `ExecuteAsync` query with `PageSize` set
  - **FluentStorage.Alibaba**
    - New: Implement fast `DirectoryExists` virtual directory check by using a `ListObjects` query with `MaxKeys` set
  - **FluentStorage.Minio**

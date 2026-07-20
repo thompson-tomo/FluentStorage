@@ -9,6 +9,7 @@ using Google;
 using Google.Api.Gax;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Storage.v1;
+using Google.Apis.Storage.v1.Data;
 using Google.Cloud.Storage.V1;
 using System;
 using System.Collections.Generic;
@@ -613,6 +614,29 @@ namespace FluentStorage.GCP.Storage {
 
 		public override async Task<bool> IsTiered() {
 			return true;
+		}
+
+		/// <summary>
+		/// Fastest possible implemention to check if a virtual directory exists in a Alibaba OSS store.
+		/// List at most one object with a directory prefix by setting `PageSize=1`
+		/// </summary>
+		public override async Task<bool> DirectoryExists(string fullPath, CancellationToken cancellationToken = default) {
+			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
+			fullPath = StoragePath.Normalize(fullPath);
+
+			// do not check root directory
+			if (fullPath.Length == 0) return true;
+
+			if (!fullPath.EndsWith("/"))
+				fullPath += "/";
+
+			ObjectsResource.ListRequest request = _client.Service.Objects.List(_bucketName);
+			request.Prefix = fullPath;
+			request.MaxResults = 1;
+
+			Objects objects = await request.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+
+			return objects != null && objects.Items != null && objects.Items.Count > 0;
 		}
 
 	}

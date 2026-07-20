@@ -136,9 +136,9 @@ MongoHost:
 MongoPort: 27017
 MongoUsername:
 MongoPassword:
-MongoDatabase:
+MongoDatabase: your_db_name
 MongoBucket:
-MongoAuthDatabase:
+MongoAuthDatabase: admin
 MongoSsl: false
 
 # ---------------------------------------------

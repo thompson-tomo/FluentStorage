@@ -60,15 +60,16 @@ namespace FluentStorage.Mongo.Storage {
 			if (string.IsNullOrWhiteSpace(databaseName)) throw new ArgumentNullException(nameof(databaseName));
 			if (string.IsNullOrWhiteSpace(bucketName)) throw new ArgumentNullException(nameof(bucketName));
 
-			var credential = MongoCredential.CreateCredential(
-				authDatabase ?? databaseName,
-				username,
-				password);
+			var credential = new MongoCredential(
+				"SCRAM-SHA-256",
+				new MongoInternalIdentity(authDatabase ?? databaseName, username),
+				new PasswordEvidence(password));
 
 			var settings = new MongoClientSettings {
 				Server = new MongoServerAddress(host, port),
 				Credential = credential,
-				UseTls = useSsl
+				UseTls = useSsl,
+				
 			};
 
 			_client = new MongoClient(settings);

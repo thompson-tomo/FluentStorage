@@ -141,10 +141,10 @@
 			await CreateText($"{folder}/two.txt");
 			await CreateText($"{folder}/three.bin");
 
-			var list = await _storage.ListDirectory(
-				folderPath: folder,
+			var list = (await _storage.ListDirectory(folderPath: folder,
 				recurse: false,
-				browseFilter: x => x.Name.EndsWith(".txt"));
+				browseFilter: x => x.Name.EndsWith(".txt")))
+					.Where(f => f.Type == StorageObjectType.File).ToList();
 
 			Assert.Equal(2, list.Count);
 

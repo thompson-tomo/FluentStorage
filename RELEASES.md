@@ -4,6 +4,7 @@
  
 #### FluentStorage 8.0.11
  - **FluentStorage**
+   - New: Add rule support in `DownloadDirectory` and `UploadDirectory` for all storage providers
    - New: Add rule engine and rules from FluentFTP: `ObjectNameRule`, `ObjectNameRegexRule`, `DirectoryNameRule`, `DirectoryNameRegexRule`, `ExtensionRule`
    - New: Add new rule types for path checking: `FullPathRule`, `FullPathRegexRule`
    - Fix: Fix all logic issues in rules based on unit test suite

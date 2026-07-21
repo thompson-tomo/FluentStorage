@@ -8,7 +8,7 @@ using System;
 namespace FluentStorage.Rules {
 
 	/// <summary>
-	/// Only accept files that have the given extension, or exclude files of a given extension.
+	/// Only accept objects that have the given extension, or exclude objects of a given extension.
 	/// Originally from FluentFTP `FtpFileExtensionRule`.
 	/// </summary>
 	public class ExtensionRule : StorageRule {

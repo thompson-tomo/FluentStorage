@@ -352,18 +352,12 @@
 			string file1 = StoragePath.Combine(prefix, "1.txt");
 			string file2 = StoragePath.Combine(prefix, "sub", "2.txt");
 
+			//setup
+			await _storage.SetText(file1, "1");
+			await _storage.SetText(file2, "2");
 
-			try {
-				//setup
-				await _storage.SetText(file1, "1");
-				await _storage.SetText(file2, "2");
-
-				//act
-				await _storage.DeleteObject(prefix);
-			}
-			catch (NotSupportedException) {
-
-			}
+			//act
+			await _storage.DeleteDirectory(prefix, true);
 
 			//assert
 			List<StoreObject> files = await _storage.ListDirectory(prefix, true);

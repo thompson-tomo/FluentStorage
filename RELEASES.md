@@ -5,8 +5,8 @@
 #### FluentStorage 8.0.11
  - **FluentStorage**
    - Fix: Improve default `DownloadObject` to ensure parent directory exists and fix existance check
-   - Fix: Improve default `DownloadDirectory` to report progress on successful transfers
-   - Fix: Improve default `UploadDirectory` to report progress on successful transfers
+   - Fix: Improve default `DownloadDirectory` to report progress on successful transfers too
+   - Fix: Improve default `UploadDirectory` to report progress on successful transfers too
  - **FluentStorage.FTP**
    - Fix: Improve `DownloadObject` API to have consistant behaviour
  - **FluentStorage.SFTP**

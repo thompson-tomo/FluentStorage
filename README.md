@@ -60,18 +60,6 @@ To add support for a new S3-compatible provider, search for `[ADD STORAGE PROVID
 
 
 
-## Queue Providers
-
-FluentStorage supports the following queue/messaging providers:
-
-|       		| Documentation Link                                               | Factory class | 
-|---------------| --------------------------------------------------------------------------- | ---------------- | 
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/aws.png" width="32"></img>| [AWS SQS](https://github.com/robinrodricks/FluentStorage/wiki/AWS-SQS)   						| `AwsSqsStorage` | 
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img>|  [Azure Queue](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Queue-Storage) 		| `AzureQueueStorage` | 
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img>|  [Azure Service Bus](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Service-Bus) 	| `AzureServiceBus` | 
-
-
-
 ## Polycloud API
 
 This table shows the API supported by `IStore` across various cloud and server providers.
@@ -450,6 +438,20 @@ This table shows the API supported by specific cloud providers:
 
 </tbody>
 </table>
+
+
+## Queue Providers
+
+FluentStorage supports the following queue/messaging providers:
+
+|       		| Documentation Link                                               | Factory class | 
+|---------------| --------------------------------------------------------------------------- | ---------------- | 
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/aws.png" width="32"></img>| [AWS SQS](https://github.com/robinrodricks/FluentStorage/wiki/AWS-SQS)   						| `AwsSqsStorage` | 
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img>|  [Azure Queue](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Queue-Storage) 		| `AzureQueueStorage` | 
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img>|  [Azure Service Bus](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Service-Bus) 	| `AzureServiceBus` | 
+
+
+
 
 ## Packages
 

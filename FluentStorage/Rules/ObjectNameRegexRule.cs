@@ -14,7 +14,7 @@ namespace FluentStorage.Rules {
 	public class ObjectNameRegexRule : StorageRule {
 
 		/// <summary>
-		/// If true, only items where one of the supplied regex pattern matches are uploaded or downloaded.
+		/// If true, only items where one of the supplied regex pattern matches are transferred.
 		/// If false, items where one of the supplied regex pattern matches are excluded.
 		/// </summary>
 		public bool Whitelist { get; set; }
@@ -27,9 +27,10 @@ namespace FluentStorage.Rules {
 		/// <summary>
 		/// Only accept items that match one of the supplied regex patterns.
 		/// </summary>
-		/// <param name="whitelist">If true, only items where one of the supplied regex pattern matches are uploaded or downloaded. If false, items where one of the supplied regex pattern matches are excluded.</param>
+		/// <param name="whitelist">If true, only items where one of the supplied regex pattern matches are transferred. If false, items where one of the supplied regex pattern matches are excluded.</param>
 		/// <param name="regexPatterns">The list of regex patterns to match. Only valid patterns are accepted and stored. If none of the patterns are valid, this rule is disabled and passes all objects.</param>
 		public ObjectNameRegexRule(bool whitelist, IList<string> regexPatterns) {
+			if (regexPatterns == null) throw new ArgumentNullException(nameof(regexPatterns));
 			this.Whitelist = whitelist;
 			this.RegexPatterns = regexPatterns.Where(x => IsValidRegEx(x)).ToList();
 		}

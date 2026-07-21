@@ -12,7 +12,7 @@ namespace FluentStorage.Rules {
 	public class ObjectNameRule : StorageRule {
 
 		/// <summary>
-		/// If true, only objects of the given name are uploaded or downloaded. If false, objects of the given name are excluded.
+		/// If true, only objects of the given name are transferred. If false, objects of the given name are excluded.
 		/// </summary>
 		public bool Whitelist { get; set; }
 
@@ -27,6 +27,7 @@ namespace FluentStorage.Rules {
 		/// <param name="whitelist">If true, only objects of the given name are downloaded. If false, objects of the given name are excluded.</param>
 		/// <param name="names">The objects names to match</param>
 		public ObjectNameRule(bool whitelist, IList<string> names) {
+			if (names == null) throw new ArgumentNullException(nameof(names));
 			this.Whitelist = whitelist;
 			this.Names = names;
 		}
@@ -35,6 +36,12 @@ namespace FluentStorage.Rules {
 		/// Checks if the objects contain the given name, or exclude objects of the given name.
 		/// </summary>
 		public override bool IsAllowed(StoreObject item) {
+
+			// if no valid names, accept all objects
+			if (Names.Count == 0) {
+				return true;
+			}
+
 			if (item.Type == StorageObjectType.File) {
 				var fileName = item.Name;
 				if (Whitelist) {

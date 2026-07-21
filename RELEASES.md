@@ -5,7 +5,9 @@
 #### FluentStorage 8.0.11
  - **FluentStorage**
    - New: Add rule engine and rules from FluentFTP: `ObjectNameRule`, `ObjectNameRegexRule`, `DirectoryNameRule`, `DirectoryNameRegexRule`, `ExtensionRule`
-   - New: Add new rule types for path checking: `ObjectPathRegexRule`, `ObjectPathRule`
+   - New: Add new rule types for path checking: `FullPathRule`, `FullPathRegexRule`
+   - Fix: Fix all logic issues in rules based on unit test suite
+   - Fix: Support case-insensitive extension comparison in `ExtensionRule`
    - Fix: Improve default `DownloadObject` to ensure parent directory exists and fix existance check
    - Fix: Improve default `DownloadDirectory` to report progress on successful transfers too
    - Fix: Improve default `UploadDirectory` to report progress on successful transfers too
@@ -17,6 +19,8 @@
    - Fix: Improve `DownloadObject` API to have consistant behaviour
  - **FluentStorage.Alibaba**
    - Fix: All API should use a single constructor for `StoreObject`
+ - **FluentStorage.Tests**
+   - New: Extensive unit test suite for rule engine under `RuleTests`
  
 #### FluentStorage 8.0.10
  - **FluentStorage**

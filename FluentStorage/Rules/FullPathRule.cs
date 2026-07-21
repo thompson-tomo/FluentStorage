@@ -8,10 +8,10 @@ namespace FluentStorage.Rules {
 	/// <summary>
 	/// Only accept objects that contain the given path, or exclude objects that contain a given path.
 	/// </summary>
-	public class ObjectPathRule : StorageRule {
+	public class FullPathRule : StorageRule {
 
 		/// <summary>
-		/// If true, only files of the given name are uploaded or downloaded. If false, files of the given name are excluded.
+		/// If true, only files of the given name are transferred. If false, files of the given name are excluded.
 		/// </summary>
 		public bool Whitelist { get; set; }
 
@@ -25,7 +25,8 @@ namespace FluentStorage.Rules {
 		/// </summary>
 		/// <param name="whitelist">If true, only files of the given name are downloaded. If false, files of the given name are excluded.</param>
 		/// <param name="names">The files names to match</param>
-		public ObjectPathRule(bool whitelist, IList<string> names) {
+		public FullPathRule(bool whitelist, IList<string> names) {
+			if (names == null) throw new ArgumentNullException(nameof(names));
 			this.Whitelist = whitelist;
 			this.Paths = names;
 		}
@@ -34,6 +35,12 @@ namespace FluentStorage.Rules {
 		/// Checks if the object's path matches the given name
 		/// </summary>
 		public override bool IsAllowed(StoreObject item) {
+
+			// if no valid names, accept all objects
+			if (Paths.Count == 0) {
+				return true;
+			}
+
 			if (item.Type == StorageObjectType.File) {
 				var fileName = item.FullPath;
 				if (Whitelist) {

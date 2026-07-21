@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using FluentStorage.Enums;
+using FluentStorage.Model;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using FluentStorage.Model;
-using FluentStorage.Enums;
 
 namespace FluentStorage.Rules {
 
@@ -13,7 +14,7 @@ namespace FluentStorage.Rules {
 	public class DirectoryNameRegexRule : StorageRule {
 
 		/// <summary>
-		/// If true, only folders where one of the supplied regex pattern matches are uploaded or downloaded.
+		/// If true, only folders where one of the supplied regex pattern matches are transferred.
 		/// If false, folders where one of the supplied regex pattern matches are excluded.
 		/// </summary>
 		public bool Whitelist { get; set; }
@@ -31,10 +32,11 @@ namespace FluentStorage.Rules {
 		/// <summary>
 		/// Only accept items that one of the supplied regex pattern.
 		/// </summary>
-		/// <param name="whitelist">If true, only folders where one of the supplied regex pattern matches are uploaded or downloaded. If false, folders where one of the supplied regex pattern matches are excluded.</param>
+		/// <param name="whitelist">If true, only folders where one of the supplied regex pattern matches are transferred. If false, folders where one of the supplied regex pattern matches are excluded.</param>
 		/// <param name="regexPatterns">The list of regex patterns to match. Only valid patterns are accepted and stored. If none of the patterns are valid, this rule is disabled and passes all objects.</param>
 		/// <param name="startSegment">Which path segment to start checking from. 0 checks root folder onwards. 1 skips root folder.</param>
 		public DirectoryNameRegexRule(bool whitelist, IList<string> regexPatterns, int startSegment = 0) {
+			if (regexPatterns == null) throw new ArgumentNullException(nameof(regexPatterns));
 			this.Whitelist = whitelist;
 			this.RegexPatterns = regexPatterns.Where(x => ObjectNameRegexRule.IsValidRegEx(x)).ToList();
 			this.StartSegment = startSegment;

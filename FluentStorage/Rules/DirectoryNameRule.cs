@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using FluentStorage.Enums;
 using FluentStorage.Model;
-using FluentStorage.Enums;
+using System;
+using System.Collections.Generic;
 
 namespace FluentStorage.Rules {
 
@@ -21,7 +22,7 @@ namespace FluentStorage.Rules {
 		};
 
 		/// <summary>
-		/// If true, only folders of the given name are uploaded or downloaded.
+		/// If true, only folders of the given name are transferred.
 		/// If false, folders of the given name are excluded.
 		/// </summary>
 		public bool Whitelist { get; set; }
@@ -43,6 +44,7 @@ namespace FluentStorage.Rules {
 		/// <param name="names">The folder names to match</param>
 		/// <param name="startSegment">Which path segment to start checking from. 0 checks root folder onwards. 1 skips root folder.</param>
 		public DirectoryNameRule(bool whitelist, IList<string> names, int startSegment = 0) {
+			if (names == null) throw new ArgumentNullException(nameof(names));
 			this.Whitelist = whitelist;
 			this.Names = names;
 			this.StartSegment = startSegment;
@@ -52,6 +54,11 @@ namespace FluentStorage.Rules {
 		/// Checks if the folders has the given name, or exclude folders of the given name.
 		/// </summary>
 		public override bool IsAllowed(StoreObject item) {
+
+			// if no valid names, accept all objects
+			if (Names.Count == 0) {
+				return true;
+			}
 
 			// get the folder name of this item
 			string[] dirNameParts = null;

@@ -11,10 +11,10 @@ namespace FluentStorage.Rules {
 	/// Only accept objects whose paths match the given regular expression(s), or exclude objects that match.
 	/// Originally from FluentFTP `FtpFileNameRegexRule`.
 	/// </summary>
-	public class ObjectPathRegexRule : StorageRule {
+	public class FullPathRegexRule : StorageRule {
 
 		/// <summary>
-		/// If true, only items where one of the supplied regex pattern matches are uploaded or downloaded.
+		/// If true, only items where one of the supplied regex pattern matches are transferred.
 		/// If false, items where one of the supplied regex pattern matches are excluded.
 		/// </summary>
 		public bool Whitelist { get; set; }
@@ -27,9 +27,10 @@ namespace FluentStorage.Rules {
 		/// <summary>
 		/// Only accept objects whose path matches the supplied regex patterns, or exclude objects whose path matches the supplied regex patterns.
 		/// </summary>
-		/// <param name="whitelist">If true, only items where one of the supplied regex pattern matches are uploaded or downloaded. If false, items where one of the supplied regex pattern matches are excluded.</param>
+		/// <param name="whitelist">If true, only items where one of the supplied regex pattern matches are transferred. If false, items where one of the supplied regex pattern matches are excluded.</param>
 		/// <param name="regexPatterns">The list of regex patterns to match. Only valid patterns are accepted and stored. If none of the patterns are valid, this rule is disabled and passes all objects.</param>
-		public ObjectPathRegexRule(bool whitelist, IList<string> regexPatterns) {
+		public FullPathRegexRule(bool whitelist, IList<string> regexPatterns) {
+			if (regexPatterns == null) throw new ArgumentNullException(nameof(regexPatterns));
 			this.Whitelist = whitelist;
 			this.RegexPatterns = regexPatterns.Where(x => IsValidRegEx(x)).ToList();
 		}

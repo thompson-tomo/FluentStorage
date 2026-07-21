@@ -2,6 +2,8 @@
 using System.IO;
 using FluentStorage.Model;
 using FluentStorage.Enums;
+using System.Linq;
+using System;
 
 namespace FluentStorage.Rules {
 
@@ -12,7 +14,7 @@ namespace FluentStorage.Rules {
 	public class ExtensionRule : StorageRule {
 
 		/// <summary>
-		/// If true, only files of the given extension are uploaded or downloaded. If false, files of the given extension are excluded.
+		/// If true, only files of the given extension are transferred. If false, files of the given extension are excluded.
 		/// </summary>
 		public bool Whitelist { get; set; }
 
@@ -24,17 +26,24 @@ namespace FluentStorage.Rules {
 		/// <summary>
 		/// Only accept files that have the given extension, or exclude files of a given extension.
 		/// </summary>
-		/// <param name="whitelist">If true, only files of the given extension are uploaded or downloaded. If false, files of the given extension are excluded.</param>
+		/// <param name="whitelist">If true, only files of the given extension are transferred. If false, files of the given extension are excluded.</param>
 		/// <param name="exts">The extensions to match</param>
 		public ExtensionRule(bool whitelist, IList<string> exts) {
+			if (exts == null) throw new ArgumentNullException(nameof(exts));
 			this.Whitelist = whitelist;
-			this.Exts = exts;
+			this.Exts = exts.Select(e => e.ToLower()).ToList();
 		}
 
 		/// <summary>
 		/// Checks if the files has the given extension, or exclude files of the given extension.
 		/// </summary>
 		public override bool IsAllowed(StoreObject item) {
+
+			// if no valid names, accept all objects
+			if (Exts.Count == 0) {
+				return true;
+			}
+
 			if (item.Type == StorageObjectType.File) {
 				var ext = Path.GetExtension(item.Name).Replace(".", "").ToLower();
 				if (Whitelist) {

@@ -354,15 +354,23 @@ namespace FluentStorage.Storage {
 		public virtual async Task DownloadObject(string objectPath, string filePath, bool overwrite, CancellationToken cancellationToken = default) {
 
 			// exit if object exists and overwriting is  disabled
-			if (!overwrite && File.Exists(objectPath)) return;
+			if (!overwrite && File.Exists(filePath)) return;
 
-			// open local filestream
+			// ensure parent directory exists
+			string parentDir = Path.GetDirectoryName(filePath);
+			if (!string.IsNullOrEmpty(parentDir)) {
+				Directory.CreateDirectory(parentDir);
+			}
+
+			// open remote object, exit if cannot open
 			Stream src = await OpenRead(objectPath, cancellationToken).ConfigureAwait(false);
 			if (src == null) return;
 			using (src) {
 
-				// download the cloud object
+				// open local object
 				using (Stream dest = File.Create(filePath)) {
+
+					// download the cloud object to local disk
 					await src.CopyToAsync(dest, BufferSize, cancellationToken).ConfigureAwait(false);
 					await dest.FlushAsync().ConfigureAwait(false);
 				}
@@ -525,7 +533,7 @@ namespace FluentStorage.Storage {
 
 			// declare a small utility to call the progress handler with error suppression
 			void Report(StorageProgress p) {
-				try { progress?.Invoke(p); } catch { }
+				try { progress.Invoke(p); } catch { }
 			}
 
 			int ok = 0, skipped = 0, failed = 0;
@@ -552,7 +560,9 @@ namespace FluentStorage.Storage {
 						case StorageExistsMode.Skip:
 							if (File.Exists(localFile)) {
 								skipped++;
-								Report(new StorageProgress {
+
+								// report skipped transfers
+								if (progress != null) Report(new StorageProgress {
 									LocalPath = localFile,
 									RemotePath = obj.FullPath,
 									FileIndex = i + 1,
@@ -579,6 +589,15 @@ namespace FluentStorage.Storage {
 						},*/
 						cancellationToken).ConfigureAwait(false);
 
+					// report OK transfers
+					if (progress != null) Report(new StorageProgress {
+						LocalPath = localFile,
+						RemotePath = obj.FullPath,
+						FileIndex = i + 1,
+						FileCount = objects.Count,
+						Progress = 100
+					});
+
 					ok++;
 					if (File.Exists(localFile))
 						bytes += new FileInfo(localFile).Length;
@@ -588,7 +607,7 @@ namespace FluentStorage.Storage {
 
 					// report failed transfers but do not crash entire process
 					failed++;
-					Report(new StorageProgress {
+					if (progress != null) Report(new StorageProgress {
 						LocalPath = localFile,
 						RemotePath = obj.FullPath,
 						FileIndex = i + 1,
@@ -639,11 +658,10 @@ namespace FluentStorage.Storage {
 
 			// declare a small utility to call the progress handler with error suppression
 			void Report(StorageProgress p) {
-				try { progress?.Invoke(p); } catch { }
+				try { progress.Invoke(p); } catch { }
 			}
 
 			int ok = 0, skipped = 0, failed = 0;
-			long bytes = 0;
 
 			// per file found in local folder
 			for (int i = 0; i < files.Length; i++) {
@@ -669,13 +687,14 @@ namespace FluentStorage.Storage {
 						case StorageExistsMode.Skip:
 							if (await ObjectExists(objectPath, cancellationToken).ConfigureAwait(false)) {
 								skipped++;
-								Report(new StorageProgress {
+
+								// report skipped transfers
+								if (progress != null) Report(new StorageProgress {
 									LocalPath = localFile,
 									RemotePath = objectPath,
 									FileIndex = i + 1,
 									FileCount = files.Length,
 									Progress = 100,
-									TransferredBytes = length
 								});
 								continue;
 							}
@@ -698,15 +717,24 @@ namespace FluentStorage.Storage {
 						},*/
 						cancellationToken).ConfigureAwait(false);
 
+					// report OK transfers
+					if (progress != null) Report(new StorageProgress {
+						LocalPath = localFile,
+						RemotePath = objectPath,
+						FileIndex = i + 1,
+						FileCount = files.Length,
+						Progress = 100,
+						TransferredBytes = length
+					});
+
 					ok++;
-					bytes += length;
 				}
 				catch (OperationCanceledException) { throw; }
 				catch (Exception ex) {
 
 					// report failed transfers but do not crash entire process
 					failed++;
-					Report(new StorageProgress {
+					if (progress != null) Report(new StorageProgress {
 						LocalPath = localFile,
 						RemotePath = objectPath,
 						FileIndex = i + 1,

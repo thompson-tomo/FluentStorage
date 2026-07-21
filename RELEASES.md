@@ -2,6 +2,16 @@
 
 **Please read the [Migration Guide](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide) to help you migrate from older versions to FluentStorage 8!**
  
+#### FluentStorage 8.0.11
+ - **FluentStorage**
+   - Fix: Improve default `DownloadObject` to ensure parent directory exists and fix existance check
+   - Fix: Improve default `DownloadDirectory` to report progress on successful transfers
+   - Fix: Improve default `UploadDirectory` to report progress on successful transfers
+ - **FluentStorage.FTP**
+   - Fix: Improve `DownloadObject` API to have consistant behaviour
+ - **FluentStorage.SFTP**
+   - Fix: Improve `DownloadObject` API to have consistant behaviour
+ 
 #### FluentStorage 8.0.10
  - **FluentStorage**
    - Fix: `CreateDirectory` will not throw exceptions by default, allowing it to be called on cloud stores

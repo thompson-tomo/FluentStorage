@@ -735,10 +735,15 @@ namespace FluentStorage.SFTP {
 			// exit if remote file doesnt exist
 			if (!await ObjectExists(fullPath, cancellationToken)) return;
 
+			// ensure parent directory exists
+			string parentDir = Path.GetDirectoryName(filePath);
+			if (!string.IsNullOrEmpty(parentDir)) {
+				Directory.CreateDirectory(parentDir);
+			}
+
+			// download
 			SftpClient client = Client();
-
 			fullPath = NormalizeSftpPath(fullPath);
-
 			using var stream = File.Create(filePath);
 			await client.DownloadFileAsync(fullPath, stream, cancellationToken);
 		}

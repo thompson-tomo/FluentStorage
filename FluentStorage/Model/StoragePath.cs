@@ -69,6 +69,21 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
+		/// Splits a path into parts WITHOUT normalization. Returns a list with the entire path if no slashes are found.
+		/// </summary>
+		public static string[] SplitFast(this string path) {
+			if (path.Contains("/")) {
+				return path.Split('/');
+			}
+			else if (path.Contains("\\")) {
+				return path.Split('\\');
+			}
+			else {
+				return new string[] { path };
+			}
+		}
+
+		/// <summary>
 		/// Gets the parent path.
 		/// </summary>
 		public static string GetParent(string path) {

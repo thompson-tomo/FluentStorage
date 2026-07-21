@@ -330,7 +330,7 @@ namespace FluentStorage.Alibaba.Storage {
 				return null;
 			}
 
-			var obj = new StoreObject(StorageObjectType.File, GetFolderPath(key), GetName(key)) {
+			var obj = new StoreObject(GetFolderPath(key), GetName(key), StorageObjectType.File) {
 				Size = meta.ContentLength,
 				MD5 = meta.ETag?.Trim('"'),
 				DateModified = meta.LastModified == default
@@ -545,7 +545,7 @@ namespace FluentStorage.Alibaba.Storage {
 				foreach (var commonPrefix in listing.CommonPrefixes) {
 					var folderKey = commonPrefix.TrimEnd('/');
 
-					var folderObj = new StoreObject(StorageObjectType.Folder, GetFolderPath(folderKey), GetName(folderKey));
+					var folderObj = new StoreObject(GetFolderPath(folderKey), GetName(folderKey), StorageObjectType.Folder);
 					results.Add(folderObj);
 
 					if (options.MaxResults.HasValue && results.Count >= options.MaxResults.Value)
@@ -569,7 +569,7 @@ namespace FluentStorage.Alibaba.Storage {
 		}
 
 		private static void AddFileObject(OssObjectSummary summary, StorageListOptions options, List<StoreObject> results) {
-			var obj = new StoreObject(StorageObjectType.File, GetFolderPath(summary.Key), GetName(summary.Key)) {
+			var obj = new StoreObject(GetFolderPath(summary.Key), GetName(summary.Key), StorageObjectType.File) {
 				Size = summary.Size,
 				MD5 = summary.ETag?.Trim('"'),
 				DateModified = summary.LastModified == default

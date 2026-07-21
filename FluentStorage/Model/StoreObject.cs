@@ -13,6 +13,11 @@ namespace FluentStorage.Model {
 	public sealed class StoreObject : IEquatable<StoreObject>, ICloneable {
 
 		/// <summary>
+		/// Gets the raw input string given by the storage provider, that was parsed to generate the values in this object.
+		/// </summary>
+		public string Input { get; private set; }
+
+		/// <summary>
 		/// Gets the type of the storage object (file/folder)
 		/// </summary>
 		public StorageObjectType Type { get; private set; }
@@ -33,19 +38,18 @@ namespace FluentStorage.Model {
 		public string FolderPath { get; private set; }
 
 		/// <summary>
-		/// Gets the name of this blob, unique within the folder. In most providers this is the same as file name.
+		/// Gets the name of this object, unique within the folder. In most providers this is the same as file name.
 		/// </summary>
 		public string Name { get; private set; }
 
 		/// <summary>
-		/// Blob size
+		/// Object size, in bytes.
 		/// </summary>
 		public long? Size { get; set; }
 
 		/// <summary>
-		/// MD5 content hash of the blob. Note that this property can be null if underlying storage has
-		/// no information about the hash, or it's very expensive to calculate it, for instance it would require
-		/// getting a whole content of the blob to hash it.
+		/// MD5 content hash of the object.
+		/// This can be null if storage provider does not provide the hash, or if it would require downloading the entire object to compute it.
 		/// </summary>
 		public string MD5 { get; set; }
 
@@ -60,9 +64,10 @@ namespace FluentStorage.Model {
 		public DateTimeOffset? DateModified { get; set; }
 
 		/// <summary>
-		/// Gets full path to this blob which is a combination of folder path and blob name
+		/// Gets full path to this object on the storage provider (folder path + object name).
+		/// Uses the unified path system. If you want the raw path returned by the provider, use `Input`.
 		/// </summary>
-		public string FullPath => StoragePath.Combine(FolderPath, Name);
+		public string FullPath { get; private set; }
 
 		/// <summary>
 		/// Custom provider-specific properties. Key names are case-insensitive.
@@ -78,73 +83,7 @@ namespace FluentStorage.Model {
 
 
 		/// <summary>
-		/// Try to get property and cast it to a specified type
-		/// </summary>
-		public bool TryGetProperty<TValue>(string name, out TValue value, TValue defaultValue = default) {
-			if (name == null || !Properties.TryGetValue(name, out object objValue)) {
-				value = defaultValue;
-				return false;
-			}
-
-			if (objValue is TValue) {
-				value = (TValue)objValue;
-				return true;
-			}
-
-			value = defaultValue;
-			return false;
-		}
-
-		/// <summary>
-		/// Tries to add properties in pairs when value is not null
-		/// </summary>
-		/// <param name="keyValues"></param>
-		public void TryAddProperties(params object[] keyValues) {
-			for (int i = 0; i < keyValues.Length; i += 2) {
-				string key = (string)keyValues[i];
-				object value = keyValues[i + 1];
-
-				if (key != null && value != null) {
-					if (value is string s && string.IsNullOrEmpty(s))
-						continue;
-
-					Properties[key] = value;
-				}
-			}
-		}
-
-		/// <summary>
-		/// Works just like <see cref="TryAddProperties(object[])"/> but prefixes all the keys
-		/// </summary>
-		/// <param name="prefix"></param>
-		/// <param name="keyValues"></param>
-		public void TryAddPropertiesWithPrefix(string prefix, params object[] keyValues) {
-			if (string.IsNullOrEmpty(prefix))
-				TryAddProperties(keyValues);
-
-			object[] keyValuesWithPrefix = keyValues.Select((e, i) => i % 2 == 0 ? prefix + (string)e : e).ToArray();
-
-			TryAddProperties(keyValuesWithPrefix);
-		}
-
-		/// <summary>
-		/// Tries to add properties from dictionary by key names
-		/// </summary>
-		/// <param name="source"></param>
-		/// <param name="keyNames"></param>
-		public void TryAddPropertiesFromDictionary(IDictionary<string, string> source, params string[] keyNames) {
-			if (source == null || keyNames == null)
-				return;
-
-			foreach (string key in keyNames) {
-				if (source.TryGetValue(key, out string value)) {
-					Properties[key] = value;
-				}
-			}
-		}
-
-		/// <summary>
-		/// Create a new instance
+		/// Create a new StoreObject from a full object path
 		/// </summary>
 		public StoreObject(string fullPath, StorageObjectType objType = StorageObjectType.File) {
 			SetFullPath(fullPath);
@@ -153,23 +92,40 @@ namespace FluentStorage.Model {
 		}
 
 		/// <summary>
-		/// Create a new instance
-		/// </summary>
-		public StoreObject(StorageObjectType objType, string folderPath, string name) {
-			Name = name ?? throw new ArgumentNullException(nameof(name));
-			Name = StoragePath.NormalizePart(Name);
-			FolderPath = StoragePath.Normalize(folderPath);
-			Type = objType;
-		}
-
-		/// <summary>
-		/// Creates a new instance
+		/// Creates a new StoreObject from a split folder path and item name
 		/// </summary>
 		public StoreObject(string folderPath, string name, StorageObjectType objType) {
 			Name = name ?? throw new ArgumentNullException(nameof(name));
 			Name = StoragePath.NormalizePart(Name);
 			FolderPath = StoragePath.Normalize(folderPath);
+			FullPath = StoragePath.Combine(FolderPath, Name);
 			Type = objType;
+			Input = name; // technically incorrect but best we can do
+		}
+
+		/// <summary>
+		/// Changes full path of this object without modifying any other property
+		/// </summary>
+		public void SetFullPath(string fullPath) {
+
+			// save raw
+			Input = fullPath;
+
+			string path = StoragePath.Normalize(fullPath);
+
+			// save normalized full path
+			FullPath = path;
+
+			if (StoragePath.IsRootPath(path)) {
+				Name = "";
+				FolderPath = "";
+			}
+			else {
+				string[] parts = StoragePath.Split(path);
+
+				Name = parts.Last();
+				FolderPath = StoragePath.GetParent(path);
+			}
 		}
 
 		/// <summary>
@@ -178,7 +134,7 @@ namespace FluentStorage.Model {
 		public bool IsRootFolder => Type == StorageObjectType.Folder && StoragePath.IsRootPath(FullPath);
 
 		/// <summary>
-		/// Full blob info, i.e type, id and path
+		/// Full object info, i.e type, id and path
 		/// </summary>
 		public override string ToString() {
 			string k = Type == StorageObjectType.File ? "file" : "folder";
@@ -297,24 +253,6 @@ namespace FluentStorage.Model {
 		}
 
 		/// <summary>
-		/// Changes full path of this blob without modifying any other property
-		/// </summary>
-		public void SetFullPath(string fullPath) {
-			string path = StoragePath.Normalize(fullPath);
-
-			if (StoragePath.IsRootPath(path)) {
-				Name = "";
-				FolderPath = "";
-			}
-			else {
-				string[] parts = StoragePath.Split(path);
-
-				Name = parts.Last();
-				FolderPath = StoragePath.GetParent(path);
-			}
-		}
-
-		/// <summary>
 		/// Clones blob to best efforts
 		/// </summary>
 		/// <returns></returns>
@@ -324,5 +262,73 @@ namespace FluentStorage.Model {
 			clone.Properties = new Dictionary<string, object>(Properties, StringComparer.OrdinalIgnoreCase);
 			return clone;
 		}
+
+
+		/// <summary>
+		/// Try to get property and cast it to a specified type
+		/// </summary>
+		public bool TryGetProperty<TValue>(string name, out TValue value, TValue defaultValue = default) {
+			if (name == null || !Properties.TryGetValue(name, out object objValue)) {
+				value = defaultValue;
+				return false;
+			}
+
+			if (objValue is TValue) {
+				value = (TValue)objValue;
+				return true;
+			}
+
+			value = defaultValue;
+			return false;
+		}
+
+		/// <summary>
+		/// Tries to add properties in pairs when value is not null
+		/// </summary>
+		/// <param name="keyValues"></param>
+		public void TryAddProperties(params object[] keyValues) {
+			for (int i = 0; i < keyValues.Length; i += 2) {
+				string key = (string)keyValues[i];
+				object value = keyValues[i + 1];
+
+				if (key != null && value != null) {
+					if (value is string s && string.IsNullOrEmpty(s))
+						continue;
+
+					Properties[key] = value;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Works just like <see cref="TryAddProperties(object[])"/> but prefixes all the keys
+		/// </summary>
+		/// <param name="prefix"></param>
+		/// <param name="keyValues"></param>
+		public void TryAddPropertiesWithPrefix(string prefix, params object[] keyValues) {
+			if (string.IsNullOrEmpty(prefix))
+				TryAddProperties(keyValues);
+
+			object[] keyValuesWithPrefix = keyValues.Select((e, i) => i % 2 == 0 ? prefix + (string)e : e).ToArray();
+
+			TryAddProperties(keyValuesWithPrefix);
+		}
+
+		/// <summary>
+		/// Tries to add properties from dictionary by key names
+		/// </summary>
+		/// <param name="source"></param>
+		/// <param name="keyNames"></param>
+		public void TryAddPropertiesFromDictionary(IDictionary<string, string> source, params string[] keyNames) {
+			if (source == null || keyNames == null)
+				return;
+
+			foreach (string key in keyNames) {
+				if (source.TryGetValue(key, out string value)) {
+					Properties[key] = value;
+				}
+			}
+		}
+
 	}
 }

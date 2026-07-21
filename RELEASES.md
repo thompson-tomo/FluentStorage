@@ -9,9 +9,9 @@
    - New: Add new rule types for path checking: `FullPathRule`, `FullPathRegexRule`
    - Fix: Fix all logic issues in rules based on unit test suite
    - Fix: Support case-insensitive extension comparison in `ExtensionRule`
-   - Fix: Improve default `DownloadObject` to ensure parent directory exists and fix existance check
-   - Fix: Improve default `DownloadDirectory` to report progress on successful transfers too
-   - Fix: Improve default `UploadDirectory` to report progress on successful transfers too
+   - Fix: `DownloadObject` ensures parent directory exists and fix existance check
+   - Fix: `DownloadDirectory` reports progress on successful transfers too
+   - Fix: `UploadDirectory` reports progress on successful transfers too
    - Paths: `StoreObject`: Make `FullPath` instant by computing it at time of construction rather than dynamically
    - Paths: `StoreObject`: Add `Input` property to read the raw path given by the provider
  - **FluentStorage.FTP**

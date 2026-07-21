@@ -1,6 +1,7 @@
 ﻿using FluentStorage.Enums;
 using FluentStorage.Exceptions;
 using FluentStorage.Model;
+using FluentStorage.Rules;
 using FluentStorage.Streaming;
 using FluentStorage.Utils.Extensions;
 using System;
@@ -514,7 +515,7 @@ namespace FluentStorage.Storage {
 		/// Absorbs all errors internally, and does not abort the entire process if a single file failed to transfer.
 		/// </summary>
 		public virtual async Task DownloadDirectory(string remoteFolder,string localFolder,StorageExistsMode existsMode = StorageExistsMode.Skip,
-			Action<StorageProgress>? progress = null,CancellationToken cancellationToken = default) {
+			Action<StorageProgress>? progress = null, IList<StorageRule> rules = null,CancellationToken cancellationToken = default) {
 
 			if (string.IsNullOrWhiteSpace(localFolder)) throw new ArgumentNullException(nameof(localFolder));
 			if (string.IsNullOrWhiteSpace(remoteFolder)) throw new ArgumentNullException(nameof(remoteFolder));
@@ -526,6 +527,23 @@ namespace FluentStorage.Storage {
 			var objects = (await ListDirectory(remoteFolder, true, cancellationToken).ConfigureAwait(false))
 				.Where(x => x.Type == StorageObjectType.File)
 				.ToList();
+
+			// exit if nothing to transfer
+			if (objects.Count == 0)
+				return;
+
+			cancellationToken.ThrowIfCancellationRequested();
+
+			// if any rules are defined
+			if (rules != null && rules.Count > 0) {
+				var newObjects = new List<StoreObject>();
+
+				// ensure all objects pass the defined rules (if any)
+				foreach (var o in objects) {
+					if (StorageRule.ObjectPassesRules(o, rules)) newObjects.Add(o);
+				}
+				objects = newObjects;
+			}
 
 			// exit if nothing to transfer
 			if (objects.Count == 0)
@@ -630,7 +648,7 @@ namespace FluentStorage.Storage {
 		/// Absorbs all errors internally, and does not abort the entire process if a single file failed to transfer.
 		/// </summary>
 		public virtual async Task UploadDirectory(string localFolder, string remoteFolder, StorageExistsMode existsMode = StorageExistsMode.Skip,
-			Action<StorageProgress>? progress = null, CancellationToken cancellationToken = default) {
+			Action<StorageProgress>? progress = null, IList<StorageRule> rules = null, CancellationToken cancellationToken = default) {
 			remoteFolder = StoragePath.Normalize(remoteFolder);
 
 			if (string.IsNullOrWhiteSpace(localFolder)) throw new ArgumentNullException(nameof(localFolder));
@@ -643,10 +661,38 @@ namespace FluentStorage.Storage {
 			bool isFileSystem = await IsFileSystem().ConfigureAwait(false);
 
 			// get all the local files in this folder
-			var files = Directory.GetFiles(localFolder, "*", SearchOption.AllDirectories);
+			var files = Directory.GetFiles(localFolder, "*", SearchOption.AllDirectories).ToList();
 
 			// exit if nothing to transfer
-			if (files.Length == 0)
+			if (files.Count == 0)
+				return;
+
+			cancellationToken.ThrowIfCancellationRequested();
+
+			// compute relative paths
+			var relativeFiles = new List<string>();
+			foreach (var o in files) {
+				relativeFiles.Add(StoragePath.Normalize(StoragePath.GetRelativeDiskPath(localFolder, o)));
+			}
+
+			// if any rules are defined
+			if (rules != null && rules.Count > 0) {
+				var newFiles = new List<string>();
+				var newRelativeFiles = new List<string>();
+
+				// ensure all objects pass the defined rules (if any)
+				for (int f = 0; f < files.Count; f++) {
+					if (StorageRule.ObjectPassesRules(new StoreObject(relativeFiles[f], StorageObjectType.File), rules)) {
+						newFiles.Add(files[f]);
+						relativeFiles.Add(relativeFiles[f]);
+					}
+				}
+				files = newFiles;
+				relativeFiles = newRelativeFiles;
+			}
+
+			// exit if nothing to transfer
+			if (files.Count == 0)
 				return;
 
 			//var createdDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -664,12 +710,12 @@ namespace FluentStorage.Storage {
 			int ok = 0, skipped = 0, failed = 0;
 
 			// per file found in local folder
-			for (int i = 0; i < files.Length; i++) {
+			for (int f = 0; f < files.Count; f++) {
 				cancellationToken.ThrowIfCancellationRequested();
 
-				string localFile = files[i];
+				string localFile = files[f];
+				string rel = relativeFiles[f];
 				long length = new FileInfo(localFile).Length;
-				string rel = StoragePath.Normalize(StoragePath.GetRelativeDiskPath(localFolder, localFile));
 
 				// calc the remote path
 				string objectPath = StoragePath.Normalize(StoragePath.Combine(remoteFolder, rel));
@@ -692,8 +738,8 @@ namespace FluentStorage.Storage {
 								if (progress != null) Report(new StorageProgress {
 									LocalPath = localFile,
 									RemotePath = objectPath,
-									FileIndex = i + 1,
-									FileCount = files.Length,
+									FileIndex = f + 1,
+									FileCount = files.Count,
 									Progress = 100,
 								});
 								continue;
@@ -721,8 +767,8 @@ namespace FluentStorage.Storage {
 					if (progress != null) Report(new StorageProgress {
 						LocalPath = localFile,
 						RemotePath = objectPath,
-						FileIndex = i + 1,
-						FileCount = files.Length,
+						FileIndex = f + 1,
+						FileCount = files.Count,
 						Progress = 100,
 						TransferredBytes = length
 					});
@@ -737,8 +783,8 @@ namespace FluentStorage.Storage {
 					if (progress != null) Report(new StorageProgress {
 						LocalPath = localFile,
 						RemotePath = objectPath,
-						FileIndex = i + 1,
-						FileCount = files.Length,
+						FileIndex = f + 1,
+						FileCount = files.Count,
 						Progress = -1,
 						TransferredBytes = 0,
 						TransferSpeed = 0,

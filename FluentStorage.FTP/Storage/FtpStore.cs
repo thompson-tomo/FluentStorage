@@ -4,6 +4,7 @@ using FluentStorage.Enums;
 using FluentStorage.Exceptions;
 using FluentStorage.FTP.Utils;
 using FluentStorage.Model;
+using FluentStorage.Rules;
 using FluentStorage.Storage;
 
 using Polly;
@@ -489,10 +490,11 @@ namespace FluentStorage.FTP.Storage {
 		/// Upload a local disk folder onto the FTP server.
 		/// </summary>
 		public override async Task UploadDirectory(string localFolder,string remoteFolder,StorageExistsMode existsMode = StorageExistsMode.Skip,
-			Action<StorageProgress>? progress = null,CancellationToken cancellationToken = default) {
+			Action<StorageProgress>? progress = null, IList<StorageRule> rules = null,CancellationToken cancellationToken = default) {
 
 			if (string.IsNullOrWhiteSpace(localFolder)) throw new ArgumentNullException(nameof(localFolder));
 			if (string.IsNullOrWhiteSpace(remoteFolder)) throw new ArgumentNullException(nameof(remoteFolder));
+			if (rules != null) throw new Exception("Rules are not yet supported in FTP!");
 
 			// exit if local folder doesnt exist
 			if (!Directory.Exists(localFolder)) return;
@@ -531,10 +533,11 @@ namespace FluentStorage.FTP.Storage {
 		/// Download a folder from the FTP server to disk.
 		/// </summary>
 		public override async Task DownloadDirectory(string remoteFolder,string localFolder,StorageExistsMode existsMode = StorageExistsMode.Skip,
-			Action<StorageProgress>? progress = null,CancellationToken cancellationToken = default) {
+			Action<StorageProgress>? progress = null, IList<StorageRule> rules = null,CancellationToken cancellationToken = default) {
 
 			if (string.IsNullOrWhiteSpace(localFolder)) throw new ArgumentNullException(nameof(localFolder));
 			if (string.IsNullOrWhiteSpace(remoteFolder)) throw new ArgumentNullException(nameof(remoteFolder));
+			if (rules != null) throw new Exception("Rules are not yet supported in FTP!");
 
 			remoteFolder = StoragePath.Normalize(remoteFolder);
 

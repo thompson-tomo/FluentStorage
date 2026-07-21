@@ -26,7 +26,7 @@ namespace FluentStorage.Rules {
 		/// <summary>
 		/// Returns true if the object has passed all the rules.
 		/// </summary>
-		public static bool IsAllAllowed(List<StorageRule> rules, StoreObject result) {
+		public static bool ObjectPassesRules(StoreObject result, IList<StorageRule> rules) {
 			foreach (var rule in rules) {
 				if (!rule.IsAllowed(result)) {
 					return false;

@@ -1,5 +1,6 @@
 ﻿using FluentStorage.Enums;
 using FluentStorage.Model;
+using FluentStorage.Rules;
 using FluentStorage.Streaming;
 using System;
 using System.Collections.Generic;
@@ -230,12 +231,14 @@ namespace FluentStorage.Storage {
 		/// <param name="localFolder">Destination local folder.</param>
 		/// <param name="existsMode">How to handle files that already exist at the destination.</param>
 		/// <param name="progress">Callback to report the progress of each file transfer.</param>
+		/// <param name="rules">Only objects passing all the given whitelist/blacklist rules will be downloaded.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		Task DownloadDirectory(
 			string remoteFolder,
 			string localFolder,
 			StorageExistsMode existsMode = StorageExistsMode.Skip,
 			Action<StorageProgress>? progress = null,
+			IList<StorageRule> rules = null,
 			CancellationToken cancellationToken = default);
 
 
@@ -297,9 +300,14 @@ namespace FluentStorage.Storage {
 		/// <param name="remoteFolder">Destination remote folder or virtual folder.</param>
 		/// <param name="existsMode">How to handle files that already exist at the destination.</param>
 		/// <param name="progress">Callback to report the progress of each file transfer.</param>
+		/// <param name="rules">Only objects passing all the given whitelist/blacklist rules will be uploaded.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task UploadDirectory(string localFolder,string remoteFolder,StorageExistsMode existsMode = StorageExistsMode.Skip,
-			Action<StorageProgress>? progress = null,CancellationToken cancellationToken = default);
+		Task UploadDirectory(string localFolder,
+			string remoteFolder,
+			StorageExistsMode existsMode = StorageExistsMode.Skip,
+			Action<StorageProgress>? progress = null,
+			IList<StorageRule> rules = null,
+			CancellationToken cancellationToken = default);
 
 
 		// ---------------------------------------------------------------------

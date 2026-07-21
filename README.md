@@ -488,8 +488,8 @@ This table shows the API and the provider-specific concept it maps to:
 | **Tagging API**      | Object Tags                            | Blob Index Tags <br> / Blob Tags  | Custom Metadata    |
 | **Metadata API**     | Object Metadata                        | Blob Metadata                    | Object Metadata    |
 | **Storage Tier**     | Storage Class                           | Access Tier                     | Storage Class      |
-| **Retention API**    | Object Lock Retention                  | Immutability Policy              | Retention Policy   |
-| **Locking API**      | Object Lock Configuration <br> / Legal Hold | Legal Hold <br> + Immutability Policy | Object Holds       |
+| **Retention API** (planned)    | Object Lock Retention                  | Immutability Policy              | Retention Policy   |
+| **Locking API** (planned)      | Object Lock Configuration <br> / Legal Hold | Legal Hold <br> + Immutability Policy | Object Holds       |
 
 ## Storage Tier Mapping
 

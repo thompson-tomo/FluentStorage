@@ -396,7 +396,7 @@ namespace FluentStorage.Storage {
 		/// <param name="folderPath">Path to the new folder.</param>
 		Task CreateDirectory(string folderPath, bool force, CancellationToken cancellationToken = default);
 
-		/// <summary>Deletes a folder from the store, if it exists.</summary>
+		/// <summary>Deletes a folder from the store, if it exists. Deletes all contents if `recursive` is true.</summary>
 		/// <param name="folderPath">Path to the folder.</param>
 		Task DeleteDirectory(string folderPath, bool recursive, CancellationToken cancellationToken = default);
 

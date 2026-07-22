@@ -21,7 +21,8 @@
  - **FluentStorage.Alibaba**
    - Fix: All API should use a single constructor for `StoreObject`
  - **FluentStorage.Tests**
-   - New: Extensive unit test suite for rule engine under `RuleTests`
+   - New: Extensive integration test suite for rule engine under `IStore.DirRules` class
+   - New: Extensive unit test suite for rule engine under `RuleTests` class
  
 #### FluentStorage 8.0.10
  - **FluentStorage**

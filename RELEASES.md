@@ -2,7 +2,7 @@
 
 **Please read the [Migration Guide](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide) to help you migrate from older versions to FluentStorage 8!**
  
-#### FluentStorage 8.0.11
+#### FluentStorage 8.0.12
  - **FluentStorage**
    - New: Add rule-based filtering support in `DownloadDirectory` and `UploadDirectory` for all storage providers
    - New: Add rule engine and rules from FluentFTP: `ObjectNameRule`, `ObjectNameRegexRule`, `DirectoryNameRule`, `DirectoryNameRegexRule`, `ExtensionRule`

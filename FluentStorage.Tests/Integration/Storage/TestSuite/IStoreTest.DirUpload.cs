@@ -1,4 +1,4 @@
-﻿namespace FluentStorage.Tests.Integration.Storage {
+﻿namespace FluentStorage.Tests.Integration.Storage.TestSuite {
 	public partial class IStoreTest {
 
 
@@ -46,8 +46,8 @@
 
 			await UploadTree(DeepTree, local, remote);
 
-			await AssertRemoteTree(remote, DeepTree);
 			await AssertRemoteDirectoriesExist(remote, DeepTree);
+			await AssertRemoteTree(remote, DeepTree);
 		}
 
 		[Fact]

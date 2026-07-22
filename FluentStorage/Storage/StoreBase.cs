@@ -684,7 +684,7 @@ namespace FluentStorage.Storage {
 				for (int f = 0; f < files.Count; f++) {
 					if (StorageRule.ObjectPassesRules(new StoreObject(relativeFiles[f], StorageObjectType.File), rules)) {
 						newFiles.Add(files[f]);
-						relativeFiles.Add(relativeFiles[f]);
+						newRelativeFiles.Add(relativeFiles[f]);
 					}
 				}
 				files = newFiles;

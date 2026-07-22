@@ -1,6 +1,4 @@
-﻿using FluentStorage.Tests.Integration.Storage.Fixture;
-
-namespace FluentStorage.Tests.Integration.Storage {
+﻿namespace FluentStorage.Tests.Integration.Storage {
 	public class LocalDiskTestFixture : StoreFixture {
 		protected override IStore CreateStorage(TestConfig settings) {
 

@@ -1,4 +1,4 @@
-﻿namespace FluentStorage.Tests.Integration.Storage {
+﻿namespace FluentStorage.Tests.Integration.Storage.TestSuite {
 	public partial class IStoreTest {
 
 

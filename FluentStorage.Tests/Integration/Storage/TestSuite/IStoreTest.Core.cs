@@ -1,6 +1,6 @@
 ﻿using FluentStorage.Tests.Integration.Storage.Fixture;
 
-namespace FluentStorage.Tests.Integration.Storage {
+namespace FluentStorage.Tests.Integration.Storage.TestSuite {
 
 	/// <summary>
 	/// Massive test case suite to test object and directory manipulation for the given provider.

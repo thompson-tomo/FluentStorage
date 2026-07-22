@@ -175,6 +175,10 @@ This table shows the API supported by `IStore` across various cloud and server p
 <td colspan="11"><b>Directory manipulation</b></td>
 </tr>
 <tr>
+<td>&nbsp; IsFileSystem</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+</tr>
+<tr>
 <td>&nbsp; DirectoryExists</td>
 <td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
@@ -208,6 +212,10 @@ This table shows the API supported by `IStore` across various cloud and server p
 
 <tr>
 <td colspan="11"><b>File streaming &#x2F; seeking</b></td>
+</tr>
+<tr>
+<td>&nbsp; IsSeekable</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; OpenRange</td>
@@ -282,7 +290,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>&nbsp; IsVersioned</td>
-<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; ListObjectVersions</td>
@@ -306,7 +314,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>&nbsp; IsTagged</td>
-<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; GetObjectTags</td>
@@ -326,7 +334,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 </tr>
 <tr>
 <td>&nbsp; IsTiered</td>
-<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; GetObjectTier</td>

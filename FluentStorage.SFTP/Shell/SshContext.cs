@@ -71,9 +71,6 @@ namespace FluentStorage.SFTP.Shell {
 		private SshHashTool _sha512Tool = SshHashTool.None;
 		private SshHashTool _crc32Tool = SshHashTool.None;
 
-
-
-
 		/// <summary>
 		/// Probes the remote server: whether commands can be run at all, what OS it is,
 		/// and which hashing utilities are installed. Populates all capability flags.
@@ -202,6 +199,7 @@ namespace FluentStorage.SFTP.Shell {
 		/// </summary>
 		public string GetRemoteHash(string remotePath, StorageHash hash) {
 
+			// detect which OS we are on and which hashing utilities are available
 			DetectCapabilities();
 
 			// sanity checks

@@ -5,7 +5,7 @@
 	public enum StorageHash {
 
 		/// <summary>
-		/// MD5 algorithm. Fast but weak. Legacy. Supported by many cloud providers and FTP servers.
+		/// MD5 algorithm. Fast but weak. Supported by many cloud providers and FTP servers.
 		/// </summary>
 		MD5 = 1,
 

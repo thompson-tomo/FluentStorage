@@ -259,6 +259,7 @@
 			byte[] actual = await _storage.GetBytes(file);
 
 			Assert.Equal(expected, actual);
+			await _storage.DeleteObject(file);
 		}
 
 		[Fact]
@@ -274,6 +275,7 @@
 			byte[] actual = await _storage.GetBytes(file);
 
 			Assert.Equal(expected, actual);
+			await _storage.DeleteObject(file);
 		}
 
 		[Fact]
@@ -289,6 +291,7 @@
 			byte[] actual = await _storage.GetBytes(file);
 
 			Assert.Equal(expected, actual);
+			await _storage.DeleteObject(file);
 		}
 
 		[Fact]
@@ -304,6 +307,7 @@
 			byte[] actual = await _storage.GetBytes(file);
 
 			Assert.Equal(expected, actual);
+			await _storage.DeleteObject(file);
 		}
 		[Fact]
 		public async Task _PerformanceTest_10KB_UploadObject() {
@@ -327,6 +331,7 @@
 			finally {
 				File.Delete(uploadFile);
 				File.Delete(downloadFile);
+				await _storage.DeleteObject(remoteFile);
 			}
 		}
 
@@ -352,6 +357,7 @@
 			finally {
 				File.Delete(uploadFile);
 				File.Delete(downloadFile);
+				await _storage.DeleteObject(remoteFile);
 			}
 		}
 
@@ -377,6 +383,7 @@
 			finally {
 				File.Delete(uploadFile);
 				File.Delete(downloadFile);
+				await _storage.DeleteObject(remoteFile);
 			}
 		}
 
@@ -402,6 +409,7 @@
 			finally {
 				File.Delete(uploadFile);
 				File.Delete(downloadFile);
+				await _storage.DeleteObject(remoteFile);
 			}
 		}
 

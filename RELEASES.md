@@ -7,6 +7,7 @@
    - New: Optimize `StoragePath.Combine` when combining only 2 path segments (most common use case)
  - **FluentStorage.SFTP**
    - New: Optimize `SetObject` & `SetBytes` APIs to improve transfer performance (4x faster)
+   - New: Optimize `UploadObject` & `UploadDirectory` APIs to improve transfer performance (2x faster)
    - New: `BufferSize` set to a default of 128KB to improve transfer performance
    - New: `TransferBufferSize` setting to change upload/download buffer size
    - Fix: `SetObject` now correctly handles non-seekable streams

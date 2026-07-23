@@ -549,6 +549,13 @@ namespace FluentStorage.SFTP {
 			SftpClient client = Client();
 
 			try {
+
+				// exit quickly if directory exists
+				if (await DirectoryExists(folderPath, cancellationToken)) {
+					return;
+				}
+
+				// create directory part by part
 				await EnsureDirectoryExists(folderPath, client, cancellationToken);
 			}
 			catch (Exception ex) {
@@ -594,12 +601,9 @@ namespace FluentStorage.SFTP {
 		}
 
 		/// <summary>
-		/// Determines whether the specified directory exists on the SFTP server.
+		/// Returns true if the specified directory exists on the SFTP server. Returns false if it is a file path.
 		/// </summary>
 		/// <param name="folderPath">Path to the directory.</param>
-		/// <returns>
-		/// <c>true</c> if the directory exists; otherwise, <c>false</c>.
-		/// </returns>
 		public override async Task<bool> DirectoryExists(string folderPath, CancellationToken cancellationToken = default) {
 
 			SftpClient client = Client();

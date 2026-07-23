@@ -345,17 +345,17 @@ namespace FluentStorage.Storage {
 		/// <param name="cancellationToken">Cancellation token.</param>
 		Task<bool> MoveObject(string oldPath, string newPath, bool overwrite, CancellationToken cancellationToken = default);
 
-		/// <summary>Deletes a single object or folder.</summary>
+		/// <summary>Deletes a single object or file. Does NOT delete folders or directories.</summary>
 		/// <param name="objectPath">Full path of the object or folder.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		Task DeleteObject(string objectPath, CancellationToken cancellationToken = default);
 
-		/// <summary>Deletes an object by its full path.</summary>
+		/// <summary>Deletes multiple objects or files. Does NOT delete folders or directories.</summary>
 		/// <param name="objectPaths">Full paths of the objects or folders.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		Task DeleteObjects(IEnumerable<string> objectPaths, CancellationToken cancellationToken = default);
 
-		/// <summary>Deletes a collection of objects.</summary>
+		/// <summary>Deletes multiple objects or files. Does NOT delete folders or directories.</summary>
 		/// <param name="blobs">Objects to delete.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		Task DeleteObjects(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default);

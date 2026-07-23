@@ -9,7 +9,7 @@
    - New: `DownloadDirectory` will return a list of all the per-file progress reports at the end, and will record objects skipped due to rules
    - New: `SkipReason` inside each `StorageProgress` to indicate why the object was skipped
    - New: `SkipRule` inside each `StorageProgress` to indicate which rule caused the object to be rejected
-   - Change: Rename `StorageExistsMode` to `StorageExists` to reduce usage bloat
+   - Change: Rename `StorageExistsMode` to `StorageExists` to reduce bloat
  
 #### FluentStorage 8.0.14
  - **FluentStorage**

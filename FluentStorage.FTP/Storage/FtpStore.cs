@@ -417,13 +417,12 @@ namespace FluentStorage.FTP.Storage {
 		/// <param name="cancellationToken">Cancellation token.</param>
 		public override async Task UploadObject(string fullPath, string filePath, bool overwrite, CancellationToken cancellationToken = default) {
 
-			fullPath = StoragePath.Normalize(fullPath);
-
 			// exit if local file doesnt exist
 			if (!File.Exists(filePath)) return;
 
+			// upload
+			fullPath = StoragePath.Normalize(fullPath);
 			AsyncFtpClient client = await Client().ConfigureAwait(false);
-
 			await client.UploadFile(filePath, fullPath,
 				overwrite ? FtpRemoteExists.Overwrite : FtpRemoteExists.Skip, false, FtpVerify.None, null, cancellationToken).ConfigureAwait(false);
 		}

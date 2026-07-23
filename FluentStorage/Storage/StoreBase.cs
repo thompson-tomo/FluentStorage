@@ -446,7 +446,7 @@ namespace FluentStorage.Storage {
 
 
 		/// <summary>
-		/// Copies blob to another storage
+		/// Copies an object from one store to another.
 		/// </summary>
 		/// <param name="blobId">Object path to copy</param>
 		/// <param name="targetStorage">Target storage</param>

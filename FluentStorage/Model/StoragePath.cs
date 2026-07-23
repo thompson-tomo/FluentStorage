@@ -25,6 +25,43 @@ namespace FluentStorage {
 		/// Folder name for leveling up the path
 		/// </summary>
 		public static readonly string LevelUpFolderName = "..";
+
+
+		/// <summary>
+		/// Combines multiple parts of path
+		/// </summary>
+		public static string Combine(params string[] parts) {
+			return Combine((IEnumerable<string>)parts);
+		}
+
+		/// <summary>
+		/// Combines path parts using the storage path separator.
+		/// Null and empty parts are ignored.
+		/// Fast path for combining only parts.
+		/// </summary>
+		public static string Combine(string part1, string part2) {
+
+			// fast blank handling
+			if (string.IsNullOrEmpty(part1))
+				return string.IsNullOrEmpty(part2) ? string.Empty : NormalizePart(part2);
+
+			if (string.IsNullOrEmpty(part2))
+				return NormalizePart(part1);
+
+			// normalize
+			string p1 = NormalizePart(part1);
+			string p2 = NormalizePart(part2);
+
+			// preserve existing behavior
+			if (p1.Length == 0)
+				return p2;
+
+			if (p2.Length == 0)
+				return p1;
+
+			return p1 + PathSeparator + p2;
+		}
+
 		/// <summary>
 		/// Combines path parts using the storage path separator.
 		/// Null and empty parts are ignored.
@@ -100,15 +137,6 @@ namespace FluentStorage {
 			return last < 0
 				? string.Empty
 				: path.Substring(0, last);
-		}
-
-		/// <summary>
-		/// Combines parts of path
-		/// </summary>
-		/// <param name="parts"></param>
-		/// <returns></returns>
-		public static string Combine(params string[] parts) {
-			return Combine((IEnumerable<string>)parts);
 		}
 
 		/// <summary>

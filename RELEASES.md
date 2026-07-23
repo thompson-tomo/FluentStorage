@@ -2,6 +2,16 @@
 
 **Please read the [Migration Guide](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide) to help you migrate from older versions to FluentStorage 8!**
  
+#### FluentStorage 8.0.13
+ - **FluentStorage**
+   - New: Optimize `StoragePath.Combine` when combining only 2 path segments (most common use case)
+ - **FluentStorage.SFTP**
+   - Fix: `SetObject` now correctly handles non-seekable streams
+   - Fix: `CreateDirectory` now creates the entire directory path instead of just the last segment
+   - Improve: `DirectoryExists` uses only one native API call to improve performance
+   - Improve: `UploadObject` now uses native `UploadFileAsync` API to improve transfer performance
+   - Improve: `SetLengthOnNewStream` default changed to false to improve performance
+ 
 #### FluentStorage 8.0.12
  - **FluentStorage**
    - New: Add rule-based filtering support in `DownloadDirectory` and `UploadDirectory` for all storage providers

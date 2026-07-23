@@ -247,14 +247,18 @@ namespace FluentStorage.Storage {
 		// Write
 		// ---------------------------------------------------------------------
 
-		/// <summary>Uploads data to an object from a stream. Existing objects are overwritten.</summary>
+		/// <summary>Uploads data to an object from a stream.
+		/// Existing objects are overwritten if `append` is false.
+		/// Ensures that the remote directory exists (for FTP/SFTP).</summary>
 		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="dataStream">Source stream.</param>
 		/// <param name="append">Whether to append to an existing object.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		Task SetObject(string objectPath, Stream dataStream, bool append = false, CancellationToken cancellationToken = default);
 
-		/// <summary>Uploads data to an object from a stream. Existing objects are overwritten. Ensures that the remote directory exists (for FTP/SFTP).</summary>
+		/// <summary>Uploads data to an object from a stream.
+		/// Existing objects are overwritten if `append` is false.
+		/// Ensures that the remote directory exists (for FTP/SFTP).</summary>
 		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="dataStream">Source stream.</param>
 		/// <param name="contentType">MIME content type.</param>
@@ -262,21 +266,29 @@ namespace FluentStorage.Storage {
 		/// <param name="cancellationToken">Cancellation token.</param>
 		Task SetObject(string objectPath, Stream dataStream, string contentType, bool append = false, CancellationToken cancellationToken = default);
 
-		/// <summary>Writes a byte array to an object. Ensures that the remote directory exists (for FTP/SFTP).</summary>
+		/// <summary>Writes a byte array to an object.
+		/// Existing objects are overwritten if `append` is false.
+		/// Ensures that the remote directory exists (for FTP/SFTP).</summary>
 		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="data">Data to write.</param>
 		/// <param name="append">Whether to append to an existing object.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		Task SetBytes(string objectPath, byte[] data, bool append = false, CancellationToken cancellationToken = default);
 
-		/// <summary>Writes text to an object. Ensures that the remote directory exists (for FTP/SFTP).</summary>
+		/// <summary>Writes text to an object.
+		/// Existing objects are overwritten if `append` is false.
+		/// Ensures that the remote directory exists (for FTP/SFTP).</summary>
 		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="text">Text to write.</param>
 		/// <param name="textEncoding">Text encoding. Defaults to UTF-8.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		Task SetText(string objectPath, string text, Encoding textEncoding = null, CancellationToken cancellationToken = default);
 
-		/// <summary>Writes an object as JSON. Ensures that the remote directory exists (for FTP/SFTP).</summary>
+		/// <summary>
+		/// Writes an object as JSON.
+		/// Existing objects are always overwritten.
+		/// Ensures that the remote directory exists (for FTP/SFTP).
+		/// </summary>
 		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="instance">Object to serialize.</param>
 		/// <param name="options">JSON serializer options.</param>
@@ -284,7 +296,11 @@ namespace FluentStorage.Storage {
 		/// <param name="cancellationToken">Cancellation token.</param>
 		Task SetJson<T>(string objectPath, T instance, JsonSerializerOptions options = null, Encoding encoding = null, CancellationToken cancellationToken = default);
 
-		/// <summary>Uploads a local file to an object. Ensures that the remote directory exists (for FTP/SFTP).</summary>
+		/// <summary>
+		/// Uploads a local file to an object.
+		/// Existing objects are overwritten if `overwrite` is true, otherwise it skips the upload.
+		/// Ensures that the remote directory exists (for FTP/SFTP).
+		/// </summary>
 		/// <param name="objectPath">Full path of the object.</param>
 		/// <param name="filePath">Source file path.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>

@@ -14,6 +14,10 @@
    - New: Implement fast `GetObjectChecksum` by using `GetObjectAsync` API to get MD5 object hash
  - **FluentStorage.FTP**
    - New: Implement fast `GetObjectChecksum` by using native FTP commands
+ - **FluentStorage.SFTP**
+   - New: Implement fast `GetObjectChecksum` by using native SSH shell commands to remotely compute an object hash.
+   - New: Implement a powerful engine built for Windows and Unix to detects which Shell utilities are available once, then quickly use this information to compute a server-side hash of the file without needing to download it
+   - New: Security engine to prevent path-injection and command-injection (based on security engine from FluentFTP)
  
 #### FluentStorage 8.0.13
  - **FluentStorage**

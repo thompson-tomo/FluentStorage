@@ -247,10 +247,70 @@
 		}
 
 		[Fact]
-		public async Task BinaryFile_RoundTripsCorrectly() {
+		public async Task BinaryFile_10KB_RoundTrips() {
 			string file = RandomFile();
 
-			byte[] expected = new byte[8192];
+			byte[] expected = new byte[10 * 1024];
+
+			new Random(12345).NextBytes(expected);
+
+			await _storage.SetBytes(file, expected);
+
+			byte[] actual = await _storage.GetBytes(file);
+
+			Assert.Equal(expected, actual);
+		}
+
+		[Fact]
+		public async Task BinaryFile_100KB_RoundTrips() {
+			string file = RandomFile();
+
+			byte[] expected = new byte[100 * 1024];
+
+			new Random(12345).NextBytes(expected);
+
+			await _storage.SetBytes(file, expected);
+
+			byte[] actual = await _storage.GetBytes(file);
+
+			Assert.Equal(expected, actual);
+		}
+
+		[Fact]
+		public async Task BinaryFile_1MB_RoundTrips() {
+			string file = RandomFile();
+
+			byte[] expected = new byte[1 * 1024 * 1024];
+
+			new Random(12345).NextBytes(expected);
+
+			await _storage.SetBytes(file, expected);
+
+			byte[] actual = await _storage.GetBytes(file);
+
+			Assert.Equal(expected, actual);
+		}
+
+		[Fact]
+		public async Task BinaryFile_10MB_RoundTrips() {
+			string file = RandomFile();
+
+			byte[] expected = new byte[10 * 1024 * 1024];
+
+			new Random(12345).NextBytes(expected);
+
+			await _storage.SetBytes(file, expected);
+
+			byte[] actual = await _storage.GetBytes(file);
+
+			Assert.Equal(expected, actual);
+		}
+
+		[Fact]
+		public async Task BinaryFile_50MB_RoundTrips() {
+			string file = RandomFile();
+
+			byte[] expected = new byte[50 * 1024 * 1024];
 
 			new Random(12345).NextBytes(expected);
 

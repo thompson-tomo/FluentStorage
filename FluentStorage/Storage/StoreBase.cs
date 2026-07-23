@@ -650,7 +650,7 @@ namespace FluentStorage.Storage {
 					//----------------------------------------------------
 					// download file
 					await DownloadObject(obj.FullPath, localFile,
-						existsMode == StorageExists.Overwrite,
+						true,
 						/*p => {
 							p.LocalPath = localFile;
 							p.RemotePath = obj.Path;
@@ -878,7 +878,7 @@ namespace FluentStorage.Storage {
 					//----------------------------------------------------
 					// upload file
 					await UploadObject(objectPath, localFile,
-						existsMode == StorageExists.Overwrite,
+						true,
 						/*p => {
 							p.LocalPath = localFile;
 							p.RemotePath = objectPath;

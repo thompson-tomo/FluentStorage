@@ -28,7 +28,7 @@ FluentStorage is released under the permissive MIT License, so it can be used in
   * [Unified path system](https://github.com/robinrodricks/FluentStorage/wiki/Unified-Path-System) that works across all providers
   * Object manipulation commands like create/get/set/move/delete
   * High-level API to easily upload/download files
-  * High-level API to easily upload/download directories or virtual directories with [rule-based filtering](https://github.com/robinrodricks/FluentStorage/wiki/Rule-Engine), progress callbacks, and a detailed transfer report provided at the end
+  * High-level API to easily upload/download directories or virtual directories with [rule-based filtering](https://github.com/robinrodricks/FluentStorage/wiki/Rule-Engine), progress callbacks, ability to only re-transfer changed files, and a detailed transfer report provided at the end
   * Easily work with any object using read streams, write streams and seekable streams
   * File streaming support to provide video playback on top of object stores
   * Fast server-side checksum computation for Azure, GCP, FTP, SFTP, with a fallback to client-side hashing for other providers

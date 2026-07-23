@@ -577,7 +577,7 @@ namespace FluentStorage.Storage {
 
 									// get the checksum
 									var remoteChecksum = await GetObjectChecksum(obj.FullPath, StorageHash.MD5, cancellationToken).ConfigureAwait(false);
-									if (remoteChecksum.Verify(localFile)) {
+									if (remoteChecksum.VerifyFile(localFile)) {
 
 										// skip since checksum matches
 										skipped++;
@@ -773,7 +773,7 @@ namespace FluentStorage.Storage {
 
 									// get the checksum
 									var remoteChecksum = await GetObjectChecksum(objectPath, StorageHash.MD5, cancellationToken).ConfigureAwait(false);
-									if (remoteChecksum.Verify(localFile)) {
+									if (remoteChecksum.VerifyFile(localFile)) {
 
 										// skip since checksum matches
 										skipped++;

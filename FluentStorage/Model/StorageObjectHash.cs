@@ -1,5 +1,4 @@
 ﻿using FluentStorage.Enums;
-using FluentStorage.Utils.Extensions;
 using FluentStorage.Utils.Hashing;
 using System;
 using System.IO;
@@ -7,7 +6,7 @@ using System.IO;
 namespace FluentStorage.Model {
 
 	/// <summary>
-	/// Represents a computed hash of an object.
+	/// Represents a computed hash of a storage object.
 	/// </summary>
 	public sealed class StorageObjectHash {
 
@@ -45,9 +44,9 @@ namespace FluentStorage.Model {
 		/// </summary>
 		/// <param name="localFilePath">The local file path to verify.</param>
 		/// <returns>True if the computed hash matches.</returns>
-		public bool Verify(string localFilePath) {
+		public bool VerifyFile(string localFilePath) {
 			var bytes = File.ReadAllBytes(localFilePath);
-			return Verify(bytes);
+			return VerifyBytes(bytes);
 		}
 
 		/// <summary>
@@ -55,7 +54,7 @@ namespace FluentStorage.Model {
 		/// </summary>
 		/// <param name="stream">The stream to verify.</param>
 		/// <returns>True if the computed hash matches.</returns>
-		public bool Verify(Stream stream) {
+		public bool VerifyStream(Stream stream) {
 			if (!IsValid) {
 				return false;
 			}
@@ -67,7 +66,7 @@ namespace FluentStorage.Model {
 		/// </summary>
 		/// <param name="bytes">The stream to verify.</param>
 		/// <returns>True if the computed hash matches.</returns>
-		public bool Verify(byte[] bytes) {
+		public bool VerifyBytes(byte[] bytes) {
 			if (!IsValid) {
 				return false;
 			}

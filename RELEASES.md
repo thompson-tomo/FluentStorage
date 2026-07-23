@@ -2,6 +2,15 @@
 
 **Please read the [Migration Guide](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide) to help you migrate from older versions to FluentStorage 8!**
  
+#### FluentStorage 8.0.15
+ - **FluentStorage**
+   - New: `OverwriteByTimestamp` and `OverwriteByChecksum` modes to overwrite files based on timestamp or checksum
+   - New: `UploadDirectory` will return a list of all the per-file progress reports at the end, and will record objects skipped due to rules
+   - New: `DownloadDirectory` will return a list of all the per-file progress reports at the end, and will record objects skipped due to rules
+   - New: `SkipReason` inside each `StorageProgress` to indicate why the object was skipped
+   - New: `SkipRule` inside each `StorageProgress` to indicate which rule caused the object to be rejected
+   - Change: Rename `StorageExistsMode` to `StorageExists` to reduce usage bloat
+ 
 #### FluentStorage 8.0.14
  - **FluentStorage**
    - New: `GetObjectChecksum` API to compute various types of hashes for an object across all providers

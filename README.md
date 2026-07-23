@@ -17,18 +17,36 @@
 
 FluentStorage is a fully managed polycloud .NET cloud storage library, optimized for speed. It helps you interface with multiple cloud providers from a [single unified API](#polycloud-api), allowing you to switch cloud providers or support multiple cloud providers without any logic changes.
 
-It provides a [single unified API](#polycloud-api) for [Object storage](https://github.com/robinrodricks/FluentStorage/wiki/Object-Storage) and [Queue messaging](https://github.com/robinrodricks/FluentStorage/wiki/Message-Storage) across all [cloud storage providers](#storage-providers) like AWS S3, AWS SQS, GCP Storage, FTP, FTPS, SFTP, Local Disk, Azure Blob, Azure Files, Azure Queue, Azure Service Bus, Azure Data Lake, Azure Key Vault, Cloudflare R2, DigitalOcean Spaces, MinIO, Wasabi, Backblaze B2, Hetzner, Vultr, MongoDB GridFS, Alibaba OSS. Each provider has its own [Nuget package](#packages) with zero configuration required.
+FluentStorage is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications. FluentStorage is written entirely in C# with no configuration files required. 
 
-It provides extensive Object manipulation commands, File uploads/downloads, File streaming/seeking, [Unified path system](https://github.com/robinrodricks/FluentStorage/wiki/Unified-Path-System), Object metadata, Object checksums, Object versioning, Object tags, Object storage tier/class, Presigned URL generation, Directory listing & Directory manipulation, Directory upload/download with [rule-based filtering](https://github.com/robinrodricks/FluentStorage/wiki/Rule-Engine), File permissions/CHMOD and more.
+## Features
 
-Its API is fully asynchronous and has identical behavior across all providers. It also implements [in-memory and local disk providers](https://github.com/robinrodricks/FluentStorage/wiki/Standard-Storage), so you can test on a local machine or access attached NAS/EBS drives.
-
-It is written entirely in C#, with few external dependencies. No configuration files are required.
-
-FluentStorage has a large [suite of integration tests](https://github.com/robinrodricks/FluentStorage/wiki/Automated-Tests) and some [performance tests](https://github.com/robinrodricks/FluentStorage/wiki/Performance-Tests) that work across all providers, and are easily configured to run against your own clouds.
-
-FluentStorage is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
-
+* **Common features**
+  * [Unified polycloud API](#polycloud-api) for [Object storage](https://github.com/robinrodricks/FluentStorage/wiki/Object-Storage) and [Queue messaging](https://github.com/robinrodricks/FluentStorage/wiki/Message-Storage) across all [cloud storage providers](#storage-providers)
+  * Each provider has its own [Nuget package](#packages) with zero configuration required.
+  * Fully asynchronous API with identical behavior across all providers
+  * [Unified path system](https://github.com/robinrodricks/FluentStorage/wiki/Unified-Path-System) that works across all providers
+  * Object manipulation commands like create/get/set/move/delete
+  * High-level API to easily upload/download files
+  * High-level API to easily upload/download directories or virtual directories with [rule-based filtering](https://github.com/robinrodricks/FluentStorage/wiki/Rule-Engine), progress callbacks, and a detailed transfer report provided at the end
+  * Easily work with any object using read streams, write streams and seekable streams
+  * File streaming support to provide video playback on top of object stores
+  * Fast server-side checksum computation for Azure, GCP, FTP, SFTP, with a fallback to client-side hashing for other providers
+  * Object metadata, including reading and writing object info, length, timestamps, etc
+  * [Memory and local disk providers](https://github.com/robinrodricks/FluentStorage/wiki/Standard-Storage), so you can test on a local machine or access attached NAS/EBS drives
+  * Large [suite of integration tests](https://github.com/robinrodricks/FluentStorage/wiki/Automated-Tests) and some [performance tests](https://github.com/robinrodricks/FluentStorage/wiki/Performance-Tests) that work across all providers, which are easily configured to run against your own clouds
+* **Specially for object storage**
+  * Presigned URL generation, with AWS-friendly and Azure-friendly API signatures
+  * Virtual directory manipulation
+  * Object versions, including fetching older versions, deleting a version, etc
+  * Object tagging, including adding and removing tags
+  * Object storage tier or storage class modification
+* **Specially for SFTP and FTP**
+  * Directory listing & Directory manipulation
+  * Fast server-side file checksums using native FTP and SSH commands
+  * SSH command engine for SFTP provider, to execute native SSH commands with automatic OS and utility detection
+  * File permissions/CHMOD modification
+  * Get detailed server metadata and OS information
 
 
 ## Storage Providers

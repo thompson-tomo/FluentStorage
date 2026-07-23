@@ -71,12 +71,6 @@ namespace FluentStorage.SFTP {
 		public string RootDirectory { get; private set; }
 
 		/// <summary>
-		/// Enable/disable calling SetLength() on created SftpStream when writing new blobs. Default true (set length).
-		/// Not required in all implementations. Requires SFTP user permissions on file attributes.
-		/// </summary>
-		public bool SetLengthOnNewStream { get; set; } = false;
-
-		/// <summary>
 		/// Initializes a new instance of the <see cref="T:FluentStorage.SFTP.SshNetSftpBlobStorage" /> class.
 		/// </summary>
 		/// <param name="connectionInfo">The connection info.</param>
@@ -439,75 +433,6 @@ namespace FluentStorage.SFTP {
 			return true;
 		}
 
-		public override async Task SetObject(string fullPath, Stream dataStream, bool append, CancellationToken cancellationToken = default) {
-			await SetObject(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
-		}
-		/// <summary>
-		/// Uploads data to a file.
-		/// </summary>
-		/// <param name="fullPath">Remote file path</param>
-		/// <param name="dataStream">Stream to upload from</param>
-		/// <param name="append">When true, appends to the file instead of writing a new one.</param>
-		/// <param name="cancellationToken"></param>
-		public override async Task SetObject(string fullPath, Stream dataStream, string contentType, bool append = false, CancellationToken cancellationToken = default) {
-			ThrowIfDisposed();
-
-			SftpClient client = Client();
-			var fileMode = append ? FileMode.Append : FileMode.OpenOrCreate;
-
-			// First, for speed, let's try to write the file assuming the directory requested already exists
-			// [only do this if the input stream is seekable]
-			if (dataStream.CanSeek) {
-				var origPos = dataStream.Position;
-				try {
-					// write this stream to SFTP file
-					await SetObjectInternal(dataStream, append, client, AddRootDirectory(fullPath), fileMode).ConfigureAwait(false);
-					return;
-				}
-				catch (SftpPathNotFoundException) {
-					// If the folder did not exist, continue below.
-					dataStream.Position = origPos;
-				}
-			}
-
-			// create any non-existing SFTP directories
-			await EnsureDirectoryExists(fullPath, client, cancellationToken);
-
-			// write this stream to SFTP file
-			await SetObjectInternal(dataStream, append, client, AddRootDirectory(fullPath), fileMode).ConfigureAwait(false);
-
-		}
-
-		/// <summary>
-		/// Foolproof way to create an entire directory path. Do NOT call the native `CreateDirectory` API as it will only create the last path segment.
-		/// </summary>
-		private async Task EnsureDirectoryExists(string fullPath, SftpClient client, CancellationToken cancellationToken) {
-
-			// get dir parts
-			string[] parts = StoragePath.Split(StoragePath.GetParent(fullPath));
-			string currentFolder = string.Empty;
-
-			// Create any non-existing directories.
-			// (recursively check each part and create if it does not exist)
-			foreach (string folder in parts) {
-				currentFolder = StoragePath.Combine(currentFolder, folder);
-				string sftpFolder = AddRootDirectory(currentFolder);
-				try {
-					await client.CreateDirectoryAsync(sftpFolder, cancellationToken);
-				}
-				catch { }
-			}
-		}
-
-		private async Task SetObjectInternal(Stream dataStream, bool append, SftpClient client, string fullPathWithRoot, FileMode fileMode) {
-			using (Stream dest = await client.OpenAsync(fullPathWithRoot, fileMode, FileAccess.Write, CancellationToken.None)) {
-				await dataStream.CopyToAsync(dest).ConfigureAwait(false);
-				if (append == false && SetLengthOnNewStream) {
-					dest.SetLength(dataStream.Length);
-				}
-			}
-		}
-
 		/// <summary>
 		/// Returns the SftpClient instance for this store.
 		/// </summary>
@@ -838,8 +763,8 @@ namespace FluentStorage.SFTP {
 
 			// First, for speed, let's try to write the file assuming the directory requested already exists
 			try {
-				using (Stream stream = await client.OpenAsync(AddRootDirectory(fullPath), fileMode, FileAccess.Write, cancellationToken)){
-					await stream.WriteAsync(data, 0, data.Length, cancellationToken).ConfigureAwait(false);
+				using (MemoryStream dataStream = new MemoryStream(data)) {
+					await SetObjectInternal(dataStream, append, client, AddRootDirectory(fullPath), fileMode, cancellationToken).ConfigureAwait(false);
 				}
 				return;
 			}
@@ -851,8 +776,80 @@ namespace FluentStorage.SFTP {
 			await EnsureDirectoryExists(fullPath, client, cancellationToken);
 
 			// Retry writing the file.
-			using (Stream stream = await client.OpenAsync(AddRootDirectory(fullPath), fileMode, FileAccess.Write, cancellationToken)) {
-				await stream.WriteAsync(data, 0, data.Length, cancellationToken).ConfigureAwait(false);
+			using (MemoryStream dataStream = new MemoryStream(data)) {
+				await SetObjectInternal(dataStream, append, client, AddRootDirectory(fullPath), fileMode, cancellationToken).ConfigureAwait(false);
+			}
+		}
+
+
+		public override async Task SetObject(string fullPath, Stream dataStream, bool append, CancellationToken cancellationToken = default) {
+			await SetObject(fullPath, dataStream, null, append, cancellationToken).ConfigureAwait(false);
+		}
+		/// <summary>
+		/// Uploads data to a file.
+		/// </summary>
+		/// <param name="fullPath">Remote file path</param>
+		/// <param name="dataStream">Stream to upload from</param>
+		/// <param name="append">When true, appends to the file instead of writing a new one.</param>
+		/// <param name="cancellationToken"></param>
+		public override async Task SetObject(string fullPath, Stream dataStream, string contentType, bool append = false, CancellationToken cancellationToken = default) {
+			ThrowIfDisposed();
+
+			SftpClient client = Client();
+			var fileMode = append ? FileMode.Append : FileMode.OpenOrCreate;
+
+			// First, for speed, let's try to write the file assuming the directory requested already exists
+			// [only do this if the input stream is seekable]
+			if (dataStream.CanSeek) {
+				var origPos = dataStream.Position;
+				try {
+					// write this stream to SFTP file
+					await SetObjectInternal(dataStream, append, client, AddRootDirectory(fullPath), fileMode, cancellationToken).ConfigureAwait(false);
+					return;
+				}
+				catch (SftpPathNotFoundException) {
+					// If the folder did not exist, continue below.
+					dataStream.Position = origPos;
+				}
+			}
+
+			// create any non-existing SFTP directories
+			await EnsureDirectoryExists(fullPath, client, cancellationToken);
+
+			// write this stream to SFTP file
+			await SetObjectInternal(dataStream, append, client, AddRootDirectory(fullPath), fileMode, cancellationToken).ConfigureAwait(false);
+
+		}
+
+		/// <summary>
+		/// Foolproof way to create an entire directory path. Do NOT call the native `CreateDirectory` API as it will only create the last path segment.
+		/// </summary>
+		private async Task EnsureDirectoryExists(string fullPath, SftpClient client, CancellationToken cancellationToken) {
+
+			// get dir parts
+			string[] parts = StoragePath.Split(StoragePath.GetParent(fullPath));
+			string currentFolder = string.Empty;
+
+			// Create any non-existing directories.
+			// (recursively check each part and create if it does not exist)
+			foreach (string folder in parts) {
+				currentFolder = StoragePath.Combine(currentFolder, folder);
+				string sftpFolder = AddRootDirectory(currentFolder);
+				try {
+					await client.CreateDirectoryAsync(sftpFolder, cancellationToken);
+				}
+				catch { }
+			}
+		}
+
+		private async Task SetObjectInternal(Stream dataStream, bool append, SftpClient client, string fullPath, FileMode fileMode, CancellationToken cancellationToken) {
+			if (append) {
+				using (Stream dest = await client.OpenAsync(AddRootDirectory(fullPath), fileMode, FileAccess.Write, cancellationToken).ConfigureAwait(false)) {
+					await dataStream.CopyToAsync(dest, (int)_transferBufferSize, cancellationToken).ConfigureAwait(false);
+				}
+			}
+			else {
+				await client.UploadFileAsync(dataStream, AddRootDirectory(fullPath), cancellationToken).ConfigureAwait(false);
 			}
 		}
 

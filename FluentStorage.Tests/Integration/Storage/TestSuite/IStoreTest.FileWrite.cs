@@ -247,7 +247,7 @@
 		}
 
 		[Fact]
-		public async Task BinaryFile_10KB_RoundTrips() {
+		public async Task BinaryFile_10KB_SetBytes() {
 			string file = RandomFile();
 
 			byte[] expected = new byte[10 * 1024];
@@ -262,7 +262,7 @@
 		}
 
 		[Fact]
-		public async Task BinaryFile_100KB_RoundTrips() {
+		public async Task BinaryFile_100KB_SetBytes() {
 			string file = RandomFile();
 
 			byte[] expected = new byte[100 * 1024];
@@ -277,7 +277,7 @@
 		}
 
 		[Fact]
-		public async Task BinaryFile_1MB_RoundTrips() {
+		public async Task BinaryFile_1MB_SetBytes() {
 			string file = RandomFile();
 
 			byte[] expected = new byte[1 * 1024 * 1024];
@@ -292,7 +292,7 @@
 		}
 
 		[Fact]
-		public async Task BinaryFile_10MB_RoundTrips() {
+		public async Task BinaryFile_10MB_SetBytes() {
 			string file = RandomFile();
 
 			byte[] expected = new byte[10 * 1024 * 1024];
@@ -305,21 +305,105 @@
 
 			Assert.Equal(expected, actual);
 		}
+		[Fact]
+		public async Task BinaryFile_10KB_UploadObject() {
+			string remoteFile = RandomFile();
+			string uploadFile = Path.GetTempFileName();
+			string downloadFile = Path.GetTempFileName();
 
-		/*[Fact]
-		public async Task BinaryFile_50MB_RoundTrips() {
-			string file = RandomFile();
+			try {
+				byte[] expected = new byte[10 * 1024];
+				new Random(12345).NextBytes(expected);
 
-			byte[] expected = new byte[50 * 1024 * 1024];
+				await File.WriteAllBytesAsync(uploadFile, expected);
 
-			new Random(12345).NextBytes(expected);
+				await _storage.UploadObject(remoteFile, uploadFile, true);
+				await _storage.DownloadObject(remoteFile, downloadFile, true);
 
-			await _storage.SetBytes(file, expected);
+				byte[] actual = await File.ReadAllBytesAsync(downloadFile);
 
-			byte[] actual = await _storage.GetBytes(file);
+				Assert.Equal(expected, actual);
+			}
+			finally {
+				File.Delete(uploadFile);
+				File.Delete(downloadFile);
+			}
+		}
 
-			Assert.Equal(expected, actual);
-		}*/
+		[Fact]
+		public async Task BinaryFile_100KB_UploadObject() {
+			string remoteFile = RandomFile();
+			string uploadFile = Path.GetTempFileName();
+			string downloadFile = Path.GetTempFileName();
+
+			try {
+				byte[] expected = new byte[100 * 1024];
+				new Random(12345).NextBytes(expected);
+
+				await File.WriteAllBytesAsync(uploadFile, expected);
+
+				await _storage.UploadObject(remoteFile, uploadFile, true);
+				await _storage.DownloadObject(remoteFile, downloadFile, true);
+
+				byte[] actual = await File.ReadAllBytesAsync(downloadFile);
+
+				Assert.Equal(expected, actual);
+			}
+			finally {
+				File.Delete(uploadFile);
+				File.Delete(downloadFile);
+			}
+		}
+
+		[Fact]
+		public async Task BinaryFile_1MB_UploadObject() {
+			string remoteFile = RandomFile();
+			string uploadFile = Path.GetTempFileName();
+			string downloadFile = Path.GetTempFileName();
+
+			try {
+				byte[] expected = new byte[1 * 1024 * 1024];
+				new Random(12345).NextBytes(expected);
+
+				await File.WriteAllBytesAsync(uploadFile, expected);
+
+				await _storage.UploadObject(remoteFile, uploadFile, true);
+				await _storage.DownloadObject(remoteFile, downloadFile, true);
+
+				byte[] actual = await File.ReadAllBytesAsync(downloadFile);
+
+				Assert.Equal(expected, actual);
+			}
+			finally {
+				File.Delete(uploadFile);
+				File.Delete(downloadFile);
+			}
+		}
+
+		[Fact]
+		public async Task BinaryFile_10MB_UploadObject() {
+			string remoteFile = RandomFile();
+			string uploadFile = Path.GetTempFileName();
+			string downloadFile = Path.GetTempFileName();
+
+			try {
+				byte[] expected = new byte[10 * 1024 * 1024];
+				new Random(12345).NextBytes(expected);
+
+				await File.WriteAllBytesAsync(uploadFile, expected);
+
+				await _storage.UploadObject(remoteFile, uploadFile, true);
+				await _storage.DownloadObject(remoteFile, downloadFile, true);
+
+				byte[] actual = await File.ReadAllBytesAsync(downloadFile);
+
+				Assert.Equal(expected, actual);
+			}
+			finally {
+				File.Delete(uploadFile);
+				File.Delete(downloadFile);
+			}
+		}
 
 
 	}

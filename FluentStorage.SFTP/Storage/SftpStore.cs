@@ -874,14 +874,14 @@ namespace FluentStorage.SFTP {
 			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
 
 			// compute object checksum remotely [FAST]
-			fullPath = StoragePath.Normalize(fullPath);
 			try {
 
 				// if the path is safe to run
-				if (SshSecurityValidator.IsPathSafe(AddRootDirAndNormalize(fullPath))) {
+				var fullPathWithRoot = AddRootDirAndNormalize(fullPath);
+				if (SshSecurityValidator.IsPathSafe(fullPathWithRoot)) {
 
 					// compute a checksum by using SSH shell commands
-					var remoteHash = _sshContext.GetRemoteHash(AddRootDirAndNormalize(fullPath), hash);
+					var remoteHash = _sshContext.GetRemoteHash(fullPathWithRoot, hash);
 					if (remoteHash != null) {
 
 						// convert to common model

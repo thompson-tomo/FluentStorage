@@ -25,7 +25,7 @@ Its API is fully asynchronous and has identical behavior across all providers. I
 
 It is written entirely in C#, with few external dependencies. No configuration files are required.
 
-FluentStorage has a large [suite of integration tests](https://github.com/robinrodricks/FluentStorage/wiki/Automated-Tests) that work across all providers, and are easily configured to run against your own clouds.
+FluentStorage has a large [suite of integration tests](https://github.com/robinrodricks/FluentStorage/wiki/Automated-Tests) and some [performance tests](https://github.com/robinrodricks/FluentStorage/wiki/Performance-Tests) that work across all providers, and are easily configured to run against your own clouds.
 
 FluentStorage is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
 

@@ -625,7 +625,7 @@ namespace FluentStorage.Storage {
 												FileIndex = i,
 												FileCount = objects.Count,
 												Skipped = true,
-												SkipReason = StorageReason.Checksum,
+												SkipReason = StorageReason.Timestamp,
 											});
 											continue;
 										}

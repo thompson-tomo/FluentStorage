@@ -1,4 +1,6 @@
-﻿namespace FluentStorage.Tests.Integration.Storage.TestSuite {
+﻿using FluentStorage.Utils.Hashing;
+
+namespace FluentStorage.Tests.Integration.Storage.TestSuite {
 	public partial class IStoreTest {
 
 
@@ -119,18 +121,94 @@
 		}
 
 		[Fact]
-		public async Task GetObjectMD5_DoesNotThrow() {
+		public async Task GetObjectChecksum_DoesNotThrow() {
 			string file = RandomFile();
 
 			await CreateText(file, "abcdef");
 
 			var obj = await _storage.GetObjectInfo(file);
 
-			string md5 = await _storage.GetObjectMD5(obj);
+			var hash = await _storage.GetObjectChecksum(obj);
 
-			// Some providers don't expose MD5.
-			if (md5 != null)
-				Assert.NotEmpty(md5);
+			if (hash != null)
+				Assert.NotEmpty(hash.Value);
+		}
+
+
+		[Fact]
+		public async Task GetChecksum_MD5() {
+
+			// make random data and get its hash
+			var blob = new StoreObject(RandomBlobPath());
+			var bytes = RandomGenerator.GetRandomBytes(1000, 10000);
+			var hash = HashUtility.HashBytes(bytes, StorageHash.MD5);
+
+			// upload object and get its hash
+			await _storage.SetBytes(blob, bytes);
+			var hash2 = await _storage.GetObjectChecksum(blob, StorageHash.MD5);
+
+			Assert.Equal(hash, hash2.Value);
+		}
+
+
+		[Fact]
+		public async Task GetChecksum_SHA1() {
+
+			// make random data and get its hash
+			var blob = new StoreObject(RandomBlobPath());
+			var bytes = RandomGenerator.GetRandomBytes(1000, 10000);
+			var hash = HashUtility.HashBytes(bytes, StorageHash.SHA1);
+
+			// upload object and get its hash
+			await _storage.SetBytes(blob, bytes);
+			var hash2 = await _storage.GetObjectChecksum(blob, StorageHash.SHA1);
+
+			Assert.Equal(hash, hash2.Value);
+		}
+
+		[Fact]
+		public async Task GetChecksum_SHA256() {
+
+			// make random data and get its hash
+			var blob = new StoreObject(RandomBlobPath());
+			var bytes = RandomGenerator.GetRandomBytes(1000, 10000);
+			var hash = HashUtility.HashBytes(bytes, StorageHash.SHA256);
+
+			// upload object and get its hash
+			await _storage.SetBytes(blob, bytes);
+			var hash2 = await _storage.GetObjectChecksum(blob, StorageHash.SHA256);
+
+			Assert.Equal(hash, hash2.Value);
+		}
+
+		[Fact]
+		public async Task GetChecksum_SHA512() {
+
+			// make random data and get its hash
+			var blob = new StoreObject(RandomBlobPath());
+			var bytes = RandomGenerator.GetRandomBytes(1000, 10000);
+			var hash = HashUtility.HashBytes(bytes, StorageHash.SHA512);
+
+			// upload object and get its hash
+			await _storage.SetBytes(blob, bytes);
+			var hash2 = await _storage.GetObjectChecksum(blob, StorageHash.SHA512);
+
+			Assert.Equal(hash, hash2.Value);
+		}
+
+		[Fact]
+		public async Task GetChecksum_CRC32() {
+
+			// make random data and get its hash
+			var blob = new StoreObject(RandomBlobPath());
+			var bytes = RandomGenerator.GetRandomBytes(1000, 10000);
+			var hash = HashUtility.HashBytes(bytes, StorageHash.CRC32);
+
+			// upload object and get its hash
+			await _storage.SetBytes(blob, bytes);
+			var hash2 = await _storage.GetObjectChecksum(blob, StorageHash.CRC32);
+
+			Assert.Equal(hash, hash2.Value);
 		}
 
 		[Fact]

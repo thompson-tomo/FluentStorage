@@ -122,29 +122,6 @@
 
 
 
-		public static string? MD5(this string? s) {
-			if (s == null)
-				return null;
-
-			return Encoding.UTF8.GetBytes(s).MD5().ToHexString();
-		}
-
-		public static string? SHA256(this string? s) {
-			if (s == null)
-				return null;
-
-			return Encoding.UTF8.GetBytes(s).SHA256().ToHexString();
-		}
-
-		public static byte[]? HMACSHA256(this string? s, byte[] key) {
-			if (s == null)
-				return null;
-
-			return Encoding.UTF8.GetBytes(s).HMACSHA256(key);
-		}
-
-
-
 
 		/// <summary>
 		/// Converts to MemoryStream with a specific encoding

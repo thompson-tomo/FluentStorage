@@ -1,4 +1,7 @@
-﻿namespace FluentStorage.Tests.Integration.Storage.TestSuite {
+﻿using FluentStorage.Utils.Hashing;
+using Org.BouncyCastle.Utilities;
+
+namespace FluentStorage.Tests.Integration.Storage.TestSuite {
 	public partial class IStoreTest {
 
 
@@ -192,8 +195,9 @@
 
 			StoreObject meta = await _storage.GetObjectInfo(id);
 
-			long size = Encoding.UTF8.GetBytes(content).Length;
-			string md5 = content.MD5();
+			var bytes = Encoding.UTF8.GetBytes(content);
+			long size = bytes.Length;
+			string md5 = HashUtility.HashBytes(bytes, StorageHash.MD5);
 
 			if (meta.Size != null)
 				Assert.Equal(size, meta.Size);
@@ -527,18 +531,6 @@
 			Assert.Equal("ivan", blob2.Metadata["user"]);
 			Assert.Equal("no", blob2.Metadata["fun"]);
 			Assert.Equal(2, blob2.Metadata.Count);
-		}
-
-		[Fact]
-		public async Task GetMd5HashAsync() {
-			var blob = new StoreObject(RandomBlobPath());
-			string content = RandomGenerator.RandomString;
-			string hash = content.MD5();
-
-			await _storage.SetText(blob, content);
-
-			string hash2 = await _storage.GetObjectMD5(blob);
-			Assert.Equal(hash, hash2);
 		}
 
 		[Fact]

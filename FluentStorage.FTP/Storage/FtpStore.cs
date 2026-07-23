@@ -578,5 +578,29 @@ namespace FluentStorage.FTP.Storage {
 				FtpFolderUtils.DownloadFolderMap[existsMode],FtpVerify.None,null, ftpProgress, cancellationToken);
 		}
 
+		/// <summary>
+		/// Fast implementation of getting an object MD5 hash using native FTP commands.
+		/// </summary>
+		public override async Task<StorageObjectHash> GetObjectChecksum(string fullPath, StorageHash hash = StorageHash.CRC32, CancellationToken cancellationToken = default) {
+			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
+
+			// check if algo supported on FTP
+			FtpHashAlgorithm ftpAlgorithm;
+			if (!FtpHashUtils.FromFluentStorage.TryGetValue(hash, out ftpAlgorithm)) {
+				throw new NotSupportedException($"Hash algorithm {hash} is not supported by FTP.");
+			}
+
+			// compute object hash using FluentFTP native API
+			fullPath = StoragePath.Normalize(fullPath);
+			AsyncFtpClient client = await Client().ConfigureAwait(false);
+			FtpHash ftpHash = await client.GetChecksum(fullPath, ftpAlgorithm, cancellationToken).ConfigureAwait(false);
+
+			// exit if hash is invalid
+			if (ftpHash == null || !ftpHash.IsValid) return null;
+
+			// convert to common model
+			return new StorageObjectHash(fullPath, ftpHash.Value, hash);
+		}
+
 	}
 }

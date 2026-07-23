@@ -4,6 +4,8 @@ using FluentStorage.GCP.Utils;
 using FluentStorage.Model;
 using FluentStorage.Storage;
 using FluentStorage.Streaming;
+using FluentStorage.Utils.Extensions;
+using FluentStorage.Utils.Hashing;
 using FluentStorage.Utils.Validation;
 using Google;
 using Google.Api.Gax;
@@ -650,6 +652,37 @@ namespace FluentStorage.GCP.Storage {
 
 			return objects != null && objects.Items != null && objects.Items.Count > 0;
 		}
+
+#if NET5_0_OR_GREATER
+		/// <summary>
+		/// Fastest implementation of getting an object checksum using GCP metadata when available.
+		/// </summary>
+		public override async Task<StorageObjectHash> GetObjectChecksum(string fullPath, StorageHash hash = StorageHash.CRC32, CancellationToken cancellationToken = default) {
+
+			if (fullPath == null)
+				throw new ArgumentNullException(nameof(fullPath));
+
+			fullPath = StoragePath.Normalize(fullPath);
+
+			// GCP natively stores an MD5 checksum in object metadata
+			if (hash == StorageHash.MD5) {
+				var obj = await _client.GetObjectAsync(_bucketName, fullPath, null, cancellationToken);
+
+				if (string.IsNullOrEmpty(obj.Md5Hash))
+					return null;
+
+				string md5 = Convert.FromBase64String(obj.Md5Hash).ToHexString();
+
+				return new StorageObjectHash(fullPath, md5, StorageHash.MD5);
+			}
+
+			// fall back to downloading and hashing locally
+			var bytes = await GetBytes(fullPath, cancellationToken).ConfigureAwait(false);
+			if (bytes == null) return null;
+			var checksum = HashUtility.HashBytes(bytes, hash);
+			return new StorageObjectHash(StoragePath.Normalize(fullPath), checksum, hash);
+		}
+#endif
 
 	}
 }

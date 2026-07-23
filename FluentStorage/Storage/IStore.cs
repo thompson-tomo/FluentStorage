@@ -128,13 +128,6 @@ namespace FluentStorage.Storage {
 		/// <param name="cancellationToken">Cancellation token.</param>
 		Task SetObjectsInfo(IEnumerable<StoreObject> metadata, CancellationToken cancellationToken = default);
 
-		/// <summary>Returns the MD5 hash of an object.</summary>
-		/// <param name="metadata">Object.</param>
-		/// <param name="cancellationToken">Cancellation token.</param>
-		/// <returns>The MD5 hash.</returns>
-		Task<string> GetObjectMD5(StoreObject metadata, CancellationToken cancellationToken = default);
-
-
 		// ---------------------------------------------------------------------
 		// Read
 		// ---------------------------------------------------------------------
@@ -565,5 +558,17 @@ namespace FluentStorage.Storage {
 		/// Returns true if succeeded, or false if the object cannot be found.
 		/// </summary>
 		Task<bool> ClearObjectLock(string objectPath, CancellationToken cancellationToken = default);*/
+
+		// ---------------------------------------------------------------------
+		// Checksum
+		// ---------------------------------------------------------------------
+
+		/// <summary>Returns the checksum of an object using the required hash algorithm. Returns null if the object cannot be found.</summary>
+		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="hash">Hash algorithm to use. MD5 is the most commonly supported but is a weak algorithm, so CRC32 or SHA is recommended.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		Task<StorageObjectHash> GetObjectChecksum(string fullPath, StorageHash hash = StorageHash.CRC32, CancellationToken cancellationToken = default);
+
+
 	}
 }

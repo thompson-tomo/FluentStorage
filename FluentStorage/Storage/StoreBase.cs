@@ -4,6 +4,7 @@ using FluentStorage.Model;
 using FluentStorage.Rules;
 using FluentStorage.Streaming;
 using FluentStorage.Utils.Extensions;
+using FluentStorage.Utils.Hashing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -458,34 +459,6 @@ namespace FluentStorage.Storage {
 					return;
 
 				await targetStorage.SetObject(newId ?? blobId, src, false, cancellationToken).ConfigureAwait(false);
-			}
-		}
-
-		/// <summary>
-		/// Calculates an MD5 hash of an object. Comparing to <see cref="StoreObject.MD5"/> field, it always returns
-		/// a hash, even if the underlying storage doesn't support it natively.
-		/// </summary>
-		public virtual async Task<string> GetObjectMD5(StoreObject blob, CancellationToken cancellationToken = default) {
-			if (blob == null)
-				throw new ArgumentNullException(nameof(blob));
-
-			if (blob.MD5 != null)
-				return blob.MD5;
-
-			blob = await GetObjectInfo(blob.FullPath, cancellationToken).ConfigureAwait(false);
-
-			if (blob.MD5 != null)
-				return blob.MD5;
-
-			//hash definitely not supported, calculate it manually
-
-			using (Stream s = await OpenRead(blob.FullPath, cancellationToken).ConfigureAwait(false)) {
-				if (s == null)
-					return null;
-
-				string hash = s.MD5().ToHexString();
-
-				return hash;
 			}
 		}
 
@@ -979,6 +952,32 @@ namespace FluentStorage.Storage {
 		public virtual async Task<bool> ClearObjectLock(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}*/
+
+		// ---------------------------------------------------------------------
+		// Checksum
+		// ---------------------------------------------------------------------
+
+		/// <summary>Returns the checksum of an object using the required hash algorithm. Returns null if the object cannot be found.</summary>
+		/// <param name="fullPath">Full path of the object.</param>
+		/// <param name="hash">Hash algorithm to use. MD5 has the broadest support but CRC and others can also be used.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		public virtual async Task<StorageObjectHash> GetObjectChecksum(string fullPath, StorageHash hash = StorageHash.MD5, CancellationToken cancellationToken = default){
+			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
+
+			// try to quickly get MD5 from object info, if the provider supports it
+			if (hash == StorageHash.MD5) {
+				var info = await GetObjectInfo(fullPath, cancellationToken).ConfigureAwait(false);
+				if (info.MD5 != null)
+					return new StorageObjectHash(StoragePath.Normalize(fullPath), info.MD5, StorageHash.MD5);
+			}
+
+			// get object data and hash it manually
+			var bytes = await GetBytes(fullPath, cancellationToken).ConfigureAwait(false);
+			if (bytes == null) return null;
+			var checksum = HashUtility.HashBytes(bytes, hash);
+			return new StorageObjectHash(StoragePath.Normalize(fullPath), checksum, hash);
+		}
+
 
 	}
 }

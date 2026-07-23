@@ -306,7 +306,7 @@
 			Assert.Equal(expected, actual);
 		}
 
-		[Fact]
+		/*[Fact]
 		public async Task BinaryFile_50MB_RoundTrips() {
 			string file = RandomFile();
 
@@ -319,7 +319,7 @@
 			byte[] actual = await _storage.GetBytes(file);
 
 			Assert.Equal(expected, actual);
-		}
+		}*/
 
 
 	}

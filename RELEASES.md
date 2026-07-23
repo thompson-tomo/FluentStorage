@@ -7,8 +7,8 @@
    - New: `GetObjectChecksum` API to compute various types of hashes for an object across all providers
    - New: `StorageObjectHash` object to hold a hash value and easily compare it against any local file or stream
    - New: `StorageExistsMode.OverwriteIfChanged` mode to only overwrite files if they have changed (length/checksum checks)
-   - New: `UploadDirectory` supports the `OverwriteIfChanged` and only uploads files if the length/checksum mismatches
-   - New: `DownloadDirectory` supports the `OverwriteIfChanged` and only downloads files if the length/checksum mismatches
+   - New: `UploadDirectory` supports the `OverwriteIfChanged` mode and only uploads files if the length/checksum mismatches
+   - New: `DownloadDirectory` supports the `OverwriteIfChanged` mode and only downloads files if the length/checksum mismatches
    - Removed: `GetObjectMD5` is removed in favour of `GetObjectChecksum`
  - **FluentStorage.GCP**
    - New: Implement fast `GetObjectChecksum` by using `GetObjectAsync` API to get MD5 object hash

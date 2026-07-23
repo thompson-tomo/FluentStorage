@@ -1,4 +1,6 @@
-﻿namespace FluentStorage.Tests.Unit.Utils {
+﻿using FluentStorage.Utils.Hashing;
+
+namespace FluentStorage.Tests.Unit.Utils {
 	public class StreamExtensionsTest {
 		[Fact]
 		public void MD5_hashes_a_stream_to_the_expected_value() {
@@ -6,9 +8,9 @@
 				Encoding.UTF8.GetBytes("The quick brown fox jumps over the lazy dog")
 			);
 
-			byte[] hash = stream.MD5();
+			var hash = HashUtility.HashStream(stream, StorageHash.MD5);
 
-			Assert.Equal("9e107d9d372bb6826bd81d3542a419d6", hash.ToHexString());
+			Assert.Equal("9e107d9d372bb6826bd81d3542a419d6", hash);
 		}
 
 		[Fact]
@@ -19,15 +21,15 @@
 			// Two threads hash at the same time, each looping enough that they reliably overlap inside
 			// the hash.
 			byte[] content = Encoding.UTF8.GetBytes("The quick brown fox jumps over the lazy dog");
-			byte[] expected;
+			string expected;
 			using (var seed = new MemoryStream(content)) {
-				expected = seed.MD5();
+				expected = HashUtility.HashStream(seed, StorageHash.MD5);
 			}
 
 			void Hash() {
 				for (var j = 0; j < 2000; j++) {
 					using var stream = new MemoryStream(content);
-					Assert.Equal(expected, stream.MD5());
+					Assert.Equal(expected, HashUtility.HashStream(stream, StorageHash.MD5));
 				}
 			}
 

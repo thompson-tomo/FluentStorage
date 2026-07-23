@@ -579,7 +579,7 @@ namespace FluentStorage.FTP.Storage {
 		}
 
 		/// <summary>
-		/// Fast implementation of getting an object MD5 hash using native FTP commands.
+		/// Fast implementation of getting an object checksum using native FTP commands.
 		/// </summary>
 		public override async Task<StorageObjectHash> GetObjectChecksum(string fullPath, StorageHash hash = StorageHash.MD5, CancellationToken cancellationToken = default) {
 			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));

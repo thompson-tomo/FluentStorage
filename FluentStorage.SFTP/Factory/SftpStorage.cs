@@ -70,6 +70,6 @@ namespace FluentStorage {
 		/// <param name="sftpClient">The SFTP client.</param>
 		/// <param name="disposeClient">if set to true [dispose client].</param>
 		public static IStore FromClient(SftpClient sftpClient, bool disposeClient = false)
-		   => new SftpStore(sftpClient, disposeClient);
+		   => new SftpStore(sftpClient, new SshClient(sftpClient.ConnectionInfo), disposeClient);
 	}
 }

@@ -1,18 +1,19 @@
-﻿using System;
+﻿using FluentStorage.Enums;
+using FluentStorage.Model;
+using FluentStorage.SFTP.Shell;
+using FluentStorage.Storage;
+using FluentStorage.Utils.Hashing;
+using Polly;
+using Polly.Retry;
+using Renci.SshNet;
+using Renci.SshNet.Common;
+using Renci.SshNet.Sftp;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Polly;
-using Polly.Retry;
-using Renci.SshNet;
-using Renci.SshNet.Sftp;
-using FluentStorage.Storage;
-using FluentStorage.Enums;
-using FluentStorage.Model;
-using Renci.SshNet.Common;
-using FluentStorage.Exceptions;
 
 namespace FluentStorage.SFTP {
 	/// <summary>
@@ -25,9 +26,14 @@ namespace FluentStorage.SFTP {
 		private static readonly AsyncRetryPolicy _retryPolicy = Policy.Handle<Exception>().RetryAsync(3);
 
 		/// <summary>
-		/// Holds a reference to the <see cref="T:FluentStorage.SFTP.SshNetSftpBlobStorage" /> instance.
+		/// Connected SFTP client
 		/// </summary>
 		private readonly SftpClient _client;
+
+		/// <summary>
+		/// Connected SSH client context
+		/// </summary>
+		private readonly SshContext _sshContext;
 
 		/// <summary>
 		/// A boolean flag indicating whether to dispose the client instance upon disposing this object.
@@ -38,11 +44,6 @@ namespace FluentStorage.SFTP {
 		/// A boolean flag indicating whether this instance is disposed.
 		/// </summary>
 		private bool _disposed = false;
-
-		/// <summary>
-		/// Object used in in ListDirectoryAsync to avoid accessing collections from multiple threads at the same time.
-		/// </summary>
-		private readonly object _listDirectoryLockObject = new object();
 
 		/// <summary>
 		/// Gets or sets the maximum retry count.
@@ -75,7 +76,8 @@ namespace FluentStorage.SFTP {
 		/// </summary>
 		/// <param name="connectionInfo">The connection info.</param>
 		public SftpStore(ConnectionInfo connectionInfo)
-		  : this(new SftpClient(connectionInfo), true) {
+		  : this(new SftpClient(connectionInfo),
+				new SshClient(connectionInfo), true) {
 		}
 
 		/// <summary>
@@ -87,7 +89,8 @@ namespace FluentStorage.SFTP {
 		/// <param name="password">Authentication password.</param>
 		/// <param name="path">Starting root directory or null.</param>
 		public SftpStore(string host, int port, string username, string password, string path)
-		  : this(new SftpClient(host, port, username, password), true) {
+		  : this(new SftpClient(host, port, username, password),
+				new SshClient(host, port, username, password), true) {
 			RootDirectory = StoragePath.Normalize(path);
 		}
 
@@ -98,7 +101,8 @@ namespace FluentStorage.SFTP {
 		/// <param name="username">Authentication username.</param>
 		/// <param name="password">Authentication password.</param>
 		public SftpStore(string host, string username, string password)
-		  : this(new SftpClient(host, username, password), true) {
+		  : this(new SftpClient(host, username, password),
+				new SshClient(host, username, password), true) {
 		}
 
 		/// <summary>
@@ -109,7 +113,8 @@ namespace FluentStorage.SFTP {
 		/// <param name="username">Authentication username.</param>
 		/// <param name="keyFiles">Authentication private key file(s) .</param>
 		public SftpStore(string host, int port, string username, params PrivateKeyFile[] keyFiles)
-		  : this(new SftpClient(host, port, username, keyFiles), true) {
+		  : this(new SftpClient(host, port, username, keyFiles),
+				new SshClient(host, port, username, keyFiles), true) {
 		}
 
 		/// <summary>
@@ -119,7 +124,8 @@ namespace FluentStorage.SFTP {
 		/// <param name="username">Authentication username.</param>
 		/// <param name="keyFiles">Authentication private key file(s) .</param>
 		public SftpStore(string host, string username, params PrivateKeyFile[] keyFiles)
-		  : this(new SftpClient(host, username, keyFiles), true) {
+		  : this(new SftpClient(host, username, keyFiles),
+				new SshClient(host, username, keyFiles), true) {
 		}
 
 		/// <summary>
@@ -127,13 +133,16 @@ namespace FluentStorage.SFTP {
 		/// </summary>
 		/// <param name="sftpClient">The SFTP client.</param>
 		/// <param name="disposeClient">if set to true [dispose client].</param>
-		public SftpStore(SftpClient sftpClient, bool disposeClient = false) {
+		public SftpStore(SftpClient sftpClient, SshClient sshClient, bool disposeClient = false) {
 			_client = sftpClient ?? throw new ArgumentNullException(nameof(sftpClient));
 			_client.HostKeyReceived += (sender, args) => { };
 			_disposeClient = disposeClient;
 
 			// FIX: improve peformance by increasing buffer size
 			_client.BufferSize = TransferBufferSize;
+
+			// add support for SSH command execution
+			_sshContext = new SshContext(sshClient);
 		}
 
 		public override async Task<bool> IsFileSystem() {
@@ -143,7 +152,7 @@ namespace FluentStorage.SFTP {
 		/// <summary>
 		/// Normalize path and add SFTP root directory. One way process. Not idempotent.
 		/// </summary>
-		private string AddRootDirectory(string path) {
+		private string AddRootDirAndNormalize(string path) {
 			return "/" + StoragePath.Combine(RootDirectory, StoragePath.Normalize(path));
 		}
 		/// <summary>
@@ -178,7 +187,7 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
-			await client.DeleteAsync(AddRootDirectory(fullPath), cancellationToken);
+			await client.DeleteAsync(AddRootDirAndNormalize(fullPath), cancellationToken);
 		}
 
 		/// <summary>
@@ -211,7 +220,7 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
-			return await client.ExistsAsync(AddRootDirectory(fullPath), cancellationToken);
+			return await client.ExistsAsync(AddRootDirAndNormalize(fullPath), cancellationToken);
 		}
 
 		public override async Task<StoreObject> GetObjectInfo(string path, CancellationToken cancellationToken = default) {
@@ -225,7 +234,7 @@ namespace FluentStorage.SFTP {
 			var results = new List<StoreObject>();
 
 			// clean paths
-			var fullPathsWithRoot = fullPaths.Select(AddRootDirectory);
+			var fullPathsWithRoot = fullPaths.Select(AddRootDirAndNormalize);
 
 			// compute common dirs
 			var groups = fullPathsWithRoot.GroupBy(p => AddAbsolutePrefix(StoragePath.GetParent(p)));
@@ -288,7 +297,7 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
-			var results = await ListDirectoryAsync(client, AddRootDirectory(options.FolderPath), options, cancellationToken);
+			var results = await ListDirectoryInternal(client, AddRootDirAndNormalize(options.FolderPath), options, cancellationToken);
 
 			if (RootDirectory != null) {
 				foreach (var b in results) {
@@ -303,7 +312,7 @@ namespace FluentStorage.SFTP {
 		/// <summary>
 		/// Used internally to list directory contents recursively
 		/// </summary>
-		async Task<List<StoreObject>> ListDirectoryAsync(SftpClient client, string folderToList, StorageListOptions options, CancellationToken cancellationToken = default) {
+		private async Task<List<StoreObject>> ListDirectoryInternal(SftpClient client, string folderToList, StorageListOptions options, CancellationToken cancellationToken = default) {
 
 			List<StoreObject> results = new List<StoreObject>();
 
@@ -348,7 +357,7 @@ namespace FluentStorage.SFTP {
 						continue;
 
 					// recurse into subfolder
-					var subListing = await ListDirectoryAsync(client,AddAbsolutePrefix(tempList2[i].FullPath),options,cancellationToken);
+					var subListing = await ListDirectoryInternal(client,AddAbsolutePrefix(tempList2[i].FullPath),options,cancellationToken);
 
 					results.AddRange(subListing);
 				}
@@ -371,7 +380,7 @@ namespace FluentStorage.SFTP {
 
 			try {
 				await Task.Run(() => Policy.Handle<Exception>().Retry(MaxRetryCount).Execute(
-					async () => await client.DownloadFileAsync(AddRootDirectory(fullPath), stream, cancellationToken))
+					async () => await client.DownloadFileAsync(AddRootDirAndNormalize(fullPath), stream, cancellationToken))
 				);
 				stream.Position = 0;
 				return stream;
@@ -387,7 +396,7 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
-			Stream stream = client.OpenRead(AddRootDirectory(fullPath));
+			Stream stream = client.OpenRead(AddRootDirAndNormalize(fullPath));
 			stream.Seek(offset, SeekOrigin.Begin);
 
 			return stream;
@@ -402,7 +411,7 @@ namespace FluentStorage.SFTP {
 
 				SftpClient client = Client();
 
-				var attrib = await client.GetAttributesAsync(AddRootDirectory(fullPath), cancellationToken);
+				var attrib = await client.GetAttributesAsync(AddRootDirAndNormalize(fullPath), cancellationToken);
 
 				return attrib != null ? attrib.Size : defaultValue;
 			}
@@ -421,8 +430,8 @@ namespace FluentStorage.SFTP {
 			if (string.IsNullOrWhiteSpace(oldPath)) throw new ArgumentNullException(nameof(oldPath));
 			if (string.IsNullOrWhiteSpace(newPath)) throw new ArgumentNullException(nameof(newPath));
 
-			oldPath = AddRootDirectory(oldPath);
-			newPath = AddRootDirectory(newPath);
+			oldPath = AddRootDirAndNormalize(oldPath);
+			newPath = AddRootDirAndNormalize(newPath);
 
 			SftpClient client = Client();
 
@@ -574,10 +583,10 @@ namespace FluentStorage.SFTP {
 
 			if (await DirectoryExists(folderPath, cancellationToken)) {
 				if (recursive) {
-					await DeleteDirectoryRecursive(client, AddRootDirectory(folderPath), cancellationToken);
+					await DeleteDirectoryRecursive(client, AddRootDirAndNormalize(folderPath), cancellationToken);
 				}
 				else {
-					await client.DeleteDirectoryAsync(AddRootDirectory(folderPath), cancellationToken);
+					await client.DeleteDirectoryAsync(AddRootDirAndNormalize(folderPath), cancellationToken);
 				}
 			}
 		}
@@ -608,7 +617,7 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
-			folderPath = AddRootDirectory(folderPath);
+			folderPath = AddRootDirAndNormalize(folderPath);
 
 			try {
 				return (await client.GetAttributesAsync(folderPath, cancellationToken)).IsDirectory;
@@ -627,8 +636,8 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
-			sourceFolderPath = AddRootDirectory(sourceFolderPath);
-			destinationFolderPath = AddRootDirectory(destinationFolderPath);
+			sourceFolderPath = AddRootDirAndNormalize(sourceFolderPath);
+			destinationFolderPath = AddRootDirAndNormalize(destinationFolderPath);
 
 			await client.RenameFileAsync(sourceFolderPath, destinationFolderPath, cancellationToken);
 		}
@@ -644,7 +653,7 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
-			var attributes = await client.GetAttributesAsync(AddRootDirectory(filePath), cancellationToken);
+			var attributes = await client.GetAttributesAsync(AddRootDirAndNormalize(filePath), cancellationToken);
 
 			// Convert the permission flags to a traditional octal CHMOD value.
 			int chmod =
@@ -664,7 +673,7 @@ namespace FluentStorage.SFTP {
 
 			SftpClient client = Client();
 
-			client.ChangePermissions(AddRootDirectory(filePath), (short)permissions);
+			client.ChangePermissions(AddRootDirAndNormalize(filePath), (short)permissions);
 		}
 
 		/// <summary>
@@ -690,7 +699,7 @@ namespace FluentStorage.SFTP {
 			// download
 			SftpClient client = Client();
 			using var stream = File.Create(filePath);
-			await client.DownloadFileAsync(AddRootDirectory(fullPath), stream, cancellationToken);
+			await client.DownloadFileAsync(AddRootDirAndNormalize(fullPath), stream, cancellationToken);
 		}
 
 		/// <summary>
@@ -712,7 +721,7 @@ namespace FluentStorage.SFTP {
 			// First, for speed, let's try to write the file assuming the directory requested already exists
 			try {
 				using (FileStream stream = File.OpenRead(filePath)) {
-					await client.UploadFileAsync(stream, AddRootDirectory(fullPath), cancellationToken);
+					await client.UploadFileAsync(stream, AddRootDirAndNormalize(fullPath), cancellationToken);
 				}
 				return;
 			}
@@ -725,7 +734,7 @@ namespace FluentStorage.SFTP {
 
 			// Retry writing the file
 			using (FileStream stream = File.OpenRead(filePath)) {
-				await client.UploadFileAsync(stream, AddRootDirectory(fullPath), cancellationToken);
+				await client.UploadFileAsync(stream, AddRootDirAndNormalize(fullPath), cancellationToken);
 			}
 		}
 
@@ -741,7 +750,7 @@ namespace FluentStorage.SFTP {
 
 			using MemoryStream stream = new();
 
-			await client.DownloadFileAsync(AddRootDirectory(fullPath), stream, cancellationToken);
+			await client.DownloadFileAsync(AddRootDirAndNormalize(fullPath), stream, cancellationToken);
 
 			return stream.ToArray();
 		}
@@ -768,7 +777,7 @@ namespace FluentStorage.SFTP {
 			// First, for speed, let's try to write the file assuming the directory requested already exists
 			try {
 				using (MemoryStream dataStream = new MemoryStream(data)) {
-					await SetObjectInternal(dataStream, append, client, AddRootDirectory(fullPath), fileMode, cancellationToken).ConfigureAwait(false);
+					await SetObjectInternal(dataStream, append, client, AddRootDirAndNormalize(fullPath), fileMode, cancellationToken).ConfigureAwait(false);
 				}
 				return;
 			}
@@ -781,7 +790,7 @@ namespace FluentStorage.SFTP {
 
 			// Retry writing the file.
 			using (MemoryStream dataStream = new MemoryStream(data)) {
-				await SetObjectInternal(dataStream, append, client, AddRootDirectory(fullPath), fileMode, cancellationToken).ConfigureAwait(false);
+				await SetObjectInternal(dataStream, append, client, AddRootDirAndNormalize(fullPath), fileMode, cancellationToken).ConfigureAwait(false);
 			}
 		}
 
@@ -808,7 +817,7 @@ namespace FluentStorage.SFTP {
 				var origPos = dataStream.Position;
 				try {
 					// write this stream to SFTP file
-					await SetObjectInternal(dataStream, append, client, AddRootDirectory(fullPath), fileMode, cancellationToken).ConfigureAwait(false);
+					await SetObjectInternal(dataStream, append, client, AddRootDirAndNormalize(fullPath), fileMode, cancellationToken).ConfigureAwait(false);
 					return;
 				}
 				catch (SftpPathNotFoundException) {
@@ -821,7 +830,7 @@ namespace FluentStorage.SFTP {
 			await EnsureDirectoryExists(fullPath, client, cancellationToken);
 
 			// write this stream to SFTP file
-			await SetObjectInternal(dataStream, append, client, AddRootDirectory(fullPath), fileMode, cancellationToken).ConfigureAwait(false);
+			await SetObjectInternal(dataStream, append, client, AddRootDirAndNormalize(fullPath), fileMode, cancellationToken).ConfigureAwait(false);
 
 		}
 
@@ -838,7 +847,7 @@ namespace FluentStorage.SFTP {
 			// (recursively check each part and create if it does not exist)
 			foreach (string folder in parts) {
 				currentFolder = StoragePath.Combine(currentFolder, folder);
-				string sftpFolder = AddRootDirectory(currentFolder);
+				string sftpFolder = AddRootDirAndNormalize(currentFolder);
 				try {
 					await client.CreateDirectoryAsync(sftpFolder, cancellationToken);
 				}
@@ -848,13 +857,47 @@ namespace FluentStorage.SFTP {
 
 		private async Task SetObjectInternal(Stream dataStream, bool append, SftpClient client, string fullPath, FileMode fileMode, CancellationToken cancellationToken) {
 			if (append) {
-				using (Stream dest = await client.OpenAsync(AddRootDirectory(fullPath), fileMode, FileAccess.Write, cancellationToken).ConfigureAwait(false)) {
+				using (Stream dest = await client.OpenAsync(AddRootDirAndNormalize(fullPath), fileMode, FileAccess.Write, cancellationToken).ConfigureAwait(false)) {
 					await dataStream.CopyToAsync(dest, (int)_transferBufferSize, cancellationToken).ConfigureAwait(false);
 				}
 			}
 			else {
-				await client.UploadFileAsync(dataStream, AddRootDirectory(fullPath), cancellationToken).ConfigureAwait(false);
+				await client.UploadFileAsync(dataStream, AddRootDirAndNormalize(fullPath), cancellationToken).ConfigureAwait(false);
 			}
+		}
+
+
+		/// <summary>
+		/// Fastest implementation of getting a checksum using native SFTP/SSH commands.
+		/// </summary>
+		public override async Task<StorageObjectHash> GetObjectChecksum(string fullPath, StorageHash hash = StorageHash.MD5, CancellationToken cancellationToken = default) {
+			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
+
+			// compute object checksum remotely [FAST]
+			fullPath = StoragePath.Normalize(fullPath);
+			try {
+
+				// if the path is safe to run
+				if (SshSecurityValidator.IsPathSafe(AddRootDirAndNormalize(fullPath))) {
+
+					// compute a checksum by using SSH shell commands
+					var remoteHash = _sshContext.GetRemoteHash(AddRootDirAndNormalize(fullPath), hash);
+					if (remoteHash != null) {
+
+						// convert to common model
+						return new StorageObjectHash(fullPath, remoteHash, hash);
+					}
+				}
+			}
+			catch (Exception) {
+				// absorb all exceptions here, this is just a fast path and not mandatory
+			}
+
+			// if not available, download and hash locally [SLOW]
+			var bytes = await GetBytes(fullPath, cancellationToken).ConfigureAwait(false);
+			if (bytes == null) return null;
+			var checksum = HashUtility.HashBytes(bytes, hash);
+			return new StorageObjectHash(StoragePath.Normalize(fullPath), checksum, hash);
 		}
 
 	}

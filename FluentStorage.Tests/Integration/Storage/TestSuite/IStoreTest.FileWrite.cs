@@ -247,7 +247,7 @@
 		}
 
 		[Fact]
-		public async Task PerformanceTest_10KB_SetBytes() {
+		public async Task _PerformanceTest_10KB_SetBytes() {
 			string file = RandomFile();
 
 			byte[] expected = new byte[10 * 1024];
@@ -262,7 +262,7 @@
 		}
 
 		[Fact]
-		public async Task PerformanceTest_100KB_SetBytes() {
+		public async Task _PerformanceTest_100KB_SetBytes() {
 			string file = RandomFile();
 
 			byte[] expected = new byte[100 * 1024];
@@ -277,7 +277,7 @@
 		}
 
 		[Fact]
-		public async Task PerformanceTest_1MB_SetBytes() {
+		public async Task _PerformanceTest_1MB_SetBytes() {
 			string file = RandomFile();
 
 			byte[] expected = new byte[1 * 1024 * 1024];
@@ -292,7 +292,7 @@
 		}
 
 		[Fact]
-		public async Task PerformanceTest_10MB_SetBytes() {
+		public async Task _PerformanceTest_10MB_SetBytes() {
 			string file = RandomFile();
 
 			byte[] expected = new byte[10 * 1024 * 1024];
@@ -306,7 +306,7 @@
 			Assert.Equal(expected, actual);
 		}
 		[Fact]
-		public async Task PerformanceTest_10KB_UploadObject() {
+		public async Task _PerformanceTest_10KB_UploadObject() {
 			string remoteFile = RandomFile();
 			string uploadFile = Path.GetTempFileName();
 			string downloadFile = Path.GetTempFileName();
@@ -331,7 +331,7 @@
 		}
 
 		[Fact]
-		public async Task PerformanceTest_100KB_UploadObject() {
+		public async Task _PerformanceTest_100KB_UploadObject() {
 			string remoteFile = RandomFile();
 			string uploadFile = Path.GetTempFileName();
 			string downloadFile = Path.GetTempFileName();
@@ -356,7 +356,7 @@
 		}
 
 		[Fact]
-		public async Task PerformanceTest_1MB_UploadObject() {
+		public async Task _PerformanceTest_1MB_UploadObject() {
 			string remoteFile = RandomFile();
 			string uploadFile = Path.GetTempFileName();
 			string downloadFile = Path.GetTempFileName();
@@ -381,7 +381,7 @@
 		}
 
 		[Fact]
-		public async Task PerformanceTest_10MB_UploadObject() {
+		public async Task _PerformanceTest_10MB_UploadObject() {
 			string remoteFile = RandomFile();
 			string uploadFile = Path.GetTempFileName();
 			string downloadFile = Path.GetTempFileName();

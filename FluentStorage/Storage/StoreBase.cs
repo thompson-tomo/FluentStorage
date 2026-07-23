@@ -2,6 +2,7 @@
 using FluentStorage.Exceptions;
 using FluentStorage.Model;
 using FluentStorage.Rules;
+using FluentStorage.Rules.Engine;
 using FluentStorage.Streaming;
 using FluentStorage.Utils.Extensions;
 using FluentStorage.Utils.Hashing;

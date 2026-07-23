@@ -2,13 +2,13 @@
 using FluentStorage.Enums;
 using FluentStorage.Model;
 
-namespace FluentStorage.Rules {
+namespace FluentStorage.Rules.Engine {
 	internal static class RuleEngine {
 
 		/// <summary>
 		/// Returns `null` if the object has passed all the rules, and returns the `StorageRule` if it did not pass the given rule.
 		/// </summary>
-		private static StorageRule ObjectPassesRules(StoreObject result, IList<StorageRule> rules) {
+		public static StorageRule ObjectPassesRules(StoreObject result, IList<StorageRule> rules) {
 			foreach (var rule in rules) {
 				if (!rule.IsAllowed(result)) {
 					return rule;

@@ -6,6 +6,8 @@
  - **FluentStorage**
    - New: Optimize `StoragePath.Combine` when combining only 2 path segments (most common use case)
  - **FluentStorage.SFTP**
+   - New: `BufferSize` set to a default of 128KB to improve transfer performance
+   - New: `TransferBufferSize` setting to change upload/download buffer size
    - Fix: `SetObject` now correctly handles non-seekable streams
    - Fix: `CreateDirectory` now creates the entire directory path instead of just the last segment
    - Improve: `DirectoryExists` uses only one native API call to improve performance

@@ -52,12 +52,22 @@ namespace FluentStorage.SFTP {
 		/// </value>
 		public int MaxRetryCount { get; set; } = 3;
 
+		private uint _transferBufferSize = 128 * 1024;
 		/// <summary>
-		/// Root directory, relative to which all paths will resolve to.
+		/// Buffer size used when uploading or downloading files, in bytes. Default: 128KB.
 		/// </summary>
-		/// <value>
-		/// Directory required or null.
-		/// </value>
+		public uint TransferBufferSize {
+			get { return _transferBufferSize; }
+			set {
+				if (value == 0) throw new ArgumentOutOfRangeException(nameof(value));
+				_transferBufferSize = value;
+				if(_client != null) _client.BufferSize = _transferBufferSize;
+			}
+		}
+
+		/// <summary>
+		/// Root directory, relative to which all paths will resolve to. Default: null.
+		/// </summary>
 		public string RootDirectory { get; private set; }
 
 		/// <summary>
@@ -127,6 +137,9 @@ namespace FluentStorage.SFTP {
 			_client = sftpClient ?? throw new ArgumentNullException(nameof(sftpClient));
 			_client.HostKeyReceived += (sender, args) => { };
 			_disposeClient = disposeClient;
+
+			// FIX: improve peformance by increasing buffer size
+			_client.BufferSize = TransferBufferSize;
 		}
 
 		public override async Task<bool> IsFileSystem() {

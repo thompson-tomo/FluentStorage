@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FluentStorage.Enums;
+using FluentStorage.Rules;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -60,6 +62,16 @@ namespace FluentStorage.Model {
 		/// True if this file was skipped because it already existed.
 		/// </summary>
 		public bool Skipped { get; set; }
+
+		/// <summary>
+		/// Reason the file was skipped.
+		/// </summary>
+		public StorageReason SkipReason { get; set; }
+
+		/// <summary>
+		/// Rule due to which the file was skipped.
+		/// </summary>
+		public StorageRule SkipRule { get; set; }
 
 		/// <summary>
 		/// Returns the overall folder progress as a percentage,

@@ -113,7 +113,7 @@
 
 			var recorder = new ProgressRecorder();
 
-			await DownloadTree(remote, download, StorageExistsMode.Skip, recorder);
+			await DownloadTree(remote, download, StorageExists.Skip, recorder);
 
 			Assert.Equal(SmallTree.Length, recorder.Count);
 			Assert.Equal(SmallTree.Length, recorder.SuccessCount);
@@ -142,7 +142,7 @@
 
 			File.WriteAllBytes(Path.Combine(download, "a.txt"), new byte[999]);
 
-			await DownloadTree(remote, download, StorageExistsMode.Skip);
+			await DownloadTree(remote, download, StorageExists.Skip);
 
 			Assert.Equal(999, new FileInfo(Path.Combine(download, "a.txt")).Length);
 		}
@@ -157,7 +157,7 @@
 
 			File.WriteAllBytes(Path.Combine(download, "a.txt"), new byte[999]);
 
-			await DownloadTree(remote, download, StorageExistsMode.Overwrite);
+			await DownloadTree(remote, download, StorageExists.Overwrite);
 
 			Assert.Equal(100, new FileInfo(Path.Combine(download, "a.txt")).Length);
 		}

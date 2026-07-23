@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using FluentStorage.Model;
+﻿using FluentStorage.Model;
 
 namespace FluentStorage.Rules {
 
@@ -23,17 +22,6 @@ namespace FluentStorage.Rules {
 			return true;
 		}
 
-		/// <summary>
-		/// Returns true if the object has passed all the rules.
-		/// </summary>
-		public static bool ObjectPassesRules(StoreObject result, IList<StorageRule> rules) {
-			foreach (var rule in rules) {
-				if (!rule.IsAllowed(result)) {
-					return false;
-				}
-			}
-			return true;
-		}
 
 	}
 }

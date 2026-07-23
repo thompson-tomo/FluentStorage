@@ -98,7 +98,7 @@
 
 			var recorder = new ProgressRecorder();
 
-			await UploadTree(SmallTree, local, remote, StorageExistsMode.Skip, recorder);
+			await UploadTree(SmallTree, local, remote, StorageExists.Skip, recorder);
 
 			Assert.Equal(SmallTree.Length, recorder.Count);
 			Assert.Equal(SmallTree.Length, recorder.SuccessCount);
@@ -122,13 +122,13 @@
 
 			CreateLocalTree(local, new[] { new LocalFile("a.txt", 100) });
 
-			await _storage.UploadDirectory(local, remote, StorageExistsMode.Skip);
+			await _storage.UploadDirectory(local, remote, StorageExists.Skip);
 
 			long originalLength = await _storage.GetObjectLength($"{remote}/a.txt");
 
 			File.WriteAllBytes(Path.Combine(local, "a.txt"), new byte[500]);
 
-			await _storage.UploadDirectory(local, remote, StorageExistsMode.Skip);
+			await _storage.UploadDirectory(local, remote, StorageExists.Skip);
 
 			Assert.Equal(originalLength, await _storage.GetObjectLength($"{remote}/a.txt"));
 		}
@@ -140,11 +140,11 @@
 
 			CreateLocalTree(local, new[] { new LocalFile("a.txt", 100) });
 
-			await _storage.UploadDirectory(local, remote, StorageExistsMode.Skip);
+			await _storage.UploadDirectory(local, remote, StorageExists.Skip);
 
 			File.WriteAllBytes(Path.Combine(local, "a.txt"), new byte[700]);
 
-			await _storage.UploadDirectory(local, remote, StorageExistsMode.Overwrite);
+			await _storage.UploadDirectory(local, remote, StorageExists.Overwrite);
 
 			Assert.Equal(700, await _storage.GetObjectLength($"{remote}/a.txt"));
 		}
@@ -187,7 +187,7 @@
 			string remote = RandomRemoteFolder();
 
 			await UploadTree(SmallTree, local, remote);
-			await _storage.UploadDirectory(local, remote, StorageExistsMode.Skip);
+			await _storage.UploadDirectory(local, remote, StorageExists.Skip);
 
 			await AssertRemoteContainsExactly(remote, SmallTree.Length);
 		}
@@ -198,7 +198,7 @@
 			string remote = RandomRemoteFolder();
 
 			await UploadTree(SmallTree, local, remote);
-			await _storage.UploadDirectory(local, remote, StorageExistsMode.Overwrite);
+			await _storage.UploadDirectory(local, remote, StorageExists.Overwrite);
 
 			await AssertRemoteContainsExactly(remote, SmallTree.Length);
 		}

@@ -271,7 +271,7 @@ namespace FluentStorage.Tests.Integration.Storage.TestSuite {
 			IList<LocalFile> tree,
 			string localRoot,
 			string remoteRoot,
-			StorageExistsMode mode = StorageExistsMode.Skip,
+			StorageExists mode = StorageExists.Skip,
 			ProgressRecorder recorder = null,
 			IList<StorageRule> rules = null) {
 			CreateLocalTree(localRoot, tree);
@@ -282,7 +282,7 @@ namespace FluentStorage.Tests.Integration.Storage.TestSuite {
 		protected async Task DownloadTree(
 			string remoteRoot,
 			string localRoot,
-			StorageExistsMode mode = StorageExistsMode.Skip,
+			StorageExists mode = StorageExists.Skip,
 			ProgressRecorder recorder = null,
 			IList<StorageRule> rules = null) {
 			await _storage.DownloadDirectory(remoteRoot, localRoot, mode, recorder != null ? recorder.Report : null, rules);

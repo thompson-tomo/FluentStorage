@@ -13,6 +13,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace FluentStorage.Storage {
 	/// <summary>
@@ -487,11 +488,14 @@ namespace FluentStorage.Storage {
 		/// Will call the given `progress` callback per file upon success or failure.
 		/// Absorbs all errors internally, and does not abort the entire process if a single file failed to transfer.
 		/// </summary>
-		public virtual async Task DownloadDirectory(string remoteFolder,string localFolder,StorageExistsMode existsMode = StorageExistsMode.Skip,
-			Action<StorageProgress>? progress = null, IList<StorageRule> rules = null,CancellationToken cancellationToken = default) {
+		public virtual async Task<List<StorageProgress>> DownloadDirectory(string remoteFolder, string localFolder, StorageExists existsMode = StorageExists.Skip,
+			Action<StorageProgress>? progress = null, IList<StorageRule> rules = null, CancellationToken cancellationToken = default) {
 
 			if (string.IsNullOrWhiteSpace(localFolder)) throw new ArgumentNullException(nameof(localFolder));
 			if (string.IsNullOrWhiteSpace(remoteFolder)) throw new ArgumentNullException(nameof(remoteFolder));
+
+			// collect all progress objects (one per file)
+			var results = new List<StorageProgress>();
 
 			remoteFolder = StoragePath.Normalize(remoteFolder);
 			Directory.CreateDirectory(localFolder);
@@ -503,28 +507,25 @@ namespace FluentStorage.Storage {
 
 			// exit if nothing to transfer
 			if (objects.Count == 0)
-				return;
+				return results;
 
 			cancellationToken.ThrowIfCancellationRequested();
 
 			// if any rules are defined
 			if (rules != null && rules.Count > 0) {
-				var newObjects = new List<StoreObject>();
-
-				// ensure all objects pass the defined rules (if any)
-				foreach (var o in objects) {
-					if (StorageRule.ObjectPassesRules(o, rules)) newObjects.Add(o);
-				}
-				objects = newObjects;
+				objects = RuleEngine.ProcessDownloadRules(rules, results, objects);
 			}
 
 			// exit if nothing to transfer
 			if (objects.Count == 0)
-				return;
+				return results;
 
 			// declare a small utility to call the progress handler with error suppression
 			void Report(StorageProgress p) {
-				try { progress.Invoke(p); } catch { }
+				results.Add(p);
+				if (progress != null) {
+					try { progress.Invoke(p); } catch { }
+				}
 			}
 
 			int ok = 0, skipped = 0, failed = 0;
@@ -550,51 +551,87 @@ namespace FluentStorage.Storage {
 					//----------------------------------------------------
 					// skip, overwrite, or overwrite if changed
 					switch (existsMode) {
-						case StorageExistsMode.Skip:
+						case StorageExists.Skip:
 							if (File.Exists(localFile)) {
 								skipped++;
 
 								// report skipped transfers
-								if (progress != null) Report(new StorageProgress {
+								Report(new StorageProgress {
 									LocalPath = localFile,
 									RemotePath = obj.FullPath,
-									FileIndex = i + 1,
+									FileIndex = i,
 									FileCount = objects.Count,
-									Progress = 100
+									Skipped = true,
+									SkipReason = StorageReason.Exists,
 								});
 								continue;
 							}
 							break;
-						case StorageExistsMode.OverwriteIfChanged:
+						case StorageExists.OverwriteByChecksum:
+						case StorageExists.OverwriteByTimestamp:
+							var checksum = existsMode == StorageExists.OverwriteByChecksum;
 
 							// if it exists
 							if (File.Exists(localFile)) {
 
 								// get the length and check if mismatches
-								var localLen = new FileInfo(localFile).Length;
+								var localInfo = new FileInfo(localFile);
+								var localLen = localInfo.Length;
 								var remoteLen = await GetObjectLength(obj.FullPath, -1, cancellationToken).ConfigureAwait(false);
 								if (remoteLen != -1 && remoteLen == localLen) {
 
-									// get the checksum
-									var remoteChecksum = await GetObjectChecksum(obj.FullPath, StorageHash.MD5, cancellationToken).ConfigureAwait(false);
-									if (remoteChecksum.VerifyFile(localFile)) {
+									// in checksum mode
+									if (checksum) {
 
-										// skip since checksum matches
-										skipped++;
+										// get the checksum
+										var remoteChecksum = await GetObjectChecksum(obj.FullPath, StorageHash.MD5, cancellationToken).ConfigureAwait(false);
+										if (remoteChecksum.VerifyFile(localFile)) {
 
-										// report skipped transfers
-										if (progress != null) Report(new StorageProgress {
-											LocalPath = localFile,
-											RemotePath = obj.FullPath,
-											FileIndex = i + 1,
-											FileCount = objects.Count,
-											Progress = 100
-										});
-										continue;
+											// skip since checksum matches
+											skipped++;
+
+											// report skipped transfers
+											Report(new StorageProgress {
+												LocalPath = localFile,
+												RemotePath = obj.FullPath,
+												FileIndex = i,
+												FileCount = objects.Count,
+												Skipped = true,
+												SkipReason = StorageReason.Checksum,
+											});
+											continue;
+										}
+										else {
+											// checksum has changed, so overwrite
+											break;
+										}
 									}
 									else {
-										// checksum has changed, so overwrite
-										break;
+
+										// date mode
+
+										// get the date and check if matches
+										var remoteDate = await GetObjectInfo(obj.FullPath, cancellationToken).ConfigureAwait(false);
+										if (IsDateMatch(localInfo, remoteDate)) {
+
+											// skip since date matches
+											skipped++;
+
+											// report skipped transfers
+											Report(new StorageProgress {
+												LocalPath = localFile,
+												RemotePath = obj.FullPath,
+												FileIndex = i,
+												FileCount = objects.Count,
+												Skipped = true,
+												SkipReason = StorageReason.Checksum,
+											});
+											continue;
+										}
+										else {
+											// date has changed, so overwrite
+											break;
+										}
 									}
 								}
 								else {
@@ -603,7 +640,7 @@ namespace FluentStorage.Storage {
 								}
 							}
 							break;
-						case StorageExistsMode.Throw:
+						case StorageExists.Throw:
 							if (File.Exists(localFile))
 								throw new IOException($"File '{localFile}' already exists.");
 							break;
@@ -612,7 +649,7 @@ namespace FluentStorage.Storage {
 					//----------------------------------------------------
 					// download file
 					await DownloadObject(obj.FullPath, localFile,
-						existsMode == StorageExistsMode.Overwrite,
+						existsMode == StorageExists.Overwrite,
 						/*p => {
 							p.LocalPath = localFile;
 							p.RemotePath = obj.Path;
@@ -623,10 +660,10 @@ namespace FluentStorage.Storage {
 						cancellationToken).ConfigureAwait(false);
 
 					// report OK transfers
-					if (progress != null) Report(new StorageProgress {
+					Report(new StorageProgress {
 						LocalPath = localFile,
 						RemotePath = obj.FullPath,
-						FileIndex = i + 1,
+						FileIndex = i,
 						FileCount = objects.Count,
 						Progress = 100
 					});
@@ -640,10 +677,10 @@ namespace FluentStorage.Storage {
 
 					// report failed transfers but do not crash entire process
 					failed++;
-					if (progress != null) Report(new StorageProgress {
+					Report(new StorageProgress {
 						LocalPath = localFile,
 						RemotePath = obj.FullPath,
-						FileIndex = i + 1,
+						FileIndex = i,
 						FileCount = objects.Count,
 						Progress = -1,
 						TransferredBytes = 0,
@@ -653,6 +690,7 @@ namespace FluentStorage.Storage {
 					});
 				}
 			}
+			return results;
 		}
 
 		/// <summary>
@@ -662,16 +700,19 @@ namespace FluentStorage.Storage {
 		/// Will call the given `progress` callback per file upon success or failure.
 		/// Absorbs all errors internally, and does not abort the entire process if a single file failed to transfer.
 		/// </summary>
-		public virtual async Task UploadDirectory(string localFolder, string remoteFolder, StorageExistsMode existsMode = StorageExistsMode.Skip,
+		public virtual async Task<List<StorageProgress>> UploadDirectory(string localFolder, string remoteFolder, StorageExists existsMode = StorageExists.Skip,
 			Action<StorageProgress>? progress = null, IList<StorageRule> rules = null, CancellationToken cancellationToken = default) {
 			remoteFolder = StoragePath.Normalize(remoteFolder);
 
 			if (string.IsNullOrWhiteSpace(localFolder)) throw new ArgumentNullException(nameof(localFolder));
 			if (string.IsNullOrWhiteSpace(remoteFolder)) throw new ArgumentNullException(nameof(remoteFolder));
 
+			// collect all progress objects (one per file)
+			var results = new List<StorageProgress>();
+
 			// exit if local folder does not exist
 			if (!Directory.Exists(localFolder))
-				return;
+				return results;
 
 			bool isFileSystem = await IsFileSystem().ConfigureAwait(false);
 
@@ -680,7 +721,7 @@ namespace FluentStorage.Storage {
 
 			// exit if nothing to transfer
 			if (files.Count == 0)
-				return;
+				return results;
 
 			cancellationToken.ThrowIfCancellationRequested();
 
@@ -692,23 +733,12 @@ namespace FluentStorage.Storage {
 
 			// if any rules are defined
 			if (rules != null && rules.Count > 0) {
-				var newFiles = new List<string>();
-				var newRelativeFiles = new List<string>();
-
-				// ensure all objects pass the defined rules (if any)
-				for (int f = 0; f < files.Count; f++) {
-					if (StorageRule.ObjectPassesRules(new StoreObject(relativeFiles[f], StorageObjectType.File), rules)) {
-						newFiles.Add(files[f]);
-						newRelativeFiles.Add(relativeFiles[f]);
-					}
-				}
-				files = newFiles;
-				relativeFiles = newRelativeFiles;
+				(files, relativeFiles) = RuleEngine.ProcessUploadRules(rules, results, files, relativeFiles);
 			}
 
 			// exit if nothing to transfer
 			if (files.Count == 0)
-				return;
+				return results;
 
 			//var createdDirectories = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -719,7 +749,10 @@ namespace FluentStorage.Storage {
 
 			// declare a small utility to call the progress handler with error suppression
 			void Report(StorageProgress p) {
-				try { progress.Invoke(p); } catch { }
+				results.Add(p);
+				if (progress != null) {
+					try { progress.Invoke(p); } catch { }
+				}
 			}
 
 			int ok = 0, skipped = 0, failed = 0;
@@ -730,7 +763,8 @@ namespace FluentStorage.Storage {
 
 				string localFile = files[f];
 				string rel = relativeFiles[f];
-				long localLen = new FileInfo(localFile).Length;
+				var localInfo = new FileInfo(localFile);
+				long localLen = localInfo.Length;
 
 				// calc the remote path
 				string objectPath = StoragePath.Normalize(StoragePath.Combine(remoteFolder, rel));
@@ -747,22 +781,25 @@ namespace FluentStorage.Storage {
 					//----------------------------------------------------
 					// skip, overwrite, or overwrite if changed
 					switch (existsMode) {
-						case StorageExistsMode.Skip:
+						case StorageExists.Skip:
 							if (await ObjectExists(objectPath, cancellationToken).ConfigureAwait(false)) {
 								skipped++;
 
 								// report skipped transfers
-								if (progress != null) Report(new StorageProgress {
+								Report(new StorageProgress {
 									LocalPath = localFile,
 									RemotePath = objectPath,
-									FileIndex = f + 1,
+									FileIndex = f,
 									FileCount = files.Count,
-									Progress = 100,
+									Skipped = true,
+									SkipReason = StorageReason.Exists,
 								});
 								continue;
 							}
 							break;
-						case StorageExistsMode.OverwriteIfChanged:
+						case StorageExists.OverwriteByChecksum:
+						case StorageExists.OverwriteByTimestamp:
+							var checksum = existsMode == StorageExists.OverwriteByChecksum;
 
 							// if it exists
 							if (await ObjectExists(objectPath, cancellationToken).ConfigureAwait(false)) {
@@ -771,26 +808,58 @@ namespace FluentStorage.Storage {
 								var remoteLen = await GetObjectLength(objectPath, -1, cancellationToken).ConfigureAwait(false);
 								if (remoteLen != -1 && remoteLen == localLen) {
 
-									// get the checksum
-									var remoteChecksum = await GetObjectChecksum(objectPath, StorageHash.MD5, cancellationToken).ConfigureAwait(false);
-									if (remoteChecksum.VerifyFile(localFile)) {
+									// in checksum mode
+									if (checksum) {
 
-										// skip since checksum matches
-										skipped++;
+										// get the checksum
+										var remoteChecksum = await GetObjectChecksum(objectPath, StorageHash.MD5, cancellationToken).ConfigureAwait(false);
+										if (remoteChecksum.VerifyFile(localFile)) {
 
-										// report skipped transfers
-										if (progress != null) Report(new StorageProgress {
-											LocalPath = localFile,
-											RemotePath = objectPath,
-											FileIndex = f + 1,
-											FileCount = files.Count,
-											Progress = 100,
-										});
-										continue;
+											// skip since checksum matches
+											skipped++;
+
+											// report skipped transfers
+											Report(new StorageProgress {
+												LocalPath = localFile,
+												RemotePath = objectPath,
+												FileIndex = f,
+												FileCount = files.Count,
+												Skipped = true,
+												SkipReason = StorageReason.Checksum,
+											});
+											continue;
+										}
+										else {
+											// checksum has changed, so overwrite
+											break;
+										}
 									}
 									else {
-										// checksum has changed, so overwrite
-										break;
+
+										// date mode
+
+										// get the date and check if matches
+										var remoteDate = await GetObjectInfo(objectPath, cancellationToken).ConfigureAwait(false);
+										if (IsDateMatch(localInfo, remoteDate)) {
+
+											// skip since date matches
+											skipped++;
+
+											// report skipped transfers
+											Report(new StorageProgress {
+												LocalPath = localFile,
+												RemotePath = objectPath,
+												FileIndex = f,
+												FileCount = files.Count,
+												Skipped = true,
+												SkipReason = StorageReason.Timestamp,
+											});
+											continue;
+										}
+										else {
+											// date has changed, so overwrite
+											break;
+										}
 									}
 								}
 								else {
@@ -799,7 +868,7 @@ namespace FluentStorage.Storage {
 								}
 							}
 							break;
-						case StorageExistsMode.Throw:
+						case StorageExists.Throw:
 							if (await ObjectExists(objectPath, cancellationToken).ConfigureAwait(false))
 								throw new StorageException($"UploadDirectory: Object '{objectPath}' already exists.");
 							break;
@@ -808,7 +877,7 @@ namespace FluentStorage.Storage {
 					//----------------------------------------------------
 					// upload file
 					await UploadObject(objectPath, localFile,
-						existsMode == StorageExistsMode.Overwrite,
+						existsMode == StorageExists.Overwrite,
 						/*p => {
 							p.LocalPath = localFile;
 							p.RemotePath = objectPath;
@@ -820,10 +889,10 @@ namespace FluentStorage.Storage {
 						cancellationToken).ConfigureAwait(false);
 
 					// report OK transfers
-					if (progress != null) Report(new StorageProgress {
+					Report(new StorageProgress {
 						LocalPath = localFile,
 						RemotePath = objectPath,
-						FileIndex = f + 1,
+						FileIndex = f,
 						FileCount = files.Count,
 						Progress = 100,
 						TransferredBytes = localLen
@@ -836,10 +905,10 @@ namespace FluentStorage.Storage {
 
 					// report failed transfers but do not crash entire process
 					failed++;
-					if (progress != null) Report(new StorageProgress {
+					Report(new StorageProgress {
 						LocalPath = localFile,
 						RemotePath = objectPath,
-						FileIndex = f + 1,
+						FileIndex = f,
 						FileCount = files.Count,
 						Progress = -1,
 						TransferredBytes = 0,
@@ -849,6 +918,14 @@ namespace FluentStorage.Storage {
 					});
 				}
 			}
+			return results;
+		}
+
+		private static bool IsDateMatch(FileInfo local, StoreObject remote) {
+
+			// check if remote date is within 2 seconds of local date [avoids issues with some SFTP servers]
+			return remote != null && remote.DateModified.HasValue &&
+				Math.Abs((remote.DateModified.Value - local.LastWriteTimeUtc).TotalSeconds) < 2;
 		}
 
 

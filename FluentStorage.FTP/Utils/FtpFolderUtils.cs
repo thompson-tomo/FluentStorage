@@ -8,13 +8,13 @@ using System.Text;
 namespace FluentStorage.FTP.Utils {
 	public static class FtpFolderUtils {
 
-		public static Dictionary<StorageExistsMode, FtpRemoteExists> UploadFolderMap = new Dictionary<StorageExistsMode, FtpRemoteExists> {
-			[StorageExistsMode.Skip] = FtpRemoteExists.Skip,
-			[StorageExistsMode.Overwrite] = FtpRemoteExists.Overwrite,
+		public static Dictionary<StorageExists, FtpRemoteExists> UploadFolderMap = new Dictionary<StorageExists, FtpRemoteExists> {
+			[StorageExists.Skip] = FtpRemoteExists.Skip,
+			[StorageExists.Overwrite] = FtpRemoteExists.Overwrite,
 		};
-		public static Dictionary<StorageExistsMode, FtpLocalExists> DownloadFolderMap = new Dictionary<StorageExistsMode, FtpLocalExists> {
-			[StorageExistsMode.Skip] = FtpLocalExists.Skip,
-			[StorageExistsMode.Overwrite] = FtpLocalExists.Overwrite,
+		public static Dictionary<StorageExists, FtpLocalExists> DownloadFolderMap = new Dictionary<StorageExists, FtpLocalExists> {
+			[StorageExists.Skip] = FtpLocalExists.Skip,
+			[StorageExists.Overwrite] = FtpLocalExists.Overwrite,
 		};
 
 		public static StorageProgress ConvertProgress(FtpProgress progress) {

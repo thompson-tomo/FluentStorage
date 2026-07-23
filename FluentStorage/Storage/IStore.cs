@@ -323,6 +323,7 @@ namespace FluentStorage.Storage {
 		/// Will call the given `progress` callback per file upon success or failure.
 		/// Absorbs all errors internally, and does not abort the entire process if a single file failed to transfer.
 		/// Only objects matching the given `rules` are downloaded (if any are given).
+		/// Always returns all the per-file progress objects which contain its transfer status.
 		/// </summary>
 		/// <param name="remoteFolder">Remote folder or virtual folder to download.</param>
 		/// <param name="localFolder">Destination local folder.</param>
@@ -330,10 +331,10 @@ namespace FluentStorage.Storage {
 		/// <param name="progress">Callback to report the progress of each file transfer.</param>
 		/// <param name="rules">Only objects passing all the given whitelist/blacklist rules will be downloaded.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task DownloadDirectory(
+		Task<List<StorageProgress>> DownloadDirectory(
 			string remoteFolder,
 			string localFolder,
-			StorageExistsMode existsMode = StorageExistsMode.Skip,
+			StorageExists existsMode = StorageExists.Skip,
 			Action<StorageProgress>? progress = null,
 			IList<StorageRule> rules = null,
 			CancellationToken cancellationToken = default);
@@ -345,6 +346,7 @@ namespace FluentStorage.Storage {
 		/// Will call the given `progress` callback per file upon success or failure.
 		/// Absorbs all errors internally, and does not abort the entire process if a single file failed to transfer.
 		/// Only objects matching the given `rules` are uploaded (if any are given).
+		/// Always returns all the per-file progress objects which contain its transfer status.
 		/// </summary>
 		/// <param name="localFolder">Local folder to upload.</param>
 		/// <param name="remoteFolder">Destination remote folder or virtual folder.</param>
@@ -352,9 +354,9 @@ namespace FluentStorage.Storage {
 		/// <param name="progress">Callback to report the progress of each file transfer.</param>
 		/// <param name="rules">Only objects passing all the given whitelist/blacklist rules will be uploaded.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task UploadDirectory(string localFolder,
+		Task<List<StorageProgress>> UploadDirectory(string localFolder,
 			string remoteFolder,
-			StorageExistsMode existsMode = StorageExistsMode.Skip,
+			StorageExists existsMode = StorageExists.Skip,
 			Action<StorageProgress>? progress = null,
 			IList<StorageRule> rules = null,
 			CancellationToken cancellationToken = default);

@@ -488,7 +488,7 @@ namespace FluentStorage.FTP.Storage {
 		/// <summary>
 		/// Upload a local disk folder onto the FTP server.
 		/// </summary>
-		public override async Task UploadDirectory(string localFolder,string remoteFolder,StorageExistsMode existsMode = StorageExistsMode.Skip,
+		public override async Task<List<StorageProgress>> UploadDirectory(string localFolder,string remoteFolder,StorageExists existsMode = StorageExists.Skip,
 			Action<StorageProgress>? progress = null, IList<StorageRule> rules = null,CancellationToken cancellationToken = default) {
 
 			if (string.IsNullOrWhiteSpace(localFolder)) throw new ArgumentNullException(nameof(localFolder));
@@ -496,14 +496,14 @@ namespace FluentStorage.FTP.Storage {
 			if (rules != null) throw new Exception("Rules are not yet supported in FTP!");
 
 			// exit if local folder doesnt exist
-			if (!Directory.Exists(localFolder)) return;
+			if (!Directory.Exists(localFolder)) return new List<StorageProgress>();
 
 			remoteFolder = StoragePath.Normalize(remoteFolder);
 
 			AsyncFtpClient client = await Client().ConfigureAwait(false);
 
 			// manually support the "Throw" mode which FluentFTP does not 
-			if (existsMode == StorageExistsMode.Throw) {
+			if (existsMode == StorageExists.Throw) {
 				foreach (string file in Directory.EnumerateFiles(localFolder, "*", SearchOption.AllDirectories)) {
 					cancellationToken.ThrowIfCancellationRequested();
 
@@ -526,12 +526,14 @@ namespace FluentStorage.FTP.Storage {
 			await client.UploadDirectory(localFolder,remoteFolder,FtpFolderSyncMode.Update,
 				FtpFolderUtils.UploadFolderMap[existsMode],FtpVerify.None,null, ftpProgress, cancellationToken);
 
+			// TODO: support progress objects
+			return new List<StorageProgress>();
 		}
 
 		/// <summary>
 		/// Download a folder from the FTP server to disk.
 		/// </summary>
-		public override async Task DownloadDirectory(string remoteFolder,string localFolder,StorageExistsMode existsMode = StorageExistsMode.Skip,
+		public override async Task<List<StorageProgress>> DownloadDirectory(string remoteFolder,string localFolder,StorageExists existsMode = StorageExists.Skip,
 			Action<StorageProgress>? progress = null, IList<StorageRule> rules = null,CancellationToken cancellationToken = default) {
 
 			if (string.IsNullOrWhiteSpace(localFolder)) throw new ArgumentNullException(nameof(localFolder));
@@ -543,7 +545,7 @@ namespace FluentStorage.FTP.Storage {
 			AsyncFtpClient client = await Client().ConfigureAwait(false);
 
 			// too inefficient to support the "Throw" mode
-			if (existsMode == StorageExistsMode.Throw) {
+			if (existsMode == StorageExists.Throw) {
 				throw new StorageException("FluentFTP does not support throwing errors during folder download, so FluentStorage cannot support this feature. Open a ticket if you need it.");
 			}
 
@@ -576,6 +578,9 @@ namespace FluentStorage.FTP.Storage {
 			// use FluentFTP `DownloadDirectory` to handle the entire operation
 			await client.DownloadDirectory(localFolder,remoteFolder,FtpFolderSyncMode.Update,
 				FtpFolderUtils.DownloadFolderMap[existsMode],FtpVerify.None,null, ftpProgress, cancellationToken);
+
+			// TODO: support progress objects
+			return new List<StorageProgress>();
 		}
 
 		/// <summary>

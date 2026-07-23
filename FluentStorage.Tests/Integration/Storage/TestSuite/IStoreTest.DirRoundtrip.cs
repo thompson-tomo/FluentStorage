@@ -342,7 +342,7 @@
 
 			var recorder = new ProgressRecorder();
 
-			await UploadTree(tree, local, remote, StorageExistsMode.Skip, recorder);
+			await UploadTree(tree, local, remote, StorageExists.Skip, recorder);
 
 			Assert.Equal(tree.Length, recorder.Count);
 		}
@@ -359,7 +359,7 @@
 
 			var recorder = new ProgressRecorder();
 
-			await DownloadTree(remote, download, StorageExistsMode.Skip, recorder);
+			await DownloadTree(remote, download, StorageExists.Skip, recorder);
 
 			Assert.Equal(tree.Length, recorder.Count);
 		}
@@ -453,7 +453,7 @@
 			string remote = RandomRemoteFolder();
 
 			await UploadTree(SmallTree, local, remote);
-			await UploadTree(SmallTree, local, remote, StorageExistsMode.Overwrite);
+			await UploadTree(SmallTree, local, remote, StorageExists.Overwrite);
 
 			await AssertRemoteTree(remote, SmallTree);
 		}
@@ -469,7 +469,7 @@
 
 			File.WriteAllBytes(Path.Combine(local, "folder1", "a.txt"), new byte[999]);
 
-			await _storage.UploadDirectory(local, remote, StorageExistsMode.Overwrite);
+			await _storage.UploadDirectory(local, remote, StorageExists.Overwrite);
 
 			Assert.Equal(999, await _storage.GetObjectLength($"{remote}/folder1/a.txt"));
 		}
@@ -487,7 +487,7 @@
 
 			File.WriteAllBytes(Path.Combine(local, "folder1", "a.txt"), new byte[999]);
 
-			await _storage.UploadDirectory(local, remote, StorageExistsMode.Skip);
+			await _storage.UploadDirectory(local, remote, StorageExists.Skip);
 
 			Assert.Equal(originalLength, await _storage.GetObjectLength($"{remote}/folder1/a.txt"));
 		}
@@ -505,7 +505,7 @@
 
 			await _storage.SetBytes($"{remote}/folder1/a.txt", new byte[888]);
 
-			await _storage.DownloadDirectory(remote, download, StorageExistsMode.Overwrite);
+			await _storage.DownloadDirectory(remote, download, StorageExists.Overwrite);
 
 			Assert.Equal(888, new FileInfo(Path.Combine(download, "folder1", "a.txt")).Length);
 		}
@@ -525,7 +525,7 @@
 
 			await _storage.SetBytes($"{remote}/folder1/a.txt", new byte[888]);
 
-			await _storage.DownloadDirectory(remote, download, StorageExistsMode.Skip);
+			await _storage.DownloadDirectory(remote, download, StorageExists.Skip);
 
 			Assert.Equal(originalLength, new FileInfo(Path.Combine(download, "folder1", "a.txt")).Length);
 		}

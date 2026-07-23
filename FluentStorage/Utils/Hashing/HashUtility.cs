@@ -61,9 +61,9 @@ namespace FluentStorage.Utils.Hashing {
 		}
 
 		/// <summary>
-		/// Hash the given stream and return the checksum bytes.
+		/// Hash the given stream and return the checksum as a hex string.
 		/// </summary>
-		public static byte[] HashStream(Stream stream, StorageHash algorithm) {
+		public static string HashStream(Stream stream, StorageHash algorithm) {
 			if (stream == null) {
 				throw new ArgumentNullException(nameof(stream));
 			}
@@ -71,42 +71,42 @@ namespace FluentStorage.Utils.Hashing {
 			switch (algorithm) {
 				case StorageHash.MD5:
 #if NET5_0_OR_GREATER
-					return MD5.HashData(stream);
+					return MD5.HashData(stream).ToHexString();
 #else
 					using (var hash = MD5.Create()) {
-						return hash.ComputeHash(stream);
+						return hash.ComputeHash(stream).ToHexString();
 					}
 #endif
 
 				case StorageHash.SHA1:
 #if NET5_0_OR_GREATER
-					return SHA1.HashData(stream);
+					return SHA1.HashData(stream).ToHexString();
 #else
 					using (var hash = SHA1.Create()) {
-						return hash.ComputeHash(stream);
+						return hash.ComputeHash(stream).ToHexString();
 					}
 #endif
 
 				case StorageHash.SHA256:
 #if NET5_0_OR_GREATER
-					return SHA256.HashData(stream);
+					return SHA256.HashData(stream).ToHexString();
 #else
 					using (var hash = SHA256.Create()) {
-						return hash.ComputeHash(stream);
+						return hash.ComputeHash(stream).ToHexString();
 					}
 #endif
 
 				case StorageHash.SHA512:
 #if NET5_0_OR_GREATER
-					return SHA512.HashData(stream);
+					return SHA512.HashData(stream).ToHexString();
 #else
 					using (var hash = SHA512.Create()) {
-						return hash.ComputeHash(stream);
+						return hash.ComputeHash(stream).ToHexString();
 					}
 #endif
 
 				case StorageHash.CRC32:
-					return Crc32Hash.Compute(stream.ToByteArray());
+					return Crc32Hash.Compute(stream.ToByteArray()).ToHexString();
 
 				default:
 					throw new NotImplementedException($"Unknown hash algorithm: {algorithm}");

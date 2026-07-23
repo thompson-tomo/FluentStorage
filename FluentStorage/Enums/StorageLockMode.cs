@@ -1,5 +1,5 @@
-﻿
-namespace FluentStorage.Enums {
+﻿namespace FluentStorage.Enums {
+
 	/// <summary>
 	/// Specifies the object lock mode.
 	/// </summary>

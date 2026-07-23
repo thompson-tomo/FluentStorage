@@ -1,5 +1,5 @@
-﻿
-namespace FluentStorage.Enums {
+﻿namespace FluentStorage.Enums {
+
 	/// <summary>
 	/// Specifies the storage tier or storage class of an object.
 	/// </summary>

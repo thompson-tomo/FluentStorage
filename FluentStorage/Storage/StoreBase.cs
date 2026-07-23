@@ -547,6 +547,8 @@ namespace FluentStorage.Storage {
 				try {
 					Directory.CreateDirectory(Path.GetDirectoryName(localFile)!);
 
+					//----------------------------------------------------
+					// skip, overwrite, or overwrite if changed
 					switch (existsMode) {
 						case StorageExistsMode.Skip:
 							if (File.Exists(localFile)) {
@@ -563,12 +565,52 @@ namespace FluentStorage.Storage {
 								continue;
 							}
 							break;
+						case StorageExistsMode.OverwriteIfChanged:
+
+							// if it exists
+							if (File.Exists(localFile)) {
+
+								// get the length and check if mismatches
+								var localLen = new FileInfo(localFile).Length;
+								var remoteLen = await GetObjectLength(obj.FullPath, -1, cancellationToken).ConfigureAwait(false);
+								if (remoteLen != -1 && remoteLen == localLen) {
+
+									// get the checksum
+									var remoteChecksum = await GetObjectChecksum(obj.FullPath, StorageHash.MD5, cancellationToken).ConfigureAwait(false);
+									if (remoteChecksum.Verify(localFile)) {
+
+										// skip since checksum matches
+										skipped++;
+
+										// report skipped transfers
+										if (progress != null) Report(new StorageProgress {
+											LocalPath = localFile,
+											RemotePath = obj.FullPath,
+											FileIndex = i + 1,
+											FileCount = objects.Count,
+											Progress = 100
+										});
+										continue;
+									}
+									else {
+										// checksum has changed, so overwrite
+										break;
+									}
+								}
+								else {
+									// length has changed, so overwrite
+									break;
+								}
+							}
+							break;
 						case StorageExistsMode.Throw:
 							if (File.Exists(localFile))
 								throw new IOException($"File '{localFile}' already exists.");
 							break;
 					}
 
+					//----------------------------------------------------
+					// download file
 					await DownloadObject(obj.FullPath, localFile,
 						existsMode == StorageExistsMode.Overwrite,
 						/*p => {
@@ -688,7 +730,7 @@ namespace FluentStorage.Storage {
 
 				string localFile = files[f];
 				string rel = relativeFiles[f];
-				long length = new FileInfo(localFile).Length;
+				long localLen = new FileInfo(localFile).Length;
 
 				// calc the remote path
 				string objectPath = StoragePath.Normalize(StoragePath.Combine(remoteFolder, rel));
@@ -702,6 +744,8 @@ namespace FluentStorage.Storage {
 							await CreateDirectory(dir, true, cancellationToken).ConfigureAwait(false);
 					}*/
 
+					//----------------------------------------------------
+					// skip, overwrite, or overwrite if changed
 					switch (existsMode) {
 						case StorageExistsMode.Skip:
 							if (await ObjectExists(objectPath, cancellationToken).ConfigureAwait(false)) {
@@ -718,12 +762,51 @@ namespace FluentStorage.Storage {
 								continue;
 							}
 							break;
+						case StorageExistsMode.OverwriteIfChanged:
+
+							// if it exists
+							if (await ObjectExists(objectPath, cancellationToken).ConfigureAwait(false)) {
+
+								// get the length and check if mismatches
+								var remoteLen = await GetObjectLength(objectPath, -1, cancellationToken).ConfigureAwait(false);
+								if (remoteLen != -1 && remoteLen == localLen) {
+
+									// get the checksum
+									var remoteChecksum = await GetObjectChecksum(objectPath, StorageHash.MD5, cancellationToken).ConfigureAwait(false);
+									if (remoteChecksum.Verify(localFile)) {
+
+										// skip since checksum matches
+										skipped++;
+
+										// report skipped transfers
+										if (progress != null) Report(new StorageProgress {
+											LocalPath = localFile,
+											RemotePath = objectPath,
+											FileIndex = f + 1,
+											FileCount = files.Count,
+											Progress = 100,
+										});
+										continue;
+									}
+									else {
+										// checksum has changed, so overwrite
+										break;
+									}
+								}
+								else {
+									// length has changed, so overwrite
+									break;
+								}
+							}
+							break;
 						case StorageExistsMode.Throw:
 							if (await ObjectExists(objectPath, cancellationToken).ConfigureAwait(false))
 								throw new StorageException($"UploadDirectory: Object '{objectPath}' already exists.");
 							break;
 					}
 
+					//----------------------------------------------------
+					// upload file
 					await UploadObject(objectPath, localFile,
 						existsMode == StorageExistsMode.Overwrite,
 						/*p => {
@@ -743,7 +826,7 @@ namespace FluentStorage.Storage {
 						FileIndex = f + 1,
 						FileCount = files.Count,
 						Progress = 100,
-						TransferredBytes = length
+						TransferredBytes = localLen
 					});
 
 					ok++;

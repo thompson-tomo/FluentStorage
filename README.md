@@ -250,6 +250,10 @@ This table shows the API supported by `IStore` across various cloud and server p
 <td colspan="11"><b>File metadata</b></td>
 </tr>
 <tr>
+<td>&nbsp; GetObjectChecksum</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+</tr>
+<tr>
 <td>&nbsp; GetObjectLength</td>
 <td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>

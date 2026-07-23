@@ -214,27 +214,6 @@ namespace FluentStorage.Storage {
 		/// <param name="cancellationToken">Cancellation token.</param>
 		Task DownloadObject(string objectPath, string filePath, bool overwrite, CancellationToken cancellationToken = default);
 
-		/// <summary>
-		/// Downloads all files from a remote folder to a local folder recursively.
-		/// Missing local directories are created automatically.
-		/// Will call the given `progress` callback per file upon success or failure.
-		/// Absorbs all errors internally, and does not abort the entire process if a single file failed to transfer.
-		/// Only objects matching the given `rules` are downloaded.
-		/// </summary>
-		/// <param name="remoteFolder">Remote folder or virtual folder to download.</param>
-		/// <param name="localFolder">Destination local folder.</param>
-		/// <param name="existsMode">How to handle files that already exist at the destination.</param>
-		/// <param name="progress">Callback to report the progress of each file transfer.</param>
-		/// <param name="rules">Only objects passing all the given whitelist/blacklist rules will be downloaded.</param>
-		/// <param name="cancellationToken">Cancellation token.</param>
-		Task DownloadDirectory(
-			string remoteFolder,
-			string localFolder,
-			StorageExistsMode existsMode = StorageExistsMode.Skip,
-			Action<StorageProgress>? progress = null,
-			IList<StorageRule> rules = null,
-			CancellationToken cancellationToken = default);
-
 
 		// ---------------------------------------------------------------------
 		// Write
@@ -299,27 +278,6 @@ namespace FluentStorage.Storage {
 		/// <param name="cancellationToken">Cancellation token.</param>
 		Task UploadObject(string objectPath, string filePath, bool overwrite, CancellationToken cancellationToken = default);
 
-		/// <summary>
-		/// Uploads all files from a local folder to a remote folder recursively.
-		/// For file system providers, missing remote directories are created automatically.
-		/// For object storage providers, files are uploaded as objects using their relative paths.
-		/// Will call the given `progress` callback per file upon success or failure.
-		/// Absorbs all errors internally, and does not abort the entire process if a single file failed to transfer.
-		/// Only objects matching the given `rules` are uploaded.
-		/// </summary>
-		/// <param name="localFolder">Local folder to upload.</param>
-		/// <param name="remoteFolder">Destination remote folder or virtual folder.</param>
-		/// <param name="existsMode">How to handle files that already exist at the destination.</param>
-		/// <param name="progress">Callback to report the progress of each file transfer.</param>
-		/// <param name="rules">Only objects passing all the given whitelist/blacklist rules will be uploaded.</param>
-		/// <param name="cancellationToken">Cancellation token.</param>
-		Task UploadDirectory(string localFolder,
-			string remoteFolder,
-			StorageExistsMode existsMode = StorageExistsMode.Skip,
-			Action<StorageProgress>? progress = null,
-			IList<StorageRule> rules = null,
-			CancellationToken cancellationToken = default);
-
 
 		// ---------------------------------------------------------------------
 		// Object Manipulation
@@ -352,6 +310,54 @@ namespace FluentStorage.Storage {
 		/// <param name="blobs">Objects to delete.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
 		Task DeleteObjects(IEnumerable<StoreObject> blobs, CancellationToken cancellationToken = default);
+
+
+
+		// ---------------------------------------------------------------------
+		// Directory Transfer
+		// ---------------------------------------------------------------------
+
+		/// <summary>
+		/// Downloads all files from a remote folder to a local folder recursively.
+		/// Missing local directories are created automatically.
+		/// Will call the given `progress` callback per file upon success or failure.
+		/// Absorbs all errors internally, and does not abort the entire process if a single file failed to transfer.
+		/// Only objects matching the given `rules` are downloaded (if any are given).
+		/// </summary>
+		/// <param name="remoteFolder">Remote folder or virtual folder to download.</param>
+		/// <param name="localFolder">Destination local folder.</param>
+		/// <param name="existsMode">How to handle files that already exist locally.</param>
+		/// <param name="progress">Callback to report the progress of each file transfer.</param>
+		/// <param name="rules">Only objects passing all the given whitelist/blacklist rules will be downloaded.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		Task DownloadDirectory(
+			string remoteFolder,
+			string localFolder,
+			StorageExistsMode existsMode = StorageExistsMode.Skip,
+			Action<StorageProgress>? progress = null,
+			IList<StorageRule> rules = null,
+			CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Uploads all files from a local folder to a remote folder recursively.
+		/// For file system providers, missing remote directories are created automatically.
+		/// For object storage providers, files are uploaded as objects using their relative paths.
+		/// Will call the given `progress` callback per file upon success or failure.
+		/// Absorbs all errors internally, and does not abort the entire process if a single file failed to transfer.
+		/// Only objects matching the given `rules` are uploaded (if any are given).
+		/// </summary>
+		/// <param name="localFolder">Local folder to upload.</param>
+		/// <param name="remoteFolder">Destination remote folder or virtual folder.</param>
+		/// <param name="existsMode">How to handle files that already exist on the store.</param>
+		/// <param name="progress">Callback to report the progress of each file transfer.</param>
+		/// <param name="rules">Only objects passing all the given whitelist/blacklist rules will be uploaded.</param>
+		/// <param name="cancellationToken">Cancellation token.</param>
+		Task UploadDirectory(string localFolder,
+			string remoteFolder,
+			StorageExistsMode existsMode = StorageExistsMode.Skip,
+			Action<StorageProgress>? progress = null,
+			IList<StorageRule> rules = null,
+			CancellationToken cancellationToken = default);
 
 
 		// ---------------------------------------------------------------------
@@ -391,6 +397,7 @@ namespace FluentStorage.Storage {
 		/// <param name="objectPath">Full path of the object</param>
 		/// <param name="options">Options controlling permissions, expiration, protocol, and other Shared Access Signature settings.</param>
 		Task<string> GetObjectSas(string objectPath, StorageUrlOptions options);
+
 
 		// ---------------------------------------------------------------------
 		// File Systems Only
@@ -433,6 +440,7 @@ namespace FluentStorage.Storage {
 		/// Sets the CHMOD permissions of a file (FTP/SFTP only).
 		/// </summary>
 		Task SetFilePermissions(string filePath,int permissions,CancellationToken cancellationToken = default);
+
 
 		// ---------------------------------------------------------------------
 		// Versioning
@@ -559,15 +567,16 @@ namespace FluentStorage.Storage {
 		/// </summary>
 		Task<bool> ClearObjectLock(string objectPath, CancellationToken cancellationToken = default);*/
 
+
 		// ---------------------------------------------------------------------
-		// Checksum
+		// Checksums
 		// ---------------------------------------------------------------------
 
 		/// <summary>Returns the checksum of an object using the required hash algorithm. Returns null if the object cannot be found.</summary>
 		/// <param name="fullPath">Full path of the object.</param>
 		/// <param name="hash">Hash algorithm to use. MD5 is the most commonly supported but is a weak algorithm, so CRC32 or SHA is recommended.</param>
 		/// <param name="cancellationToken">Cancellation token.</param>
-		Task<StorageObjectHash> GetObjectChecksum(string fullPath, StorageHash hash = StorageHash.CRC32, CancellationToken cancellationToken = default);
+		Task<StorageObjectHash> GetObjectChecksum(string fullPath, StorageHash hash = StorageHash.MD5, CancellationToken cancellationToken = default);
 
 
 	}

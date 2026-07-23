@@ -41,15 +41,13 @@ namespace FluentStorage.Model {
 		}
 
 		/// <summary>
-		/// Computes the hash for the specified object and compares it
-		/// to this hash value.
+		/// Computes the hash for the specified local file and compares it to this hash value.
 		/// </summary>
-		/// <param name="objectPath">The object to verify.</param>
+		/// <param name="localFilePath">The local file path to verify.</param>
 		/// <returns>True if the computed hash matches.</returns>
-		public bool Verify(string objectPath) {
-			using (var stream = File.OpenRead(objectPath)) {
-				return Verify(stream);
-			}
+		public bool Verify(string localFilePath) {
+			var bytes = File.ReadAllBytes(localFilePath);
+			return Verify(bytes);
 		}
 
 		/// <summary>
@@ -61,9 +59,22 @@ namespace FluentStorage.Model {
 			if (!IsValid) {
 				return false;
 			}
+			return VerifyHash(HashUtility.HashStream(stream, Algorithm));
+		}
 
-			string hash = HashUtility.HashStream(stream, Algorithm).ToHexString();
+		/// <summary>
+		/// Computes the hash for the specified byte array and compares it to this hash value.
+		/// </summary>
+		/// <param name="bytes">The stream to verify.</param>
+		/// <returns>True if the computed hash matches.</returns>
+		public bool Verify(byte[] bytes) {
+			if (!IsValid) {
+				return false;
+			}
+			return VerifyHash(HashUtility.HashBytes(bytes, Algorithm));
+		}
 
+		private bool VerifyHash(string hash) {
 			if (hash.Equals(Value, StringComparison.OrdinalIgnoreCase)) {
 				return true;
 			}
@@ -76,6 +87,5 @@ namespace FluentStorage.Model {
 
 			return false;
 		}
-
 	}
 }

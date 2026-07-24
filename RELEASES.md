@@ -11,6 +11,8 @@
    - New: `SkipRule` inside each `StorageProgress` to indicate which rule caused the object to be rejected
    - Change: Rename `StorageExistsMode` to `StorageExists` to reduce bloat
    - Fix: `UploadDirectory` and `DownloadDirectory` logic that caused it not to overwrite files
+ - **FluentStorage.SFTP**
+   - Fix: `CreateDirectory` does not create the entire directory path
  
 #### FluentStorage 8.0.14
  - **FluentStorage**

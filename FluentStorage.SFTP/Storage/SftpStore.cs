@@ -730,7 +730,7 @@ namespace FluentStorage.SFTP {
 			}
 
 			// create any non-existing SFTP directories
-			await EnsureDirectoryExists(fullPath, client, cancellationToken);
+			await EnsureDirectoryExists(StoragePath.GetParent(fullPath), client, cancellationToken);
 
 			// Retry writing the file
 			using (FileStream stream = File.OpenRead(filePath)) {
@@ -786,7 +786,7 @@ namespace FluentStorage.SFTP {
 			}
 
 			// create any non-existing SFTP directories
-			await EnsureDirectoryExists(fullPath, client, cancellationToken);
+			await EnsureDirectoryExists(StoragePath.GetParent(fullPath), client, cancellationToken);
 
 			// Retry writing the file.
 			using (MemoryStream dataStream = new MemoryStream(data)) {
@@ -827,7 +827,7 @@ namespace FluentStorage.SFTP {
 			}
 
 			// create any non-existing SFTP directories
-			await EnsureDirectoryExists(fullPath, client, cancellationToken);
+			await EnsureDirectoryExists(StoragePath.GetParent(fullPath), client, cancellationToken);
 
 			// write this stream to SFTP file
 			await SetObjectInternal(dataStream, append, client, AddRootDirAndNormalize(fullPath), fileMode, cancellationToken).ConfigureAwait(false);
@@ -840,7 +840,7 @@ namespace FluentStorage.SFTP {
 		private async Task EnsureDirectoryExists(string fullPath, SftpClient client, CancellationToken cancellationToken) {
 
 			// get dir parts
-			string[] parts = StoragePath.Split(StoragePath.GetParent(fullPath));
+			string[] parts = StoragePath.Split(fullPath);
 			string currentFolder = string.Empty;
 
 			// Create any non-existing directories.

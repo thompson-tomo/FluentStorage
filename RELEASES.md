@@ -1,6 +1,10 @@
 ﻿# Release Notes
 
 **Please read the [Migration Guide](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide) to help you migrate from older versions to FluentStorage 8!**
+
+#### FluentStorage 8.0.17
+ - **FluentStorage.Azure.Blobs**
+   - Fix: Azure Blob paths lose their first character due to path handling logic
  
 #### FluentStorage 8.0.16
  - **FluentStorage**

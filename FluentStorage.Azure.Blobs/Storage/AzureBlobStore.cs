@@ -606,7 +606,7 @@ namespace FluentStorage.Azure.Blobs.Storage {
 				}
 				else {
 					containerName = parts[0];
-					relativePath = StoragePath.Combine(parts.Skip(1)).Substring(1);
+					relativePath = StoragePath.Combine(parts.Skip(1));
 				}
 			}
 			else {

@@ -53,8 +53,9 @@ namespace FluentStorage {
 		/// Constructs a git store from a repository URL and a full set of options.
 		/// </summary>
 		public static IStore FromUrl(string url, GitStorageOptions options = null) {
-			if (options == null)
+			if (options == null) {
 				options = new GitStorageOptions();
+			}
 
 			options.Url = url;
 			return new GitStore(options);

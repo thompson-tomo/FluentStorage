@@ -14,8 +14,9 @@ namespace FluentStorage.Git.Utils {
 		/// Other exceptions are returned unchanged.
 		/// </summary>
 		public static Exception Map(Exception ex) {
-			if (ex is StorageException)
+			if (ex is StorageException) {
 				return ex;
+			}
 
 			switch (ex) {
 				case RepositoryNotFoundException rnf:

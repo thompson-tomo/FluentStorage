@@ -154,15 +154,17 @@ namespace FluentStorage.Git.Storage {
 			{
 				ThrowIfDisposed();
 
-				if (options == null)
-					options = new StorageListOptions() { Recurse = true };
+				if (options == null) {
+					options = new StorageListOptions { Recurse = true };
+				}
 
 				var result = new List<StoreObject>();
 
 				string targetOsPath = string.IsNullOrEmpty(options.FolderPath) ? _rootOsPath : MapToOsPath(options.FolderPath);
 
-				if (!Directory.Exists(targetOsPath))
+				if (!Directory.Exists(targetOsPath)) {
 					return Task.FromResult(result);
+				}
 
 				string filePattern = string.IsNullOrEmpty(options.FilePrefix) ? "*" : options.FilePrefix + "*";
 				SearchOption searchOption = options.Recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
@@ -172,8 +174,9 @@ namespace FluentStorage.Git.Storage {
 				}
 
 				foreach (string file in Directory.GetFiles(targetOsPath, filePattern, searchOption)) {
-					if (file.EndsWith(AttributesFileExtension))
+					if (file.EndsWith(AttributesFileExtension)) {
 						continue;
+					}
 
 					result.Add(ToStoreObject(file, StorageObjectType.File, options.IncludeAttributes));
 				}
@@ -203,7 +206,9 @@ namespace FluentStorage.Git.Storage {
 			try
 			{
 				ThrowIfDisposed();
-				if (fullPath == null) return Task.FromResult(false);
+				if (fullPath == null) {
+					return Task.FromResult(false);
+				}
 
 				return Task.FromResult(File.Exists(MapToOsPath(fullPath)));
 			}
@@ -239,7 +244,9 @@ namespace FluentStorage.Git.Storage {
 
 				var result = new List<StoreObject>();
 				foreach (string path in paths) {
-					if (path == null) throw new ArgumentNullException(nameof(path));
+					if (path == null) {
+						throw new ArgumentNullException(nameof(path));
+					}
 
 					string osPath = MapToOsPath(path);
 					if (!File.Exists(osPath)) {
@@ -269,8 +276,9 @@ namespace FluentStorage.Git.Storage {
 
 			foreach (StoreObject blob in blobs.Where(b => b != null)) {
 				string osPath = MapToOsPath(blob.FullPath);
-				if (!File.Exists(osPath) || blob.Metadata == null)
+				if (!File.Exists(osPath) || blob.Metadata == null) {
 					continue;
+				}
 
 				string attrPath = osPath + AttributesFileExtension;
 				await File.WriteAllBytesAsync(attrPath, blob.AttributesToByteArray(), cancellationToken);
@@ -288,10 +296,14 @@ namespace FluentStorage.Git.Storage {
 			try
 			{
 				ThrowIfDisposed();
-				if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
+				if (fullPath == null) {
+					throw new ArgumentNullException(nameof(fullPath));
+				}
 
 				string osPath = MapToOsPath(fullPath);
-				if (!File.Exists(osPath)) return Task.FromResult<Stream>(null);
+				if (!File.Exists(osPath)) {
+					return Task.FromResult<Stream>(null);
+				}
 
 				return Task.FromResult<Stream>(new FileStream(osPath, FileMode.Open, FileAccess.Read, FileShare.Read));
 			}
@@ -306,10 +318,14 @@ namespace FluentStorage.Git.Storage {
 			try
 			{
 				ThrowIfDisposed();
-				if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
+				if (fullPath == null) {
+					throw new ArgumentNullException(nameof(fullPath));
+				}
 
 				string osPath = MapToOsPath(fullPath);
-				if (!File.Exists(osPath)) return Task.FromResult<Stream>(null);
+				if (!File.Exists(osPath)) {
+					return Task.FromResult<Stream>(null);
+				}
 
 				FileStream stream = new FileStream(osPath, FileMode.Open, FileAccess.Read, FileShare.Read);
 				stream.Seek(offset, SeekOrigin.Begin);
@@ -329,7 +345,9 @@ namespace FluentStorage.Git.Storage {
 					ThrowIfDisposed();
 
 					string osPath = MapToOsPath(fullPath);
-					if (!File.Exists(osPath)) return Task.FromResult(defaultValue);
+					if (!File.Exists(osPath)) {
+						return Task.FromResult(defaultValue);
+					}
 
 					return Task.FromResult(new FileInfo(osPath).Length);
 				}
@@ -355,13 +373,18 @@ namespace FluentStorage.Git.Storage {
 		/// <inheritdoc />
 		public override async Task SetObject(string fullPath, Stream dataStream, string contentType, bool append = false, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
-			if (dataStream == null) throw new ArgumentNullException(nameof(dataStream));
-			if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
+			if (dataStream == null) {
+				throw new ArgumentNullException(nameof(dataStream));
+			}
+			if (fullPath == null) {
+				throw new ArgumentNullException(nameof(fullPath));
+			}
 
 			string osPath = MapToOsPath(fullPath);
 			string dir = Path.GetDirectoryName(osPath);
-			if (!string.IsNullOrEmpty(dir))
+			if (!string.IsNullOrEmpty(dir)) {
 				Directory.CreateDirectory(dir);
+			}
 
 			await using (Stream dest = append
 				             ? new FileStream(osPath, FileMode.Append, FileAccess.Write)
@@ -377,14 +400,19 @@ namespace FluentStorage.Git.Storage {
 			try
 			{
 				ThrowIfDisposed();
-				if (fullPath == null) throw new ArgumentNullException(nameof(fullPath));
+				if (fullPath == null) {
+					throw new ArgumentNullException(nameof(fullPath));
+				}
 
 				string osPath = MapToOsPath(fullPath);
 				string dir = Path.GetDirectoryName(osPath);
-				if (!string.IsNullOrEmpty(dir))
+				if (!string.IsNullOrEmpty(dir)) {
 					Directory.CreateDirectory(dir);
+				}
 
-				if (!overwrite && File.Exists(osPath)) return Task.FromResult<Stream>(null);
+				if (!overwrite && File.Exists(osPath)) {
+					return Task.FromResult<Stream>(null);
+				}
 
 				Stream inner = File.Create(osPath);
 				return Task.FromResult<Stream>(new GitWriteStream(inner, MaybeCommitSync));
@@ -402,13 +430,19 @@ namespace FluentStorage.Git.Storage {
 		/// <inheritdoc />
 		public override async Task DeleteObject(string fullPath, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
-			if (fullPath == null) return;
+			if (fullPath == null) {
+				return;
+			}
 
 			string osPath = MapToOsPath(fullPath);
-			if (File.Exists(osPath)) File.Delete(osPath);
+				if (File.Exists(osPath)) {
+					File.Delete(osPath);
+				}
 
 			string attrPath = osPath + AttributesFileExtension;
-			if (File.Exists(attrPath)) File.Delete(attrPath);
+				if (File.Exists(attrPath)) {
+					File.Delete(attrPath);
+				}
 
 			await MaybeCommitAsync().ConfigureAwait(false);
 		}
@@ -416,16 +450,24 @@ namespace FluentStorage.Git.Storage {
 		/// <inheritdoc />
 		public override async Task DeleteObjects(IEnumerable<string> fullPaths, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
-			if (fullPaths == null) return;
+			if (fullPaths == null) {
+				return;
+			}
 
 			foreach (string fullPath in fullPaths) {
-				if (fullPath == null) continue;
+				if (fullPath == null) {
+					continue;
+				}
 
 				string osPath = MapToOsPath(fullPath);
-				if (File.Exists(osPath)) File.Delete(osPath);
+			if (File.Exists(osPath)) {
+				File.Delete(osPath);
+			}
 
 				string attrPath = osPath + AttributesFileExtension;
-				if (File.Exists(attrPath)) File.Delete(attrPath);
+			if (File.Exists(attrPath)) {
+				File.Delete(attrPath);
+			}
 			}
 
 			await MaybeCommitAsync().ConfigureAwait(false);
@@ -434,22 +476,31 @@ namespace FluentStorage.Git.Storage {
 		/// <inheritdoc />
 		public override async Task<bool> MoveObject(string oldPath, string newPath, bool overwrite, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
-			if (string.IsNullOrWhiteSpace(oldPath)) throw new ArgumentNullException(nameof(oldPath));
-			if (string.IsNullOrWhiteSpace(newPath)) throw new ArgumentNullException(nameof(newPath));
+			if (string.IsNullOrWhiteSpace(oldPath)) {
+				throw new ArgumentNullException(nameof(oldPath));
+			}
+			if (string.IsNullOrWhiteSpace(newPath)) {
+				throw new ArgumentNullException(nameof(newPath));
+			}
 
 			string source = MapToOsPath(oldPath);
 			string destination = MapToOsPath(newPath);
 
-			if (!File.Exists(source)) return false;
+			if (!File.Exists(source)) {
+				return false;
+			}
 
 			if (File.Exists(destination)) {
-				if (!overwrite) return false;
+				if (!overwrite) {
+					return false;
+				}
 				File.Delete(destination);
 			}
 
 			string destDir = Path.GetDirectoryName(destination);
-			if (!string.IsNullOrEmpty(destDir))
+			if (!string.IsNullOrEmpty(destDir)) {
 				Directory.CreateDirectory(destDir);
+			}
 
 			File.Move(source, destination);
 
@@ -469,10 +520,14 @@ namespace FluentStorage.Git.Storage {
 		/// <inheritdoc />
 		public override async Task CreateDirectory(string folderPath, bool force, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
-			if (folderPath == null) throw new ArgumentNullException(nameof(folderPath));
+			if (folderPath == null) {
+				throw new ArgumentNullException(nameof(folderPath));
+			}
 
 			string osPath = MapToOsPath(folderPath);
-			if (Directory.Exists(osPath)) return;
+			if (Directory.Exists(osPath)) {
+				return;
+			}
 
 			Directory.CreateDirectory(osPath);
 			await Task.CompletedTask.ConfigureAwait(false);
@@ -481,11 +536,14 @@ namespace FluentStorage.Git.Storage {
 		/// <inheritdoc />
 		public override async Task DeleteDirectory(string folderPath, bool recursive, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
-			if (folderPath == null) throw new ArgumentNullException(nameof(folderPath));
+			if (folderPath == null) {
+				throw new ArgumentNullException(nameof(folderPath));
+			}
 
 			string osPath = MapToOsPath(folderPath);
-			if (Directory.Exists(osPath))
+			if (Directory.Exists(osPath)) {
 				Directory.Delete(osPath, recursive);
+			}
 
 			await MaybeCommitAsync().ConfigureAwait(false);
 		}
@@ -495,7 +553,9 @@ namespace FluentStorage.Git.Storage {
 			try
 			{
 				ThrowIfDisposed();
-				if (folderPath == null) throw new ArgumentNullException(nameof(folderPath));
+				if (folderPath == null) {
+					throw new ArgumentNullException(nameof(folderPath));
+				}
 
 				return Task.FromResult(Directory.Exists(MapToOsPath(folderPath)));
 			}
@@ -508,8 +568,12 @@ namespace FluentStorage.Git.Storage {
 		/// <inheritdoc />
 		public override async Task MoveDirectory(string sourceFolderPath, string destinationFolderPath, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
-			if (sourceFolderPath == null) throw new ArgumentNullException(nameof(sourceFolderPath));
-			if (destinationFolderPath == null) throw new ArgumentNullException(nameof(destinationFolderPath));
+			if (sourceFolderPath == null) {
+				throw new ArgumentNullException(nameof(sourceFolderPath));
+			}
+			if (destinationFolderPath == null) {
+				throw new ArgumentNullException(nameof(destinationFolderPath));
+			}
 
 			string source = MapToOsPath(sourceFolderPath);
 			string destination = MapToOsPath(destinationFolderPath);
@@ -617,8 +681,9 @@ namespace FluentStorage.Git.Storage {
 				if (blob == null) return false;
 
 				string dir = Path.GetDirectoryName(osPath);
-				if (!string.IsNullOrEmpty(dir))
+				if (!string.IsNullOrEmpty(dir)) {
 					Directory.CreateDirectory(dir);
+				}
 
 				await using (Stream content = blob.GetContentStream())
 				await using (Stream dest = File.Create(osPath)) {

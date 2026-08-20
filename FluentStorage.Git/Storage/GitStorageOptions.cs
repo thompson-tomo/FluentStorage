@@ -121,7 +121,7 @@ namespace FluentStorage.Git.Storage {
 				};
 			}
 
-			return (url, usernameFromUrl, types) => creds;
+			return (_, usernameFromUrl, types) => creds;
 		}
 
 		internal Signature BuildSignature() {

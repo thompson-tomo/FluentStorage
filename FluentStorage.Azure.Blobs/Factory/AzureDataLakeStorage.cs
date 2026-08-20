@@ -3,9 +3,11 @@ using Azure.Core;
 using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Sas;
-using FluentStorage.ConnectionString;
-using FluentStorage.Azure.Blobs;
+using FluentStorage.ConnectionStrings;
 using FluentStorage.Azure;
+using FluentStorage.Azure.Blobs.DataLake;
+using FluentStorage.Azure.Blobs;
+using FluentStorage.Azure.Blobs.Utils;
 
 namespace FluentStorage {
 	public static class AzureDataLakeStorage {
@@ -13,7 +15,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure DataLake Storage with Shared Key
 		/// </summary>
-		public static IAzureDataLakeStorage FromSharedKey(
+		public static IAzureDataLakeStore FromSharedKey(
 		   string accountName,
 		   string key,
 		   Uri serviceUri) {
@@ -23,14 +25,14 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure DataLake Storage with Shared Key
 		/// </summary>
-		public static IAzureDataLakeStorage FromSharedKey(string accountName, string key) {
+		public static IAzureDataLakeStore FromSharedKey(string accountName, string key) {
 			return FromSharedKey(accountName, key, null, default);
 		}
 
 		/// <summary>
 		/// Creates Azure DataLake Storage with Shared Key
 		/// </summary>
-		public static IAzureDataLakeStorage FromSharedKey(
+		public static IAzureDataLakeStore FromSharedKey(
 		   string accountName,
 		   string key,
 		   AzureCloudEnvironment cloudEnvironment) {
@@ -40,7 +42,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure DataLake Storage with Shared Key
 		/// </summary>
-		public static IAzureDataLakeStorage FromSharedKey(
+		public static IAzureDataLakeStore FromSharedKey(
 		   string accountName,
 		   string key,
 		   Uri serviceUri,
@@ -61,7 +63,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure DataLake Storage with Azure AD
 		/// </summary>
-		public static IAzureDataLakeStorage FromAzureAd(
+		public static IAzureDataLakeStore FromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
@@ -73,7 +75,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure DataLake Storage with Azure AD and AD Authority endpoint
 		/// </summary>
-		public static IAzureDataLakeStorage FromAzureAd(
+		public static IAzureDataLakeStore FromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
@@ -84,7 +86,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure DataLake Storage with Azure AD and AD Authority endpoint
 		/// </summary>
-		public static IAzureDataLakeStorage FromAzureAd(
+		public static IAzureDataLakeStore FromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
@@ -96,7 +98,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Create Azure DataLake Gen 2 Storage with Azure AD
 		/// </summary>
-		public static IAzureDataLakeStorage FromAzureAd(
+		public static IAzureDataLakeStore FromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
@@ -128,7 +130,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Data Lake Gen 2 with Managed Identity
 		/// </summary>
-		public static IAzureDataLakeStorage FromMsi(
+		public static IAzureDataLakeStore FromMsi(
 		   string accountName,
 		   AzureCloudEnvironment azureCloudEnvironment) {
 			return FromMsi(accountName, null, azureCloudEnvironment);
@@ -137,14 +139,14 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Data Lake Gen 2 with Managed Identity
 		/// </summary>
-		public static IAzureDataLakeStorage FromMsi(string accountName) {
+		public static IAzureDataLakeStore FromMsi(string accountName) {
 			return FromMsi(accountName, null, default);
 		}
 
 		/// <summary>
 		/// Creates Azure Data Lake Gen 2 with Managed Identity (client id)
 		/// </summary>
-		public static IAzureDataLakeStorage FromMsi(
+		public static IAzureDataLakeStore FromMsi(
 		   string accountName,
 		   string clientId) {
 			return FromMsi(accountName, clientId, default);
@@ -153,7 +155,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Data Lake Gen 2 Storage with Managed Identity
 		/// </summary>
-		public static IAzureDataLakeStorage FromMsi(
+		public static IAzureDataLakeStore FromMsi(
 		   string accountName,
 		   string clientId,
 		   AzureCloudEnvironment azureCloudEnvironment) {
@@ -167,28 +169,28 @@ namespace FluentStorage {
 		/// <summary>
 		/// Create connection string for Azure DataLake with Shared Key
 		/// </summary>
-		public static StorageConnectionString CreateConnectionStringFromSharedKey(
+		public static ConnectionString CreateConnectionStringFromSharedKey(
 		   string accountName,
 		   string accountKey) {
-			var cs = new StorageConnectionString(KnownPrefix.AzureDataLakeGen2);
-			cs.Parameters[KnownParameter.AccountName] = accountName;
-			cs.Parameters[KnownParameter.KeyOrPassword] = accountKey;
+			var cs = new ConnectionString(ConnectionStringPrefix.AzureDataLakeGen2);
+			cs.Parameters[ConnectionStringParam.AccountName] = accountName;
+			cs.Parameters[ConnectionStringParam.KeyOrPassword] = accountKey;
 			return cs;
 		}
 
 		/// <summary>
 		/// Create connection string for Azure DataLake with Azure AD
 		/// </summary>
-		public static StorageConnectionString CreateConnectionStringFromAzureAd(
+		public static ConnectionString CreateConnectionStringFromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
 		   string applicationSecret) {
-			var cs = new StorageConnectionString(KnownPrefix.AzureDataLakeGen2);
-			cs.Parameters[KnownParameter.AccountName] = accountName;
-			cs.Parameters[KnownParameter.TenantId] = tenantId;
-			cs.Parameters[KnownParameter.ClientId] = applicationId;
-			cs.Parameters[KnownParameter.ClientSecret] = applicationSecret;
+			var cs = new ConnectionString(ConnectionStringPrefix.AzureDataLakeGen2);
+			cs.Parameters[ConnectionStringParam.AccountName] = accountName;
+			cs.Parameters[ConnectionStringParam.TenantId] = tenantId;
+			cs.Parameters[ConnectionStringParam.ClientId] = applicationId;
+			cs.Parameters[ConnectionStringParam.ClientSecret] = applicationSecret;
 			return cs;
 		}
 

@@ -7,14 +7,14 @@ using FluentStorage.Storage;
 namespace FluentStorage.Queue.Large {
 	class LargeMessageContentMessageReceiver : IQueueReceiver {
 		private readonly IQueueReceiver _parentReceiver;
-		private readonly IBucket _offloadStorage;
+		private readonly IStore _offloadStorage;
 
-		public LargeMessageContentMessageReceiver(IQueueReceiver parentReceiver, IBucket offloadStorage) {
+		public LargeMessageContentMessageReceiver(IQueueReceiver parentReceiver, IStore offloadStorage) {
 			_parentReceiver = parentReceiver;
 			_offloadStorage = offloadStorage;
 		}
 
-		public async Task ConfirmMessagesAsync(IReadOnlyCollection<QueueMessage> messages, CancellationToken cancellationToken = default) {
+		public async Task ConfirmMessagesAsync(List<QueueMessage> messages, CancellationToken cancellationToken = default) {
 			await _parentReceiver.ConfirmMessagesAsync(messages, cancellationToken).ConfigureAwait(false);
 
 			foreach (QueueMessage message in messages) {
@@ -22,8 +22,8 @@ namespace FluentStorage.Queue.Large {
 			}
 		}
 
-		public async Task DeadLetterAsync(QueueMessage message, string reason, string errorDescription, CancellationToken cancellationToken = default) {
-			await _parentReceiver.DeadLetterAsync(message, reason, errorDescription, cancellationToken).ConfigureAwait(false);
+		public async Task DeadLetterMessage(QueueMessage message, string reason, string errorDescription, CancellationToken cancellationToken = default) {
+			await _parentReceiver.DeadLetterMessage(message, reason, errorDescription, cancellationToken).ConfigureAwait(false);
 
 			await DeleteBlobAsync(message).ConfigureAwait(false);
 		}
@@ -33,7 +33,7 @@ namespace FluentStorage.Queue.Large {
 
 			message.Properties.Remove(QueueMessage.LargeMessageContentHeaderName);
 
-			await _offloadStorage.DeleteAsync(fileId).ConfigureAwait(false);
+			await _offloadStorage.DeleteObject(fileId).ConfigureAwait(false);
 		}
 
 		public void Dispose() {
@@ -42,30 +42,28 @@ namespace FluentStorage.Queue.Large {
 
 		public Task<int> GetMessageCountAsync() => _parentReceiver.GetMessageCountAsync();
 
-		public Task<ITransaction> OpenTransactionAsync() => _parentReceiver.OpenTransactionAsync();
-
-		public Task StartMessagePumpAsync(Func<IReadOnlyCollection<QueueMessage>, CancellationToken, Task> onMessageAsync, int maxBatchSize = 1, CancellationToken cancellationToken = default) {
-			return _parentReceiver.StartMessagePumpAsync(
+		public Task StartMessagePump(Func<List<QueueMessage>, CancellationToken, Task> onMessageAsync, int maxBatchSize = 1, CancellationToken cancellationToken = default) {
+			return _parentReceiver.StartMessagePump(
 			   (mms, ct) => DownloadingMessagePumpAsync(mms, onMessageAsync, ct),
 			   maxBatchSize, cancellationToken);
 		}
 
-		private async Task DownloadingMessagePumpAsync(IReadOnlyCollection<QueueMessage> messages,
-		   Func<IReadOnlyCollection<QueueMessage>, CancellationToken, Task> onParentMessagesAsync,
-		   CancellationToken cancellationToken) {
+		private async Task DownloadingMessagePumpAsync(List<QueueMessage> messages,
+		   Func<List<QueueMessage>, CancellationToken, Task> onParentMessagesAsync,
+		   CancellationToken cancellationToken = default) {
 			//process messages to download external content
 			foreach (QueueMessage message in messages) {
 				if (!message.Properties.TryGetValue(QueueMessage.LargeMessageContentHeaderName, out string fileId)) continue;
 
-				message.Content = await _offloadStorage.ReadBytesAsync(fileId, cancellationToken).ConfigureAwait(false);
+				message.Content = await _offloadStorage.GetBytes(fileId, cancellationToken).ConfigureAwait(false);
 			}
 
 			//now that messages are augmented pass them to parent
 			await onParentMessagesAsync(messages, cancellationToken).ConfigureAwait(false);
 		}
 
-		public Task KeepAliveAsync(QueueMessage message, TimeSpan? timeToLive = null, CancellationToken cancellationToken = default) =>
-		   _parentReceiver.KeepAliveAsync(message, timeToLive, cancellationToken);
-		public Task<IReadOnlyCollection<QueueMessage>> PeekMessagesAsync(int maxMessages, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+		public Task KeepAlive(QueueMessage message, TimeSpan? timeToLive = null, CancellationToken cancellationToken = default) =>
+		   _parentReceiver.KeepAlive(message, timeToLive, cancellationToken);
+		public Task<List<QueueMessage>> PeekMessages(int maxMessages, CancellationToken cancellationToken = default) => throw new NotSupportedException();
 	}
 }

@@ -108,8 +108,8 @@
 		///     When this method returns, contains the count of <paramref name="source" /> if successful,
 		///     or zero if the method failed to determine the count.</param>
 		/// <returns>
-		///   <see langword="true" /> if the count of <paramref name="source"/> can be determined without enumeration;
-		///   otherwise, <see langword="false" />.
+		///   true if the count of <paramref name="source"/> can be determined without enumeration;
+		///   otherwise, false.
 		/// </returns>
 		/// <remarks>
 		///   The method performs a series of type tests, identifying common subtypes whose

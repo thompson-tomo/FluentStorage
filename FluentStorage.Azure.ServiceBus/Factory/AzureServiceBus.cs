@@ -13,9 +13,8 @@ namespace FluentStorage {
 		/// Creates a new instance of Azure Service Bus Queue by connection string and queue name.
 		/// Cast to IAzureServiceBusMessenger to access utility methods for queues, topics and subscriptions
 		/// </summary>
-		/// <param name="factory">Factory reference</param>
 		/// <param name="connectionString">Service Bus connection string pointing to a namespace or an entity</param>
-		public static IQueue FromConnectionString( string connectionString) {
+		public static IAzureServiceBus FromConnectionString( string connectionString) {
 			return new AzureServiceBusMessenger(connectionString);
 		}
 
@@ -23,10 +22,9 @@ namespace FluentStorage {
 		/// Creates a new instance of Azure Service Bus Queue by connection string and queue name.
 		/// Cast to IAzureServiceBusMessenger to access utility methods for queues, topics and subscriptions
 		/// </summary>
-		/// <param name="factory">Factory reference</param>
 		/// <param name="connectionString">Service Bus connection string pointing to a namespace or an entity</param>
 		/// <param name="serviceBusOptions">Service bus clients specific options</param>
-		public static IQueue FromConnectionString( string connectionString,
+		public static IAzureServiceBus FromConnectionString( string connectionString,
 		                                                  AzureServiceBusMessengerOptions serviceBusOptions) {
 			return new AzureServiceBusMessenger(connectionString,serviceBusOptions);
 		}

@@ -4,12 +4,12 @@
       <TargetFrameworks>netstandard2.0;netstandard2.1;net70;net80;net90</TargetFrameworks>
       <AssemblyName>FluentStorage</AssemblyName>
       <PackageId>FluentStorage</PackageId>
-      <Description>FluentStorage, originally known as Storage.NET, is a polycloud .NET cloud storage library to interface with multiple cloud providers from a single unified interface. Provides Blob storage (AWS S3, GCP, FTP, SFTP, Azure Blob/File/Event Hub/Data Lake) and Messaging (AWS SQS, Azure Queue/ServiceBus). Supports .NET 5+ and .NET Standard 2.0+. Pure C#. MIT license. Commercial use allowed.</Description>
+      <Description>A polycloud .NET cloud storage abstraction layer. Provides a single unified polycloud API across 15+ clouds for Object manipulation, File uploads/downloads, File streaming/seeking, Object metadata, Versioning, Tags, Storage tier/class, Presigned URLs, Directory manipulation and more.</Description>
       <Copyright>Copyright (c) 2023 Robin Rodricks and FluentStorage Contributors</Copyright>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <PackageIcon>logo-nuget.png</PackageIcon>
       <Authors>Robin Rodricks, FluentStorage Contributors</Authors>
-      <Version>7.1.1</Version>
+      <Version>8.0.16</Version>
       <PackageProjectUrl>https://github.com/robinrodricks/FluentStorage</PackageProjectUrl>
       <RepositoryUrl>https://github.com/robinrodricks/FluentStorage</RepositoryUrl>
       <RepositoryType>GitHub</RepositoryType>
@@ -19,7 +19,7 @@
       <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
       <DocumentationFile>$(SolutionDir)build\FluentStorage.xml</DocumentationFile>
       <BaseOutputPath>$(SolutionDir)build\</BaseOutputPath>
-     
+      <WarningsAsErrors>CS0114;CS0507</WarningsAsErrors>
    </PropertyGroup>
    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
       <GeneratePackageOnBuild>True</GeneratePackageOnBuild>

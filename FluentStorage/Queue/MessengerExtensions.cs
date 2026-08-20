@@ -7,39 +7,32 @@ namespace FluentStorage.Queue {
 	/// Extensions for <see cref="IQueue"/>
 	/// </summary>
 	public static class MessengerExtensions {
+
 		/// <summary>
-		/// Create a channel
+		/// Create a single channel
 		/// </summary>
-		/// <param name="messenger"></param>
-		/// <param name="channelName"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		public static Task CreateChannelAsync(this IQueue messenger, string channelName, CancellationToken cancellationToken = default) {
-			return messenger.CreateChannelsAsync(new[] { channelName }, cancellationToken);
+		public static Task CreateChannel(this IQueue messenger, string channelName, CancellationToken cancellationToken = default) {
+			return messenger.CreateChannels(new[] { channelName }, cancellationToken);
 		}
 
 		/// <summary>
 		/// Puts a new message to the back of the queue.
 		/// </summary>
-		public static Task SendAsync(this IQueue messenger, string channelName, QueueMessage message, CancellationToken cancellationToken = default) {
+		public static Task SendMessage(this IQueue messenger, string channelName, QueueMessage message, CancellationToken cancellationToken = default) {
 			if (channelName is null)
 				throw new ArgumentNullException(nameof(channelName));
 
 			if (message == null)
 				throw new ArgumentNullException(nameof(message));
 
-			return messenger.SendAsync(channelName, new[] { message }, cancellationToken);
+			return messenger.SendMessages(channelName, new[] { message }, cancellationToken);
 		}
 
 		/// <summary>
 		/// Deletes a single channel
 		/// </summary>
-		/// <param name="messenger"></param>
-		/// <param name="channelName"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		public static Task DeleteChannelAsync(this IQueue messenger, string channelName, CancellationToken cancellationToken = default) {
-			return messenger.DeleteChannelsAsync(new[] { channelName }, cancellationToken);
+		public static Task DeleteChannel(this IQueue messenger, string channelName, CancellationToken cancellationToken = default) {
+			return messenger.DeleteChannels(new[] { channelName }, cancellationToken);
 		}
 	}
 }

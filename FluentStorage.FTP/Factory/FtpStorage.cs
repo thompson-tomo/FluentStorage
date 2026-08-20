@@ -2,16 +2,17 @@
 using System.Net;
 using FluentFTP;
 using FluentStorage.Storage;
-using FluentStorage.ConnectionString;
+using FluentStorage.ConnectionStrings;
 using FluentStorage.FTP;
+using FluentStorage.FTP.Storage;
 
 namespace FluentStorage {
 	/// <summary>
-	/// FluentFTP factory that is accessible using `FluentStorage.StorageFactory.Blobs` by way of extension methods.
+	/// FluentFTP factory to create instances of `IStore` using this provider.
 	/// </summary>
 	public static class FtpStorage {
 		/// <summary>
-		/// Register Azure module.
+		/// Enable FTP connection string support.
 		/// </summary>
 		public static void Use() {
 			FluentStorage.StorageFactory.Use(new Module());
@@ -24,18 +25,18 @@ namespace FluentStorage {
 		/// <summary>
 		/// Constructs an instance of FTP client from host name and credentials
 		/// </summary>
-		public static IBucket FromCredentials(
+		public static IStore FromCredentials(
 		   string hostNameOrAddress, NetworkCredential credentials,
 		   FtpDataConnectionType dataConnectionType = FtpDataConnectionType.AutoActive) {
-			return new FluentFtpBlobStorage(hostNameOrAddress, credentials, dataConnectionType);
+			return new FtpStore(hostNameOrAddress, credentials, dataConnectionType);
 		}
 
 		/// <summary>
 		/// Constructs an instance of FTP client by accepting a custom instance of FluentFTP client
 		/// </summary>
-		public static IBucket FromClient(
+		public static IStore FromClient(
 		   AsyncFtpClient ftpClient) {
-			return new FluentFtpBlobStorage(ftpClient, false);
+			return new FtpStore(ftpClient, false);
 		}
 
 	}

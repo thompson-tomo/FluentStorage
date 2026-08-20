@@ -1,20 +1,19 @@
 ﻿using Google.Apis.Auth.OAuth2;
 using FluentStorage.Storage;
-using FluentStorage.Gcp.CloudStorage;
-using FluentStorage.Gcp.CloudStorage.Blobs;
+using FluentStorage.GCP;
 using System;
 using FluentStorage.Utils.Extensions;
+using FluentStorage.GCP.Storage;
 
 namespace FluentStorage {
 	/// <summary>
-	/// Google Cloud Storage factory that is accessible using `FluentStorage.StorageFactory.Blobs` by way of extension methods.
+	/// Google Cloud Storage factory to create instances of `IStore` using this provider.
 	/// </summary>
 	public static class GoogleCloudStorage {
+
 		/// <summary>
-		/// Initialises Google Cloud Storage module required for connection strings to work
+		/// Enable Google Cloud Storage connection string support.
 		/// </summary>
-		/// <param name="factory"></param>
-		/// <returns></returns>
 		public static void Use() {
 			FluentStorage.StorageFactory.Use(new Module());
 		}
@@ -26,9 +25,9 @@ namespace FluentStorage {
 		/// <param name="factory"></param>
 		/// <param name="bucketName">Storage bucket name</param>
 		/// <returns></returns>
-		public static IBucket FromEnvironmentVariable(
+		public static IStore FromEnvironmentVariable(
 		   string bucketName) {
-			return new GoogleCloudStorageBlobStorage(bucketName);
+			return new GoogleCloudStore(bucketName);
 		}
 
 		/// <summary>
@@ -38,12 +37,12 @@ namespace FluentStorage {
 		/// <param name="bucketName"></param>
 		/// <param name="credentialsFilePath">Path to a json file containing credentials.</param>
 		/// <returns></returns>
-		public static IBucket FromJsonFile(
+		public static IStore FromJsonFile(
 		   string bucketName,
 		   string credentialsFilePath) {
 			GoogleCredential cred = GoogleCredential.FromFile(credentialsFilePath);
 
-			return new GoogleCloudStorageBlobStorage(bucketName, cred);
+			return new GoogleCloudStore(bucketName, cred);
 		}
 
 		/// <summary>
@@ -54,7 +53,7 @@ namespace FluentStorage {
 		/// <param name="credentialsJsonString">Json string containing credentials.</param>
 		/// <param name="isBase64EncodedString">When true, <paramref name="credentialsJsonString"/> is bas64 encoded</param>
 		/// <returns></returns>
-		public static IBucket FromJson(
+		public static IStore FromJson(
 		   string bucketName,
 		   string credentialsJsonString,
 		   bool isBase64EncodedString = false) {
@@ -62,7 +61,7 @@ namespace FluentStorage {
 
 			GoogleCredential cred = GoogleCredential.FromJson(json);
 
-			return new GoogleCloudStorageBlobStorage(bucketName, cred);
+			return new GoogleCloudStore(bucketName, cred);
 		}
 	}
 }

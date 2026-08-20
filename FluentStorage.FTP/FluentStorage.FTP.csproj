@@ -10,7 +10,7 @@
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <PackageIcon>logo-nuget.png</PackageIcon>
       <Authors>Robin Rodricks, FluentStorage Contributors</Authors>
-       <Version>7.1.0</Version>
+      <Version>8.0.15</Version>
       <PackageProjectUrl>https://github.com/robinrodricks/FluentStorage</PackageProjectUrl>
       <RepositoryUrl>https://github.com/robinrodricks/FluentStorage</RepositoryUrl>
       <RepositoryType>GitHub</RepositoryType>
@@ -19,8 +19,8 @@
       <SignAssembly>True</SignAssembly>
       <AssemblyOriginatorKeyFile>..\FluentStorage\sn.snk</AssemblyOriginatorKeyFile>
       <DocumentationFile>$(SolutionDir)build\FluentStorage.FTP.xml</DocumentationFile>
-       <BaseOutputPath>$(SolutionDir)build\</BaseOutputPath>
-      
+      <BaseOutputPath>$(SolutionDir)build\</BaseOutputPath>
+      <WarningsAsErrors>CS0114;CS0507</WarningsAsErrors>
    </PropertyGroup>
 
    <ItemGroup>

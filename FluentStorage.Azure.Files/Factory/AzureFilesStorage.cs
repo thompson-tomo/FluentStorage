@@ -5,15 +5,16 @@ using Azure.Storage.Files.Shares;
 using FluentStorage.Azure.Files;
 using FluentStorage.Azure;
 using FluentStorage.Storage;
-using FluentStorage.ConnectionString;
+using FluentStorage.ConnectionStrings;
+using FluentStorage.Azure.Files.Storage;
 
 namespace FluentStorage {
 	/// <summary>
-	/// Azure Files/DataLake Factory that is accessible using `FluentStorage.StorageFactory.Blobs` by way of extension methods.
+	/// Azure Files/Data Lake Factory to create instances of `IStore` using this provider.
 	/// </summary>
 	public static class AzureFilesStorage {
 		/// <summary>
-		/// Register Azure module.
+		/// Enable Azure Files connection string support.
 		/// </summary>
 		public static void Use() {
 			FluentStorage.StorageFactory.Use(new Module());
@@ -22,13 +23,13 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Files from an existing <see cref="ShareServiceClient"/>.
 		/// </summary>
-		public static IBucket FromClient(
+		public static IStore FromClient(
 		   ShareServiceClient shareServiceClient) {
 			if (shareServiceClient is null) {
 				throw new ArgumentNullException(nameof(shareServiceClient));
 			}
 
-			return new AzureFilesBlobStore(shareServiceClient, shareServiceClient.AccountName);
+			return new AzureFilesStore(shareServiceClient, shareServiceClient.AccountName);
 		}
 
 		/// <summary>
@@ -38,7 +39,7 @@ namespace FluentStorage {
 		/// <param name="accountName">Storage Account name</param>
 		/// <param name="key">Storage Account key</param>
 		/// <returns>Generic blob storage interface</returns>
-		public static IBucket FromCredentials(
+		public static IStore FromCredentials(
 		   string accountName,
 		   string key) {
 			return FromSharedKey(accountName, key);
@@ -47,7 +48,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Files with Shared Key
 		/// </summary>
-		public static IBucket FromSharedKey(
+		public static IStore FromSharedKey(
 		   string accountName,
 		   string key,
 		   Uri serviceUri) {
@@ -57,7 +58,7 @@ namespace FluentStorage {
 		/// <summary>
 		///Creates Azure Files with Shared Key
 		/// </summary>
-		public static IBucket FromSharedKey(
+		public static IStore FromSharedKey(
 		   string accountName,
 		   string key) {
 			return FromSharedKey(accountName, key, null, default);
@@ -66,7 +67,7 @@ namespace FluentStorage {
 		/// <summary>
 		///Creates Azure Files with Shared Key
 		/// </summary>
-		public static IBucket FromSharedKey(
+		public static IStore FromSharedKey(
 		   string accountName,
 		   string key,
 		   AzureCloudEnvironment cloudEnvironment) {
@@ -76,7 +77,7 @@ namespace FluentStorage {
 		/// <summary>
 		///Creates Azure Files with Shared Key
 		/// </summary>
-		public static IBucket FromSharedKey(
+		public static IStore FromSharedKey(
 		   string accountName,
 		   string key,
 		   Uri serviceUri,
@@ -91,13 +92,13 @@ namespace FluentStorage {
 			var credential = new StorageSharedKeyCredential(accountName, key);
 			var client = new ShareServiceClient(serviceUri ?? GetServiceUri(accountName, cloudEnvironment), credential);
 
-			return new AzureFilesBlobStore(client, accountName);
+			return new AzureFilesStore(client, accountName);
 		}
 
 		/// <summary>
 		/// Create Azure Files with Azure AD 
 		/// </summary>
-		public static IBucket FromAzureAd(
+		public static IStore FromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
@@ -109,7 +110,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Create Azure Files with Azure AD and Active Directory Authority endpoint.
 		/// </summary>
-		public static IBucket FromAzureAd(
+		public static IStore FromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
@@ -120,7 +121,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Create Azure Files with Azure AD and Active Directory Authority endpoint.
 		/// </summary>
-		public static IBucket FromAzureAd(
+		public static IStore FromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
@@ -132,7 +133,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Create Azure Files with Azure AD and Active Directory Authority endpoint.
 		/// </summary>
-		public static IBucket FromAzureAd(
+		public static IStore FromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
@@ -161,13 +162,13 @@ namespace FluentStorage {
 
 			var client = new ShareServiceClient(GetServiceUri(accountName, cloudEnvironment), credential);
 
-			return new AzureFilesBlobStore(client, accountName);
+			return new AzureFilesStore(client, accountName);
 		}
 
 		/// <summary>
 		/// Create Azure Files with Token Credentials
 		/// </summary>
-		public static IBucket FromTokenCredential(
+		public static IStore FromTokenCredential(
 		   string accountName,
 		   TokenCredential tokenCredential) {
 			return FromTokenCredential(accountName, tokenCredential, default);
@@ -176,7 +177,7 @@ namespace FluentStorage {
 		/// <summary>
 		///Create Azure Files with Token Credentials
 		/// </summary>
-		public static IBucket FromTokenCredential(
+		public static IStore FromTokenCredential(
 		   string accountName,
 		   TokenCredential tokenCredential,
 		   AzureCloudEnvironment azureCloudEnvironment) {
@@ -189,13 +190,13 @@ namespace FluentStorage {
 
 			var client = new ShareServiceClient(GetServiceUri(accountName, azureCloudEnvironment), tokenCredential);
 
-			return new AzureFilesBlobStore(client, accountName);
+			return new AzureFilesStore(client, accountName);
 		}
 
 		/// <summary>
 		/// Creates Azure Files with Managed Identity (Managed Service Identity)
 		/// </summary>
-		public static IBucket FromMsi(
+		public static IStore FromMsi(
 		   string accountName,
 		   AzureCloudEnvironment azureCloudEnvironment) {
 			return FromMsi(accountName, null, azureCloudEnvironment);
@@ -204,14 +205,14 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Files with Managed Identity (Managed Service Identity)
 		/// </summary>
-		public static IBucket FromMsi(string accountName) {
+		public static IStore FromMsi(string accountName) {
 			return FromMsi(accountName, null, default);
 		}
 
 		/// <summary>
 		/// Creates Azure Files with Managed Identity (Managed Service Identity)
 		/// </summary>
-		public static IBucket FromMsi(
+		public static IStore FromMsi(
 		   string accountName,
 		   string clientId) {
 			return FromMsi(accountName, clientId, default);
@@ -220,7 +221,7 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates Azure Files with Managed Identity (Managed Service Identity)
 		/// </summary>
-		public static IBucket FromMsi(
+		public static IStore FromMsi(
 		   string accountName,
 		   string clientId,
 		   AzureCloudEnvironment azureCloudEnvironment) {
@@ -232,34 +233,34 @@ namespace FluentStorage {
 
 			var client = new ShareServiceClient(GetServiceUri(accountName, azureCloudEnvironment), credential);
 
-			return new AzureFilesBlobStore(client, accountName);
+			return new AzureFilesStore(client, accountName);
 		}
 
 		/// <summary>
 		/// Create connection string for Azure Files with Shared Key
 		/// </summary>
-		public static StorageConnectionString CreateConnectionStringFromSharedKey(
+		public static ConnectionString CreateConnectionStringFromSharedKey(
 		   string accountName,
 		   string accountKey) {
-			var cs = new StorageConnectionString(KnownPrefix.AzureFilesStorage);
-			cs.Parameters[KnownParameter.AccountName] = accountName;
-			cs.Parameters[KnownParameter.KeyOrPassword] = accountKey;
+			var cs = new ConnectionString(ConnectionStringPrefix.AzureFilesStorage);
+			cs.Parameters[ConnectionStringParam.AccountName] = accountName;
+			cs.Parameters[ConnectionStringParam.KeyOrPassword] = accountKey;
 			return cs;
 		}
 
 		/// <summary>
 		/// Create connection string for Azure Files with Azure AD
 		/// </summary>
-		public static StorageConnectionString CreateConnectionStringFromAzureAd(
+		public static ConnectionString CreateConnectionStringFromAzureAd(
 		   string accountName,
 		   string tenantId,
 		   string applicationId,
 		   string applicationSecret) {
-			var cs = new StorageConnectionString(KnownPrefix.AzureFilesStorage);
-			cs.Parameters[KnownParameter.AccountName] = accountName;
-			cs.Parameters[KnownParameter.TenantId] = tenantId;
-			cs.Parameters[KnownParameter.ClientId] = applicationId;
-			cs.Parameters[KnownParameter.ClientSecret] = applicationSecret;
+			var cs = new ConnectionString(ConnectionStringPrefix.AzureFilesStorage);
+			cs.Parameters[ConnectionStringParam.AccountName] = accountName;
+			cs.Parameters[ConnectionStringParam.TenantId] = tenantId;
+			cs.Parameters[ConnectionStringParam.ClientId] = applicationId;
+			cs.Parameters[ConnectionStringParam.ClientSecret] = applicationSecret;
 			return cs;
 		}
 

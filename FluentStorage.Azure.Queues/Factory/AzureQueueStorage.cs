@@ -1,12 +1,13 @@
 ﻿using System;
-using FluentStorage.ConnectionString;
+using FluentStorage.ConnectionStrings;
 using FluentStorage.Queue;
 using FluentStorage.Azure.Queues;
+using FluentStorage.Azure.Queues.Messenger;
 
 namespace FluentStorage {
 	public static class AzureQueueStorage {
 		/// <summary>
-		/// Register Azure module.
+		/// Enable Azure Queue connection string support.
 		/// </summary>
 		public static void Use() {
 			StorageFactory.Use(new Module());
@@ -15,7 +16,6 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates an instance of a publisher to Azure Storage Queues
 		/// </summary>
-		/// <param name="factory">Factory reference</param>
 		/// <param name="accountName">Account name. Must not be <see langword="null"/> or empty.</param>
 		/// <param name="storageKey">Storage key. Must not be <see langword="null"/> or empty.</param>
 		/// <param name="serviceUri">Alternative service uri. Pass <see langword="null"/> for default.</param>
@@ -25,20 +25,20 @@ namespace FluentStorage {
 		   string storageKey,
 		   Uri serviceUri = null) {
 			if (serviceUri == null)
-				return new AzureStorageQueueMessenger(accountName, storageKey);
+				return new AzureQueueMessenger(accountName, storageKey);
 
-			return new AzureStorageQueueMessenger(accountName, storageKey, serviceUri);
+			return new AzureQueueMessenger(accountName, storageKey, serviceUri);
 		}
 
 		/// <summary>
 		/// Create a new connection string to connect to Azure Queue
 		/// </summary>
-		public static StorageConnectionString CreateConnectionStringFromSharedKey(
+		public static ConnectionString CreateConnectionStringFromSharedKey(
 		   string accountName,
 		   string accountKey) {
-			var cs = new StorageConnectionString(KnownPrefix.AzureQueueStorage);
-			cs.Parameters[KnownParameter.AccountName] = accountName;
-			cs.Parameters[KnownParameter.KeyOrPassword] = accountKey;
+			var cs = new ConnectionString(ConnectionStringPrefix.AzureQueueStorage);
+			cs.Parameters[ConnectionStringParam.AccountName] = accountName;
+			cs.Parameters[ConnectionStringParam.KeyOrPassword] = accountKey;
 			return cs;
 		}
 	}

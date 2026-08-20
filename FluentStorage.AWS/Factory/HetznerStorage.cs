@@ -1,7 +1,10 @@
-﻿using FluentStorage.AWS.Blobs;
+﻿using FluentStorage.AWS.Storage;
 using FluentStorage.Storage;
 
 namespace FluentStorage.AWS.Factory {
+	/// <summary>
+	/// Hetzner Object Storage factory to create instances of `IStore` using this provider.
+	/// </summary>
 	public static class HetznerStorage {
 
 		/// <summary>
@@ -13,7 +16,7 @@ namespace FluentStorage.AWS.Factory {
 		/// <param name="region">Storage region (e.g. `fsn1`, `nbg1`, `hel1`)</param>
 		/// <param name="sessionToken">Optional. Only required when using session credentials.</param>
 		/// <returns>A reference to the created storage</returns>
-		public static IBucket FromCredentials(
+		public static IStore FromCredentials(
 			string accessKeyId,
 			string secretAccessKey,
 			string bucketName,

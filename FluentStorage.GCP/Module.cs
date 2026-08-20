@@ -1,12 +1,12 @@
 ﻿using FluentStorage.Storage;
-using FluentStorage.ConnectionString;
+using FluentStorage.ConnectionStrings;
 using FluentStorage.Queue;
 
-namespace FluentStorage.Gcp.CloudStorage {
+namespace FluentStorage.GCP {
 	class Module : IExternalModule, IConnectionFactory {
 		public IConnectionFactory ConnectionFactory => new Module();
 
-		public IBucket CreateBlobStorage(StorageConnectionString connectionString) {
+		public IStore CreateStore(ConnectionString connectionString) {
 			if (connectionString.Prefix == "google.storage") {
 				connectionString.GetRequired("bucket", true, out string bucketName);
 				string base64EncodedJson = connectionString.Get("cred");
@@ -22,6 +22,6 @@ namespace FluentStorage.Gcp.CloudStorage {
 			return null;
 		}
 
-		public IQueue CreateMessenger(StorageConnectionString connectionString) => null;
+		public IQueue CreateQueue(ConnectionString connectionString) => null;
 	}
 }

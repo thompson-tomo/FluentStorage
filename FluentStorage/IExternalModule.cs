@@ -1,4 +1,4 @@
-﻿using FluentStorage.ConnectionString;
+﻿using FluentStorage.ConnectionStrings;
 
 namespace FluentStorage {
 	/// <summary>

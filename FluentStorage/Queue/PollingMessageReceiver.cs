@@ -26,12 +26,12 @@ namespace FluentStorage.Queue {
 		/// <summary>
 		/// See interface
 		/// </summary>
-		public abstract Task ConfirmMessagesAsync(IReadOnlyCollection<QueueMessage> messages, CancellationToken cancellationToken = default);
+		public abstract Task ConfirmMessagesAsync(List<QueueMessage> messages, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// See interface
 		/// </summary>
-		public abstract Task DeadLetterAsync(QueueMessage message, string reason, string errorDescription, CancellationToken cancellationToken = default);
+		public abstract Task DeadLetterMessage(QueueMessage message, string reason, string errorDescription, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// See interface
@@ -39,18 +39,11 @@ namespace FluentStorage.Queue {
 		public virtual void Dispose() {
 		}
 
-		/// <summary>
-		/// See interface
-		/// </summary>
-		public virtual Task<ITransaction> OpenTransactionAsync() {
-			return Task.FromResult(EmptyTransaction.Instance);
-		}
-
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 		/// <summary>
 		/// See interface
 		/// </summary>
-		public Task StartMessagePumpAsync(Func<IReadOnlyCollection<QueueMessage>, CancellationToken, Task> onMessageAsync, int maxBatchSize = 1, CancellationToken cancellationToken = default)
+		public Task StartMessagePump(Func<List<QueueMessage>, CancellationToken, Task> onMessageAsync, int maxBatchSize = 1, CancellationToken cancellationToken = default)
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 		{
 			if (onMessageAsync == null) throw new ArgumentNullException(nameof(onMessageAsync));
@@ -60,9 +53,9 @@ namespace FluentStorage.Queue {
 			return Task.FromResult(true);
 		}
 
-		private async Task PollTasksAsync(Func<IReadOnlyCollection<QueueMessage>, CancellationToken, Task> callback, int maxBatchSize, CancellationToken cancellationToken) {
+		private async Task PollTasksAsync(Func<List<QueueMessage>, CancellationToken, Task> callback, int maxBatchSize, CancellationToken cancellationToken = default) {
 			try {
-				IReadOnlyCollection<QueueMessage> messages = await ReceiveMessagesSafeAsync(maxBatchSize, cancellationToken).ConfigureAwait(false);
+				List<QueueMessage> messages = await ReceiveMessagesSafeAsync(maxBatchSize, cancellationToken).ConfigureAwait(false);
 				while (messages != null && messages.Count > 0) {
 					await callback(messages, cancellationToken).ConfigureAwait(false);
 
@@ -84,9 +77,9 @@ namespace FluentStorage.Queue {
 			}
 		}
 
-		private async Task<IReadOnlyCollection<QueueMessage>> ReceiveMessagesSafeAsync(int maxBatchSize, CancellationToken cancellationToken) {
+		private async Task<List<QueueMessage>> ReceiveMessagesSafeAsync(int maxBatchSize, CancellationToken cancellationToken = default) {
 			try {
-				IReadOnlyCollection<QueueMessage> messages = await ReceiveMessagesAsync(maxBatchSize, cancellationToken).ConfigureAwait(false);
+				List<QueueMessage> messages = await ReceiveMessagesAsync(maxBatchSize, cancellationToken).ConfigureAwait(false);
 
 				return messages;
 			}
@@ -103,12 +96,12 @@ namespace FluentStorage.Queue {
 		/// <summary>
 		/// See interface
 		/// </summary>
-		protected abstract Task<IReadOnlyCollection<QueueMessage>> ReceiveMessagesAsync(int maxBatchSize, CancellationToken cancellationToken);
+		protected abstract Task<List<QueueMessage>> ReceiveMessagesAsync(int maxBatchSize, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// See interface
 		/// </summary>
-		public Task KeepAliveAsync(QueueMessage message, TimeSpan? timeToLive = null, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+		public Task KeepAlive(QueueMessage message, TimeSpan? timeToLive = null, CancellationToken cancellationToken = default) => throw new NotSupportedException();
 
 		/// <summary>
 		/// see interface
@@ -116,7 +109,7 @@ namespace FluentStorage.Queue {
 		/// <param name="maxMessages"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		public virtual Task<IReadOnlyCollection<QueueMessage>> PeekMessagesAsync(int maxMessages, CancellationToken cancellationToken = default) {
+		public virtual Task<List<QueueMessage>> PeekMessages(int maxMessages, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 	}

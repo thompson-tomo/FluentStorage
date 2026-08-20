@@ -9,7 +9,6 @@
 	/// <see cref="Stream"/> extension
 	/// </summary>
 	public static class StreamExtensions {
-		#region [ General ]
 
 		/// <summary>
 		/// Attemps to get the size of this stream by reading the Length property, otherwise returns 0.
@@ -42,9 +41,7 @@
 			return null;
 		}
 
-		#endregion
 
-		#region [ Seek and Read ]
 
 		/// <summary>
 		/// Reads the stream until a specified sequence of bytes is reached.
@@ -72,9 +69,7 @@
 			return result.ToArray();
 		}
 
-		#endregion
 
-		#region [ Stream Conversion ]
 
 		/// <summary>
 		/// Reads all stream in memory and returns as byte array
@@ -101,23 +96,6 @@
 			using (StreamReader reader = new StreamReader(stream, encoding)) {
 				return reader.ReadToEnd();
 			}
-		}
-
-		#endregion
-
-		public static byte[] MD5(this Stream? bytes) {
-			if (bytes == null)
-				return null;
-
-			// A HashAlgorithm instance is not thread-safe, so it must never be shared across threads
-			// (https://github.com/robinrodricks/FluentStorage/issues/72). Use the allocation-free,
-			// thread-safe one-shot API where available, and a per-call instance on older targets.
-#if NET5_0_OR_GREATER
-			return Crypto.MD5.HashData(bytes);
-#else
-			using var md5 = Crypto.MD5.Create();
-			return md5.ComputeHash(bytes);
-#endif
 		}
 
 	}

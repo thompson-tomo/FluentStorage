@@ -1,5 +1,5 @@
 ﻿using FluentStorage.Storage;
-using FluentStorage.ConnectionString;
+using FluentStorage.ConnectionStrings;
 using FluentStorage.Queue;
 
 namespace FluentStorage.SFTP {
@@ -7,7 +7,7 @@ namespace FluentStorage.SFTP {
 	/// The <see cref="T:FluentStorage.SFTP.ConnectionFactory"/> class is responsible for creating
 	/// <see cref="T:FluentStorage.SFTP.SshNetSftpBlobStorage"/> instances from supported connection strings.
 	/// </summary>
-	/// <seealso cref="T:FluentStorage.ConnectionString.IConnectionFactory" />
+	/// <seealso cref="T:FluentStorage.ConnectionStrings.IConnectionFactory" />
 	class ConnectionFactory : IConnectionFactory {
 		/// <summary>
 		/// The default port for SFTP connections.
@@ -19,7 +19,7 @@ namespace FluentStorage.SFTP {
 		/// </summary>
 		/// <param name="connectionString">The connection string to parse.</param>
 		/// <returns></returns>
-		public IBucket CreateBlobStorage(StorageConnectionString connectionString) {
+		public IStore CreateStore(ConnectionString connectionString) {
 			if (connectionString.Prefix == "sftp") {
 				connectionString.GetRequired("host", true, out string host);
 				connectionString.GetRequired("user", true, out string user);
@@ -28,7 +28,7 @@ namespace FluentStorage.SFTP {
 
 				ushort port = ushort.TryParse(connectionString.Get("port"), out port) ? port : DefaultPort;
 
-				return new SshNetSftpBlobStorage(host, port, user, password, path);
+				return new SftpStore(host, port, user, password, path);
 			}
 
 			return null;
@@ -39,6 +39,6 @@ namespace FluentStorage.SFTP {
 		/// </summary>
 		/// <param name="connectionString">The connection string to parse.</param>
 		/// <returns></returns>
-		public IQueue CreateMessenger(StorageConnectionString connectionString) => null;
+		public IQueue CreateQueue(ConnectionString connectionString) => null;
 	}
 }

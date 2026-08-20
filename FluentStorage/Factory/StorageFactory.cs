@@ -1,6 +1,5 @@
 ﻿using FluentStorage.Storage;
-using FluentStorage.Storage.Files;
-using FluentStorage.ConnectionString;
+using FluentStorage.ConnectionStrings;
 using FluentStorage.Queue;
 using System;
 
@@ -26,9 +25,9 @@ namespace FluentStorage {
 		}
 
 		/// <summary>
-		/// Creates a blob storage instance from a connection string
+		/// Creates a IStore instance from a connection string.
 		/// </summary>
-		public static IBucket FromConnectionString(string connectionString) {
+		public static IStore FromConnectionString(string connectionString) {
 			return ConnectionStringFactory.CreateBlobStorage(connectionString);
 		}
 
@@ -36,15 +35,8 @@ namespace FluentStorage {
 		/// Creates an instance in a specific disk directory
 		/// <param name="directoryFullName">Root directory</param>
 		/// </summary>
-		public static IBucket DirectoryFiles(string directoryFullName) {
-			return new DiskDirectoryBlobStorage(directoryFullName);
-		}
-
-		/// <summary>
-		/// Zip file
-		/// </summary>
-		public static IBucket ZipFile(string filePath) {
-			return new ZipFileBlobStorage(filePath);
+		public static IStore Disk(string directoryFullName) {
+			return new DiskStore(directoryFullName);
 		}
 
 		/// <summary>
@@ -52,15 +44,8 @@ namespace FluentStorage {
 		/// take much space.
 		/// </summary>
 		/// <returns>In-memory blob storage instance</returns>
-		public static IBucket InMemory() {
-			return new InMemoryBlobStorage();
-		}
-
-		/// <summary>
-		/// Creates a virtual storage where you can mount other storage providers to a specific virtual directory
-		/// </summary>
-		public static IVirtualStorage Virtual() {
-			return new VirtualStorage();
+		public static IStore InMemory() {
+			return new MemoryStore();
 		}
 
 	}

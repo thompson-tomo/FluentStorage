@@ -12,7 +12,7 @@ namespace FluentStorage.Azure.ServiceBus.Messenger {
 	/// <summary>
 	/// Messenger service for Azure ServiceBus, cast to IAzureServiceBusMessenger to access utility methods for queues, topics and subscriptions
 	/// </summary>
-	public class AzureServiceBusMessenger : IAzureServiceBusMessenger {
+	public class AzureServiceBusMessenger : IAzureServiceBus {
 
 		private readonly ServiceBusClient _mgmt;
 		private readonly ServiceBusAdministrationClient _mgmtAdminClient;
@@ -22,14 +22,14 @@ namespace FluentStorage.Azure.ServiceBus.Messenger {
 		private readonly ConcurrentDictionary<string, ServiceBusReceiver> _channelNameToMessageReceiver = new();
 
 		internal AzureServiceBusMessenger(string connectionString) {
-			_options         = new AzureServiceBusMessengerOptions();
-			_mgmt            = new ServiceBusClient(connectionString);
+			_options = new AzureServiceBusMessengerOptions();
+			_mgmt = new ServiceBusClient(connectionString);
 			_mgmtAdminClient = new ServiceBusAdministrationClient(connectionString);
 		}
 
 		internal AzureServiceBusMessenger(string connectionString, AzureServiceBusMessengerOptions options) {
-			_options         = options;
-			_mgmt            = new ServiceBusClient(connectionString, options.ClientOptions);
+			_options = options;
+			_mgmt = new ServiceBusClient(connectionString, options.ClientOptions);
 			_mgmtAdminClient = new ServiceBusAdministrationClient(connectionString, options.AdminClientOptions);
 		}
 
@@ -41,31 +41,30 @@ namespace FluentStorage.Azure.ServiceBus.Messenger {
 			var channel = channelName.ToServiceBusChannel();
 
 			return channel.IsQueue || channel.Subscription == ""
-				       ? _channelNameToMessageReceiver.GetOrAdd(channelName, _mgmt.CreateReceiver(channel.Name, _options.ReceiverOptions))
-				       : _channelNameToMessageReceiver.GetOrAdd(channelName,
-					       _mgmt.CreateReceiver(channel.Name, channel.Subscription, _options.ReceiverOptions));
+					   ? _channelNameToMessageReceiver.GetOrAdd(channelName, _mgmt.CreateReceiver(channel.Name, _options.ReceiverOptions))
+					   : _channelNameToMessageReceiver.GetOrAdd(channelName,
+						   _mgmt.CreateReceiver(channel.Name, channel.Subscription, _options.ReceiverOptions));
 		}
 
-		#region [ IMessenger ]
 
-		public async Task CreateChannelsAsync(IEnumerable<string> channelNames,
-		                                      CancellationToken cancellationToken = default) {
+		public async Task CreateChannels(IEnumerable<string> channelNames,
+											  CancellationToken cancellationToken = default) {
 			foreach (string channelName in channelNames) {
 				var channel = channelName.ToServiceBusChannel();
 
 				if (channel.IsQueue) {
-					await CreateQueueAsync(channel.Name, cancellationToken);
+					await CreateQueue(channel.Name, cancellationToken);
 				}
 				else if (!string.IsNullOrEmpty(channel.Subscription)) {
-					await CreateSubScriptionAsync(channel.Name, channel.Subscription, cancellationToken);
+					await CreateSubscription(channel.Name, channel.Subscription, cancellationToken);
 				}
 				else if (!await _mgmtAdminClient.TopicExistsAsync(channel.Name, cancellationToken).ConfigureAwait(false)) {
-					await CreateTopicAsync(channel.Name, cancellationToken);
+					await CreateTopic(channel.Name, cancellationToken);
 				}
 			}
 		}
 
-		public async Task<IReadOnlyCollection<string>> ListChannelsAsync(CancellationToken cancellationToken = default) {
+		public async Task<List<string>> ListChannels(CancellationToken cancellationToken = default) {
 			var channels = new List<string>();
 
 			var queues = _mgmtAdminClient.GetQueuesAsync(cancellationToken).ConfigureAwait(false);
@@ -95,7 +94,7 @@ namespace FluentStorage.Azure.ServiceBus.Messenger {
 			return channels;
 		}
 
-		public async Task DeleteChannelsAsync(IEnumerable<string> channelNames, CancellationToken cancellationToken = default) {
+		public async Task DeleteChannels(IEnumerable<string> channelNames, CancellationToken cancellationToken = default) {
 			if (channelNames is null)
 				throw new ArgumentNullException(nameof(channelNames));
 
@@ -103,34 +102,34 @@ namespace FluentStorage.Azure.ServiceBus.Messenger {
 				var channel = channelName.ToServiceBusChannel();
 
 				if (channel.IsQueue) {
-					await DeleteQueueAsync(channel.Name, cancellationToken);
+					await DeleteQueue(channel.Name, cancellationToken);
 				}
 				else if (channel.Subscription != "") {
-					await DeleteSubScriptionAsync(channel.Name, channel.Subscription, cancellationToken);
+					await DeleteSubscription(channel.Name, channel.Subscription, cancellationToken);
 				}
 				else {
-					await DeleteTopicAsync(channel.Name, cancellationToken);
+					await DeleteTopic(channel.Name, cancellationToken);
 				}
 			}
 		}
 
-		public async Task<long> GetMessageCountAsync(string channelName, CancellationToken cancellationToken = default) {
+		public async Task<long> GetMessageCount(string channelName, CancellationToken cancellationToken = default) {
 			if (channelName is null)
 				throw new ArgumentNullException(nameof(channelName));
 
 			var channel = channelName.ToServiceBusChannel();
 
 			if (channel.IsQueue)
-				return await CountQueueAsync(channel.Name, cancellationToken);
+				return await CountQueue(channel.Name, cancellationToken);
 
 			if (channel.Subscription != "")
-				return await CountSubScriptionAsync(channel.Name, channel.Subscription, cancellationToken);
+				return await CountSubscription(channel.Name, channel.Subscription, cancellationToken);
 
-			return await CountTopicAsync(channel.Name, cancellationToken);
+			return await CountTopic(channel.Name, cancellationToken);
 		}
 
-		public async Task SendAsync(string channelName, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) {
-			var client       = CreateOrGetSenderClient(channelName);
+		public async Task SendMessages(string channelName, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) {
+			var client = CreateOrGetSenderClient(channelName);
 			var messageQueue = new Queue<ServiceBusMessage>();
 
 			foreach (var queueMessage in messages.Select(Converter.ToMessage)) {
@@ -161,8 +160,8 @@ namespace FluentStorage.Azure.ServiceBus.Messenger {
 			}
 		}
 
-		public async Task<IReadOnlyCollection<QueueMessage>> ReceiveAsync(string channelName, int count = 100, TimeSpan? visibility = null,
-		                                                                   CancellationToken cancellationToken = default) {
+		public async Task<List<QueueMessage>> ReceiveMessages(string channelName, int count = 100, TimeSpan? visibility = null,
+																		   CancellationToken cancellationToken = default) {
 			if (channelName is null)
 				throw new ArgumentNullException(nameof(channelName));
 
@@ -172,7 +171,7 @@ namespace FluentStorage.Azure.ServiceBus.Messenger {
 			return messages.Select(Converter.ToQueueMessage).ToList();
 		}
 
-		public async Task<IReadOnlyCollection<QueueMessage>> PeekAsync(string channelName, int count = 100, CancellationToken cancellationToken = default) {
+		public async Task<List<QueueMessage>> PeekMessages(string channelName, int count = 100, CancellationToken cancellationToken = default) {
 			if (channelName is null)
 				throw new ArgumentNullException(nameof(channelName));
 
@@ -183,11 +182,11 @@ namespace FluentStorage.Azure.ServiceBus.Messenger {
 		}
 
 		/// <exception cref="NotImplementedException"></exception>
-		public Task DeleteAsync(string channelName, IEnumerable<QueueMessage> messages,
-		                        CancellationToken cancellationToken = default) => throw new NotImplementedException();
+		public Task DeleteMessages(string channelName, IEnumerable<QueueMessage> messages,
+								CancellationToken cancellationToken = default) => throw new NotImplementedException();
 
 		/// <exception cref="NotImplementedException"></exception>
-		public Task StartMessageProcessorAsync(string channelName, IQueueProcessor messageProcessor) =>
+		public Task StartMessageProcessor(string channelName, IQueueProcessor messageProcessor) =>
 			throw new NotImplementedException();
 
 		public void Dispose() {
@@ -202,69 +201,67 @@ namespace FluentStorage.Azure.ServiceBus.Messenger {
 			_mgmt.DisposeAsync();
 		}
 
-		#endregion
 
-		#region [ IAzureServiceBusMessenger ]
 
-		public async Task SendToQueueAsync(string queue, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) {
+		public async Task SendToQueue(string queue, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) {
 			var channel = $"{AzureServiceBusChannel.QueuePrefix}{queue}";
-			await SendAsync(channel, messages, cancellationToken);
+			await SendMessages(channel, messages, cancellationToken);
 		}
 
-		public async Task SendToQueueAsync(string queue, QueueMessage message, CancellationToken cancellationToken = default) {
+		public async Task SendToQueue(string queue, QueueMessage message, CancellationToken cancellationToken = default) {
 			var channel = $"{AzureServiceBusChannel.QueuePrefix}{queue}";
-			await SendAsync(channel, new []{message}, cancellationToken);
+			await SendMessages(channel, new[] { message }, cancellationToken);
 		}
 
-		public async Task SendToTopicAsync(string topic, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) {
+		public async Task SendToTopic(string topic, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) {
 			var channel = $"{AzureServiceBusChannel.TopicPrefix}{topic}";
-			await SendAsync(channel, messages, cancellationToken);
+			await SendMessages(channel, messages, cancellationToken);
 		}
 
-		public async Task SendToTopicAsync(string topic, QueueMessage message, CancellationToken cancellationToken = default) {
+		public async Task SendToTopic(string topic, QueueMessage message, CancellationToken cancellationToken = default) {
 			var channel = $"{AzureServiceBusChannel.TopicPrefix}{topic}";
-			await SendAsync(channel, new []{message}, cancellationToken);
+			await SendMessages(channel, new[] { message }, cancellationToken);
 		}
-		public async Task SendToSubscriptionAsync(string topic, string subscription, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) {
+		public async Task SendToSubscription(string topic, string subscription, IEnumerable<QueueMessage> messages, CancellationToken cancellationToken = default) {
 			var channel = $"{AzureServiceBusChannel.TopicPrefix}{topic}/{subscription}";
-			await SendAsync(channel, messages, cancellationToken);
+			await SendMessages(channel, messages, cancellationToken);
 		}
 
-		public async Task SendToSubscriptionAsync(string topic, string subscription, QueueMessage message, CancellationToken cancellationToken = default) {
+		public async Task SendToSubscription(string topic, string subscription, QueueMessage message, CancellationToken cancellationToken = default) {
 			var channel = $"{AzureServiceBusChannel.TopicPrefix}{topic}/{subscription}";
-			await SendAsync(channel, new []{message}, cancellationToken);
+			await SendMessages(channel, new[] { message }, cancellationToken);
 		}
-		public async Task CreateQueueAsync(string queue, CancellationToken cancellationToken = default) {
+		public async Task CreateQueue(string queue, CancellationToken cancellationToken = default) {
 			if (!await _mgmtAdminClient.QueueExistsAsync(queue, cancellationToken).ConfigureAwait(false))
 				await _mgmtAdminClient.CreateQueueAsync(queue, cancellationToken);
 		}
 
-		public async Task CreateTopicAsync(string topic,CancellationToken cancellationToken = default) {
-			if ( !await _mgmtAdminClient.TopicExistsAsync(topic, cancellationToken).ConfigureAwait(false))
+		public async Task CreateTopic(string topic, CancellationToken cancellationToken = default) {
+			if (!await _mgmtAdminClient.TopicExistsAsync(topic, cancellationToken).ConfigureAwait(false))
 				await _mgmtAdminClient.CreateTopicAsync(topic, cancellationToken);
 		}
 
-		public async Task CreateSubScriptionAsync(string topic, string subscription, CancellationToken cancellationToken = default) {
-			if ( !await _mgmtAdminClient.SubscriptionExistsAsync(topic, subscription, cancellationToken).ConfigureAwait(false))
+		public async Task CreateSubscription(string topic, string subscription, CancellationToken cancellationToken = default) {
+			if (!await _mgmtAdminClient.SubscriptionExistsAsync(topic, subscription, cancellationToken).ConfigureAwait(false))
 				await _mgmtAdminClient.CreateSubscriptionAsync(topic, subscription, cancellationToken);
 		}
 
-		public async Task DeleteQueueAsync(string queue, CancellationToken cancellationToken = default) {
+		public async Task DeleteQueue(string queue, CancellationToken cancellationToken = default) {
 			if (!await _mgmtAdminClient.QueueExistsAsync(queue, cancellationToken).ConfigureAwait(false))
 				await _mgmtAdminClient.DeleteQueueAsync(queue, cancellationToken);
 		}
 
-		public async Task DeleteSubScriptionAsync(string topic, string subscription, CancellationToken cancellationToken = default) {
-			if ( !await _mgmtAdminClient.SubscriptionExistsAsync(topic, subscription, cancellationToken).ConfigureAwait(false))
+		public async Task DeleteSubscription(string topic, string subscription, CancellationToken cancellationToken = default) {
+			if (!await _mgmtAdminClient.SubscriptionExistsAsync(topic, subscription, cancellationToken).ConfigureAwait(false))
 				await _mgmtAdminClient.DeleteSubscriptionAsync(topic, subscription, cancellationToken);
 		}
 
-		public async Task DeleteTopicAsync(string topic,CancellationToken cancellationToken = default) {
-			if ( !await _mgmtAdminClient.TopicExistsAsync(topic, cancellationToken).ConfigureAwait(false))
+		public async Task DeleteTopic(string topic, CancellationToken cancellationToken = default) {
+			if (!await _mgmtAdminClient.TopicExistsAsync(topic, cancellationToken).ConfigureAwait(false))
 				await _mgmtAdminClient.DeleteTopicAsync(topic, cancellationToken);
 		}
 
-		public async Task<long> CountQueueAsync(string queue, CancellationToken cancellationToken = default) {
+		public async Task<long> CountQueue(string queue, CancellationToken cancellationToken = default) {
 			if (!await _mgmtAdminClient.QueueExistsAsync(queue, cancellationToken).ConfigureAwait(false)) {
 				var qinfo = await _mgmtAdminClient.GetQueueRuntimePropertiesAsync(queue, cancellationToken);
 				return qinfo.HasValue ? qinfo.Value.TotalMessageCount : 0;
@@ -272,7 +269,7 @@ namespace FluentStorage.Azure.ServiceBus.Messenger {
 			return 0;
 		}
 
-		public async Task<long> CountSubScriptionAsync(string topic, string subscription, CancellationToken cancellationToken = default) {
+		public async Task<long> CountSubscription(string topic, string subscription, CancellationToken cancellationToken = default) {
 			if (await _mgmtAdminClient.SubscriptionExistsAsync(topic, subscription, cancellationToken).ConfigureAwait(false)) {
 				var topicInfo = await _mgmtAdminClient.GetSubscriptionRuntimePropertiesAsync(topic, subscription, cancellationToken);
 				return topicInfo.HasValue ? topicInfo.Value.TotalMessageCount : 0;
@@ -280,7 +277,7 @@ namespace FluentStorage.Azure.ServiceBus.Messenger {
 			return 0;
 		}
 
-		public async Task<long> CountTopicAsync(string topic,CancellationToken cancellationToken = default) {
+		public async Task<long> CountTopic(string topic, CancellationToken cancellationToken = default) {
 			if (await _mgmtAdminClient.TopicExistsAsync(topic, cancellationToken).ConfigureAwait(false)) {
 				var topicInfo = await _mgmtAdminClient.GetTopicRuntimePropertiesAsync(topic, cancellationToken);
 				return topicInfo.HasValue ? topicInfo.Value.ScheduledMessageCount : 0;
@@ -288,6 +285,5 @@ namespace FluentStorage.Azure.ServiceBus.Messenger {
 			return 0;
 		}
 
-		#endregion
 	}
 }

@@ -2,21 +2,21 @@
 using Amazon.Runtime;
 using Amazon.S3;
 using FluentStorage.AWS.Messaging;
-using FluentStorage.AWS.Blobs;
+using FluentStorage.AWS.Storage;
 using FluentStorage.Storage;
 using FluentStorage.Queue;
 using FluentStorage.AWS;
-using FluentStorage.ConnectionString;
+using FluentStorage.ConnectionStrings;
 using Amazon.S3.Transfer;
 
 namespace FluentStorage {
 	/// <summary>
-	/// Amazon Web Services S3 and S3-compatible factory that is accessible using `FluentStorage.StorageFactory.Blobs` by way of extension methods.
+	/// Amazon Web Services S3 factory to create instances of `IStore` using this provider.
 	/// </summary>
 	public static class AwsS3Storage {
 
 		/// <summary>
-		/// Register Azure module.
+		/// Enable AWS S3 connection string support.
 		/// </summary>
 		public static void Use() {
 			StorageFactory.Use(new AwsStorageModule());
@@ -26,11 +26,10 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates an Amazon S3 storage using assumed role permissions (useful when running the code wform within ECS tasks or lambda where you don't need to provide and manage accessKeys and secrets as the permissions are assumed via the IAM role the lambda or ecs tasks has assigned to it)
 		/// </summary>
-		/// <param name="factory">Factory reference</param>
 		/// <param name="bucketName">Bucket name</param>
 		/// <param name="region">Required regional endpoint.</param>
 		/// <returns>A reference to the created storage</returns>
-		public static IBucket FromRole(
+		public static IStore FromRole(
 		   string bucketName,
 		   string region) {
 			return new S3Store(bucketName, region);
@@ -39,7 +38,6 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates an Amazon S3 storage
 		/// </summary>
-		/// <param name="factory">Factory reference</param>
 		/// <param name="accessKeyId">Access key ID</param>
 		/// <param name="secretAccessKey">Secret access key</param>
 		/// /// <param name="sessionToken">Optional. Only required when using session credentials.</param>
@@ -47,7 +45,7 @@ namespace FluentStorage {
 		/// <param name="region">Region endpoint</param>
 		/// <param name="serviceUrl">S3-compatible service location</param>
 		/// <returns>A reference to the created storage</returns>
-		public static IBucket FromCredentials(
+		public static IStore FromCredentials(
 		   string accessKeyId,
 		   string secretAccessKey,
 		   string sessionToken,
@@ -60,7 +58,6 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates an Amazon S3 storage provider for a custom S3-compatible storage server
 		/// </summary>
-		/// <param name="factory">Factory reference</param>
 		/// <param name="accessKeyId">Access key ID</param>
 		/// <param name="secretAccessKey">Secret access key</param>
 		/// <param name="sessionToken">Optional. Only required when using session credentials.</param>
@@ -68,7 +65,7 @@ namespace FluentStorage {
 		/// <param name="clientConfig">S3 client configuration</param>
 		/// <param name="transferUtilityConfig">S3 transfer utility configuration</param>
 		/// <returns>A reference to the created storage</returns>
-		public static IBucket FromThirdPartyCredentials(
+		public static IStore FromThirdPartyCredentials(
 		   string accessKeyId,
 		   string secretAccessKey,
 		   string sessionToken,
@@ -83,12 +80,11 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates an Amazon S3 storage provider using credentials from AWS CLI configuration file (~/.aws/credentials)
 		/// </summary>
-		/// <param name="factory">Factory reference</param>
 		/// <param name="awsCliProfileName"></param>
 		/// <param name="bucketName">Bucket name</param>
 		/// <param name="region"></param>
 		/// <returns>A reference to the created storage</returns>
-		public static IBucket FromConfigFile(
+		public static IStore FromConfigFile(
 		   string awsCliProfileName,
 		   string bucketName,
 		   string region) {
@@ -98,12 +94,11 @@ namespace FluentStorage {
 		/// <summary>
 		/// Creates an Amazon S3 storage provider using credentials retrieved from SSO.
 		/// </summary>
-		/// <param name="factory">Factory reference</param>
 		/// <param name="credentials"></param>
 		/// <param name="bucketName">Bucket name</param>
 		/// <param name="region"></param>
 		/// <returns>A reference to the created storage</returns>
-		public static IBucket FromSSO(
+		public static IStore FromSSO(
 		   AWSCredentials credentials,
 		   string bucketName,
 		   string region) {
@@ -112,7 +107,6 @@ namespace FluentStorage {
 #endif
 
 
-		#region [ Connection Strings ]
 
 		/// <summary>
 		/// Creates a connection string from AWS CLI profile name
@@ -122,7 +116,7 @@ namespace FluentStorage {
 		/// <param name="bucketName"></param>
 		/// <param name="region"></param>
 		/// <returns></returns>
-		public static StorageConnectionString CreateConnectionStringFromCliProfile(
+		public static ConnectionString CreateConnectionStringFromCliProfile(
 		   string profileName,
 		   string bucketName,
 		   string region) {
@@ -132,13 +126,12 @@ namespace FluentStorage {
 				throw new System.ArgumentNullException(nameof(bucketName));
 			if (region is null)
 				throw new System.ArgumentNullException(nameof(region));
-			var cs = new StorageConnectionString(KnownPrefix.AwsS3 + "://");
-			cs[KnownParameter.LocalProfileName] = profileName;
-			cs[KnownParameter.BucketName] = bucketName;
-			cs[KnownParameter.Region] = region;
+			var cs = new ConnectionString(ConnectionStringPrefix.AwsS3 + "://");
+			cs[ConnectionStringParam.LocalProfileName] = profileName;
+			cs[ConnectionStringParam.BucketName] = bucketName;
+			cs[ConnectionStringParam.Region] = region;
 			return cs;
 		}
 
-		#endregion
 	}
 }

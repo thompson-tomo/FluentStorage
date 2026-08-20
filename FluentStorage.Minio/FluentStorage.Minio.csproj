@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+   <PropertyGroup>
+      <AssemblyTitle>FluentStorage.Minio</AssemblyTitle>
+      <TargetFrameworks>netstandard2.0;netstandard2.1;net70;net80;net90</TargetFrameworks>
+      <AssemblyName>FluentStorage.Minio</AssemblyName>
+      <PackageId>FluentStorage.Minio</PackageId>
+      <Description>Extension to FluentStorage providing integration with Minio storage.</Description>
+      <Copyright>Copyright (c) 2023 Robin Rodricks and FluentStorage Contributors</Copyright>
+      <GenerateDocumentationFile>true</GenerateDocumentationFile>
+      <PackageIcon>logo-nuget.png</PackageIcon>
+      <Authors>Robin Rodricks, FluentStorage Contributors</Authors>
+      <Version>8.0.10</Version>
+      <PackageProjectUrl>https://github.com/robinrodricks/FluentStorage</PackageProjectUrl>
+      <RepositoryUrl>https://github.com/robinrodricks/FluentStorage</RepositoryUrl>
+      <RepositoryType>GitHub</RepositoryType>
+      <PackageLicenseExpression>MIT</PackageLicenseExpression>
+      <LangVersion>latest</LangVersion>
+      <SignAssembly>True</SignAssembly>
+      <AssemblyOriginatorKeyFile>..\FluentStorage\sn.snk</AssemblyOriginatorKeyFile>
+      <DocumentationFile>$(SolutionDir)build\FluentStorage.Minio.xml</DocumentationFile>
+      <BaseOutputPath>$(SolutionDir)build\</BaseOutputPath>
+      <WarningsAsErrors>CS0114;CS0507</WarningsAsErrors>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+      <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+   </PropertyGroup>
+   <ItemGroup>
+       <PackageReference Include="Minio" Version="7.0.0" />
+       <PackageReference Include="MimeMapping" Version="4.0.0" />
+   </ItemGroup>
+   <ItemGroup>
+      <ProjectReference Include="..\FluentStorage\FluentStorage.csproj" />
+   </ItemGroup>
+
+   <ItemGroup>
+      <None Include="..\.github\logo-nuget.png">
+         <Pack>True</Pack>
+         <PackagePath></PackagePath>
+      </None>
+   </ItemGroup>
+
+</Project>

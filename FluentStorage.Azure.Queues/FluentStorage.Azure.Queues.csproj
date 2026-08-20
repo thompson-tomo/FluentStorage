@@ -8,7 +8,7 @@
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <PackageIcon>logo-nuget.png</PackageIcon>
       <Authors>Robin Rodricks, FluentStorage Contributors</Authors>
-      <Version>6.0.0</Version>
+      <Version>8.0.9</Version>
       <PackageProjectUrl>https://github.com/robinrodricks/FluentStorage</PackageProjectUrl>
       <RepositoryUrl>https://github.com/robinrodricks/FluentStorage</RepositoryUrl>
       <RepositoryType>GitHub</RepositoryType>
@@ -17,17 +17,13 @@
       <SignAssembly>True</SignAssembly>
       <AssemblyOriginatorKeyFile>..\FluentStorage\sn.snk</AssemblyOriginatorKeyFile>
       <DocumentationFile>$(SolutionDir)build\FluentStorage.Azure.Queues.xml</DocumentationFile>
-       <BaseOutputPath>$(SolutionDir)build\</BaseOutputPath>
-      
+      <BaseOutputPath>$(SolutionDir)build\</BaseOutputPath>
+      <WarningsAsErrors>CS0114;CS0507</WarningsAsErrors>
    </PropertyGroup>
 
    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
       <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
    </PropertyGroup>
-
-   <ItemGroup>
-      <Compile Include="..\JsonExtensions.cs" Link="JsonExtensions.cs" />
-   </ItemGroup>
 
    <ItemGroup>
       <ProjectReference Include="..\FluentStorage\FluentStorage.csproj" />

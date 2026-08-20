@@ -2,12 +2,15 @@
 using Azure.Identity;
 using FluentStorage.Storage;
 using FluentStorage.Azure.KeyVault;
-using FluentStorage.Azure.KeyVault.Blobs;
+using FluentStorage.Azure.KeyVault.Storage;
 using System;
 using System.Net;
 
 namespace FluentStorage {
 	public static class AzureKeyVaultStorage {
+		/// <summary>
+		/// Enable Azure KeyVault connection string support.
+		/// </summary>
 		public static void Use() {
 			FluentStorage.StorageFactory.Use(new ExternalModule());
 		}
@@ -20,7 +23,7 @@ namespace FluentStorage {
 		/// <param name="azureAadClientId">The azure aad client identifier.</param>
 		/// <param name="azureAadClientSecret">The azure aad client secret.</param>
 		/// <returns></returns>
-		public static IBucket FromCredentials(
+		public static IStore FromCredentials(
 		   Uri vaultUri,
 		   string tenantId,
 		   string applicationId,
@@ -33,7 +36,7 @@ namespace FluentStorage {
 					applicationSecret,
 					new TokenCredentialOptions() { AuthorityHost = new Uri(activeDirectoryAuthEndpoint) });
 
-			return new AzureKeyVaultBlobStorageProvider(vaultUri, credential);
+			return new AzureKeyVaultStore(vaultUri, credential);
 		}
 
 		/// <summary>
@@ -42,8 +45,8 @@ namespace FluentStorage {
 		/// <param name="factory"></param>
 		/// <param name="vaultUri"></param>
 		/// <returns></returns>
-		public static IBucket FromMsi(Uri vaultUri) {
-			return new AzureKeyVaultBlobStorageProvider(vaultUri, new ManagedIdentityCredential());
+		public static IStore FromMsi(Uri vaultUri) {
+			return new AzureKeyVaultStore(vaultUri, new ManagedIdentityCredential());
 		}
 
 	}

@@ -1,18 +1,294 @@
 ﻿# Release Notes
 
+**Please read the [Migration Guide](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide) to help you migrate from older versions to FluentStorage 8!**
+
+#### FluentStorage 8.0.17
+ - **FluentStorage.Azure.Blobs**
+   - Fix: Azure Blob paths lose their first character due to path handling logic
+ 
+#### FluentStorage 8.0.16
+ - **FluentStorage**
+   - New: `OverwriteByTimestamp` and `OverwriteByChecksum` modes to overwrite files based on timestamp or checksum
+   - New: `UploadDirectory` will return a list of all the per-file progress reports at the end, and will record objects skipped due to rules
+   - New: `DownloadDirectory` will return a list of all the per-file progress reports at the end, and will record objects skipped due to rules
+   - New: `SkipReason` inside each `StorageProgress` to indicate why the object was skipped
+   - New: `SkipRule` inside each `StorageProgress` to indicate which rule caused the object to be rejected
+   - Change: Rename `StorageExistsMode` to `StorageExists` to reduce bloat
+   - Fix: `UploadDirectory` and `DownloadDirectory` logic that caused it not to overwrite files
+ - **FluentStorage.SFTP**
+   - Fix: `CreateDirectory` does not create the entire directory path
+ 
+#### FluentStorage 8.0.14
+ - **FluentStorage**
+   - New: `GetObjectChecksum` API to compute various types of hashes for an object across all providers
+   - New: `StorageObjectHash` object to hold a hash value and easily compare it against any local file or stream
+   - New: `StorageExistsMode.OverwriteIfChanged` mode to only overwrite files if they have changed (length/checksum checks)
+   - New: `UploadDirectory` supports the `OverwriteIfChanged` mode and only uploads files if the length/checksum mismatches
+   - New: `DownloadDirectory` supports the `OverwriteIfChanged` mode and only downloads files if the length/checksum mismatches
+   - Removed: `GetObjectMD5` is removed in favour of `GetObjectChecksum`
+ - **FluentStorage.GCP**
+   - New: Implement fast `GetObjectChecksum` by using `GetObjectAsync` API to get MD5 object hash
+ - **FluentStorage.FTP**
+   - New: Implement fast `GetObjectChecksum` by using native FTP commands
+ - **FluentStorage.SFTP**
+   - New: Implement fast `GetObjectChecksum` by using native SSH shell commands to remotely compute an object hash.
+   - New: Implement a powerful engine built for Windows and Unix to detects which Shell utilities are available once, then quickly use this information to compute a server-side hash of the file without needing to download it
+   - New: Security engine to prevent path-injection and command-injection (based on security engine from FluentFTP)
+ 
+#### FluentStorage 8.0.13
+ - **FluentStorage**
+   - New: Optimize `StoragePath.Combine` when combining only 2 path segments (most common use case)
+ - **FluentStorage.SFTP**
+   - New: Optimize `SetObject` & `SetBytes` APIs to improve transfer performance (4x faster)
+   - New: Optimize `UploadObject` & `UploadDirectory` APIs to improve transfer performance (2x faster)
+   - New: `BufferSize` set to a default of 128KB to improve transfer performance
+   - New: `TransferBufferSize` setting to change upload/download buffer size
+   - Fix: `SetObject` now correctly handles non-seekable streams
+   - Fix: `CreateDirectory` now creates the entire directory path instead of just the last segment
+   - Improve: `DirectoryExists` uses only one native API call to improve performance
+   - Improve: `UploadObject` now uses native `UploadFileAsync` API to improve transfer performance
+   - Remove: `SetLengthOnNewStream` as it is no longer supported
+ 
+#### FluentStorage 8.0.12
+ - **FluentStorage**
+   - New: Add rule-based filtering support in `DownloadDirectory` and `UploadDirectory` for all storage providers
+   - New: Add rule engine and rules from FluentFTP: `ObjectNameRule`, `ObjectNameRegexRule`, `DirectoryNameRule`, `DirectoryNameRegexRule`, `ExtensionRule`
+   - New: Add new rule types for path checking: `FullPathRule`, `FullPathRegexRule`
+   - Fix: Fix all logic issues in rules based on unit test suite
+   - Fix: Support case-insensitive extension comparison in `ExtensionRule`
+   - Fix: `DownloadObject` ensures parent directory exists and fix existance check
+   - Fix: `DownloadDirectory` reports progress on successful transfers too
+   - Fix: `UploadDirectory` reports progress on successful transfers too
+   - Paths: `StoreObject`: Make `FullPath` instant by computing it at time of construction rather than dynamically
+   - Paths: `StoreObject`: Add `Input` property to read the raw path given by the provider
+ - **FluentStorage.FTP**
+   - Fix: Improve `DownloadObject` API to have consistant behaviour
+ - **FluentStorage.SFTP**
+   - Fix: Improve `DownloadObject` API to have consistant behaviour
+ - **FluentStorage.Alibaba**
+   - Fix: All API should use a single constructor for `StoreObject`
+ - **FluentStorage.Tests**
+   - New: Extensive integration test suite for rule engine under `IStore.DirRules` class
+   - New: Extensive unit test suite for rule engine under `RuleTests` class
+ 
+#### FluentStorage 8.0.10
+ - **FluentStorage**
+   - Fix: `CreateDirectory` will not throw exceptions by default, allowing it to be called on cloud stores
+   - Fix: `DeleteDirectory` has a default implementation for all cloud stores, to delete all objects in a virtual folder
+   - Change: `DiskStore`: `DeleteObject` will no longer delete objects in a virtual directory
+   - Change: `MemoryStore`: `DeleteObject` will no longer delete objects in a virtual directory
+   - Fix: `MemoryStore`: `ObjectExists` normalizes the input path
+   - New: `MemoryStore`: Implement all missing API: `OpenRange`, `OpenWrite`, `IsSeekable`, `GetObjectLength`, `CreateDirectory`, `DirectoryExists`, `DeleteDirectory`, `MoveDirectory`, `MoveObject`
+ - **FluentStorage.AWS**
+   - New: Implement fast `DirectoryExists` virtual directory check by using a `ListObjectsV2` query with `MaxKeys` set
+   - Fix: Fix access modifiers for `DigitalOceanSpacesStorage` factory API
+   - Fix: All API now calls `StoragePath.Normalize` to support the unified path system
+   - Change: `DeleteObject` will no longer delete objects in a virtual directory
+ - **FluentStorage.Azure.Blobs**
+   - New: Implement fast `DirectoryExists` virtual directory check by using a `GetBlobsAsync` query
+ - **FluentStorage.Azure.Files**
+   - Change: `DeleteObject` will no longer delete objects in a virtual directory
+ - **FluentStorage.GCP**
+   - New: Implement fast `DirectoryExists` virtual directory check by using a `ExecuteAsync` query with `PageSize` set
+   - Fix: All API now calls `StoragePath.Normalize` to support the unified path system
+   - Fix: `OpenRange` will not throw when the object is missing (consistant with other API)
+   - Change: `DeleteObject` will no longer delete objects in a virtual directory
+ - **FluentStorage.FTP**
+   - Fix: All API now calls `StoragePath.Normalize` to support the unified path system
+   - Change: `DeleteObject` will no longer delete objects in a virtual directory
+ - **FluentStorage.SFTP**
+   - Fix: `DeleteDirectory` no longer normalizes paths multiple times
+ - **FluentStorage.Alibaba**
+   - New: Implement fast `DirectoryExists` virtual directory check by using a `ListObjects` query with `MaxKeys` set
+ - **FluentStorage.Minio**
+   - New: Implement fast `DirectoryExists` virtual directory check by using a `ListObjectsArgs` query
+   - Fix: `OpenRead`: Opening non-existant objects will no longer throw exceptions
+   - Fix: `OpenRange`: Opening non-existant objects will no longer throw exceptions
+   - Fix: `OpenWrite` will return null if the object already exists, instead of throwing exceptions
+   - Fix: Consistantly catch object not found exceptions using `ObjectNotFoundException`
+ - **FluentStorage.Mongo**
+   - New: Implement fast `DirectoryExists` virtual directory check by querying for a single file whose filename begins with the directory prefix
+   - Fix: `OpenRead`: Opening non-existant objects will no longer throw exceptions
+   - Fix: `OpenRange`: Opening non-existant objects will no longer throw exceptions
+   - Fix: `OpenWrite` will return null if the object already exists, instead of throwing exceptions
+   - Fix: Credential connection uses `SCRAM-SHA-256` by default
+ - **FluentStorage.Tests**
+   - New: Add provider-specific config settings for Alibaba OSS, Backblaze B2, Cloudflare R2, DigitalOcean Spaces, Hetzner, Minio S3, Minio Native, Vultr, Wasabi, Mongo GridFS
+   - New: Add integration test suites for Alibaba OSS, Backblaze B2, Cloudflare R2, DigitalOcean Spaces, Hetzner, Minio S3, Minio Native, Vultr, Wasabi, Mongo GridFS
+   - New: Update `fluentstorage.yaml.template` with new provider-specific settings
+
+#### FluentStorage 8.0.9
+ - **FluentStorage**
+   - Fix: `UploadDirectory` is more efficient for filesystem-based storage providers
+ - **FluentStorage.Tests**
+   - Add support for loading test config from YAML file `fluentstorage.yaml`
+   - Add `fluentstorage.yaml.template` based on required test config schema
+   - Add tests for FTP and SFTP using new config system
+   - Add provider-specific assertions to ensure that required test config settings are filled
+   - Remove unused `LogMagic` and `Config.Net` packages, and add `YamlDotNet`
+   - Split `IStoreTest` into multiple partial classes and improve test codebase organization
+   - New tests for directory upload, directory download, roundtrip
+   - Fix: Disable tests that are malfunctioning with FTP/SFTP
+ - **FluentStorage.FTP**
+   - Fix: Any file uploads/writes will automatically create the directory structure as required
+   - Fix: `CreateDirectory`: No error is thrown if the folder already exists
+   - Fix: `SetBytes` now correctly uploads zero-byte file data
+ - **FluentStorage.SFTP**
+   - Fix: All API now uses Async API of `SftpClient` rather than the old sync API
+   - Fix: `DownloadObject` and `UploadObject` had invalid file existance checks
+   - Fix: `DownloadObject` now correctly downloads file data (fix stream disposing issue)
+   - Fix: `SetBytes` and `UploadObject` will automatically create the directory structure as required
+   - Fix: `SetBytes` now correctly uploads zero-byte file data
+   - Fix: `CreateDirectory`: No error is thrown if the folder already exists
+   - Fix: `GetObjectInfo` and `GetObjectsInfo` correctly computes SFTP remote paths
+   - Fix: `MaxResults` and `BrowseFilter` filtering is more efficient during directory listing
+   - Fix: `ListDirectory` and `ListObjects` will return a blank list if nothing is found instead of throwing an error
+   - Fix: `ListDirectory` and `ListObjects` will correctly enumerate files inside subdirectories
+ - **FluentStorage.Azure.Queues**
+   - Remove all usage of Newtonsoft.Json
+   - Cleanup JSON conversion and move all static utilities into `FluentStorage.Azure.Queues.Utils` NS
+
+#### FluentStorage 8.0.8
+ - **FluentStorage**
+   - `OpenSeekable`: Return null if the stream cannot be created or the object length cannot be determined
+
+#### FluentStorage 8.0.7
+ - **FluentStorage**
+   - Transfer: Add new APIs to `DownloadDirectory` and `UploadDirectory`, with default implementation for all stores
+   - Paths: Added `StoragePath.GetRelativeDiskPath` and `StoragePath.GetRelativeCloudPath` to compute relative paths
+ - **FluentStorage.FTP**
+   - Transfer: Special handling using native FluentFTP APIs for `DownloadDirectory` and `UploadDirectory`
+
+#### FluentStorage 8.0.6
+ - **FluentStorage**
+   - **Paths: A new [unified path system](https://github.com/robinrodricks/FluentStorage/wiki/Unified-Path-System) has been introduced across all providers!**
+   - Paths: `StoragePath.Normalize` has been completely rewritten to enable the unified path system
+   - Paths: `StoragePath.Combine`, `.Split` and `.GetParent` are completely rewritten for performance
+   - Paths: `StoragePath.ComparePath`, `.RemoveRootFolder`, `.GetRootFolder` and `.Rename` have been removed
+   - DiskStore: `GetObjects` will now return all objects in the main directory recursively by default
+   - Move all sinks into `FluentStorage.Sinks` NS
+   - Move `DelegatedStream` and `NonCloseableStream` into `FluentStorage.Storage.Sinks` NS
+   - Rename `SinkedBlobStorage` to `SinkedStore`
+   - Remove `RandomGenerator` and move it into testing project
+ - **FluentStorage.SFTP**
+   - Paths: New SFTP path normalization system that works with updated `StoragePath` normalization
+ - **FluentStorage.GCP**
+   - Paths: All APIs updated to use the new `StoragePath` normalization to support unified paths
+ - **FluentStorage.Minio**
+   - Paths: All APIs updated to use the new `StoragePath` normalization to support unified paths
+ - **FluentStorage.Mongo**
+   - Paths: All APIs updated to use the new `StoragePath` normalization to support unified paths
+ - **FluentStorage.Alibaba**
+   - Paths: All APIs updated to use the new `StoragePath` normalization to support unified paths
+ - **FluentStorage.Tests**
+   - Merge all tests into a single project, cleanly seperating unit and integration tests
+   - New tests for path normalization (`StoragePath.Normalize`), path combination (`StoragePath.Combine`) and path splitting (`StoragePath.Split`)
+   - New tests for `SeekableStream` used in seeking/streaming
+   - New tests for `IStore` operations and fixes made to local disk implementation
+   
+#### FluentStorage 8.0.5
+ - **FluentStorage**
+   - IStore: Implement new object versioning APIs, tagging APIs and storage tier APIs
+   - IStore: Change `IsFileSystem`, `IsSeekable` to async to align with other feature check APIs
+   - IStore: Add `IsVersioned`, `IsTagged` and `IsTiered` to check if providers support new features
+   - Assertions: Remove `AssertFullPath` and handle it inline in all APIs
+ - **FluentStorage.AWS**
+   - Add versioning APIs: `IsVersioned`, `ListObjectVersions`, `GetObjectVersion`, `RestoreObjectVersion`, `DeleteObjectVersion`
+   - Add tagging APIs: `IsTagged`, `GetObjectTags`, `SetObjectTags`, `DeleteObjectTags`
+   - Add storage tier APIs: `IsTiered`, `GetObjectTier`, `SetObjectTier`
+ - **FluentStorage.Azure.Blob**
+   - Add versioning APIs: `IsVersioned`, `ListObjectVersions`, `GetObjectVersion`, `RestoreObjectVersion`, `DeleteObjectVersion`
+   - Add tagging APIs: `IsTagged`, `GetObjectTags`, `SetObjectTags`, `DeleteObjectTags`
+   - Add storage tier APIs: `IsTiered`, `GetObjectTier`, `SetObjectTier`
+ - **FluentStorage.GCP**
+   - Rewrite path normalization to be simpler and not overly aggressive
+   - Add versioning APIs: `IsVersioned`, `ListObjectVersions`, `GetObjectVersion`, `RestoreObjectVersion`, `DeleteObjectVersion`
+   - Add tagging APIs: `IsTagged`, `GetObjectTags`, `SetObjectTags`, `DeleteObjectTags`
+   - Add storage tier APIs: `IsTiered`, `GetObjectTier`, `SetObjectTier`
+ - **FluentStorage.Alibaba**
+   - Add tagging APIs: `IsTagged`, `GetObjectTags`, `SetObjectTags`, `DeleteObjectTags`
+ - **FluentStorage.Minio**
+   - Add tagging APIs: `IsTagged`, `GetObjectTags`, `SetObjectTags`, `DeleteObjectTags`
+   - Add storage tier APIs: `IsTiered`, `GetObjectTier`, `SetObjectTier`
+
+#### FluentStorage 8.0.4
+ - **FluentStorage**
+   - Disk: Fix `ListObjects` and add `GetServer` & `MoveObject` APIs
+   - Streams: Add `NonSeekableStream` to the core package
+   - Rename core classes: `StoreObject`, `MemoryMessenger`, `DiskStore`, `MemoryStore`
+   - Move factory classes from `FluentStorage.AWS.Factory`, `FluentStorage.Alibaba.Factory` and `FluentStorage.Minio.Factory` to root NS
+ - **FluentStorage.Mongo**
+   - New: MongoDB GridFS storage provider using native MongoDB driver. Introduces the factory API `MongoGridStorage` and store class `MongoGridStore`.
+
+#### FluentStorage 8.0.3
+ - Add APIs to all providers: `GetObjectLength` and integrate it with streaming/seeking implementation
+
+#### FluentStorage 8.0.2
+ - Add streaming/seeking APIs to all providers: `OpenRange`, `OpenSeekable`
+
+#### FluentStorage 8.0.1
+ - Fix some issues with the original v8 release.
+
 #### FluentStorage 8.0.0
+ - **FluentStorage**
+   - All [cloud storage API](https://github.com/robinrodricks/FluentStorage#polycloud-api) methods have been redesigned to improve productivity and ease of use.
+   - All extension-method factory API has been removed: For example `StorageFactory.Blobs` and `StorageFactory.Messages` no longer exist.
+   - Factory classes have been introduced on a [per-provided basis](https://github.com/robinrodricks/FluentStorage#storage-providers).
+   - Factory classes can be accessed directly to construct new `IStore` objects: For example `AwsS3Storage.FromCredentials` rather than `StorageFactory.Blobs.AwsS3`.
+   - All API methods are `async` and the "Async" suffix has been dropped.
+   - All API methods have an optional `CancellationToken` rather than forcing users to provide one.
+   - At initialization, S3-compatible stores will no longer create the bucket if the specified bucket does not exist.
+   - `WriteAsync()` is renamed to `SetObject()` and will auto compute the object's MIME type (`Content-Type`) if it is not supplied.
+   - `GetPresignedUrl()` and its variations will auto compute the object's MIME type (`Content-Type`).
+   - `CreateDirectory()` will no longer create a "dummy file" in a cloud storage bucket.
+   - `RenameAsync()` is renamed to `MoveObject()` and will no longer perform a recursive copy and delete, instead it will efficiently move using native operations.
+   - `ExistsAsync()` is renamed to `ObjectExists()` and will consistently return true/false if the file or folder exists on the bucket/server.
+   - `DeleteAsync()` is renamed to `DeleteObject()` and will consistently delete a single file or folder from the bucket/server.
+   - `DeleteObjects()` will consistently delete multiple files or folders from the bucket/server.
+   - `GetClient()` will consistently return the internal cloud SDK client for all types of cloud storage. (Replaces `NativeBlobClient`)
+   - Collections returned by APIs will always be `List` instead of `IReadOnlyCollection`. 
+   - Exceptions are moved into the `FluentStorage.Exceptions` namespace
+   - Enums are moved into the `FluentStorage.Enums` namespace
+   - Bucket stores now support [streaming/seeking, presigned URL and more object manipulation API](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#new-bucket-api)
+   - We no longer support [Databricks, ServiceFabric, EventHub](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#deleted-libraries), [Virtual storage and ZIP archives](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#deleted-api)
+ - **FluentStorage.AWS**
+   - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
+   - New API: `GetClient`, `MoveObject`, `DownloadObject`, `UploadObject`, `OpenRead`, `OpenWrite`, `GetUploadUrl`, `GetDownloadUrl`, `GetPresignedUrl`, `GetObjectSas`, `OpenRange`, `OpenSeekable`, `GetObjectLength`.
+ - **FluentStorage.GCP**
+   - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
+   - New API: `GetPresignedUrl`, `GetObjectSas`, `MoveObject`, `DeleteDirectory`, `OpenRange`, `OpenSeekable`, `GetObjectLength`.
+ - **FluentStorage.Azure.Blobs**
+   - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
+   - New API: `GetClient`, `MoveObject`, `DownloadObject`, `UploadObject`, `OpenRead`, `OpenWrite`, `GetUploadUrl`, `GetDownloadUrl`, `GetPresignedUrl`, `GetObjectSas`, `OpenRange`, `OpenSeekable`, `GetObjectLength`.
+ - **FluentStorage.Azure.Files**
+   - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
+   - New API: `GetClient`, `OpenRange`, `OpenSeekable`, `GetObjectLength`.
+ - **FluentStorage.Azure.ServiceBus**
+   - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
+ - **FluentStorage.Azure.KeyVault**
+   - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
+ - **FluentStorage.Azure.Queues**
+   - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
+ - **FluentStorage.FTP**
+   - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
+   - FTP has new [directory and server API](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#new-ftpsftp-api) for file systems
+   - New API: `GetServer`, `CreateDirectory`, `DeleteDirectory`, `DirectoryExists`, `MoveDirectory`, `GetFilePermissions`, `SetFilePermissions`, `MoveObject`, `DownloadObject`, `UploadObject`, `GetBytes`, `SetBytes`, `OpenRange`, `OpenSeekable`, `GetObjectLength`.
+ - **FluentStorage.SFTP**
+   - Breaking changes to [entire API surface](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#renamed-api) to improve productivity and ease of use.
+   - SFTP has new [directory and server API](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide#new-ftpsftp-api) for file systems
+   - New API: `GetServer`, `CreateDirectory`, `DeleteDirectory`, `DirectoryExists`, `MoveDirectory`, `GetFilePermissions`, `SetFilePermissions`, `MoveObject`, `DownloadObject`, `UploadObject`, `GetBytes`, `SetBytes`, `OpenRange`, `OpenSeekable`, `GetObjectLength`.
+ - **FluentStorage.Alibaba**
+   - New: Alibaba OSS provider using native Aliyun SDK. Introduces the factory API `AlibabaStorage` and store class `AlibabaStore`.
+ - **FluentStorage.Minio**
+   - New: MinIO storage provider using native Minio SDK. Introduces the factory API `MinioStorage` and store class `MinioStore`.
  - **FluentStorage.Databricks**
-   - Deprecated and unlisted from Nuget.
-   - We will no longer maintain this package because DBFS isn't a mainstream storage backend for a storage abstraction library.
+   - Deprecated and unlisted from Nuget since it is out of scope.
  - **FluentStorage.Azure.EventHub**
-   - Deprecated and unlisted from Nuget.
-   - Due to low community usage, we will no longer maintain this library.
+   - Deprecated and unlisted from Nuget since it has very low community usage.
  - **FluentStorage.Azure.DataLake**
-   - Deprecated and unlisted from Nuget.
-   - We are no longer maintaining this package as it only caters to DataLake Gen 1, which has been superseded by DataLake Gen2. Gen1 is considered a legacy service and is no longer the direction Microsoft recommends for new development.
+   - Deprecated and unlisted from Nuget since DataLake Gen 1 is obsolete.
  - **FluentStorage.Azure.ServiceFabric**
-   - Deprecated and unlisted from Nuget.
-   - We will no longer maintain this package because ServiceFabric is not a first-class object storage or messaging service, which is outside our current scope, and it also has extremely low community usage.
+   - Deprecated and unlisted from Nuget since it is out of scope and has very low community usage.
 
 #### FluentStorage 7.1.1
  - **FluentStorage**

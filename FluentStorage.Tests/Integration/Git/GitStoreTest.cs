@@ -25,7 +25,7 @@ namespace FluentStorage.Tests.Integration.Git {
 			await store.SetText("b.txt", "bbb");
 			await store.SetText("c.txt", "ccc");
 
-			Commit commit = await store.CommitAsync("batch");
+			Commit commit = await store.GitCommit("batch");
 
 			Assert.NotNull(commit);
 			Assert.NotNull(commit.Tree["a.txt"]);
@@ -37,7 +37,7 @@ namespace FluentStorage.Tests.Integration.Git {
 		public async Task Commit_NoChanges_ReturnsNull() {
 			using GitStore store = CreateStore();
 
-			Commit commit = await store.CommitAsync("nothing");
+			Commit commit = await store.GitCommit("nothing");
 
 			Assert.Null(commit);
 		}
@@ -48,7 +48,7 @@ namespace FluentStorage.Tests.Integration.Git {
 			using GitStore store = CreateStoreFromRemote(remotePath);
 
 			await store.SetText("pushed.txt", "hello");
-			await store.CommitAndPushAsync("push test");
+			await store.GitCommitAndPush("push test");
 
 			string secondClone = Path.Combine(Path.GetTempPath(), "FluentStorage.Git.Tests", Guid.NewGuid().ToString("N"));
 			Directory.CreateDirectory(secondClone);
@@ -65,11 +65,11 @@ namespace FluentStorage.Tests.Integration.Git {
 			using GitStore storeB = CreateStoreFromRemote(remotePath);
 
 			await storeA.SetText("shared.txt", "from-a");
-			await storeA.CommitAndPushAsync("a");
+			await storeA.GitCommitAndPush("a");
 
 			Assert.False(await storeB.ObjectExists("shared.txt"));
 
-			await storeB.PullAsync();
+			await storeB.GitPull();
 
 			Assert.True(await storeB.ObjectExists("shared.txt"));
 			Assert.Equal("from-a", await storeB.GetText("shared.txt"));

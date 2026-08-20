@@ -17,8 +17,8 @@ namespace FluentStorage.Git.Storage {
 	/// <summary>
 	/// Manages a git repository as a FluentStorage store. The repository is cloned into a local working directory and
 	/// all file operations are performed against the working tree. Commits and pushes are performed either automatically
-	/// (see <see cref="AutoCommit"/>/<see cref="AutoPush"/>) or explicitly via <see cref="CommitAsync"/>,
-	/// <see cref="CommitAndPushAsync"/> and <see cref="PushAsync"/>.
+	/// (see <see cref="AutoCommit"/>/<see cref="AutoPush"/>) or explicitly via <see cref="GitCommit"/>,
+	/// <see cref="GitCommitAndPush"/> and <see cref="GitPush"/>.
 	/// </summary>
 	public class GitStore : StoreBase {
 		private const string AttributesFileExtension = ".attr";
@@ -725,7 +725,7 @@ namespace FluentStorage.Git.Storage {
 		/// When <see cref="GitStorageOptions.PullBeforeWrite"/> is true, the remote is pulled (best effort) before committing.
 		/// Returns the created commit, or null if there was nothing to commit.
 		/// </summary>
-		public async Task<Commit> CommitAsync(string message = null, CancellationToken cancellationToken = default) {
+		public async Task<Commit> GitCommit(string message = null, CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 
 			return await Task.Run(() => {
@@ -746,15 +746,15 @@ namespace FluentStorage.Git.Storage {
 		/// <summary>
 		/// Commits all pending changes and pushes them to the remote.
 		/// </summary>
-		public async Task CommitAndPushAsync(string message = null, CancellationToken cancellationToken = default) {
-			await CommitAsync(message, cancellationToken).ConfigureAwait(false);
-			await PushAsync(cancellationToken).ConfigureAwait(false);
+		public async Task GitCommitAndPush(string message = null, CancellationToken cancellationToken = default) {
+			await GitCommit(message, cancellationToken).ConfigureAwait(false);
+			await GitPush(cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>
 		/// Pushes the current branch to its remote.
 		/// </summary>
-		public async Task PushAsync(CancellationToken cancellationToken = default) {
+		public async Task GitPush(CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 
 			await Task.Run(() => {
@@ -775,7 +775,7 @@ namespace FluentStorage.Git.Storage {
 		/// <summary>
 		/// Pulls the latest changes from the remote into the current branch.
 		/// </summary>
-		public async Task PullAsync(CancellationToken cancellationToken = default) {
+		public async Task GitPull(CancellationToken cancellationToken = default) {
 			ThrowIfDisposed();
 
 			await Task.Run(() => {
@@ -898,10 +898,10 @@ namespace FluentStorage.Git.Storage {
 		private async Task MaybeCommitAsync() {
 			if (!AutoCommit) return;
 
-			await CommitAsync(_options.DefaultCommitMessage).ConfigureAwait(false);
+			await GitCommit(_options.DefaultCommitMessage).ConfigureAwait(false);
 
 			if (AutoPush)
-				await PushAsync().ConfigureAwait(false);
+				await GitPush().ConfigureAwait(false);
 		}
 
 		private Commit CommitCore(string message) {

@@ -19,6 +19,7 @@
         <ProjectReference Include="..\FluentStorage.FTP\FluentStorage.FTP.csproj" />
         <ProjectReference Include="..\FluentStorage.SFTP\FluentStorage.SFTP.csproj" />
         <ProjectReference Include="..\FluentStorage.GCP\FluentStorage.GCP.csproj" />
+        <ProjectReference Include="..\FluentStorage.Git\FluentStorage.Git.csproj" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />

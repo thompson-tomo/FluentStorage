@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+   <PropertyGroup>
+      <TargetFrameworks>net80;net90</TargetFrameworks>
+      <Description>Extension to FluentStorage providing Git repository storage using LibGit2Sharp.</Description>
+      <PackageId>FluentStorage.Git</PackageId>
+      <AssemblyName>FluentStorage.Git</AssemblyName>
+      <RootNamespace>FluentStorage.Git</RootNamespace>
+      <Copyright>Copyright (c) 2023 Robin Rodricks and FluentStorage Contributors</Copyright>
+      <GenerateDocumentationFile>true</GenerateDocumentationFile>
+      <PackageIcon>logo-nuget.png</PackageIcon>
+      <Authors>Robin Rodricks, FluentStorage Contributors</Authors>
+      <Version>8.0.16</Version>
+      <PackageProjectUrl>https://github.com/robinrodricks/FluentStorage</PackageProjectUrl>
+      <RepositoryUrl>https://github.com/robinrodricks/FluentStorage</RepositoryUrl>
+      <RepositoryType>GitHub</RepositoryType>
+      <PackageLicenseExpression>MIT</PackageLicenseExpression>
+      <LangVersion>latest</LangVersion>
+      <SignAssembly>True</SignAssembly>
+      <AssemblyOriginatorKeyFile>..\FluentStorage\sn.snk</AssemblyOriginatorKeyFile>
+      <DocumentationFile>$(SolutionDir)build\FluentStorage.Git.xml</DocumentationFile>
+      <BaseOutputPath>$(SolutionDir)build\</BaseOutputPath>
+      <WarningsAsErrors>CS0114;CS0507</WarningsAsErrors>
+   </PropertyGroup>
+
+   <ItemGroup>
+      <PackageReference Include="LibGit2Sharp" Version="0.32.0" />
+   </ItemGroup>
+
+   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+      <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+   </PropertyGroup>
+
+   <ItemGroup>
+      <ProjectReference Include="..\FluentStorage\FluentStorage.csproj" />
+   </ItemGroup>
+
+   <ItemGroup>
+      <None Include="..\.github\logo-nuget.png">
+         <Pack>True</Pack>
+         <PackagePath></PackagePath>
+      </None>
+   </ItemGroup>
+
+</Project>

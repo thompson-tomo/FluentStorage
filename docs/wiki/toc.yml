@@ -39,6 +39,8 @@
     href: FTP-Storage.md
   - name: SFTP Storage
     href: SFTP-Storage.md
+  - name: Git Storage
+    href: Git-Storage.md
 - name: Message Storage
   href: Message-Storage.md
   items:

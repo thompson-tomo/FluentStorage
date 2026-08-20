@@ -1,6 +1,6 @@
 using LibGit2Sharp;
 
-namespace FluentStorage.Tests.Integration.Storage {
+namespace FluentStorage.Tests.Integration.Git {
 	internal static class GitTestHelpers {
 		/// <summary>
 		/// Creates a local git repository with a single seed commit that can be used as a clone source (remote).

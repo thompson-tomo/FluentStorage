@@ -2,7 +2,7 @@ using FluentStorage.Exceptions;
 using FluentStorage.Git.Storage;
 using LibGit2Sharp;
 
-namespace FluentStorage.Tests.Integration.Storage {
+namespace FluentStorage.Tests.Integration.Git {
 	public class GitStoreTest {
 
 		private static GitStore CreateStore(GitStorageOptions options = null) {

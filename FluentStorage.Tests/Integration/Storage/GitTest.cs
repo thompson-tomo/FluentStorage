@@ -1,4 +1,5 @@
 using FluentStorage.Git.Storage;
+using FluentStorage.Tests.Integration.Git;
 using FluentStorage.Tests.Integration.Storage.Fixture;
 
 namespace FluentStorage.Tests.Integration.Storage {

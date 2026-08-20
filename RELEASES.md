@@ -2,9 +2,11 @@
 
 **Please read the [Migration Guide](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide) to help you migrate from older versions to FluentStorage 8!**
 
-#### FluentStorage 8.0.18
+#### FluentStorage 8.0.19
  - **FluentStorage.Git**
    - New: Git repository provider that allows users to read/write files within a Git repo using the standard FluentStorage `IStore` interface
+   - New: Connection string support for Git repository provider using `git` URL prefix
+   - New: Git API prefixed with `Git*` on `GitStore`
 
 #### FluentStorage 8.0.17
  - **FluentStorage.Azure.Blobs**

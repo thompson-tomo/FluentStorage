@@ -1,1 +1,0 @@
-<img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure-key-vault.png" width="128" align="right"></img> In order to use Key Vault reference [![NuGet](https://img.shields.io/nuget/v/FluentStorage.Azure.KeyVault.svg)](https://www.nuget.org/packages/FluentStorage.Azure.KeyVault) package first.

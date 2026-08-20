@@ -1,7 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-   <PropertyGroup>
-      <TargetFramework>netstandard2.0</TargetFramework>
-      <IsPackable>false</IsPackable>
-       <!--This is just a wrapper .csproj so we can edit the files from the IDE-->
-   </PropertyGroup>
-</Project>

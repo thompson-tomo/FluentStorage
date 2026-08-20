@@ -17,7 +17,7 @@
 
 FluentStorage is a fully managed polycloud .NET cloud storage library, optimized for speed. It helps you interface with multiple cloud providers from a [single unified API](#polycloud-api), allowing you to switch cloud providers or support multiple cloud providers without any logic changes.
 
-FluentStorage is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications. FluentStorage is written entirely in C# with no configuration files required. 
+FluentStorage is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications. FluentStorage is written entirely in C# with no configuration files required.
 
 ## Features
 
@@ -47,6 +47,10 @@ FluentStorage is released under the permissive MIT License, so it can be used in
   * SSH command engine for SFTP provider, to execute native SSH commands with automatic OS and utility detection
   * File permissions/CHMOD modification
   * Get detailed server metadata and OS information
+* **Specially for Git**
+  * Read and write files in a git repository working tree, with automatic or explicit commit and push
+  * Object versioning mapped to git commit history
+  * Restrict the store to a sub-folder of the repository using a root path
 
 
 ## Storage Providers
@@ -54,7 +58,7 @@ FluentStorage is released under the permissive MIT License, so it can be used in
 FluentStorage supports the following cloud storage providers:
 
 |       		| Documentation Link                                               | Factory class | Store class |  `GetClient()` returns
-|---------------| --------------------------------------------------------------------------- | ---------------- | ---------------- | ---------------- | 
+|---------------| --------------------------------------------------------------------------- | ---------------- | ---------------- | ---------------- |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/aws.png" width="32"></img>| [AWS S3](https://github.com/robinrodricks/FluentStorage/wiki/AWS-S3-Storage#connect-to-aws-s3)   	| `AwsS3Storage` | `S3Store` |`AmazonS3Client`  |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img>|  [Azure Blobs](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Blob-Storage) 			| `AzureBlobStore` | `AzureBlobStore` | `BlobServiceClient` |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img>| [Azure Files](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Files-Storage) 			| `AzureFilesStorage` | `AzureFilesStore` | `ShareServiceClient` |
@@ -72,6 +76,7 @@ FluentStorage supports the following cloud storage providers:
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/alibaba.png" width="32"></img>|  [Alibaba OSS](https://github.com/robinrodricks/FluentStorage/wiki/Alibaba-OSS-Storage)         | `AlibabaStorage` | `AlibabaStore` |`OssClient`  |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/ftp.png" width="32"></img>|  [FTP](https://github.com/robinrodricks/FluentStorage/wiki/FTP-Storage)        						| `FtpStorage` | `FtpStore` |  `AsyncFtpClient` |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/sftp.png" width="32"></img>|  [SFTP](https://github.com/robinrodricks/FluentStorage/wiki/SFTP-Storage)        					| `SftpStorage` | `SftpStore` | `SftpClient` |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/git.png" width="32"></img>|  [Git](https://github.com/robinrodricks/FluentStorage/wiki/Git-Storage)        						| `GitStorage` | `GitStore` | `Repository` |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/local.png" width="32"></img>|  [Local Disk](https://github.com/robinrodricks/FluentStorage/wiki/Standard-Storage)        		| `StorageFactory` | `DiskStore` | `IFileSystem` |
 
 To add support for a new S3-compatible provider, search for `[ADD STORAGE PROVIDER]` across all code files.
@@ -96,6 +101,7 @@ This table shows the API supported by `IStore` across various cloud and server p
 <th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/alibaba.png" width="32"></img> <br><b>Alibaba</b></th>
 <th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/ftp.png" width="32"></img> <br><b>FTP</b></th>
 <th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/sftp.png" width="32"></img> <br><b>SFTP</b></th>
+<th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/git.png" width="32"></img> <br><b>Git</b></th>
 <th> <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/local.png" width="32"></img> <br><b>Disk</b></th>
 </tr>
 
@@ -103,63 +109,63 @@ This table shows the API supported by `IStore` across various cloud and server p
 <tbody>
 
 <tr>
-<td colspan="11"><b>System information</b></td>
+<td colspan="12"><b>System information</b></td>
 </tr>
 <tr>
 <td>&nbsp; GetClient</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; GetServer</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 <tr>
-<td colspan="11"><b>File listing</b></td>
+<td colspan="12"><b>File listing</b></td>
 </tr>
 <tr>
 <td>&nbsp; ListDirectory</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; ListObjects</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 <tr>
-<td colspan="11"><b>File upload &#x2F; download</b></td>
+<td colspan="12"><b>File upload &#x2F; download</b></td>
 </tr>
 <tr>
 <td>&nbsp; GetObject</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; SetObject</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; GetBytes</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; SetBytes</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; DownloadObject</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; UploadObject</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; OpenRead</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; OpenWrite</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 
@@ -174,43 +180,44 @@ This table shows the API supported by `IStore` across various cloud and server p
 <th><b>Alibaba</b></th>
 <th><b>FTP</b></th>
 <th><b>SFTP</b></th>
+<th><b>Git</b></th>
 <th><b>Disk</b></th>
 </tr>
 
 <tr>
-<td colspan="11"><b>Directory upload &#x2F; download</b></td>
+<td colspan="12"><b>Directory upload &#x2F; download</b></td>
 </tr>
 <tr>
 <td>&nbsp; DownloadDirectory</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; UploadDirectory</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 <tr>
-<td colspan="11"><b>Directory manipulation</b></td>
+<td colspan="12"><b>Directory manipulation</b></td>
 </tr>
 <tr>
 <td>&nbsp; IsFileSystem</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; DirectoryExists</td>
-<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; CreateDirectory</td>
-<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; DeleteDirectory</td>
-<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; MoveDirectory</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 
@@ -225,71 +232,72 @@ This table shows the API supported by `IStore` across various cloud and server p
 <th><b>Alibaba</b></th>
 <th><b>FTP</b></th>
 <th><b>SFTP</b></th>
+<th><b>Git</b></th>
 <th><b>Disk</b></th>
 </tr>
 
 <tr>
-<td colspan="11"><b>File streaming &#x2F; seeking</b></td>
+<td colspan="12"><b>File streaming &#x2F; seeking</b></td>
 </tr>
 <tr>
 <td>&nbsp; IsSeekable</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; OpenRange</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; OpenSeekable</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 <tr>
-<td colspan="11"><b>File manipulation</b></td>
+<td colspan="12"><b>File manipulation</b></td>
 </tr>
 <tr>
 <td>&nbsp; ObjectExists</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; MoveObject</td>
-<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>❌</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; DeleteObject</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; DeleteObjects</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 
 <tr>
-<td colspan="11"><b>File metadata</b></td>
+<td colspan="12"><b>File metadata</b></td>
 </tr>
 <tr>
 <td>&nbsp; GetObjectChecksum</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; GetObjectLength</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; GetObjectInfo</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; GetObjectsInfo</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; SetObjectInfo</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; SetObjectsInfo</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td>
 </tr>
 
 
@@ -304,67 +312,68 @@ This table shows the API supported by `IStore` across various cloud and server p
 <th><b>Alibaba</b></th>
 <th><b>FTP</b></th>
 <th><b>SFTP</b></th>
+<th><b>Git</b></th>
 <th><b>Disk</b></th>
 </tr>
 
 <tr>
-<td colspan="11"><b>File versioning</b></td>
+<td colspan="12"><b>File versioning</b></td>
 </tr>
 <tr>
 <td>&nbsp; IsVersioned</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; ListObjectVersions</td>
-<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>✔️</td><td>🚫</td>
 </tr>
 <tr>
 <td>&nbsp; GetObjectVersion</td>
-<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>✔️</td><td>🚫</td>
 </tr>
 <tr>
 <td>&nbsp; RestoreObjectVersion</td>
-<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>✔️</td><td>🚫</td>
 </tr>
 <tr>
 <td>&nbsp; DeleteObjectVersion</td>
-<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
 </tr>
 
 <tr>
-<td colspan="11"><b>File tagging</b></td>
+<td colspan="12"><b>File tagging</b></td>
 </tr>
 <tr>
 <td>&nbsp; IsTagged</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; GetObjectTags</td>
-<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
 </tr>
 <tr>
 <td>&nbsp; SetObjectTags</td>
-<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
 </tr>
 <tr>
 <td>&nbsp; DeleteObjectTags</td>
-<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
 </tr>
 
 <tr>
-<td colspan="11"><b>File storage tier</b></td>
+<td colspan="12"><b>File storage tier</b></td>
 </tr>
 <tr>
 <td>&nbsp; IsTiered</td>
-<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
+<td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td><td>✔️</td>
 </tr>
 <tr>
 <td>&nbsp; GetObjectTier</td>
-<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
 </tr>
 <tr>
 <td>&nbsp; SetObjectTier</td>
-<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
 </tr>
 
 
@@ -379,40 +388,41 @@ This table shows the API supported by `IStore` across various cloud and server p
 <th><b>Alibaba</b></th>
 <th><b>FTP</b></th>
 <th><b>SFTP</b></th>
+<th><b>Git</b></th>
 <th><b>Disk</b></th>
 </tr>
 
 
 <tr>
-<td colspan="11"><b>Presigned URL generation</b></td>
+<td colspan="12"><b>Presigned URL generation</b></td>
 </tr>
 <tr>
 <td>&nbsp; GetUploadUrl</td>
-<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
 </tr>
 <tr>
 <td>&nbsp; GetDownloadUrl</td>
-<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
 </tr>
 <tr>
 <td>&nbsp; GetPresignedUrl</td>
-<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
 </tr>
 <tr>
 <td>&nbsp; GetObjectSas</td>
-<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td>
+<td>✔️</td><td>🚫</td><td>✔️</td><td>✔️</td><td>✔️</td><td>🚫</td><td>✔️</td><td>🚫</td><td>🚫</td><td>🚫</td><td>🚫</td>
 </tr>
 
 <tr>
-<td colspan="11"><b>File permissions</b></td>
+<td colspan="12"><b>File permissions</b></td>
 </tr>
 <tr>
 <td>&nbsp; GetFilePermissions</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td>
 </tr>
 <tr>
 <td>&nbsp; SetFilePermissions</td>
-<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td>
+<td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✔️</td><td>✔️</td><td>❌</td><td>❌</td>
 </tr>
 
 </tbody>
@@ -474,11 +484,11 @@ This table shows the API supported by specific cloud providers:
 
 FluentStorage supports the following queue/messaging providers:
 
-|       		| Documentation Link                                               | Factory class | 
-|---------------| --------------------------------------------------------------------------- | ---------------- | 
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/aws.png" width="32"></img>| [AWS SQS](https://github.com/robinrodricks/FluentStorage/wiki/AWS-SQS)   						| `AwsSqsStorage` | 
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img>|  [Azure Queue](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Queue-Storage) 		| `AzureQueueStorage` | 
-| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img>|  [Azure Service Bus](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Service-Bus) 	| `AzureServiceBus` | 
+|       		| Documentation Link                                               | Factory class |
+|---------------| --------------------------------------------------------------------------- | ---------------- |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/aws.png" width="32"></img>| [AWS SQS](https://github.com/robinrodricks/FluentStorage/wiki/AWS-SQS)   						| `AwsSqsStorage` |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img>|  [Azure Queue](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Queue-Storage) 		| `AzureQueueStorage` |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/azure.png" width="32"></img>|  [Azure Service Bus](https://github.com/robinrodricks/FluentStorage/wiki/Azure-Service-Bus) 	| `AzureServiceBus` |
 
 
 
@@ -504,6 +514,7 @@ Stable binaries are released on NuGet, and contain everything you need to use Cl
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/alibaba.png" width="32"></img>| **[FluentStorage.Alibaba](https://www.nuget.org/packages/FluentStorage.Alibaba)**      	|     [![Version](https://img.shields.io/nuget/vpre/FluentStorage.Alibaba.svg)](https://www.nuget.org/packages/FluentStorage.Alibaba) 		|  [![Downloads](https://img.shields.io/nuget/dt/FluentStorage.Alibaba.svg)](https://www.nuget.org/packages/FluentStorage.Alibaba) | [Alibaba](https://github.com/robinrodricks/FluentStorage/wiki/Alibaba-OSS-Storage) |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/ftp.png" width="32"></img>| **[FluentStorage.FTP](https://www.nuget.org/packages/FluentStorage.FTP)**      	|     [![Version](https://img.shields.io/nuget/vpre/FluentStorage.FTP.svg)](https://www.nuget.org/packages/FluentStorage.FTP) 		|  [![Downloads](https://img.shields.io/nuget/dt/FluentStorage.FTP.svg)](https://www.nuget.org/packages/FluentStorage.FTP) | [FTP](https://github.com/robinrodricks/FluentStorage/wiki/FTP-Storage) |
 | <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/sftp.png" width="32"></img>| **[FluentStorage.SFTP](https://www.nuget.org/packages/FluentStorage.SFTP)**      	|     [![Version](https://img.shields.io/nuget/vpre/FluentStorage.SFTP.svg)](https://www.nuget.org/packages/FluentStorage.SFTP) 		|  [![Downloads](https://img.shields.io/nuget/dt/FluentStorage.SFTP.svg)](https://www.nuget.org/packages/FluentStorage.SFTP) | [SFTP](https://github.com/robinrodricks/FluentStorage/wiki/SFTP-Storage) |
+| <img src="https://raw.githubusercontent.com/robinrodricks/FluentStorage/develop/.github/providers/git.png" width="32"></img>| **[FluentStorage.Git](https://www.nuget.org/packages/FluentStorage.Git)**      	|     [![Version](https://img.shields.io/nuget/vpre/FluentStorage.Git.svg)](https://www.nuget.org/packages/FluentStorage.Git) 		|  [![Downloads](https://img.shields.io/nuget/dt/FluentStorage.Git.svg)](https://www.nuget.org/packages/FluentStorage.Git) | [Git](https://github.com/robinrodricks/FluentStorage/wiki/Git-Storage) |
 
 
 
@@ -602,6 +613,7 @@ In 2026, we added:
 * **Backblaze B2** provider using S3-compatible SDK
 * **Hetzner** provider using S3-compatible SDK
 * **Vultr** provider using S3-compatible SDK
+* **Git** provider using native LibGit2Sharp
 * **Azure.Identity support for Azure Files** with token credential, client secret, and managed identity authentication.
 * **Wiki** pages per provider
 * **Removed** unused packages: Databricks, EventHub, DataLake Gen 1, ServiceFabric

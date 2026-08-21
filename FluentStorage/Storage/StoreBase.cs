@@ -30,36 +30,51 @@ namespace FluentStorage.Storage {
 
 		}
 
-		public virtual async Task<bool> IsFileSystem() {
-			return false;
-		}
-		public virtual async Task<bool> IsSeekable() {
-			return false;
-		}
-		public virtual async Task<bool> IsVersioned() {
-			return false;
-		}
-		public virtual async Task<bool> IsTagged() {
-			return false;
-		}
-		public virtual async Task<bool> IsTiered() {
-			return false;
-		}
-		public virtual async Task<object> GetClient() {
-			return null;
+		/// <summary>Checks whether the storage is a file system.</summary>
+		public virtual Task<bool> IsFileSystem() {
+			return Task.FromResult(false);
 		}
 
-		public virtual async Task<Stream> OpenRead(string objectPath, CancellationToken cancellationToken = default) {
-			throw new NotSupportedException();
+		/// <summary>Checks whether the storage supports seeking.</summary>
+		public virtual Task<bool> IsSeekable() {
+			return Task.FromResult(false);
 		}
-		public virtual async Task<Stream> OpenWrite(string objectPath, bool overwrite, CancellationToken cancellationToken = default) {
+
+		/// <summary>Checks whether the storage supports versioning.</summary>
+		public virtual Task<bool> IsVersioned() {
+			return Task.FromResult(false);
+		}
+
+		/// <summary>Checks whether the storage supports tags.</summary>
+		public virtual Task<bool> IsTagged() {
+			return Task.FromResult(false);
+		}
+
+		/// <summary>Checks whether the storage supports tiers.</summary>
+		public virtual Task<bool> IsTiered() {
+			return Task.FromResult(false);
+		}
+
+		/// <summary>Gets the underlying storage client.</summary>
+		public virtual Task<object> GetClient() {
+			return Task.FromResult<object>(null);
+		}
+
+		public virtual Task<Stream> OpenRead(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		public virtual async Task<Stream> OpenRange(string path, long offset, long length, CancellationToken cancellationToken = default) {
+		public virtual Task<Stream> OpenWrite(string objectPath, bool overwrite, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
+		public virtual Task<Stream> OpenRange(string path, long offset, long length, CancellationToken cancellationToken = default) {
+			throw new NotSupportedException();
+		}
+
+		/// <summary>
+		/// Opens an object as a seekable stream when supported.
+		/// </summary>
 		public virtual async Task<SeekableStream> OpenSeekable(string path, int bufferSize = 65536, CancellationToken cancellationToken = default) {
 			try {
 				if (!await IsSeekable()) return null;
@@ -73,15 +88,15 @@ namespace FluentStorage.Storage {
 
 				return new SeekableStream(this, path, bufferSize, length);
 			}
-			catch (Exception ex) {
+			catch (Exception) {
 
 				// silently absorb any wierd exceptions and just return null in case the stream cannot be created
 				return null;
 			}
 		}
 
-		public virtual async Task<long> GetObjectLength(string fullPath, long defaultValue = -1, CancellationToken cancellationToken = default) {
-			return defaultValue;
+		public virtual Task<long> GetObjectLength(string fullPath, long defaultValue = -1, CancellationToken cancellationToken = default) {
+			return Task.FromResult(defaultValue);
 		}
 
 		public virtual async Task<List<StoreObject>> ListObjects(StorageListOptions options = null, CancellationToken cancellationToken = default) {
@@ -107,7 +122,7 @@ namespace FluentStorage.Storage {
 			return all.Where(i => i != null && i.IsFile).ToList();
 		}
 
-		protected virtual async Task<List<StoreObject>> ListPath(
+		protected virtual Task<List<StoreObject>> ListPath(
 		   string path, StorageListOptions options, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
@@ -136,11 +151,10 @@ namespace FluentStorage.Storage {
 		public virtual async Task SetObject(string objectPath, Stream sourceStream, bool append, CancellationToken cancellationToken = default) {
 			await SetObject(objectPath, sourceStream, null, append, cancellationToken).ConfigureAwait(false);
 		}
-		public virtual async Task SetObject(string objectPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken = default) {
+
+		public virtual Task SetObject(string objectPath, Stream dataStream, string contentType, bool append, CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
 		}
-
-
 
 		/// <summary>
 		/// Returns the list of objects in a specific directory of this bucket.
@@ -194,12 +208,12 @@ namespace FluentStorage.Storage {
 		}
 
 
-
 		/// <summary>
 		/// Dowloads an object from the bucket, decodes it using the given encoding and returns the string.
 		/// </summary>
 		/// <param name="objectPath">Object path</param>
 		/// <param name="textEncoding">Optional text encoding. When not specified, <see cref="UTF8Encoding"/> is used.</param>
+		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
 		public virtual async Task<string> GetText(
 		   string objectPath,
@@ -222,6 +236,7 @@ namespace FluentStorage.Storage {
 		/// <param name="objectPath">Object to write</param>
 		/// <param name="text">Text to write, treated in UTF-8 encoding</param>
 		/// <param name="textEncoding">Optional text encoding. When not specified, <see cref="UTF8Encoding"/> is used.</param>
+		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
 		public virtual async Task SetText(
 		   string objectPath, string text,
@@ -244,18 +259,20 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Checks if blobs exists in the storage
 		/// </summary>
-		public virtual async Task<bool> ObjectExists(string objectPath, CancellationToken cancellationToken = default) {
+		public virtual Task<bool> ObjectExists(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
 		/// <summary>
 		/// Deletes a single blob or a folder recursively.
 		/// </summary>
-		/// <returns></returns>
-		public virtual async Task DeleteObject(string objectPath, CancellationToken cancellationToken = default) {
+		public virtual Task DeleteObject(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
+		/// <summary>
+		/// Deletes multiple objects or folders recursively.
+		/// </summary>
 		public virtual Task DeleteObjects(IEnumerable<string> objectPaths, CancellationToken cancellationToken = default) {
 			return Task.WhenAll(objectPaths.Select(fp => DeleteObject(fp, cancellationToken)));
 		}
@@ -272,14 +289,14 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Gets object metadata or null if object doesn't exist
 		/// </summary>
-		public virtual async Task<StoreObject> GetObjectInfo(string objectPath, CancellationToken cancellationToken = default) {
+		public virtual Task<StoreObject> GetObjectInfo(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
 		/// <summary>
 		/// Gets object metadata or null if object doesn't exist
 		/// </summary>
-		public virtual async Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> objectPaths, CancellationToken cancellationToken = default) {
+		public virtual Task<List<StoreObject>> GetObjectsInfo(IEnumerable<string> objectPaths, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
@@ -293,7 +310,7 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Set object metadata if the object exists
 		/// </summary>
-		public virtual async Task SetObjectInfo(StoreObject obj, CancellationToken cancellationToken = default) {
+		public virtual Task SetObjectInfo(StoreObject obj, CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
 		}
 
@@ -386,6 +403,8 @@ namespace FluentStorage.Storage {
 		/// </summary>
 		/// <param name="objectPath">Object path to create or overwrite</param>
 		/// <param name="filePath">Path to local file</param>
+		/// <param name="overwrite"></param>
+		/// <param name="cancellationToken"></param>
 		public virtual async Task UploadObject(
 		   string objectPath, string filePath, bool overwrite, CancellationToken cancellationToken = default) {
 
@@ -399,7 +418,6 @@ namespace FluentStorage.Storage {
 		}
 
 
-
 		/// <summary>
 		/// Writes an object to blob storage using <see cref="JsonSerializer"/>
 		/// </summary>
@@ -408,6 +426,7 @@ namespace FluentStorage.Storage {
 		/// <param name="instance">Object instance to write</param>
 		/// <param name="options">Optional serialiser options</param>
 		/// <param name="encoding">Text encoding used to write to the blob storage, defaults to <see cref="UTF8Encoding"/></param>
+		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
 		public virtual async Task SetJson<T>(
 		   string objectPath, T instance,
@@ -425,6 +444,7 @@ namespace FluentStorage.Storage {
 		/// <param name="ignoreInvalidJson">When true, json that cannot be deserialised is ignored and method simply returns default value</param>
 		/// <param name="options">Optional serialiser options</param>
 		/// <param name="encoding">Text encoding used to write to the blob storage, defaults to <see cref="UTF8Encoding"/></param>
+		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
 		public virtual async Task<T> GetJson<T>(string objectPath,
 		   bool ignoreInvalidJson = false,
@@ -467,7 +487,7 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Rename an object or file.
 		/// </summary>
-		public virtual async Task<bool> MoveObject(string oldPath, string newPath, bool overwrite, CancellationToken cancellationToken = default) {
+		public virtual Task<bool> MoveObject(string oldPath, string newPath, bool overwrite, CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
 		}
 
@@ -475,7 +495,7 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Gets information about the connected FTP/SFTP server.
 		/// </summary>
-		public virtual async Task<Dictionary<string, object>> GetServer(CancellationToken cancellationToken = default) {
+		public virtual Task<Dictionary<string, object>> GetServer(CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
 		}
 
@@ -934,9 +954,10 @@ namespace FluentStorage.Storage {
 		/// Creates a new folder in this file system. Does nothing in cloud storage buckets.
 		/// </summary>
 		/// <param name="folderPath">Path to the new folder.</param>
-		public virtual async Task CreateDirectory(string folderPath, bool force, CancellationToken cancellationToken = default) {
+		public virtual Task CreateDirectory(string folderPath, bool force, CancellationToken cancellationToken = default) {
 			// FIX: do not throw any exception here, as all the cloud stores do not required directory creation
 			//		and this is implemented specially for filesystem-based stores like disk/FTP/SFTP
+			return Task.CompletedTask;
 		}
 
 		/// <summary>
@@ -959,20 +980,20 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Returns true if the specified directory or virtual directory exists.
 		/// </summary>
-		public virtual async Task<bool> DirectoryExists(string folderPath, CancellationToken cancellationToken = default) {
+		public virtual Task<bool> DirectoryExists(string folderPath, CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
 		}
 
 		/// <summary>
 		/// Moves a directory or virtual directory.
 		/// </summary>
-		public virtual async Task MoveDirectory(string sourceFolderPath, string destinationFolderPath, CancellationToken cancellationToken = default) {
+		public virtual Task MoveDirectory(string sourceFolderPath, string destinationFolderPath, CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
 		}
 
-		/// <summary>
-		/// Renames a directory or virtual directory.
-		/// </summary>
+		// <summary>
+		// Renames a directory or virtual directory.
+		// </summary>
 		/*public virtual async Task RenameDirectory(string folderPath, string newFolderName, CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
 		}*/
@@ -984,14 +1005,14 @@ namespace FluentStorage.Storage {
 		/// <summary>
 		/// Gets the CHMOD permissions of a file.
 		/// </summary>
-		public virtual async Task<int> GetFilePermissions(string filePath, CancellationToken cancellationToken = default) {
+		public virtual Task<int> GetFilePermissions(string filePath, CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
 		}
 
 		/// <summary>
 		/// Sets the CHMOD permissions of a file.
 		/// </summary>
-		public virtual async Task SetFilePermissions(string filePath, int permissions, CancellationToken cancellationToken = default) {
+		public virtual Task SetFilePermissions(string filePath, int permissions, CancellationToken cancellationToken = default) {
 			throw new NotImplementedException();
 		}
 
@@ -1017,7 +1038,7 @@ namespace FluentStorage.Storage {
 		/// Generates a pre-signed URL for or SAS the specified object.
 		/// The URL grants temporary access to the object and expries after the specified duration. MIME type is auto computed.
 		/// </summary>
-		public virtual async Task<string> GetPresignedUrl(string objectPath, bool forDownload, bool https, int expiresInSeconds = 86000) {
+		public virtual Task<string> GetPresignedUrl(string objectPath, bool forDownload, bool https, int expiresInSeconds = 86000) {
 			throw new NotImplementedException();
 		}
 
@@ -1025,7 +1046,7 @@ namespace FluentStorage.Storage {
 		/// Generates a SAS for the specified object. Azure-friendly API with complete SAS options.
 		/// The URL grants temporary access to the object and expries after the specified duration.
 		/// </summary>
-		public virtual async Task<string> GetObjectSas(string objectPath, StorageUrlOptions options) {
+		public virtual Task<string> GetObjectSas(string objectPath, StorageUrlOptions options) {
 			throw new NotImplementedException();
 		}
 
@@ -1034,19 +1055,19 @@ namespace FluentStorage.Storage {
 		// Object Versioning
 		// ---------------------------------------------------------------------
 
-		public virtual async Task<List<StorageObjectVersion>> ListObjectVersions(string objectPath, CancellationToken cancellationToken = default) {
+		public virtual Task<List<StorageObjectVersion>> ListObjectVersions(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		public virtual async Task<StorageObjectVersion> GetObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
+		public virtual Task<StorageObjectVersion> GetObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		public virtual async Task<bool> RestoreObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
+		public virtual Task<bool> RestoreObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		public virtual async Task<bool> DeleteObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
+		public virtual Task<bool> DeleteObjectVersion(string objectPath, string versionId, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
@@ -1055,15 +1076,15 @@ namespace FluentStorage.Storage {
 		// Object Tags
 		// ---------------------------------------------------------------------
 
-		public virtual async Task<Dictionary<string, string>> GetObjectTags(string objectPath, CancellationToken cancellationToken = default) {
+		public virtual Task<Dictionary<string, string>> GetObjectTags(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		public virtual async Task<bool> SetObjectTags(string objectPath, Dictionary<string, string> tags, CancellationToken cancellationToken = default) {
+		public virtual Task<bool> SetObjectTags(string objectPath, Dictionary<string, string> tags, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		public virtual async Task<bool> DeleteObjectTags(string objectPath, CancellationToken cancellationToken = default) {
+		public virtual Task<bool> DeleteObjectTags(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
@@ -1072,11 +1093,11 @@ namespace FluentStorage.Storage {
 		// Storage Tier or Class
 		// ---------------------------------------------------------------------
 
-		public virtual async Task<StorageTier> GetObjectTier(string objectPath, CancellationToken cancellationToken = default) {
+		public virtual Task<StorageTier> GetObjectTier(string objectPath, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 
-		public virtual async Task<bool> SetObjectTier(string objectPath, StorageTier tier, CancellationToken cancellationToken = default) {
+		public virtual Task<bool> SetObjectTier(string objectPath, StorageTier tier, CancellationToken cancellationToken = default) {
 			throw new NotSupportedException();
 		}
 

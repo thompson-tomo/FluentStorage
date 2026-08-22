@@ -1,24 +1,24 @@
-﻿using FluentStorage.Storage;
+﻿using FluentStorage.Azure.Queues.Messenger;
 using FluentStorage.ConnectionStrings;
 using FluentStorage.Queue;
-using FluentStorage.Azure.Queues.Messenger;
+using FluentStorage.Storage;
 
-namespace FluentStorage.Azure.Queues {
-	class Module : IExternalModule, IConnectionFactory {
-		public IConnectionFactory ConnectionFactory => this;
+namespace FluentStorage.Azure.Queues;
 
-		public IStore CreateStore(ConnectionString connectionString) => null;
+class Module : IExternalModule, IConnectionFactory {
+	public IConnectionFactory ConnectionFactory => this;
 
-		public IQueue CreateQueue(ConnectionString connectionString) {
-			if (connectionString.Prefix == ConnectionStringPrefix.AzureQueueStorage) {
-				connectionString.GetRequired(ConnectionStringParam.AccountName, true, out string accountName);
-				connectionString.GetRequired(ConnectionStringParam.KeyOrPassword, true, out string key);
+	public IStore CreateStore(ConnectionString connectionString) => null;
 
-				return new AzureQueueMessenger(accountName, key);
-			}
+	public IQueue CreateQueue(ConnectionString connectionString) {
+		if (connectionString.Prefix == ConnectionStringPrefix.AzureQueueStorage) {
+			connectionString.GetRequired(ConnectionStringParam.AccountName, true, out string accountName);
+			connectionString.GetRequired(ConnectionStringParam.KeyOrPassword, true, out string key);
 
-			return null;
+			return new AzureQueueMessenger(accountName, key);
 		}
 
+		return null;
 	}
+
 }

@@ -1,25 +1,25 @@
-﻿using FluentStorage.Storage;
-using System.IO;
+﻿using System.IO;
+using FluentStorage.Storage;
 
-namespace FluentStorage.Sinks {
+namespace FluentStorage.Sinks;
+
+/// <summary>
+/// Data transformation sink that can transform both read and write streams on <see cref="IStore"/>
+/// </summary>
+public interface ITransformSink {
 	/// <summary>
-	/// Data transformation sink that can transform both read and write streams on <see cref="IStore"/>
+	/// Opens a stream for reading based on opened original stream
 	/// </summary>
-	public interface ITransformSink {
-		/// <summary>
-		/// Opens a stream for reading based on opened original stream
-		/// </summary>
-		/// <param name="fullPath">Full path to file</param>
-		/// <param name="parentStream">Parent stream that is already open</param>
-		/// <returns></returns>
-		Stream OpenReadStream(string fullPath, Stream parentStream);
+	/// <param name="fullPath">Full path to file</param>
+	/// <param name="parentStream">Parent stream that is already open</param>
+	/// <returns></returns>
+	Stream OpenReadStream(string fullPath, Stream parentStream);
 
-		/// <summary>
-		/// Opens a stream for writing based on opened original stream
-		/// </summary>
-		/// <param name="fullPath">Full path to file</param>
-		/// <param name="parentStream">Source stream to write</param>
-		/// <returns></returns>
-		Stream OpenWriteStream(string fullPath, Stream parentStream);
-	}
+	/// <summary>
+	/// Opens a stream for writing based on opened original stream
+	/// </summary>
+	/// <param name="fullPath">Full path to file</param>
+	/// <param name="parentStream">Source stream to write</param>
+	/// <returns></returns>
+	Stream OpenWriteStream(string fullPath, Stream parentStream);
 }

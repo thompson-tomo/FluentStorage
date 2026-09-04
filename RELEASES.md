@@ -2,6 +2,13 @@
 
 **Please read the [Migration Guide](https://github.com/robinrodricks/FluentStorage/wiki/Migration-Guide) to help you migrate from older versions to FluentStorage 8!**
 
+#### FluentStorage 8.0.20
+ - **FluentStorage**
+   - Change: Use file-scoped namespaces, remove unused using directives and remove unnecessary `this` keyword usage
+   - Change: Remove unnecessary async usage and add missing API docs
+ - **FluentStorage.AWS**
+   - Fix: `MaxResults` loop guard in `S3DirectoryBrowser.ListFolderAsync` to fix timeout errors in a large S3 bucket
+
 #### FluentStorage 8.0.19
  - **FluentStorage.Git**
    - New: Git repository provider that allows users to read/write files within a Git repo using the standard FluentStorage `IStore` interface
